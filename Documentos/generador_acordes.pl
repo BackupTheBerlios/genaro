@@ -117,47 +117,45 @@ out: La resultado de las transformaciones, Cumple es_progresion(La)
 in: Po progresión origen cumple es_progresion(Po)
     N: natural, indica cuantos cambios se harán
 out:Pd progresión destino cumple es_progresion(Po)
-
-Pre!!! (Creo) Lo en forma normal (comprobar esto, por lo menos lo pensé así)
-*/
-/*cambia_acordes(progresion(Lo), N, progresion(Ld)) :- natural(N), 	cambia_acordesLista(Lo, N, Ld).
-cambia_acordesLista(Lo, 0, Lo).
-cambia_acordesLista(Lo, N, Ld) :- numAcordesLista(Lo, Na), Na2 is Na +1, 	random(1, Na2, NumAcordeElegido)
-	,nth(Num, NumAcordeElegido, (cifrado(G,M),Fe)),  
-
-(CifraElegida,Fe)),
-*/
-/*si supongo forma canónica el predicado numAcordesLista se vuelve prescindible*/
-/*cambia_acordesLista(Lo, 0, Lo).
+Pre!!! Lo en forma normal sería recomendable */
+cambia_acordes(progresion(Lo), N, progresion(Ld)) :- cambia_acordesLista(Lo, N, Ld).
+cambia_acordesLista([], _,[]) .
+cambia_acordesLista(Lo, N, Lo) :- N=<0.
 cambia_acordesLista(Lo, N, Ld) :- 
+	dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
+      ,dame_cuat_funcTonal_equiv(AcordElegido, AcordSustituto)
+ 	,sublista(Lo, 1, PosElegida, LdA), length(Lo, L),
+      PosElegMas is PosElegida + 1, sublista(Lo, PosElegMas, L, LdB), 
+      append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, LdC),
+	NMenos is N -1, cambia_acordesLista(LdC, NMenos, Ld).
+
+
+
+
+
+/*cambia_acordesLista(Lo, N, Ld) :- 
 	dame_elemento_aleatorio(Lo, (cifrado(GradoElegido,_), F), PosElegida)
 	,dame_grado_funcTonal_equiv(GradoElegido, GradoSustituto)
-	,hazCuatriada(GradoSustituto, AcorSustit)
-	,setof(E, (member(E))
+	,hazCuatriada(GradoSustituto, AcorSustit), sublista(Lo, 1, PosElegida, LdA), 
+	length(Lo, L),
+      PosElegMas is PosElegida + 1, sublista(Lo, PosElegMas, L, LdB), 
+      append(LdA, [(AcorSustit, F)], Laux), append(Laux, LdB, LdC),
+	NMenos is N -1, cambia_acordesLista(LdC, NMenos, Ld).*/
 
-	setof(E, (member), Ld)*/
-
-
-
-/*listaEnterosIntervalo(Eini,Efin,L) L es la lista que contiene a los enteros en [Eini, Efin]*/
-listaEnterosIntervalo(Eini,Efin,L) :- setof(N, (N>=Eini, N=<Efin,integer(N)), L). 
-/*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)*/
-dame_grado_funcTonal_equiv(Go, Gd) :-
-	setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc)
-	,dame_elemento_aleatorio(Lc, Gd).
-
-
-dame_elemento_aleatorio(Lista, E) :- length(Lista, L), random(0, L, Pos)
-				,nth0(Pos, Lista, E).
-dame_elemento_aleatorio(Lista, E, PosAux) :- length(Lista, L), random(0, L, Pos)
-				,nth0(Pos, Lista, E), PosAux is Pos + 1.
 
 
 /* sublista(Xs, Iini, Ifin, Ys)
 Ys es la lista que tiene los elementos en posiciones en [Iini, Ifin), con pos empezando en 1*/
-sublista([], _, _, []).
-sublista(Xs, Iini, Ifin, Ys) :- Iini< Ifin, Iini>0, length(Xs, Tam), Inin =< 	Tam, Ifin > Tam.
-sublista([X|Xs])
+sublista(Xs, Iini, Ifin, Ys) :- sublista_acu(Xs, Iini, Ifin, 1, Ys).
+sublista_acu([], _, _, _, []) :- !.
+%se pone a la altura del marcador izquierdo
+sublista_acu([_|Xs], Iini, Ifin, PosAct, Ys) :- PosAct < Iini, PosAct < Ifin,  PosAct2 is PosAct +1
+						,sublista_acu( Xs, Iini, Ifin, PosAct2, Ys).
+%esta entre los dos marcadores
+sublista_acu([X|Xs], Iini, Ifin, PosAct, [X|Ys]) :- PosAct >= Iini, PosAct < Ifin, PosAct2 is PosAct +1
+						,sublista_acu( Xs, Iini, Ifin, PosAct2, Ys).
+%ha sobrepasado el marcador derecho
+sublista_acu(_, _, Ifin, PosAct, []) :- PosAct >=Ifin.
 
 %FUNCIONES TONALES
 mismaFuncionTonal(G1,G2) :- dameFuncionTonal(G1, F), dameFuncionTonal(G2, F).
@@ -166,7 +164,14 @@ dameFuncionTonal(grado(G), tonica) :- member(G, [i, iii, vi]).
 dameFuncionTonal(grado(G), subdominante) :- member(G, [ii, iv]).
 dameFuncionTonal(grado(G), dominante) :- member(G, [v, vii]).
 
+/*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)*/
+dame_grado_funcTonal_equiv(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc),dame_elemento_aleatorio(Lc, Gd).
+dame_elemento_aleatorio(Lista, E) :- length(Lista, L), random(0, L, Pos)	,nth0(Pos, Lista, E).
+dame_elemento_aleatorio(Lista, E, PosAux) :- length(Lista, L), random(0, L, Pos) ,nth0(Pos, Lista, E), PosAux is Pos + 1.
 
+/*dame_cuat_funcTonal_equiv(CuatOri,CuatDest)*/
+dame_cuat_funcTonal_equiv(cifrado(GradoElegido,_),CuatDest) :- dame_grado_funcTonal_equiv(GradoElegido, GradoSustituto)
+			,hazCuatriada(GradoSustituto, CuatDest).
 
 
 %CADENCIAS

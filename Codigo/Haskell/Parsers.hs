@@ -44,11 +44,21 @@ epsilon xs = [(xs, ())]
 succed :: r -> Parser s r
 succed v xs = [(xs, v)]
 
+-- dado un parser p , many p es el parser q reconoce o mas apariciones de las cadenas reconocidas por p
+many :: Parser s a -> Parser s [a]
+many p = p <*> many p <@ (\(x,xs) -> x:xs)
+	 <|> epsilon  <@ (\_      -> []  ) 
+
 -- option transforma un parser de entrada en otro en que cada entrada reconocida es expresada con una 
 -- lista unitaria
 option :: Parser s a -> Parser s [a]
 option p =     p <@ (\x -> [x]) 
 	   <|> epsilon <@ (\x -> [])
+
+-- dado un parser para un token de apertura, un cuerpo y un token de cierre pack hace un parser para el 
+-- cuerpo encerrado entre esos dos tokens
+pack :: Parser s a -> Parser s b -> Parser s c -> Parser s b
+pack s1 p s2 = s1 *> p <* s2
 
 --symbol reconoce un simbolo concreto
 symbol :: Eq s => s -> Parser s s
@@ -58,8 +68,8 @@ symbol a (x:xs)
  | otherwise    = []
 
 -- token reconoce una cadena concreta
--- token :: String -> Parser Char String
-token :: Eq [s] => [s] -> Parser s [s]
+token :: String -> Parser Char String
+-- token :: (Eq ([s])) => [s] -> Parser s [s]
 token k xs
  | k==take n xs = [(drop n xs, k)]
  | otherwise = []
@@ -69,8 +79,8 @@ token k xs
 -- cadena es la entrada del analizador
 -- resto es lo que queda de cadena por analizar tras emparejar un token de la entrada
 -- token es el token que se queria emparejar
--- dameSigToken :: String -> [(String, String)]
-dameSigToken :: Eq [s] => [[s]] -> [[s]] -> Parser s [s]
+dameSigToken :: [String] -> [String] -> Parser Char String
+-- dameSigToken :: Eq [s] => [[s]] -> [[s]] -> Parser s [s]
 dameSigToken listaBlancos listaTokens cadena = if not (null blancos)
 		      			       then dameSigToken listaBlancos listaTokens restoBlancos
 		      			       else dameSigTokenAcu cadena listaTokens
@@ -78,8 +88,8 @@ dameSigToken listaBlancos listaTokens cadena = if not (null blancos)
 		      		      restoBlancos = fst (head blancos)
 --dameSigToken = concat [token t cadena | t <- listaTokens]
 
--- dameSigTokenAcu :: String -> [String] ->[(String, String)]
-dameSigTokenAcu :: Eq [s] => [s] -> [[s]] ->[([s], [s])]
+dameSigTokenAcu :: String -> [String] ->[(String, String)]
+-- dameSigTokenAcu :: Eq [s] => [s] -> [[s]] ->[([s], [s])]
 dameSigTokenAcu _ [] = []
 dameSigTokenAcu cadena (t:ts) = if null resul
                                 then dameSigTokenAcu cadena ts
@@ -99,10 +109,11 @@ data Expr = Con Int
 -- ejemplo de parser de parentesis
 data Tree = Nil
 	  | Bin (Tree, Tree)
+	deriving (Show, Eq)
 
 open = symbol '('
 close = symbol ')'
 
 parens :: Parser Char Tree
-parens = (open *> parens <* close) <*> parens <@ Bin
-	<|> succed Nil
+parens = (((open *> (parens <* close)) <*> parens) <@ Bin)
+	<|> (succed Nil)

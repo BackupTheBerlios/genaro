@@ -9,8 +9,7 @@
 :- module(generador_acordes
               , [menosEstable/2
                 ,fichero_destinoGenAc_prog/1
-                ,fichero_destinoGenAc_prog_con_rel/1
-                ,fichero_destinoGenAc_prog_con_rel_depura/1
+                ,fichero_destinoGenAc_prog_depura/1
                 ,fichero_destinoGenAc_prog_semilla/1
                 ,dame_grado_funcTonal_equiv/2
                 ,dame_grado_funcTonal_equiv2/2
@@ -45,10 +44,9 @@
 %PREDICADOS
 
 	%RUTAS DE LOS PROCESOS DE E/S
-fichero_destinoGenAc_prog('./progresion.txt').
-fichero_destinoGenAc_prog_con_rel('./progresion_con_rel.txt').
-fichero_destinoGenAc_prog_con_rel_depura('./progresion_con_rel_dep.txt').
-fichero_destinoGenAc_prog_semilla('./progresion_semilla.txt').
+fichero_destinoGenAc_prog('../../progresion.txt').
+fichero_destinoGenAc_prog_depura('../../progresion_dep.txt').
+fichero_destinoGenAc_prog_semilla('../../progresion_semilla.txt').
 
 	%TIPOS Y ESTRUCTURAS
 /**

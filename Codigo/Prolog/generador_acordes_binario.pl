@@ -28,9 +28,6 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 :- use_module(figuras_y_ritmo).
 :- use_module(grados_e_intervalos).
 :- use_module(biblio_genaro_ES).
-:- use_module(generador_notas_del_acorde_con_sistema_paralelo).
-:- use_module(generador_notas_del_acorde_con_continuidad_armonica).
-
 
 	%PREDICADOS DE GENERACION
 
@@ -47,7 +44,7 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 */
 
 haz_progresion(N, _, _, progresion([])) :- N =< 0, !.
-haz_progresion(N, M, Tipo, Progresion) :- rango_prog_semilla(Tipo,MinComp, MaxComp)
+haz_progresion(N, M, Tipo, ProgMutada) :- rango_prog_semilla(Tipo,MinComp, MaxComp)
 , intervaloEntero(MinComp, MaxComp, CompPos), divisores(N, CompPos, CompCand)
 , setof((CC,CC),member(CC,CompCand), ListaEligeSemilla)
 , dame_elemento_aleat_lista_pesos(ListaEligeSemilla, NCompasesSemilla, _, _)
@@ -55,14 +52,13 @@ haz_progresion(N, M, Tipo, Progresion) :- rango_prog_semilla(Tipo,MinComp, MaxCo
 , FactorMul is N // NCompasesSemilla
 , multiplica_duracion(ProgSemilla, FactorMul, ProgMutable)
 , modifica_prog(ProgMutable, M, ProgMutada)
-, termina_haz_progresion(ProgMutada, Progresion).
+, termina_haz_progresion(ProgMutada).
 
-termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
-		fichero_destinoGenAc_prog(FichNoRel), fichero_destinoGenAc_prog_con_rel(FichRel),
-                fichero_destinoGenAc_prog_con_rel_depura(FichRelDepura),
-                escribeTermino(FichRel, progresion(ProgRel)),
-                escribeLista(FichRelDepura, ProgRel), quita_grados_relativos(progresion(ProgRel), ProgNoRel),
-                escribeTermino(FichNoRel, ProgNoRel).
+termina_haz_progresion(progresion(Prog)) :-
+		fichero_destinoGenAc_prog(FichProg),
+		fichero_destinoGenAc_prog_depura(FichProgDepura),
+                escribeTermino(FichProg, progresion(Prog)),
+                escribeLista(FichProgDepura, Prog).
 
 
 modifica_prog(Pin, M, Pin) :- M =< 0.

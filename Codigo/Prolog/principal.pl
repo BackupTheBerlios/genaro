@@ -17,8 +17,6 @@
 :- consult(biblio_genaro_ES).
 :- consult(representacion_prolog_haskore).
 :- consult(grados_e_intervalos).
-:- consult(generador_notas_del_acorde_con_sistema_paralelo).
-:- consult(generador_notas_del_acorde_con_continuidad_armonica).
 :- consult(generador_acordes_semillas).
 :- consult(generador_acordes).
 :- consult(figuras_y_ritmo).

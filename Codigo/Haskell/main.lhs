@@ -27,17 +27,14 @@ Hay q revisar pq importa módulos de más
 
 \begin{verbatim}
 
-> rutaProgresionOrdenada :: String
-> rutaProgresionOrdenada = "./progresion_ordenada.txt"
-
 > rutaProgresion :: String
 > rutaProgresion = "../../progresion.txt"
 
 > rutaPatronRitmico :: String
-> rutaPatronRitmico = "./PatronesRitmicos/patron_ritmico.txt"
+> rutaPatronRitmico = "../../PatronesRitmicos/patron_ritmico.txt"
 
 > rutaDestinoMidi :: String
-> rutaDestinoMidi = "./musica_genara.mid"
+> rutaDestinoMidi = "../../musica_genara.mid"
 
 \end{verbatim}
 

@@ -1,5 +1,5 @@
 
-module HaskoreALilypond ( haskoreALilypond, haskoreALilypondString ) where
+module HaskoreALilypond ( haskoreALilypond, haskoreALilypondString, cancionDef ) where
 
 import HaskoreAMidi
 import Haskore
@@ -20,6 +20,11 @@ type Titulo = String
 type Compositor = String
 type CancionLy = (Titulo, Compositor, [Score])
 
+{-
+Cancion con los valores por defecto, para pruebas
+-}
+cancionDef :: Music -> CancionLy
+cancionDef m = ("Musica Genara", "Genaro", [(m, (C, Mayor), (2,4), "Piano", Sol)])
 
 haskoreALilypond :: CancionLy -> FilePath -> IO ()
 haskoreALilypond cancionLy archivo = writeFile archivo (haskoreALilypondString cancionLy)

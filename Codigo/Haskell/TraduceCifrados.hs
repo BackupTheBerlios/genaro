@@ -14,13 +14,33 @@ import BiblioGenaro
 
 
 -----------------------------------------------------------
+-- FUNCION QUE EXPORTA
+-----------------------------------------------------------
+
+data ParametrosTraduceCifrados =
+	  Paralelo OctaveIni Inversion Disposicion NumNotasTotal
+	| Continuo SemillaInt OctaveIni NumNotasTotal
+
+
+traduceProgresion :: ParametrosTraduceCifrados -> Progresion -> [AcordeOrdenado]
+traduceProgresion (Paralelo ocIni inv disp numNotasT ) = traduceProgresionSistemaParalelo ocIni inv disp numNotasT 
+traduceProgresion (Continuo semilla ocIni numNotasT )  = traduceProgresionSistemaContinuo2 semilla ocIni numNotasT
+
+
+-----------------------------------------------------------
 
 type AcordeSimple = [Int] -- Indica el orden de las voces en el acorde sin centrarse en que notas son
 
 type Inversion = Int -- 0 es el estado fundamental
 type Disposicion = Int
 type NumNotasFund = Int -- notas del acorde pero sin repetir ninguna (ej: cuatriadas tienen cuatro notas)
-type NumNotasTotal = Int -- notas total del acorde. Puede un numero mayor o igual a 2
+type NumNotasTotal = Int -- notas total del acorde. Puede ser un numero mayor o igual a 2
+
+type OctaveIni = Octave -- octava inicial: a partir de este numero se empieza a dar valor a las octavas
+				-- dicho de otra forma, la nota mas baja de cada acorde tiene esta octava y las
+				-- siguientes mas agudas tienen un valor para la octava igual o superior
+
+type SemillaInt = Int	-- valor entero que sera usado para crear un generador de numeros aleatorios
 
 
 -- Forma un acorde simple
@@ -74,19 +94,19 @@ traduceCifrado (grado, matricula) = map  absPitchAPitchClass (sumaVector (matric
 
 -- Suponemos la octava 4 como octava inicial pero se podria cambiar
 -- El int es el numero de notas deseadas
-traduceInvDisp :: Octave -> Inversion -> Disposicion -> Int -> Cifrado -> [Pitch]
+traduceInvDisp :: Octave -> Inversion -> Disposicion -> NumNotasTotal -> Cifrado -> [Pitch]
 traduceInvDisp octavaIni inv disp numNotasTotal cifrado =
 	arreglaOctavasAsc octavaIni (encajaAcordeSimple cifradoTraducido (formarAcordeSimple (length cifradoTraducido) numNotasTotal inv disp))
 		where cifradoTraducido = traduceCifrado cifrado
 
-traduceInvDisp2 :: Octave -> Inversion -> Disposicion -> Int -> (Cifrado, Dur) -> AcordeOrdenado
+traduceInvDisp2 :: Octave -> Inversion -> Disposicion -> NumNotasTotal -> (Cifrado, Dur) -> AcordeOrdenado
 traduceInvDisp2 octavaIni inv disp numNotasTotal (cifrado, dur) = 
 	(traduceInvDisp octavaIni inv disp numNotasTotal cifrado , dur)
 
 
-traduceProgresionSistemaParalelo :: Inversion -> Disposicion -> Int -> Progresion -> [AcordeOrdenado]
-traduceProgresionSistemaParalelo inv disp numNotasTotal progresion 
-	= map (traduceInvDisp2 4 inv disp numNotasTotal) progresion
+traduceProgresionSistemaParalelo :: OctaveIni -> Inversion -> Disposicion -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
+traduceProgresionSistemaParalelo octaveIni inv disp numNotasTotal progresion 
+	= map (traduceInvDisp2 octaveIni inv disp numNotasTotal) progresion
 
 
 
@@ -144,13 +164,13 @@ elementoAleatorio g l = (l !! pos, sigg)
 
 
 -- Igual que traduceSistemaContinuo pero esta vez la semilla se pasa como un numero entero.
-traduceProgresionSistemaContinuo2 :: Int -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
-traduceProgresionSistemaContinuo2 semillaInt = traduceProgresionSistemaContinuo (mkStdGen semillaInt)
+traduceProgresionSistemaContinuo2 :: SemillaInt -> OctaveIni -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
+traduceProgresionSistemaContinuo2 semillaInt octaveIni = traduceProgresionSistemaContinuo (mkStdGen semillaInt) octaveIni
 
 
-traduceProgresionSistemaContinuo :: RandomGen a => a -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
-traduceProgresionSistemaContinuo gen numNotasTotal progresion 
-	= zip (arreglaTodos (map2 encajaAcordeSimple (organizar gen (map traduceCifrado cifrados)) listaAcordesSimples)) duraciones
+traduceProgresionSistemaContinuo :: RandomGen a => a -> OctaveIni -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
+traduceProgresionSistemaContinuo gen octaveIni numNotasTotal progresion 
+	= zip (arreglaTodos octaveIni (map2 encajaAcordeSimple (organizar gen (map traduceCifrado cifrados)) listaAcordesSimples)) duraciones
 		where desabrochar = unzip progresion ;
 			cifrados = fst desabrochar ;
 			duraciones = snd desabrochar ;
@@ -158,12 +178,13 @@ traduceProgresionSistemaContinuo gen numNotasTotal progresion
 
 -- pone la octava en todos los acordes que son [PitchClass]. El primero le empieza en la octava 4
 -- y los siguientes se las arregla para que las notas coincidentes tengan la misma octava que la [Pitch] anterior
-arreglaTodos :: [[PitchClass]] -> [[Pitch]]
-arreglaTodos (pc : resto) = cabezaTratada : arreglaTodosRec cabeza resto
-	where 	cabeza = arreglaOctavasAsc 4 pc;
-		cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
-									-- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
+arreglaTodos :: OctaveIni -> [[PitchClass]] -> [[Pitch]]
+arreglaTodos octaveIni (pc : resto) = cabezaTratada : arreglaTodosRec cabeza resto
+	where 	cabeza = arreglaOctavasAsc octaveIni pc;
+			cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
+												-- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
 
+-- las elimina por saturacion
 eliminaOctavasErroneas :: [Pitch] -> [Pitch]
 eliminaOctavasErroneas [] = []
 eliminaOctavasErroneas ((pitchClass, octave) : resto)

@@ -216,12 +216,16 @@ es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
 
 -}
 parserProgresion :: Parser Char Progresion
-parserProgresion = bracketed(commaList(parCifDur))
+parserProgresion = (token "progresion") *> parenthesized(bracketed(commaList(parCifDur)))
 		where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)
---parserProgresion = (token "progresion") *> parenthesized(bracketed(commaList(parCifDur)))
+-- parserProgresion = bracketed(commaList(parCifDur))
 --		where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)
-
---parserAcordeOrd = (token "acorde") *> parenthesized(bracketed(commaList(altura)))
+{--
+Pruebas de parserProgresion
+-}
+pruebaParserProgresion :: String -> IO()
+pruebaParserProgresion rutaOrigen = do prog <- leeYParsea parserProgresion rutaOrigen
+                                       putStr (show prog)
 
 parserCifrado :: Parser Char Cifrado
 parserCifrado = token "cifrado" *> parenthesized ((parserGrado <* coma) <*> parserMatricula)

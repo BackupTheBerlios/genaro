@@ -67,3 +67,26 @@ cuyo análisis devuelve dato
 -}
 listaParesTokenDatoAParser :: [(String, a)] -> Parser Char a
 listaParesTokenDatoAParser lista = choice [token string <@ const dato | (string, dato) <- lista]
+
+
+{-
+Dado un parser de Char a un tipo t devuelve un parser que procesa una cadena de char formada por cadenas correspondientes
+a elementos de tipo t separadas por espacios y devuelve la lista de elementos de tipo t correspondiente
+-}
+listaEspacios :: Parser Char a -> Parser Char [a]
+-- listaEspacios parser = listOf parser (symbol ' ')
+listaEspacios = listaSeparadaChar ' '
+
+{-
+Dado un caracter separador y un parser que procesa un String y devuelve un elemento de un tipo t devuelve un parser que procesa
+un string formado por varios strings correspondientes a elementos tipo t separados por el separador especificado, y devuelve la
+lista de elementos de tipo t correspondiente.NO se lo traga si hay 1 espacio delante del separador correspondiente
+-}
+listaSeparadaChar :: Char -> Parser Char a -> Parser Char [a]
+listaSeparadaChar separador parser = listOf parser (symbol separador)
+
+{-
+como listaSeparadaChar pero especificando el separador como un string en vez de como un char
+-}
+listaSeparadaString :: String -> Parser Char a -> Parser Char [a]
+listaSeparadaString separador parser = listOf parser (token separador)

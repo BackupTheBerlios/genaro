@@ -1,6 +1,6 @@
 
 
-module Ritmo 
+module Ritmo
 where
 
 import Haskore
@@ -173,7 +173,7 @@ aplanar ll = foldr (++) [] ll
 
 -- TIPOS
 
--- NotasLigadasVertical: es lo mismo que AcordeOrdenado pero en el que se ha sustituido el patron ritmico en el. 
+-- NotasLigadasVertical: es lo mismo que AcordeOrdenado pero en el que se ha sustituido el patron ritmico en el.
 -- La lista de Music es una lista de notas que se deben interpretar a la vez. El valor booleano que las acompaña
 -- indica si esa nota esta ligada a una nota posterior. De sa forma podemos realizar el efecto de una nota que
 -- perdura en el tiempo mientras las otras voces del acorde se mueven
@@ -189,9 +189,9 @@ type NotasLigadas = [(NotasLigadasVertical,Dur)]
 {-
 -- consumeVertical: fusiona un patron ritmico y un acorde ordenado (disgregado en alturas y duracion) en las notas ligadas
 consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> NotasLigadas
-consumeVertical lp durAcorde _ 
+consumeVertical lp durAcorde _
 	| durAcorde <= 0 = []
-consumeVertical lp durAcorde ((urv, (acento, dur)) : resto) = 
+consumeVertical lp durAcorde ((urv, (acento, dur)) : resto) =
 	(insertaAcentoYDur acento dur (encaja lp urv), dur) : consumeVertical lp (durAcorde - dur) resto
 
 -}
@@ -199,7 +199,7 @@ consumeVertical lp durAcorde ((urv, (acento, dur)) : resto) =
 -- consumeVertical: fusiona un patron ritmico y un acorde ordenado (disgregado en alturas y duracion) en las notas ligadas
 -- Cuando se acaba el acorde vuelve a empezar el patron ritmico
 consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> NotasLigadas
-consumeVertical lp durAcorde ((urv, (acento, durH)) : resto) 
+consumeVertical lp durAcorde ((urv, (acento, durH)) : resto)
 	| durAcorde == durH = ( insertaAcentoYDur acento durH (encaja lp urv) , durH ) : []
 	| durAcorde < durH = ( insertaAcentoYDur acento durAcorde (encaja lp urv) , durAcorde ) : []
 	| durAcorde > durH = (insertaAcentoYDur acento durH (encaja lp urv), durH) : consumeVertical lp (durAcorde - durH) resto
@@ -208,11 +208,11 @@ consumeVertical lp durAcorde ((urv, (acento, durH)) : resto)
 consumeVertical2 :: [AcordeOrdenado] -> PatronRitmico -> NotasLigadas
 consumeVertical2 [] _ = []
 consumeVertical2 ((lp,durA) : restoA) ( (urv, (acento, durH)) : restoH)
-	| durA > durH = 
+	| durA > durH =
 		(insertaAcentoYDur acento durH (encaja lp urv), durH) : consumeVertical2 ((lp,durA-durH):restoA) restoH
-	| durA == durH =  
+	| durA == durH =
 		(insertaAcentoYDur acento durH (encaja lp urv), durH) : consumeVertical2 restoA restoH
-	| durA < durH = 
+	| durA < durH =
 		(insertaAcentoYDur acento durA (encaja lp urv), durA) : consumeVertical2 restoA ((urv,(acento,durH-durA)):restoH)
 
 
@@ -224,7 +224,7 @@ insertaAcentoYDur acento dur lp = insertaAcentoYDur2 acento dur lp
 
 insertaAcentoYDur2 :: Acento -> Dur -> [(Pitch, Bool)] -> [(Music, Bool)]
 insertaAcentoYDur2 acento dur [(pitch, ligado)] = [ ( Note pitch dur [Volume acento] , ligado ) ]
-insertaAcentoYDur2 acento dur ((pitch, ligado) : resto) = 
+insertaAcentoYDur2 acento dur ((pitch, ligado) : resto) =
 	( Note pitch dur [Volume acento] , ligado ) : insertaAcentoYDur2 acento dur resto
 
 
@@ -258,7 +258,7 @@ deAcordesOrdenadosANotasLigadas4 pV pH lao = consumeVertical2 lao (fusionaPatron
 -- buscaNota: busca la altura en la lista de notasLigadasVertical y devuelve su duracion si la encuentra o 0%1 si no
 buscaNota :: Pitch -> NotasLigadasVertical -> Dur
 buscaNota _ [] = 0%1
-buscaNota pitch ((Note pitch2 dur _, _) : resto) 
+buscaNota pitch ((Note pitch2 dur _, _) : resto)
 	| pitch == pitch2 = dur
 buscaNota pitch ( _ : resto) = buscaNota pitch resto
 
@@ -266,15 +266,15 @@ buscaNota pitch ( _ : resto) = buscaNota pitch resto
 -- eliminaNota: busca una nota con la misma altura que pitch y la elimina de la lista
 eliminaNota :: Pitch -> NotasLigadasVertical -> NotasLigadasVertical
 eliminaNota _ [] = []
-eliminaNota pitch ((Note pitch2 dur _, _) : resto) 
+eliminaNota pitch ((Note pitch2 dur _, _) : resto)
 	| pitch == pitch2 = resto
 eliminaNota pitch ( notaLigada : resto) = notaLigada : eliminaNota pitch resto
 
 
 -- NOTA: CAMBIAR EL NOMBRE DE ESTE PREDICADO POR ARREGLA_CABEZA YA QUE ES MAS CONSECUENTE CON LO QUE HACE
 -- buscaTodasNotas: a este predicado se le pasa la cabeza de la lista ya arreglada (sin ligaduras) y la lista anterior
--- de notas verticales. Lo que hace esta funcion es buscar cada nota con ligadura de la primera lista en la segunda. 
--- En caso de que la encuentre (que deberia si el patron esta bien hecho aunque no pasa nada si no lo hace) elimina la 
+-- de notas verticales. Lo que hace esta funcion es buscar cada nota con ligadura de la primera lista en la segunda.
+-- En caso de que la encuentre (que deberia si el patron esta bien hecho aunque no pasa nada si no lo hace) elimina la
 -- nota de la segunda lista y añade su duracion a la nota de la primera (una ligadura de las de siempre).
 -- De esa forma las notas bien ligadas se van acumulando en la cabeza de la lista (en este caso el primer parametro)
 buscaTodasNotas :: NotasLigadasVertical -> NotasLigadasVertical -> ( NotasLigadasVertical , NotasLigadasVertical )
@@ -283,7 +283,7 @@ buscaTodasNotas notas1 notas2 = buscaTodasNotas2 notas1 [] notas2
 buscaTodasNotas2 :: NotasLigadasVertical -> NotasLigadasVertical -> NotasLigadasVertical -> (NotasLigadasVertical, NotasLigadasVertical)
 buscaTodasNotas2 [] notas1 notas2 = ( notas1, notas2 )
 buscaTodasNotas2 (( nota, False ) : restoPitch ) notas1 notas2  = buscaTodasNotas2 restoPitch ((nota,False):notas1) notas2
-buscaTodasNotas2 (( Note pitch dur lA, True ) : restoPitch ) notas1 notas2 = 
+buscaTodasNotas2 (( Note pitch dur lA, True ) : restoPitch ) notas1 notas2 =
 	buscaTodasNotas2 restoPitch ((Note pitch (dur + buscaNota pitch notas2) lA, False):notas1) (eliminaNota pitch notas2)
 
 
@@ -307,11 +307,11 @@ deNotasLigadasAMusica :: NotasLigadas -> Music
 deNotasLigadasAMusica = deNotasLigadasAMusica2 (0%1)
 
 -- deNotasLigadasAMusica2: es la funcion recursiva de deNotasLigadasAMusica y con acumulador.
--- El parametro dur indica la duracion que hay que dejar hasta el comiento de la cancion antes de interpretar 
+-- El parametro dur indica la duracion que hay que dejar hasta el comiento de la cancion antes de interpretar
 -- las notas ligadas a tratar
 deNotasLigadasAMusica2 :: Dur -> NotasLigadas -> Music
 deNotasLigadasAMusica2 dur [(nV,_)] = Rest dur :+: paraleliza nV
-deNotasLigadasAMusica2 dur ((nV,dur2):resto) = (Rest dur :+: paraleliza nV) :=: deNotasLigadasAMusica2 (dur + dur2) resto 
+deNotasLigadasAMusica2 dur ((nV,dur2):resto) = (Rest dur :+: paraleliza nV) :=: deNotasLigadasAMusica2 (dur + dur2) resto
 
 
 -- paraleliza: ejecuta en paralelo a lista de musica sin intereserse por el parametro booleano
@@ -352,7 +352,7 @@ traduccion1 :: [AcordeOrdenado]
 traduccion1 = traduceProgresionSistemaContinuo numNotas progresion
 
 musica1 :: Music
-musica1 = deAcordesOrdenadosAMusica traduccion1 patronV2 patronH 
+musica1 = deAcordesOrdenadosAMusica traduccion1 patronV2 patronH
 
 
 

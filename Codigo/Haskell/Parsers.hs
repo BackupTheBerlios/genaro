@@ -113,3 +113,9 @@ devuelve el string correspondiente a quitar los espacios del string de entrada
 quitaEspacios :: String -> String
 quitaEspacios =  filter noEsEspacio
               where noEsEspacio c = (c/= ' ') && (c/= '\t') && (c/= '\n')
+
+{-
+devuelve el string correspondiente a quitar los caracteres de retorno de carro \r de DOS, del string de entrada
+-}
+quitaFormatoDOS :: String -> String
+quitaFormatoDOS = filter (/= '\r')

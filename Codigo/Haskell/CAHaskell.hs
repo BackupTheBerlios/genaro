@@ -57,7 +57,7 @@ type MatrizCPatrones = [[TokenCPatrones]]
 PARSERS
 -}
 parserFichPatronRitmicoC :: Parser Char FichPatronRitmicoC
-parserFichPatronRitmicoC = (parserVoces <*> parserCols <*> parserResolucion <*> parserCPatsMatriz) <@ formatea
+parserFichPatronRitmicoC = ((parserVoces <*> parserCols <*> parserResolucion <*> parserCPatsMatriz) <@ formatea) . quitaFormatoDOS
 			where 	parserVoces = (token "VOCES" *> (espacio *> natural)) <* saltoDLinea
 				parserCols = (token "COLUMNAS" *> (espacio *> natural)) <* saltoDLinea
 				parserResolucion = (token "RESOLUCION" *> (espacio *> natural)) <* saltoDLinea

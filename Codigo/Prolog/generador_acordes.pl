@@ -31,12 +31,12 @@
 :- use_module(biblio_genaro_acordes).
 :- use_module(biblio_genaro_listas).
 :- use_module(biblio_genaro_fracciones).
+:- use_module(figuras_y_ritmo).
 
 %:- use_module(representacion_prolog_haskore).
 %:- use_module(biblio_genaro_listas).
 %:- use_module(biblio_genaro_fracciones).
 %:- use_module(biblio_genaro_ES).
-%:- use_module(figuras_y_ritmo).
 %:- use_module(generador_notas_del_acorde_con_sistema_paralelo).
 %:- use_module(generador_notas_del_acorde_con_continuidad_armonica).
 

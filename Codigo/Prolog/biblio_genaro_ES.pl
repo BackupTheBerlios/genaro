@@ -1,5 +1,5 @@
 %DECLARACION DEL MODULO
-:- module(biblio_genaro_ES,[escribeTermino/3,escribeTermino/2,existeArchivo/1]).
+:- module(biblio_genaro_ES,[escribeTermino/3,escribeTermino/2]).
 
 %BIBLIOTECAS
 :- use_module(library(system)).
@@ -20,7 +20,7 @@
 *				deliminato por comillas simeples. Tambien valen rutas relativas
 * @param +Termino		Termido que se desea escribir
 */
-escribeTermino(NombreArchivo, Directorio, Termino) :- 
+escribeTermino(NombreArchivo, Directorio, Termino) :-
 	system:working_directory(_,Directorio),
 	open(NombreArchivo, write,Str, [type(text)]),
 	write(Str, Termino),
@@ -38,27 +38,19 @@ escribeTermino(NombreArchivo, Directorio, Termino) :-
 *  				debe ser un string, es decir, debe ir delimitado por comillas simples
 * @param +Termino		Termido que se desea escribir
 */
-escribeTermino(NombreArchivo, Termino) :- 
+escribeTermino(NombreArchivo, Termino) :-
 	open(NombreArchivo, write,Str, [type(text)]),
 	write(Str, Termino),
 	close(Str).
 
-/**
-* existeArchivo(+NombreArchivo)
-* Este predicado tiene exito si existe un archivo de nombre NombreArchivo en el directorio actual
-* @param +NombreArchivo nombre del archivo que se desea saber si existe
-*/
-existeArchivo(NombreArchivo) :-  
-	nofileerrors,
-	open(NombreArchivo, read, Str, [type(text)]),
-	close(Str),
-	filerrors.
 
 
 /*
-| ?- save_program(File).
-| ?- save_program(File, start).
-| ?- restore(File).
-| ?- compile(Files), save_files(Files, Object).
-predicates save_files/2, save_modules/2,
-and save_predicates/2*/
+DIRECTORIO DE TRABAJO:
+working_directory(-Old, +New)
+    Unify Old with an absolute path to the current working directory and change working directory to New.
+    Use the pattern working_directory(CWD, CWD) to get the current directory.
+
+-obtener cual es el directorio de trabajo actual:  working_directory(Wd,Wd).
+-cambiar el directorio de trabajo: working_directory(_,'c:/hlocal').
+*/

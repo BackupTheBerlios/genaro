@@ -120,15 +120,16 @@ termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
 */
 aniade_dominante_sec(progresion(Lo), progresion(Ld)) :- aniade_dom_sec_lista(Lo, Ld).
 aniade_dom_sec_lista([], []) :- !.
-/*aniade_dom_sec_lista(Lo, Ld):-
+aniade_dom_sec_lista(Lo, Ld):-
         buscaCandidatosADominanteSec(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
 	,dame_elemento_aleatorio(Lc, (Cif, F, PosElegida), _)
 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
         ,sublista_suf(Lo, PosElegMas, LdB)
         ,inserta_dominante_sec((Cif,F), ListaInsertar)
-        ,append(LdA, ListaInsertar, Laux),append(Laux, LdB, Ld).*/
+        ,append(LdA, ListaInsertar, Laux),append(Laux, LdB, Ld).
 
+/*
 aniade_dom_sec_lista(Lo, Ld):-
         buscaCandidatosADominanteSec(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
@@ -137,7 +138,7 @@ aniade_dom_sec_lista(Lo, Ld):-
 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
         ,sublista_suf(Lo, PosElegMas, LdB)
         ,inserta_dominante_sec((Cif,F), ListaInsertar)
-        ,append(LdA, ListaInsertar, Laux),append(Laux, LdB, Ld).
+        ,append(LdA, ListaInsertar, Laux),append(Laux, LdB, Ld).*/
 
 aniade_dom_sec_lista(Lo, Lo).
 

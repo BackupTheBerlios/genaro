@@ -47,8 +47,8 @@ sumaFiguras(figura(N1,D1), figura(N2,D2), figura(Nr, Dr)):-
 	fraccion_nat(N2,D2),
 	fraccion_nat(Nr, Dr)).
 
-listaFigurasAListaNat([],[]).
-listaFigurasAListaNat([figura(N,D)|Fo],[]) :-
+/*listaFigurasAListaNat([],[]).
+listaFigurasAListaNat([figura(N,D)|Fo],[]) :-*/
 
 /**
 * fuerzaEnElCompas(Nn, Nd, Tipo, Fuerza)

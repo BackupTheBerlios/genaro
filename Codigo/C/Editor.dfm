@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 87
-  Top = 93
+  Left = 72
+  Top = 142
   BorderStyle = bsSingle
   Caption = 'Form1'
   ClientHeight = 456
@@ -219,13 +219,13 @@ object Form1: TForm1
         Caption = '&Nuevo'
         OnClick = Nuevo1Click
       end
-      object GuardarPatrnRtmico1: TMenuItem
-        Caption = '&Guardar Patrón Rítmico'
-        OnClick = GuardarPatrnRtmico1Click
-      end
       object CargarPatrnRtmico1: TMenuItem
         Caption = '&Cargar Patrón Rítmico'
         OnClick = CargarPatrnRtmico1Click
+      end
+      object GuardarPatrnRtmico1: TMenuItem
+        Caption = '&Guardar Patrón Rítmico'
+        OnClick = GuardarPatrnRtmico1Click
       end
     end
   end
@@ -371,5 +371,13 @@ object Form1: TForm1
       FE070003F4070000FF030003F00F0000FF818001F01F0000FFC0C001F83F0000
       FFE1E001FC7F0000FFF3E31FFCFF000000000000000000000000000000000000
       000000000000}
+  end
+  object Cargar_Patron: TOpenDialog
+    Left = 464
+    Top = 136
+  end
+  object Guardar_Patron: TSaveDialog
+    Left = 520
+    Top = 144
   end
 end

@@ -12,6 +12,7 @@
 #include <Menus.hpp>
 #include <ToolWin.hpp>
 #include <ImgList.hpp>
+#include <Dialogs.hpp>
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
@@ -38,6 +39,8 @@ __published:	// IDE-managed Components
   TToolButton *ToolButton2;
   TToolButton *ToolButton3;
   TLabel *Etiqueta_Mensajes;
+  TOpenDialog *Cargar_Patron;
+  TSaveDialog *Guardar_Patron;
   void __fastcall FormClick(TObject *Sender);
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall BarraChange(TObject *Sender);

@@ -132,10 +132,9 @@ void MatrizNotas::CambiaResolucion(unsigned int NuevaResolucion)
 }
 
 //---------------------------------------------------------------------------
-void MatrizNotas::CreaFicheroTexto()
+void MatrizNotas::CreaFicheroTexto(String fichero)
 {
 ofstream archivo;
-AnsiString fichero="prueba.txt";
 archivo.open(fichero.c_str());
 archivo<<"VOCES "<<Voces<<"\n";
 archivo<<"COLUMNAS "<<Columnas<<"\n";

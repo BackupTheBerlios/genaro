@@ -62,7 +62,7 @@ void __fastcall TForm1::Boton_ComponerClick(TObject *Sender)
       {
         fichero_guardar.open("configuracion.cfg",ios::binary);
         //1- elegir archivo sicstus.exe
-        OpenDialog->Execute();
+        if (OpenDialog->Execute()==false){ShowMessage("No ha especificado el mainArgs");return;};
         Ruta_prolog=OpenDialog->FileName;
         int tamanio=Ruta_prolog.Length();
         fichero_guardar.write((char*)&tamanio,sizeof(int));

@@ -35,7 +35,7 @@ public:
     unsigned int DameColumnas(){return Columnas;}
     unsigned int DameResolucion(){return Resolucion;}
     void CambiaResolucion(unsigned int NuevaResolucion);  //aquí es cuando hacemos el trabajo duro que te cagasss
-    void CreaFicheroTexto();
+    void CreaFicheroTexto(String fichero);
     void CargaFicheroTexto(AnsiString fichero);
 };
 //---------------------------------------------------------------------------

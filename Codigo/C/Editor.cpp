@@ -377,9 +377,11 @@ if (Inicializado)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::GuardarPatrnRtmico1Click(TObject *Sender)
 {
+if (Guardar_Patron->Execute()==false){return;}
+String fichero_destino=Guardar_Patron->FileName;
 if (Inicializado)
 {
-  Partitura->CreaFicheroTexto();
+  Partitura->CreaFicheroTexto(fichero_destino);
 }
 else
 {
@@ -476,9 +478,13 @@ if (Inicializado)
 
 void __fastcall TForm1::CargarPatrnRtmico1Click(TObject *Sender)
 {
+String fichero;
+if (Cargar_Patron->Execute()==false)
+{return;}
+fichero=Cargar_Patron->FileName;
 if (Inicializado)
 {
-  Partitura->CargaFicheroTexto("prueba.txt");
+  Partitura->CargaFicheroTexto(fichero);
   Partitura->CambiaResolucion(128);
   Inicializado=true;
   PosicionActual=0;
@@ -489,7 +495,7 @@ else
 {
   Partitura=new MatrizNotas();
   Inicializado=true;
-  Partitura->CargaFicheroTexto("prueba.txt");
+  Partitura->CargaFicheroTexto(fichero);
   Fila_Seleccionada=0;
   Partitura->CambiaResolucion(128);
   PosicionActual=0;

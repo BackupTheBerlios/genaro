@@ -229,6 +229,22 @@ aniade_dom_sec_lista(Lo, Ld):-
 	,sublista_pref(Lo, PosElegida, ProgAnt)
         ,numCompases(progresion(ProgAnt), NumCompAnt)*/
 
+
+/**
+* asegura_ritmo_armonico(Po, Pd) dada la progresion Po devuelve en Pd el resultado de modificar Po para que
+* se respeten las normas de ritmo armónico, es decir, que los acordes más inestables estén en compases más débiles
+* que los acordes más estables
+* @param +Po cumple es_progresion(Po)
+* @param -Pd cumple es_progresion(Pd)
+* */
+/*
+
+asegura_ritmo_armonico(progresion(Lo), progresion(Ld)) :- aseg_ritmo_arm_acu(Lo,
+%%aseg_ritmo_arm_acu([(C3,F3)|Lco],(C2,F2),(C1,F1) )
+aseg_ritmo_arm_acu([(Cact,Fact)|Lcin],(Cant,Fant),  NumCompasAct, [|Lcout]) :-
+*/
+
+
 %AÑADE ACORDES2
 /* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
 idéntica a  Po salvo porque se ha sustituido uno de sus acordes por dos acordes, el primero del mismo cifrado

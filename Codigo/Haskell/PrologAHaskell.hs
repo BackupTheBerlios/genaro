@@ -203,3 +203,38 @@ listaTokenMatricula :: [(String, Matricula)]
 listaTokenMatricula = [("mayor",Mayor),("m",Menor),("au",Au),("dis",Dis),("6",Sexta),("m6",Men6),
                        ("m7b5",Men7B5),("maj7",Maj7),("7",Sept),("m7",Men7),("mMaj7",MenMaj7),("au7",Au7),
                        ("dis7",Dis7)]
+
+
+--
+-- PARSER DE PROGRESIONES ORDENADAS
+--
+
+type AcordeOrdenadoMusic = [Music]
+
+hazProgresionOrdenadaMusic :: String -> [AcordeOrdenadoMusic]
+hazProgresionOrdenadaMusic = (aplicaParser parserProgresionOrdenadaMusic) . quitaEspacios
+
+-- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
+-- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
+-- ya elegidas
+parserProgresionOrdenadaMusic :: Parser Char [AcordeOrdenadoMusic]
+parserProgresionOrdenadaMusic = (token "progOrdenada") *> parenthesized(parserListaOrdenAcsMusic)
+
+-- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
+-- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
+-- ya elegidas
+parserListaOrdenAcsMusic :: Parser Char [AcordeOrdenadoMusic]
+parserListaOrdenAcsMusic = bracketed(commaList(parserParAcordeFigura)) <@ daFiguraAListaAcordes
+		      where parserParAcordeFigura = parenthesized( (parserAcordeOrdMusic <* coma) <*> figura)
+                            daFiguraAListaAcordes = map daFiguraAAcorde
+                            daFiguraAAcorde (acorde, figura) = map (\(Note a _ l) -> (Note a figura l)) acorde
+
+
+-- lee un String q corresponde a un termino Prolog T que cumple biblio_genaro_acorde:es_acorde(T)
+-- y devuelve  un valor de tipo AcordeOrdenado asignando por defecto la duracion de redonda a todas
+-- las notas
+parserAcordeOrdMusic :: Parser Char AcordeOrdenadoMusic
+parserAcordeOrdMusic = (token "acorde") *> parenthesized(bracketed(commaList(altura))) <@f
+                where f = map (\altura -> Note altura wn [])
+
+

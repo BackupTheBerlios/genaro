@@ -6,10 +6,14 @@ import PatronesRitmicos
 import TraduceCifrados
 import HaskoreAMidi
 import CAHaskell
+import PrologAHaskell
 import Ratio	--para ejemplo
 
 rutaProgresionOrdenada :: String
 rutaProgresionOrdenada = "./progresion_ordenada.txt"
+
+rutaProgresion :: String
+rutaProgresion = "./progresion.txt"
 
 rutaPatronRitmico :: String
 rutaPatronRitmico = "./patron_ritmico.txt"
@@ -47,7 +51,6 @@ main2 dirTrabajo = do putStr mensajeCambiaDir
 main3 :: String -> IO()
 main3 dirTrabajo = do putStr mensajeCambiaDir
                       setCurrentDirectory dirTrabajo
-                      --putStr "\n Empezando a generar midi a partir de Prolog\n"
                       putStr "\n Procesando el archivo de patron ritmico de C\n"
                       (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
                       putStr "\n Generando el archivo midi\n"
@@ -56,3 +59,17 @@ main3 dirTrabajo = do putStr mensajeCambiaDir
                              traduccion = traduceProgresion paramEjemplo  progEjemplo
                              hazMusica = \patRit -> (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit traduccion)
 
+main4 :: String -> IO()
+main4 dirTrabajo = do putStr mensajeCambiaDir
+                      setCurrentDirectory dirTrabajo
+                      putStr "\n Procesando el archivo de progresion de acordes de Prolog\n"
+                      progresion <- leeProgresion rutaProgresion
+                      putStr "\n Procesando el archivo de patron ritmico de C\n"
+                      (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
+                      putStr "\n Generando el archivo midi\n"
+                      haskoreAMidi (hazMusica progresion patronRitmico) rutaDestinoMidi
+                      where  mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
+                             progOrd =  traduceProgresion paramEjemplo
+                             hazMusica prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
+                             --hazMusica = \patRit -> (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit progresionOrdenada)
+                             --hazMusica prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (traduceProgresion paramEjemplo prog)

@@ -7,12 +7,12 @@ where
 
 import Haskore
 import Progresiones
-import PrologAHaskell -- de aqui solo necesito el tipo AcordeOrdenado
 import Ratio
 import Random
 import BiblioGenaro
 
 
+type AcordeOrdenado = ([Pitch],Dur)
 -----------------------------------------------------------
 -- FUNCION QUE EXPORTA
 -----------------------------------------------------------

@@ -35,94 +35,14 @@ parserMusica :: Parser Char Music
 -- cadena es la entrada del analizador
 -- resto es lo que queda de cadena por analizar
 -- musica es el resultado del analisis
-parserMusica = foldr genTokenParens musBase [composicion]
-
--- auxiliar para pruebas
-cancioncilla :: Music
-cancioncilla = Instr "piano" (Tempo (3%1) (
-	(c 4 wn [])
-	:=: (qnr :+: (e 4 wn []))
-	:=: (qnr :+: qnr :+: (g 4 wn []))
-	:=: (qnr :+: qnr :+: qnr :+: (b 4 wn []))
-	))
+parserMusica = foldr genToken musBase [composicion]
 
 type OpToken a = (String, a->a->a)
 genToken  ::  [OpToken a] -> Parser Char a -> Parser Char a
 genToken ops p  =  chainr p (choice (map f ops))
        where  f (s,c) = token s <@ const c
 
-genTokenParens  ::  [OpToken a] -> Parser Char a -> Parser Char a
-genTokenParens ops p  =  chainr (comeParentesis p) (choice (map f ops))
-       where  f (s,c) = token s <@ const c
-
 composicion = [(":+:", (:+:)), (":=:", (:=:))]
-
-parenthesizedONO :: Parser Char a -> Parser Char a
-parenthesizedONO parser = parenthesized parser
-		 <|> parser
-
-comeParentesis :: Parser Char a -> Parser Char a
-comeParentesis parser xs = [(resto, resul) | (restoPre, resulPre) <- comeParentesisAux xs
-                                           ,(resto, resul) <- parser resulPre
-                                           ]
-
--- hacer func de alto nivel luego
-pepe :: Parser Char String
-pepe = (open *> pepe <* close)
-	<|>  notSymbolsCad ['(',')']
-
-comeParentesisAux :: Parser Char String
-comeParentesisAux xs = [("", centro)]
-	 where (sinPref, numAbre) = dropWhileCuantos ((==) '(') xs
-               centro = dropLast numAbre sinPref
-
-takeWhileCuantos :: (a -> Bool) -> [a] -> ([a], Int)
-takeWhileCuantos _ [] = ([], 0)
-takeWhileCuantos cond (x:xs)
-  | cond x	= (x:listaResul, valResul + 1)
-  | otherwise = ([], 0)
-  		where (listaResul, valResul) = takeWhileCuantos cond xs
-
-dropWhileCuantos :: (a -> Bool) -> [a] -> ([a], Int)
-dropWhileCuantos _ [] = ([], 0)
-dropWhileCuantos cond xs@(x:xs')
-  | cond x	= (listaResul, valResul + 1)
-  | otherwise = (xs, 0)
-  		where (listaResul, valResul) = dropWhileCuantos cond xs'
-
-foldparens :: ((a,a) -> a) -> a -> Parser Char a
-foldparens f e = p
-	where p = (open *> p <* close) <*> p <@ f
-        	<|> succeed e
-
-todo :: Parser a [a]
-todo xs = [(xs,xs)]
-
-notSymbols :: Eq s  =>  [s] -> Parser s s
-notSymbols ss [] = []
-notSymbols ss (x:xs) = [(xs, x) | not (elem x ss)]
-
-notSymbolsCad :: Eq s  =>  [s] -> Parser s [s]
-notSymbolsCad ss [] = []
-notSymbolsCad ss xs = [(resto, resul)]
-                      where  resul  = takeWhile noElem xs
-                             resto  = dropWhile noElem xs
-                             noElem = (\x -> not (elem x ss))
-
-takeLast :: Int -> [a] -> [a]
-takeLast n = reverse . take n . reverse
-
-dropLast :: Int -> [a] -> [a]
-dropLast n = reverse . drop n . reverse
-
-open = symbol '('
-close = symbol ')'
-data Tree = Nil
-          | Bin (Tree, Tree)
-          deriving Show
-
-parens :: Parser Char Tree
-parens = foldparens Bin Nil
 
 musBase :: Parser Char Music
 {- viejo, hace más caso a Jerome pq el Rest lo hace musBase no silencio
@@ -131,8 +51,11 @@ musBase =   silencio
             la siguiente linea mala creo
         <|> nota <*> altura <*> figura
 -}
-musBase =   silencio
+musBase =  silencio
        <|> nota
+       <|> tempo
+       <|> trasposicion
+       <|> parenthesized parserMusica
 
 silencio :: Parser Char Music
 silencio = (token "silencio" *> (parenthesized figura)) <@ Rest
@@ -144,6 +67,31 @@ nota = ( (token "nota") *> parenthesized(altura <*> ((token "," ) *> figura)) ) 
 
 altura :: Parser Char Pitch
 altura = (token "altura") *> parenthesized(numNota <*> ((token "," ) *> octava))
+
+-- en el futuro hacer func de alto nivel pq todo es similar
+tempo :: Parser Char Music
+tempo = ( (token "tempo") *> parenthesized( (parserParejaARatio <* coma) <*> parserMusica ) ) <@ f
+        where f = \(a,b) -> Tempo a b
+
+trasposicion :: Parser Char Music
+trasposicion = (token "tras") *> parenthesized( (natural <* coma) <*> parserMusica ) <@f
+                where f = \(a,b) -> Trans a b
+
+-- instrumento :: Parser Char Music
+--- instrumento = (token "tras") *> parenthesized( (natural <* coma) <*> parserMusica ) <@f
+--                where f = \(a,b) -> Trans a b
+
+-- nomInstrumento :: Parser Char IName
+-- nomInstrumento = token "instrumento" *> parenthesized (parToken)
+--		where par
+
+nomInstrumento :: [InstPrologAHaskell] -> Parser Char IName
+nomInstrumento lista = token "instrumento" *> parenthesized (parToken)
+		where parToken = choice (map f lista)
+                      f (string, nombre) = token string <@ const nombre
+
+
+type InstPrologAHaskell = (String, IName)
 
 -- no uso la funcion pitch :: Int -> Pitch pq Haskore cuenta 0 como C y nosotros 0 como A
 numNota :: Parser Char PitchClass
@@ -172,16 +120,23 @@ octava :: Parser Char Octave
 octava = (token "octava") *> parenthesized(natural)
 
 figura :: Parser Char Dur
-figura = ((token "figura") *> parenthesized(commaList natural)) <@ parejaARatio
+figura = (token "figura") *> parserParejaARatio
 
-parejaARatio :: [Int] -> (Ratio Int)
-parejaARatio [] = 0%1
-parejaARatio [_] = 0%1
-parejaARatio [a,b] = a%b
-parejaARatio (_:_:xs) = 0%1
 
----------------------------------------------------------------------
--- written by:
--- Jeroen Fokker                                 |  jeroen@cs.ruu.nl
--- dept.of Computer Science, Utrecht University  |  tel.+31-30-2534129
--- PObox 80089, 3508TB Utrecht, the Netherlands  |  fax.+31-30-2513791
+-- además solo funciona con parejas de naturales
+parserParejaARatio :: Parser Char (Ratio Int)
+parserParejaARatio = parenthesized( (natural <* coma) <*> natural ) <@ f
+                     where f = \(a,b) -> a%b
+
+open = symbol '('
+close = symbol ')'
+coma = symbol ','
+
+-- auxiliar para pruebas
+cancioncilla :: Music
+cancioncilla = Instr "piano" (Tempo (3%1) (
+	(c 4 wn [])
+	:=: (qnr :+: (e 4 wn []))
+	:=: (qnr :+: qnr :+: (g 4 wn []))
+	:=: (qnr :+: qnr :+: qnr :+: (b 4 wn []))
+	))

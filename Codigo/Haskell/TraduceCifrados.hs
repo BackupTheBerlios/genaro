@@ -6,8 +6,7 @@ where
 import Haskore
 import Progresiones
 import PrologAHaskell -- de aqui solo necesito el tipo AcordeOrdenado
-import Ratio
-import Ritmo
+
 
 -----------------------------------------------------------
 
@@ -133,6 +132,7 @@ traduceInvDisp inv disp numNotasTotal cifrado
  = arreglaOctavas 4 (traduceDirecto cifradoTraducido (formarAcordeSimple (length cifradoTraducido) numNotasTotal inv disp))
 		where cifradoTraducido = traduceCifrado cifrado
 
+
 traduceInvDisp2 :: Inversion -> Disposicion -> Int -> (Cifrado, Dur) -> AcordeOrdenado
 traduceInvDisp2 inv disp numNotasTotal (cifrado, dur) = (traduceInvDisp inv disp numNotasTotal cifrado , dur)
 
@@ -142,20 +142,6 @@ traduceProgresionSistemaParalelo inv disp numNotasTotal progresion
 	= map (traduceInvDisp2 inv disp numNotasTotal) progresion
 
 
-
-progresion :: Progresion
-progresion = [((I, Maj7),1%2),((IV, Maj7),1%2),((V, Sept),1%2),((I, Maj7),1%2)]
-
-progresion2 :: Progresion
-progresion2 = [	((I, Maj7),1%2) , ((V7 IV, Sept),1%2), ((IV, Maj7),1%2) , 
-			((IIM7 (V7 V), Men7),1%2), ((V7 V, Sept),1%2), ((V, Sept),1%2) , ((I, Maj7),1%2)   ]
-
-ejemplo :: [AcordeOrdenado]
-ejemplo = traduceProgresionSistemaParalelo 0 4 4 progresion2
-
-
-ejemplo2 :: Music
-ejemplo2 = deAcordesOrdenadosAMusica ejemplo arpegio [(100,1%16)]
 
 
 

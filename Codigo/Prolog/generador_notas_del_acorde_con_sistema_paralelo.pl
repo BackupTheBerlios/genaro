@@ -6,113 +6,6 @@
 :-use_module(library(random)).
 :-use_module(library(lists)).
 
-/*
-valores_posibles_de_estructura([1,3,5,7]).
-estructura_base(estructura(1,3,5,7)).
-
-es_estructura(estructura(A,B,C,D)) :- 
-	valores_posibles_de_estructura(L),
-	member(A,L),
-	member(B,L),
-	member(C,L),
-	member(D,L).
-
-invierte_acorde( estructura(A,B,C,D) , estructura(B,C,D,A) ).
-
-estado_fundamental( E ) :-
-	estructura_base( E ).
-
-inversion( 0, E ) :-
-	estado_fundamental( E ).
-inversion( 1, E ) :-
-	primera_inversion( E ).
-inversion( 2, E ) :-
-	segunda_inversion( E ).
-inversion( 3, E ) :-
-	tercera_inversion( E ).
-
-primera_inversion( E2 ) :-
-	estructura_base( E1 ),
-	invierte_acorde( E1, E2 ).
-
-segunda_inversion( E3 ) :-
-	estructura_base( E1 ),
-	invierte_acorde( E1, E2 ),
-	invierte_acorde( E2, E3 ).
-
-tercera_inversion( E4 ) :-
-	estructura_base( E1 ),
-	invierte_acorde( E1, E2 ),
-	invierte_acorde( E2, E3 ),
-	invierte_acorde( E3, E4 ).
-
-relacion_disposicion_con_primera_voz( 1, 1 ).
-relacion_disposicion_con_primera_voz( 2, 3 ).
-relacion_disposicion_con_primera_voz( 3, 5 ).
-relacion_disposicion_con_primera_voz( 4, 7 ).
-
-disposicion( Disposicion, estructura(A,B,C,Voz) , [A,B,C,Voz] ) :-
-	relacion_disposicion_con_primera_voz( Disposicion, Voz ),
-	!.
-disposicion( Disposicion, estructura(A,B,C,D) , [A,B,C,D,Voz] ) :-
-	relacion_disposicion_con_primera_voz( Disposicion, Voz ),
-	!.
-
-% N estructuras
-% P0 probabilidad de estar en estado fundamental (entre 0 y 100)
-% P1 probabilidad de estar en primera inversion
-% P2 probabilidad de estar en segunda inversion
-% 100-P0-P1-P2 probabilidad de estar en tercera inversion
-% L salida
-% D disposicion
-% TODO: falta hacer cambio de disposicion
-
-lista_de_estructuras( 0, _, _, _, _, [] ) :-
-	!.
-lista_de_estructuras( N, D, P0, P1, P2, [E2 | L2] ) :-
-	elegir_inversion_aleatoria(P0, P1, P2, E1),
-	disposicion( D, E1, E2 ),
-	N2 is N-1,
-	lista_de_estructuras( N2, D, P0, P1, P2, L2 ).
-	
-elegir_inversion_aleatoria(P0, P1, P2, E) :-
-	random(0, 100, NumAleatorio),
-	eleccion_aleatoria(NumAleatorio, P0, P1, P2, Inv),
-	inversion(Inv, E).	
-
-
-%% traduce el acorde a sus notas pero en la posicion fundamental
-traduce_acorde_a_notas( cifrado(G,M), L ) :-
-	vector_suma_triada( M, Vector3 ),
-	gradoANumNota( G, N ),
-	suma_vector( N, Vector3, L ).
-traduce_acorde_a_notas( cifrado(G,M), L ) :-
-	vector_suma_cuatriada( M, Vector4 ),
-	gradoANumNota( G, N ),
-	suma_vector( N, Vector4, L ).
-
-%% ordena las notas dependiendo de la estructura de orden
-ordena_segun_estructura( _, [], [] ).
-ordena_segun_estructura( ListaAlturas, [A | Resto], [Nota | RestoNotas] ) :-
-	dame_nota_iesima( A, ListaAlturas, Nota ),
-	ordena_segun_estructura( ListaAlturas, Resto, RestoNotas ).
-ordena_segun_estructura( ListaAlturas, [_ | Resto], RestoNotas ) :-
-	ordena_segun_estructura( ListaAlturas, Resto, RestoNotas ).
-
-dame_nota_iesima( Indice, Lista, Elem ) :-
-	relacion_disposicion_con_primera_voz( IndiceReal, Indice ),
-	nth(IndiceReal, Lista, Elem).
-
-
-ejemplo :-
-	traduce_acorde_a_notas(cifrado(grado(i), matricula(mayor)), L),
-	ordena_segun_estructura(L, [3,5,7,1,3], L2),
-	write(L2).
-
-*/
-/***************************************************************/
-
-%% empezamos otra vez
 
 suma_vector( altura(numNota(N), octava(Oc)), vector3(A,B,C), [
 		Altura1,
@@ -320,7 +213,7 @@ traduce_a_estado_fundamental( cifrado(G, M), L ) :-
 	vector_suma(M, Vector4),
 	suma_vector(altura(N, octava(3)), Vector4, L).
 
-traduce( Cifrado, Inv, Disp, Acorde ) :-
+traduce_cifrado( Cifrado, Inv, Disp, Acorde ) :-
 	traduce_a_estado_fundamental( Cifrado, L ),
 	inversion_y_disposicion( Inv, Disp, L, Acorde).
 	
@@ -330,80 +223,56 @@ eleccion_aleatoria( NumAleatorio, P0, _, _, 0 ) :-
 	NumAleatorio < P0,
 	!.
 eleccion_aleatoria( NumAleatorio, P0, P1, _, 1 ) :-
-	(NumAleatorio > P0 ; NumAleatorio == P0),
-	NumAleatorio < P1 + P0,
+	NumAleatorio > P0,
+	NumAleatorio =< P1 + P0,
 	!.
 eleccion_aleatoria( NumAleatorio, P0, P1, P2, 2 ) :-
-	(NumAleatorio > P1+P0 ; NumAleatorio == P1+P0),
-	NumAleatorio < P2 + P1 + P0,
+	NumAleatorio > P1 + P0,
+	NumAleatorio =< P2 + P1 + P0,
 	!.
 eleccion_aleatoria( _, _, _, _, 3 ).
-
-
-bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2,ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas) :-
-	random(0,100,R1),
-	random(0,100,R2),
-	eleccion_aleatoria(R1, ProbI0, ProbI1, ProbI2, Inv),
-	eleccion_aleatoria(R2, ProbD1, ProbD2, ProbD3, Disp_aux),
-	Disp is Disp_aux + 1,
-	traduce(Cifrado, Inv, Disp, Alturas).
-
-bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2,ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas) :-
-	bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2,ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas).
-
-
-
-
-% inicializa los campos adecuados para su formula recursiva
-traduce_lista_cifrados( progresion([]),_,_,_,_,_,_,[] ).
-traduce_lista_cifrados( progresion([ (Cifrado, F) | ListaCifrados ]), 
-				ProbI0, ProbI1, ProbI2, 
-				ProbD1, ProbD2, ProbD3,
-				[ Acorde | ListaAcordes ] 
-) :-
-	bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2, ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas),
-	anade_figura(Alturas, F, Acorde),
-	traduce_lista_cifrados_recursivo(
-		ListaCifrados, ProbI0, ProbI1, ProbI2, 
-		ProbD1, ProbD2, ProbD3, Disp, ListaAcordes
-	).
-
-
-
-traduce_lista_cifrados_recursivo( [], _, _, _, _, _, _, _, _, _, [] ).
-traduce_lista_cifrados_recursivo( [(Cifrado,F) | ListaCifrados], 
-				ProbI0, ProbI1, ProbI2, 
-				ProbD1, ProbD2, ProbD3, DispAnterior, [ Acorde | ListaAcordes ] 
-) :-
-	bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2, ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas),
-	Disp == DispAnterior,
-	anade_figura(Alturas, F, Acorde),
-	traduce_lista_cifrados_recursivo(
-		ListaCifrados, ProbI0, ProbI1, ProbI2, 
-		ProbD1, ProbD2, ProbD3, Disp, ListaAcordes
-	).
-
-%%caso en que hay un cambio de disposicion
-traduce_lista_cifrados_recursivo( [(Cifrado,F) | ListaCifrados],
-				ProbI0, ProbI1, ProbI2, 
-				ProbD1, ProbD2, ProbD3, DispAnterior, [ cambio(Acorde1, Acorde2) | ListaAcordes ] 
-) :-
-	traduce(Cifrado, Inv, DispAnterior, Alturas1),
-	bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2, ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas),
-	Disp \== DispAnterior,
-	% ATENCION: FALTA DIVIDIR F ENTRE DOS
-	anade_figura(Alturas1, F, Acorde1),
-	anade_figura(Alturas2, F, Acorde2),
-	traduce_lista_cifrados_recursivo(
-		ListaCifrados, ProbI0, ProbI1, ProbI2, 
-		ProbD1, ProbD2, ProbD3, Disp, ListaAcordes
-	).
-	
 
 
 anade_figura( [], _, [] ).
 anade_figura( [ A | RestoAlturas ], F, [nota(A,F) | RestoNotas] ) :-
 	anade_figura( RestoAlturas, F, RestoNotas ).
+
+es_triada(cifrado(_,matricula(mayor))).
+es_triada(cifrado(_,matricula(m))).
+
+
+traduce_lista_cifrados( progresion(ListaCifrados), PDisp1, PDisp2, PInv0, PInv1, PInv2, ListaAcrodes ) :-
+	random( 1,100,NumAleatorio ),
+	PDisp3 is 100 - PDisp1 - PDisp2,
+	eleccion_aleatoria( NumAleatorio, PDisp1, PDisp2, PDisp3, Disp_aux ),    % de esta forma nunca da la disposicion 4
+	Disposicion is Disp_aux + 1,
+	traduce_lista_cifrados_recursivo( ListaCifrados, Disposicion, PInv0, PInv1, PInv2, ListaAcrodes).
+
+
+
+traduce_lista_cifrados_recursivo( [], _, _, _, _, [] ):-
+	!.
+traduce_lista_cifrados_recursivo( [(Cifrado,Figura) | RestoCifrados], Disp, PInv0, PInv1, PInv2, [Acorde | RestoAcrodes]):-
+	es_triada(Cifrado),
+	!,
+	random( 1,100,NumAleatorio ),
+	PInv2_aux is 100-PInv0-PInv1,
+	eleccion_aleatoria( NumAleatorio, PInv0, PInv1, PInv2_aux, Inversion ),    % esto nos asegura que cuando es triada no elige la cuarta inversion
+	write('Es triada '),write(Inversion),nl,
+	traduce_cifrado( Cifrado, Inversion, Disp, Acorde_aux ),
+	anade_figura(Acorde_aux, Figura, Acorde),
+	traduce_lista_cifrados_recursivo( RestoCifrados, Disp, PInv0, PInv1, PInv2, RestoAcrodes ).
+traduce_lista_cifrados_recursivo( [(Cifrado,Figura) | RestoCifrados], Disp, PInv0, PInv1, PInv2, [Acorde | RestoAcrodes]):-
+	random( 1,100,NumAleatorio ),
+	eleccion_aleatoria( NumAleatorio, PInv0, PInv1, PInv2, Inversion ),
+	write('No es triada '),write(Inversion),
+	traduce_cifrado( Cifrado, Inversion, Disp, Acorde_aux ),
+	anade_figura(Acorde_aux, Figura, Acorde),
+	traduce_lista_cifrados_recursivo( RestoCifrados, Disp, PInv0, PInv1, PInv2, RestoAcrodes ).
+
+	
+
+
 
 
 
@@ -411,17 +280,18 @@ anade_figura( [ A | RestoAlturas ], F, [nota(A,F) | RestoNotas] ) :-
 
 :- consult(['generador_acordes.pl']).
 ejemplo1 :- 
-	haz_progresion(10, 3, P),
+	haz_progresion(40, 3, P),
 	nl,
-	traduce_lista_cifrados(P, 30,20,20, 0,0,0, L),
-	write(L).
+	traduce_lista_cifrados(P, 30,20, 0,0,0, L),
+	write(P).
 
 ejemplo2 :- 
 	traduce_lista_cifrados(
 	progresion([
 		(cifrado(grado(i), matricula(mayor)), figura(1,1)),
-		(cifrado(grado(ii), matricula(mayor)), figura(1,1))
-	]), 30,20,20, 0,0,10, L
+		(cifrado(grado(ii), matricula(mayor)), figura(1,1)),
+		(cifrado(grado(ii), matricula(7)), figura(1,1))
+	]), 30,20, 0,10,10, L
 	),
 	write(L).
 

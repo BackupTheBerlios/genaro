@@ -25,3 +25,11 @@ existeArchivo(NombreArchivo) :-  nofileerrors
 	,open(NombreArchivo, read, Str, [type(text)]), close(Str)
 	,filerrors.
 
+
+/*
+| ?- save_program(File).
+| ?- save_program(File, start).
+| ?- restore(File).
+| ?- compile(Files), save_files(Files, Object).
+predicates save_files/2, save_modules/2,
+and save_predicates/2*/

@@ -33,6 +33,7 @@ public class Ventana_principal extends JFrame implements Runnable{
   JButton playButton = new JButton();
   JButton cargarButton = new JButton();
   TitledBorder titledBorder1;
+  JButton jButton1 = new JButton();
 
   //Construir el marco
   public Ventana_principal() {
@@ -87,10 +88,14 @@ public class Ventana_principal extends JFrame implements Runnable{
     cargarButton.setText("Cargar");
     cargarButton.addActionListener(new Ventana_principal_cargarButton_actionAdapter(this));
     cargarButton.addMouseListener(new Ventana_principal_cargarButton_mouseAdapter(this));
+    jButton1.setOpaque(true);
+    jButton1.setText("jButton1");
+    jButton1.addMouseListener(new Ventana_principal_jButton1_mouseAdapter(this));
     contentPane.add(statusBar, BorderLayout.SOUTH);
     contentPane.add(jPanel1,  BorderLayout.CENTER);
     jPanel1.add(playButton, null);
     jPanel1.add(stopButton, null);
+    jPanel1.add(jButton1, null);
     contentPane.add(cargarButton, BorderLayout.NORTH);
   }
   //Modificado para poder salir cuando se cierra la ventana
@@ -151,6 +156,18 @@ public class Ventana_principal extends JFrame implements Runnable{
     sourceDataLine.stop();
   }
 
+/*cosa cutre provisional*/
+  void jButton1_mouseClicked(MouseEvent e) {
+   /*lala*/
+   String jarDeJasper = "-Cargar biblioteca jasper en java : " + "\n"
+                          + "Herramientas->ConfigurarJdk"+ "\n"
+                                 + "Añadir: el archivo C:/JBuilderX/jdk1.4/lib/jasper.jar";
+   String ayudaDeJasper = "-Ayuda de Jasper : "+ "\n"
+       +"C:/Archivos de programa/SICStus Prolog/doc/html/jasper/se/sics/jasper/sicstus.html";
+   JOptionPane.showMessageDialog(this, jarDeJasper + "\n" + ayudaDeJasper);
+
+  }
+
 }
 
 class Ventana_principal_cargarButton_mouseAdapter extends java.awt.event.MouseAdapter {
@@ -194,5 +211,16 @@ class Ventana_principal_stopButton_mouseAdapter extends java.awt.event.MouseAdap
   }
   public void mouseClicked(MouseEvent e) {
     adaptee.stopButton_mouseClicked(e);
+  }
+}
+
+class Ventana_principal_jButton1_mouseAdapter extends java.awt.event.MouseAdapter {
+  Ventana_principal adaptee;
+
+  Ventana_principal_jButton1_mouseAdapter(Ventana_principal adaptee) {
+    this.adaptee = adaptee;
+  }
+  public void mouseClicked(MouseEvent e) {
+    adaptee.jButton1_mouseClicked(e);
   }
 }

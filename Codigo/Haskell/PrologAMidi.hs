@@ -55,6 +55,7 @@ musBase =  silencio
        <|> nota
        <|> tempo
        <|> trasposicion
+       <|> instrumento
        <|> parenthesized parserMusica
 
 silencio :: Parser Char Music
@@ -77,21 +78,30 @@ trasposicion :: Parser Char Music
 trasposicion = (token "tras") *> parenthesized( (natural <* coma) <*> parserMusica ) <@f
                 where f = \(a,b) -> Trans a b
 
--- instrumento :: Parser Char Music
---- instrumento = (token "tras") *> parenthesized( (natural <* coma) <*> parserMusica ) <@f
---                where f = \(a,b) -> Trans a b
-
--- nomInstrumento :: Parser Char IName
--- nomInstrumento = token "instrumento" *> parenthesized (parToken)
---		where par
+instrumento :: Parser Char Music
+instrumento = (token "inst") *> parenthesized( ((nomInstrumento nuestrosInstrumentos) <* coma) <*> parserMusica ) <@f
+               where f = \(a,b) -> Instr a b
 
 nomInstrumento :: [InstPrologAHaskell] -> Parser Char IName
 nomInstrumento lista = token "instrumento" *> parenthesized (parToken)
-		where parToken = choice (map f lista)
-                      f (string, nombre) = token string <@ const nombre
+		where parToken = choice [token string <@ const nombre | (string, nombre) <- lista]
 
+
+lala :: (String, IName) -> Parser Char IName
+lala (s, n) = token s <@ const n
+
+lalaList :: [(String, IName)] -> Parser Char IName
+lalaList xs = choice [token s <@ const n | (s,n) <- xs]
 
 type InstPrologAHaskell = (String, IName)
+-- en realidad esta correspondencia es poco importante pq luego en Timidity asignaremos
+-- a cada instrumento midi la fuente que nos parezca
+nuestrosInstrumentos :: [InstPrologAHaskell]
+nuestrosInstrumentos = [("mano_izquierda", "AcousticGrandPiano")
+                      , ("mano_derecha", "AcousticGrandPiano")
+                      , ("bajo", "FretlessBass")
+                      , ("bateria", "Percussion")
+                      ]
 
 -- no uso la funcion pitch :: Int -> Pitch pq Haskore cuenta 0 como C y nosotros 0 como A
 numNota :: Parser Char PitchClass

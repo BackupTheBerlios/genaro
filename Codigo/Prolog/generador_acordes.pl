@@ -5,7 +5,9 @@ Upper are integers. Otherwise Number is bound to a random oat between
 Lower and Upper. Upper will never be generated.
 */
 %DECLARACION DEL MODULO
-:- module(generador_acordes,[genera_acordes/2, haz_progresion/3]).
+:- module(generador_acordes,[genera_acordes/2
+                           , genera_acordes/0
+                           , haz_progresion/3]).
 
 %BIBLIOTECAS
 :- use_module(library(lists)).
@@ -29,6 +31,8 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 -todo de cadenas
 */
 fichero_destinoGenAc('C:/hlocal/acordes.txt').
+%Muy provisional
+genera_acordes :- genera_acordes(6,3).
 /*genera_acordes(N, M) hace una progresion de N compases aprox y con M transformaciones
 guarda el resultado en C:/hlocal/acordes.txt. Solo funciona si C:/hlocal existe 
 */
@@ -45,18 +49,18 @@ cifrado_a_Haskore((cifrado(Grado,Matricula), Figura), Musica) :- gradoAAltura(Gr
 	,hazAcordePosTonica(nota(Altura,Figura), Matricula, ListaNotas)
 	,hazCompSecuencial(ListaNotas, Musica).
 %FALTAN GRADOS NO USUALES!!!!!!!!!!!!!!!! es así pq Do Jonico, octava arbitraria
-gradoAAltura(grado(i), altura(numNota(3),octava(1))).
-gradoAAltura(grado(bii), altura(numNota(4),octava(1))).
-gradoAAltura(grado(ii), altura(numNota(5),octava(1))).
-gradoAAltura(grado(biii), altura(numNota(6),octava(1))).
-gradoAAltura(grado(iii), altura(numNota(7),octava(1))).
-gradoAAltura(grado(iv), altura(numNota(8),octava(1))).
-gradoAAltura(grado(bv), altura(numNota(9),octava(1))).
-gradoAAltura(grado(v), altura(numNota(10),octava(1))).
-gradoAAltura(grado(auv), altura(numNota(11),octava(1))).
-gradoAAltura(grado(vi), altura(numNota(0),octava(2))).
-gradoAAltura(grado(bvii), altura(numNota(1),octava(3))).
-gradoAAltura(grado(vii), altura(numNota(2),octava(4))).
+gradoAAltura(grado(i), altura(numNota(3),octava(4))).
+gradoAAltura(grado(bii), altura(numNota(4),octava(4))).
+gradoAAltura(grado(ii), altura(numNota(5),octava(4))).
+gradoAAltura(grado(biii), altura(numNota(6),octava(4))).
+gradoAAltura(grado(iii), altura(numNota(7),octava(4))).
+gradoAAltura(grado(iv), altura(numNota(8),octava(4))).
+gradoAAltura(grado(bv), altura(numNota(9),octava(4))).
+gradoAAltura(grado(v), altura(numNota(10),octava(4))).
+gradoAAltura(grado(auv), altura(numNota(11),octava(4))).
+gradoAAltura(grado(vi), altura(numNota(0),octava(5))).
+gradoAAltura(grado(bvii), altura(numNota(1),octava(5))).
+gradoAAltura(grado(vii), altura(numNota(2),octava(5))).
 
 /*hazAcordePosTonica(Fundamental, Matricula, ListaNotas)
 sólo metidas las cuatriadas basicas, falta picar mas datos

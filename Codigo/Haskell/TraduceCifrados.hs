@@ -167,44 +167,6 @@ traduceProgresionSistemaContinuoRec2 anterior numNotasTotal ( (cifrado@(grado,ma
 modulo :: Int -> Int -> Int
 modulo x y = mod y x
 
-----------------------------------------------------------------------------------------------------
-
-
---BORRAME: SOLO SOY EJEMPLO
-
-numNotas :: Int
-numNotas = 5 -- con 8 el sistema de continuidad armonia 2 no tira
-
-progresion :: Progresion
-progresion = [((I,Mayor),1%1),((IV,Mayor),1%1),((V,Sept),1%1),((I,Maj7),1%1)]
-
-acordesOrdenados :: [AcordeOrdenado]
-acordesOrdenados = traduceProgresionSistemaContinuo numNotas progresion
-
-arpegio2 :: PatronVertical
-arpegio2 = [ [(i,False)] | i<-[1..numNotas]]
-
-acorde2 :: PatronVertical
-acorde2 = [[ (i,False) | i<-[1..numNotas]]]
-
-ejemplo1 :: Music
-ejemplo1 = deAcordesOrdenadosAMusica acordesOrdenados arpegio2 [(100,1%numNotas)]
-
-ejemplo2 :: Music
-ejemplo2 = deAcordesOrdenadosAMusica acordesOrdenados acorde2 [(100,1%1)]
-
-
-
-acordesOrdenados2 :: [AcordeOrdenado]
-acordesOrdenados2 = traduceProgresionSistemaContinuo2 numNotas progresion
-
-
-ejemplo11 :: Music
-ejemplo11 = deAcordesOrdenadosAMusica acordesOrdenados2 arpegio2 [(100,1%numNotas)]
-
-ejemplo22 :: Music
-ejemplo22 = deAcordesOrdenadosAMusica acordesOrdenados2 acorde2 [(100,1%1)]
-
 
 
 

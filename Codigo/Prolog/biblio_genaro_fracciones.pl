@@ -9,7 +9,9 @@
 	mayorFracciones/2,
 	igualFracciones/2,
 	natural/1,
-	esFraccion/1
+	esFraccion/1,
+	divisores/3,
+	intervaloEntero/3
 ]).
 
 :- use_module(compat_Sicstus_SWI).
@@ -144,3 +146,26 @@ normalizarFraccion( fraccion_nat(Num1,Den1), fraccion_nat(Num2, Den2) ) :-
 	Den2 is Den1//Gcd.
 
 
+/**
+* divs(+N, +LC, -LD)
+* LD es la lista de elementos que LS que además son divisores de N
+* @param +N de tipo entero
+* @param +LC de tipo lista de enteros
+* @param -LD de tipo lista de enteros
+*/
+divisores(_, [], []).
+divisores(N, [0|Cs], Ds) :- !, divisores(N, Cs, Ds).
+divisores(N, [C|Cs], [C| Ds]) :- X is N mod C, X = 0, !, divisores(N, Cs, Ds).
+divisores(N, [_|Cs], Ds) :- divisores(N, Cs, Ds).
+
+
+/**
+* intervaloEntero(+Min, +Max, -I)
+* devuelve en I la lista de enteros en el intervalo [Min, Max]
+* @param +Min extremo izquierdo del intervalo, de tipo entero
+* @param +Max extremo derecho del intervalo, de tipo entero
+* @param -I de tipo lista de enteros
+*/
+intervaloEntero(Min, Max, []) :- Min > Max,!.
+intervaloEntero(Min, Max, [Min|Is]) :- Min =< Max,!, SigMin is Min +1
+    , intervaloEntero(SigMin, Max, Is).

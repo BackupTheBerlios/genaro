@@ -79,24 +79,30 @@ termina_genera_acordes(ListaAcordes) :-
 * @param -Progresion termino que hace cierto el predicado es_progresion con el que se expresa la progresion de
 * acordes generada
 */
-haz_progresion(N, _, _, progresion([])) :- N < 0, !.
+/*haz_progresion(N, _, _, progresion([])) :- N < 0, !.
 haz_progresion(N, M, 1, Progresion) :- N>=0, N =< 4,!, haz_prog_semilla(N, 1, PAux1),
 	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
 haz_progresion(N, M, 3, Progresion) :- N>=0, N =< 3,!, haz_prog_semilla(N, 3, PAux1),
 	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
-/*haz_progresion(N, M, Tipo, progresion(La)) :- haz_prog_semilla(Tipo, progresion(S))
-                ,escribeLista('C:/hlocal/cifradosSemilla.txt',S)
-		,fija_compases_aprox(progresion(S), N, Laux1), modifica_prog(Laux1, M, progresion(Laux2))
-                ,escribeLista('C:/hlocal/cifradospreFin.txt',Laux2)
-                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux2, Pfin, Laux4)
-                ,quita_grados_relativos(progresion(Laux4), progresion(La))
-                ,escribeLista('C:/hlocal/cifrados.txt', La)
-                ,fichero_destinoGenAc_prog(FDC)
-                ,escribeTermino(FDC,progresion(La)).*/
 
 haz_progresion(N, M, Tipo, ProgNoRel) :- haz_prog_semilla(Tipo, ProgSem)
 		,fija_compases(ProgSem, N, Paux1), modifica_prog(Paux1, M, Paux2)
-                ,termina_haz_progresion(Paux2, ProgNoRel).
+                ,termina_haz_progresion(Paux2, ProgNoRel).*/
+
+haz_progresion(N, _, _, progresion([])) :- N < 0, !.
+haz_progresion(N, M, Tipo, Progresion) :- rango_prog_semilla(Tipo,MinComp, MaxComp)
+, intervaloEntero(MinComp, MaxComp, CompPos), divisores(N, CompPos, CompCand)
+, setof((CC,CC),member(CC,CompCand), ListaEligeSemilla)
+, dame_elemento_aleat_lista_pesos(ListaEligeSemilla, NCompasesSemilla, _, _)
+, haz_prog_semilla(NCompasesSemilla, Tipo, ProgSemilla)
+, modifica_prog(ProgSemilla, M, ProgMutada)
+, termina_haz_progresion(ProgMutada, Progresion).
+
+
+
+
+/*setof((N,N),member(N,Xs), Ys)*/
+                
 
 termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
 		fichero_destinoGenAc_prog(FichNoRel), fichero_destinoGenAc_prog_con_rel(FichRel),

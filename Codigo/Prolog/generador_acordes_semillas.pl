@@ -10,6 +10,7 @@
 :- module(generador_acordes_semillas,
                  [haz_prog_semilla/3
                   ,haz_prog_semilla/2
+                  ,rango_prog_semilla/3
                   ,termina_haz_prog_semilla/1]).
 
 %BIBLIOTECAS
@@ -59,6 +60,16 @@ termina_haz_prog_semilla(progresion(S)) :-
 haz_prog_semilla(1,S) :- haz_prog_semilla1(S), termina_haz_prog_semilla(S).
 /*haz_prog_semilla(2,S) :- haz_prog_semilla2(S), termina_haz_prog_semilla(S). garantiza el ritmo armonico correcto?? */
 haz_prog_semilla(3,S) :- haz_prog_semilla3(S), termina_haz_prog_semilla(S).
+
+/**
+* rango_prog_semilla(+Tipo,-NumMin, -NumMax).
+* @param -NumMin indica el número mínimo de compases que puede durar una progresión generada
+* con el predicado haz_prog_semillaTipo/1
+* @param -NumMax indica el número máximo de compases que puede durar una progresión generada
+* con el predicado haz_prog_semillaTipo/1
+* */
+rango_prog_semilla(1,Min,Max) :- rango_prog_semilla1(Min,Max).
+rango_prog_semilla(3,Min,Max) :- rango_prog_semilla3(Min,Max).
 
 /**
 * haz_prog_semilla1(-S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion

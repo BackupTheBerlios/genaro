@@ -236,11 +236,13 @@ haz_prog_semilla1(S) :- setof(Lg1, cadenciaValida(cadencia(Lg1,_)), Lc1)
 
 /**
 * haz_prog_semilla3(S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
-* de salida es una cadencia o un patrón de acordes (ver es_patron_acordes/1 y es_cadencia/1) a la que se le ha aplicado 10 veces el
-* predicado cambia_acordes
+* de salida es una cadencia (ver es_cadencia/1) a la que se le ha aplicado 10 veces el predicado cambia_acordes
 * @param -S cumple es_progresion(S)
 * */
-haz_prog_semilla3(S) :- haz_prog_semilla1(A), aplica_cambia_acordes(A, 10, S).
+haz_prog_semilla3(S) :- setof(Lg, cadenciaValida(cadencia(Lg,_)), Lc)
+				,dame_elemento_aleatorio(Lc, ListaGrados)
+				,listaGradosAProgresion(ListaGrados, A)
+				,aplica_cambia_acordes(A, 10, S).
 aplica_cambia_acordes(Ori, N, Dest) :- N>0, !, N1 is N -1, cambia_acordes(Ori, Aux1), aplica_cambia_acordes(Aux1, N1, Dest).
 aplica_cambia_acordes(Ori, _, Ori).
 
@@ -256,10 +258,12 @@ listaGradosAProgresionRec([G|Gs],[(C, figura(1,1))|Ps]) :-
 		hazCuatriada(G,C) ,listaGradosAProgresionRec(Gs,Ps).
 
 %CAMBIA ACORDES
-/** cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
+/** 
+* cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
 * idéntica a Po excepto porque se ha realizado 1 cambio de un acorde diatónico!!! por otro de la misma función tonal
 * (elegido al azar y distinto) y que dura lo mismo (misma figura en la progresión). El acorde que será
 * sustituido se elige al azar, teniendo todos los acordes comsiderados la misma probabilidad de ser elegidos
+* PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
 * Pre!!! Po en forma normal sería recomendable
 * Post: Pd está en forma normal
 * @param +Po progresión origen cumple es_progresion(Po)
@@ -285,26 +289,38 @@ cambia_acordesLista(Lo, Ld) :-
 cambia_acordesLista(Lo, Lo).
 
 %AÑADE ACORDES
-/* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
-idéntica a  Po salvo porque se ha sustituido uno de sus acordes por dos acordes, el primero del mismo cifrado
-del original pero durando la mitad y el segundo de la misma función tonal que el original (elegido al azar
-y distinto) y durando también la mitad. El primero aparecerá siempre delante del segundo en la progresión. El
-acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
-elegidos
-in: Po progresión origen cumple es_progresion(Po)
-out:Pd progresión destino cumple es_progresion(Po)
-Pre!!! Lo en forma normal sería recomendable
-Post Ld está en forma normal
+/**
+* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
+* idéntica a  Po salvo porque se ha sustituido uno de sus acordes diatónicos!!! por dos acordes, el primero 
+* del mismo cifrado del original pero durando la mitad y el segundo de la misma función tonal que el original 
+* (elegido al azar y distinto) y durando también la mitad. El primero aparecerá siempre delante del segundo en 
+* la progresión. El acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
+* elegidos
+* PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
+* Pre!!! Po en forma normal sería recomendable
+* Post: Pd está en forma normal
+* @param +Po progresión origen cumple es_progresion(Po)
+* @param -Pd progresión destino cumple es_progresion(Po)
 */
 aniade_acordes(progresion(Lo), progresion(Ld)) :- aniade_acordesLista(Lo, Ld).
-aniade_acordesLista([], []).
+aniade_acordesLista([], []) :- !.
 aniade_acordesLista(Lo, Ld) :-
-       dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
-      ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)
+	   setof((cifrado(Gc,Mc), Fc, Posc),
+             (
+       	      nth(Posc, Lo, (cifrado(Gc,Mc), Fc))
+              ,listaGradosNoDiatonicos(jonico,ListaGrados)
+              ,\+(member(Gc, ListaGrados))
+             )
+              , Lc)
+       ,length(Lc, Long), Long > 0, !
+       ,dame_elemento_aleatorio(Lc, (AcordElegido, F, PosElegida), _)
+       ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)
       ,divideFigura(F, 2, Fmed)
       ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
       ,sublista_suf(Lo, PosElegMas, LdB)
       ,append(LdA, [(AcordElegido, Fmed),(AcordAniadir, Fmed)], Laux), append(Laux, LdB, Ld).
+
+aniade_acordesLista(Lo, Lo).
 
 %DOMINANTES SECUNDARIOS
 /**
@@ -487,38 +503,51 @@ quita_grados_relativos_lista([(cifrado(Gi,M), F)|Li], [(cifrado(Go,M), F)|Lo]):-
                gradoRelativoAAbsoluto(Gi, Go),quita_grados_relativos_lista(Li, Lo).
 
 %AÑADE ACORDES2
-/* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
-idéntica a  Po salvo porque se ha sustituido uno de sus acordes por dos acordes, el primero del mismo cifrado
-del original y durando lo mismo y, el segundo de la misma función tonal que el original (elegido al azar
-y distinto) y durando lo mismo. El primero aparecerá siempre delante del segundo en la progresión. El
-acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
-elegidos
-in: Po progresión origen cumple es_progresion(Po)
-out:Pd progresión destino cumple es_progresion(Po)
-Pre!!! Lo en forma normal sería recomendable
-Post Ld está en forma normal
+/** 
+* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
+* idéntica a  Po salvo porque se ha sustituido uno de sus acordes diatónicos!! por dos acordes, el primero del mismo cifrado
+* del original y durando lo mismo y, el segundo de la misma función tonal que el original (elegido al azar
+* y distinto) y durando lo mismo. El primero aparecerá siempre delante del segundo en la progresión. El
+* acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
+* elegidos
+* PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
+* Pre!!! Lo en forma normal sería recomendable
+* Post Ld está en forma normal
+* in: Po progresión origen cumple es_progresion(Po)
+* out:Pd progresión destino cumple es_progresion(Po)
 */
 aniade_acordes2(progresion(Lo), progresion(Ld)) :- aniade_acordesLista2(Lo, Ld).
-aniade_acordesLista2([], []).
+aniade_acordesLista2([], []) :-!.
 aniade_acordesLista2(Lo, Ld) :-
-       dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
+       setof((cifrado(Gc,Mc), Fc, Posc),
+             (
+       	      nth(Posc, Lo, (cifrado(Gc,Mc), Fc))
+              ,listaGradosNoDiatonicos(jonico,ListaGrados)
+              ,\+(member(Gc, ListaGrados))
+             )
+              , Lc)
+       ,length(Lc, Long), Long > 0, !
+       ,dame_elemento_aleatorio(Lc, (AcordElegido, F), PosElegida)
       ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)
       ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
       ,sublista_suf(Lo, PosElegMas, LdB)
       ,append(LdA, [(AcordElegido, F),(AcordAniadir, F)], Laux), append(Laux, LdB, Ld).
+      
+aniade_acordesLista2(Lo, Lo).
 
 %QUITA ACORDES
-/* quita_acordes(Po,Pd) busca todas las parejas de acordes adyacentes que tengan la misma función tonal,
-elige una de éstas al azar asignando la misma probabilidad a cada pareja y sustituye a la pareja por otro
-acorde que dure mismo que la suma de las duraciones de las parejas y que tenga la misma función tonal
-(elegido al azar y no necesariamente distinto)(!!!!!!estudiar si no conviene más simplemente dejar el
-fuerte de la función tonal, es decir, I, IV o V). Si no es posible hacer esto pq no hay parejas adyacentes
-de misma función tonal entonces devuelve en Pd la misma progresion Po
-in: Po progresión origen cumple es_progresion(Po)
-out:Pd progresión destino cumple es_progresion(Po)
-Pre!!! Lo en forma normal sería recomendable
-Post Ld está en forma normal
-*/
+/**
+* quita_acordes(Po,Pd) busca todas las parejas de acordes diatónicos !!!adyacentes que tengan la misma función tonal,
+* elige una de éstas al azar asignando la misma probabilidad a cada pareja y sustituye a la pareja por otro
+* acorde que dure mismo que la suma de las duraciones de las parejas y que tenga la misma función tonal
+* (elegido al azar y no necesariamente distinto). Si no es posible hacer esto pq no hay parejas adyacentes
+* de misma función tonal entonces devuelve en Pd la misma progresion Po
+* PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
+* Pre!!! Lo en forma normal sería recomendable
+* Post Ld está en forma normal
+* @param +Po progresión origen cumple es_progresion(Po)
+* @param -Pd progresión destino cumple es_progresion(Po)
+**/
 quita_acordes(progresion(Lo), progresion(Ld)) :- quita_acordesLista(Lo, Ld).
 quita_acordesLista([], []) :- !.
 quita_acordesLista(Lo, Ld) :- busca_acordes_afines(Lo,LPos),dame_elemento_aleatorio(LPos, PosElegida),!
@@ -528,21 +557,33 @@ quita_acordesLista(Lo, Ld) :- busca_acordes_afines(Lo,LPos),dame_elemento_aleato
       ,append(LdA, [(AcordSustituto, FigSustit)], Laux), append(Laux, LdB, Ld).
 quita_acordesLista(Lo, Lo).
 
-/*busca_acordes_afines(Lacords, Lpos) busca en la lista de cifrados Lacords parejas de acordes tales que
-tengan la misma función tonal y sean adyacentes en la lista, y devuelve en Lpos la lista de posisiones dentro
-de Lacords (nunerando empezando por 1) de los primeros elementos de dichas parejas, es decir que se cumple
-setof( Pos, (  nth( Pos,Lacords,(A1,_) ), PosS is Pos + 1, nth( PosS,Lacords,(A2,_) ),
-mismaFuncionTonalCifrado(A1, A2)  ), Lpos).
-in: Lacords cumple es_listaDeCifrados(Lacords)
-out: Lpos es una lista de enteros que pertenecen al intervalo [1,longitud de Lacords)
-*/
+/**
+* busca_acordes_afines(Lacords, Lpos) busca en la lista de cifrados Lacords parejas de acordes diatónicos!!
+* tales que tengan la misma función tonal y sean adyacentes en la lista, y devuelve en Lpos la lista de posisiones dentro
+* de Lacords (nunerando empezando por 1) de los primeros elementos de dichas parejas, es decir que se cumple
+* setof( Pos, (  nth( Pos,Lacords,(A1,_) ), PosS is Pos + 1, nth( PosS,Lacords,(A2,_) ),
+* mismaFuncionTonalCifrado(A1, A2)  ), Lpos).
+* @param +Lacords cumple es_listaDeCifrados(Lacords)
+* @param -Lpos es una lista de enteros que pertenecen al intervalo [1,longitud de Lacords)
+**/
 busca_acordes_afines(Lacords, Lpos):-busca_acordes_afines_acu(Lacords, 1, ninguno, Lpos).
-/*busca_acordes_afines_acu(Lacords, PosActual, AcordeAnterior, Lpos)
+/*
+busca_acordes_afines_acu(Lacords, PosActual, AcordeAnterior, ListaPos)
+SOLO PARA DOCUMENTACION INTERNA, POR ESO NO TIENE /**
+@param +Lacords cumple es_listaDeCifrados(Lacords), lista de cifrados cuya cabeza se está examinando
+@param +PosActual natural que indica la posicion de la cabeza de Lacords respecto a la lista más grande sobre
+la que se está haciendo esta recursión
+@param +AcordeAnterior acorde anterior a la cabeza de Lacords respecto a la lista más grande sobre
+la que se está haciendo esta recursión
+@param -ListaPos lista de posiones de Lacords que cumple busca_acordes_afines(Lacords, LposAux)
+, Lpos is LposAux + PosActual - 1
 */
 busca_acordes_afines_acu([], _, _, []).
-busca_acordes_afines_acu([(AcAct,_)|La], PosAct, AcAnterior, [PosAniadir|Lp]):-
-	mismaFuncionTonalCifrado(AcAct, AcAnterior),!, PosAniadir is PosAct - 1, PosSig is PosAct + 1
-	,busca_acordes_afines_acu(La, PosSig, AcAct, Lp).
+busca_acordes_afines_acu([(cifrado(GAct,MAct),_)|La], PosAct, AcAnterior, [PosAniadir|Lp]):-
+	listaGradosNoDiatonicos(jonico,ListaGrados),\+(member(GAct, ListaGrados))
+	,mismaFuncionTonalCifrado(cifrado(GAct,MAct), AcAnterior),!, PosAniadir is PosAct - 1, PosSig is PosAct + 1
+	%%mismaFuncionTonalCifrado(AcAct, AcAnterior),!, PosAniadir is PosAct - 1, PosSig is PosAct + 1
+	,busca_acordes_afines_acu(La, PosSig, cifrado(GAct,MAct), Lp).
 
 busca_acordes_afines_acu([(AcAct,_)|La], PosAct, _, Lp):-
 	 PosSig is PosAct + 1,busca_acordes_afines_acu(La, PosSig, AcAct, Lp).

@@ -1,0 +1,13 @@
+Usando sistema continuo para 5 notas.
+
+Progresion: [	((I,Maj7),1%1),
+		((V7 IV,Sept),1%1),
+		((IV, Maj7),1%1),
+		((V, Sept),1%1),
+		((I,Mayor),1%1)
+]
+
+PatronVertical = [ 	[(1,True),(2,True),(3, False)], 
+			[(1,True),(2,True),(4, False)], 
+			[(1,False),(2,False),(5, False)] 
+		]

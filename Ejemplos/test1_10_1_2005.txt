@@ -1,0 +1,2 @@
+Usando sistema continuo para 4 notas.
+Progresion: [((I,Maj7),1%1),((V7 IV,Sept),1%1),((IV, Maj7),1%1),((V, Sept),1%1),((I,Mayor),1%1)]

@@ -28,6 +28,7 @@ es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
 
 data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII
              |BBII|BBIII|AUII|BIV|AUIII|AUIV|BBVI|BVI|AUVI|BVIII|AUVIII
+             |BIX|IX|BX|X|BXI|XI|AUXI|BXII|XII|AUXII|BXIII|XIII|AUXIII
              |V7 Grado
              |IIM7 Grado
      deriving(Show,Eq,Ord)

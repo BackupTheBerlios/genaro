@@ -7,7 +7,7 @@ import Haskore
 import Ratio
 import PrologAHaskell
 import Progresiones
-import TraduceCifrados
+--import TraduceCifrados
 
 ------------------------------------------------------------------------------------------------------------------
 ------------- MODOS DE APLICACION DEL PATRON RITMICO
@@ -424,14 +424,9 @@ consumeVerticalCiclico mV ((lp,durA) : restoA) ( (urv, (acento, durH)) : restoH)
 		(insertaAcentoYDur acento durA (encajaModo mV alturaP lp urv), durA) : consumeVerticalCiclico mV restoA ((urv,(acento,durH-durA)):restoH) alturaP 
 
 
-
--- encajaModo :: ModoPatronVertical -> Int -> [Pitch] -> URV -> [(Pitch, Bool)]
-
-
-
-
 -----------BORRAME YA---------------
 
+{-
 numNotas :: Int
 numNotas = 4
 
@@ -453,7 +448,7 @@ traduccion1 = traduceProgresionSistemaContinuo numNotas progresion
 musica1 :: Music
 musica1 = deAcordesOrdenadosAMusica Ciclico (Truncar1, Truncar2) patronV2 patronH numNotas traduccion1 
 
-
+-}
 
 
 

@@ -17,7 +17,7 @@ es_musica(X :+: Y) :- es_musica(X), es_musica(Y).
 %composicion paralela
 es_musica(X :=: Y) :- es_musica(X), es_musica(Y).
 %musica cuyo tempo se multiplica por F
-es_musica(tempo(F, M)) :- es_fraccionNat(F), es_musica(M). 
+es_musica(tempo((N, D), M)) :- es_fraccionNat(N,D), es_musica(M). 
 %musica que se subida (traspuesta) el numero de semitonos E
 es_musica(tras(E, M)) :- integer(E), es_musica(M).
 %musica tocada con un instrumento determinado

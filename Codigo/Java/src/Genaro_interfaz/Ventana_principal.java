@@ -6,6 +6,7 @@ import javax.swing.*;
 import com.borland.jbcl.layout.*;
 import javax.swing.border.*;
 import javax.sound.sampled.*;
+import java.io.*;
 
 /**
  * <p>Título: </p>
@@ -34,6 +35,7 @@ public class Ventana_principal extends JFrame implements Runnable{
   JButton cargarButton = new JButton();
   TitledBorder titledBorder1;
   JButton jButton1 = new JButton();
+  JButton jButton2 = new JButton();
 
   //Construir el marco
   public Ventana_principal() {
@@ -91,11 +93,14 @@ public class Ventana_principal extends JFrame implements Runnable{
     jButton1.setOpaque(true);
     jButton1.setText("jButton1");
     jButton1.addMouseListener(new Ventana_principal_jButton1_mouseAdapter(this));
+    jButton2.setText("jButton2");
+    jButton2.addActionListener(new Ventana_principal_jButton2_actionAdapter(this));
     contentPane.add(statusBar, BorderLayout.SOUTH);
     contentPane.add(jPanel1,  BorderLayout.CENTER);
     jPanel1.add(playButton, null);
     jPanel1.add(stopButton, null);
     jPanel1.add(jButton1, null);
+    jPanel1.add(jButton2, null);
     contentPane.add(cargarButton, BorderLayout.NORTH);
   }
   //Modificado para poder salir cuando se cierra la ventana
@@ -168,6 +173,113 @@ public class Ventana_principal extends JFrame implements Runnable{
 
   }
 
+  void jButton2_actionPerformed(ActionEvent e)
+  {
+    String Ruta_codigo_haskell;
+    String Ruta_haskell;
+    String Ruta_prolog;
+    String Ruta_codigo_prolog;
+    FileReader fichero_conf;
+    try
+    {
+      fichero_conf=new FileReader("configuracion.cfg");
+      char[] buffer1;
+      char[] buffer2;
+      char[] buffer3;
+      char[] buffer4;
+      int tamano_string=0;
+      tamano_string=fichero_conf.read();
+      buffer1=new char[tamano_string];
+      fichero_conf.read(buffer1,0,tamano_string);
+      Ruta_prolog=new String(buffer1);
+
+      tamano_string=fichero_conf.read();
+      buffer2=new char[tamano_string];
+      fichero_conf.read(buffer2,0,tamano_string);
+      Ruta_codigo_prolog=new String(buffer2);
+
+      tamano_string=fichero_conf.read();
+      buffer3=new char[tamano_string];
+      fichero_conf.read(buffer3,0,tamano_string);
+      Ruta_haskell=new String(buffer3);
+
+      tamano_string=fichero_conf.read();
+      buffer4=new char[tamano_string];
+      fichero_conf.read(buffer4,0,tamano_string);
+      Ruta_codigo_haskell=new String(buffer4);
+
+  /*    write public void write(String str,
+                  int off,
+                  int len)
+           throws IOExceptionWrite a portion of a string. Overrides:write in class Writer Parameters:str - A Stringoff - Offset from which to start writing characterslen - Number of characters to write
+*/
+    }
+    catch (IOException nohayfichero)
+    {
+      Ruta_prolog="";
+      Ruta_codigo_haskell="";
+      Ruta_haskell="";
+      Ruta_codigo_prolog="";
+
+      FileWriter fichero_escritura;
+      try
+      {
+        fichero_escritura = new FileWriter("configuracion.cfg");
+        //1- elegir archivo sicstus.exe
+        JFileChooser jFileChooser1 = new JFileChooser(".");
+        jFileChooser1.setDialogTitle(
+            "Escoge la localización del programa \"sicstus.exe\"");
+        int valorDevuelto = jFileChooser1.showOpenDialog(this);
+        if (valorDevuelto == JFileChooser.APPROVE_OPTION)
+        {
+          Ruta_prolog = jFileChooser1.getSelectedFile().getAbsolutePath();
+          fichero_escritura.write(Ruta_prolog.length());
+          fichero_escritura.write(Ruta_prolog,0,Ruta_prolog.length());
+        }
+        //2- elegir el directorio del código prolog
+        JFileChooser jFileChooser2 = new JFileChooser(".");
+        jFileChooser2.setDialogTitle(
+            "Escoge la localización del código que vais a emplear para prolog");
+        valorDevuelto = jFileChooser2.showOpenDialog(this);
+        if (valorDevuelto == JFileChooser.APPROVE_OPTION)
+        {
+          Ruta_codigo_prolog = jFileChooser2.getCurrentDirectory().getAbsolutePath();
+          fichero_escritura.write(Ruta_codigo_prolog.length());
+          fichero_escritura.write(Ruta_codigo_prolog,0,Ruta_codigo_prolog.length());
+        }
+        //3- localizacion runhugs.exe
+        JFileChooser jFileChooser3 = new JFileChooser(".");
+        jFileChooser3.setDialogTitle(
+            "Escoge la localización del programa \"runhugs.exe\"");
+        valorDevuelto = jFileChooser3.showOpenDialog(this);
+        if (valorDevuelto == JFileChooser.APPROVE_OPTION)
+        {
+          Ruta_haskell = jFileChooser3.getSelectedFile().getAbsolutePath();
+          fichero_escritura.write(Ruta_haskell.length());
+          fichero_escritura.write(Ruta_haskell,0,Ruta_haskell.length());
+        }
+        //4- elegir el directorio del código haskell
+        JFileChooser jFileChooser4 = new JFileChooser(".");
+        jFileChooser4.setDialogTitle(
+            "Escoge la localización del código que vais a emplear para haskell");
+        valorDevuelto = jFileChooser4.showOpenDialog(this);
+        if (valorDevuelto == JFileChooser.APPROVE_OPTION)
+        {
+          Ruta_codigo_haskell = jFileChooser4.getCurrentDirectory().getAbsolutePath();
+          fichero_escritura.write(Ruta_codigo_haskell.length());
+          fichero_escritura.write(Ruta_codigo_haskell,0,Ruta_codigo_haskell.length());
+        }
+        fichero_escritura.close();
+      }
+      catch (IOException excp)
+      {System.out.println("error escribiendo fichero configuración");}
+    }
+    Interfaz_Prolog nuevo_int_prolog=new Interfaz_Prolog(Ruta_prolog,Ruta_codigo_prolog);
+    nuevo_int_prolog.Ejecuta_Objetivo("generador_acordes.pl","genera_acordes(10,10,paralelo)");
+    Interfaz_Haskell nuevo_int_haskell=new Interfaz_Haskell(Ruta_haskell,Ruta_codigo_haskell);
+    nuevo_int_haskell.Ejecuta_Funcion("main.hsx");
+  }
+
 }
 
 class Ventana_principal_cargarButton_mouseAdapter extends java.awt.event.MouseAdapter {
@@ -222,5 +334,16 @@ class Ventana_principal_jButton1_mouseAdapter extends java.awt.event.MouseAdapte
   }
   public void mouseClicked(MouseEvent e) {
     adaptee.jButton1_mouseClicked(e);
+  }
+}
+
+class Ventana_principal_jButton2_actionAdapter implements java.awt.event.ActionListener {
+  Ventana_principal adaptee;
+
+  Ventana_principal_jButton2_actionAdapter(Ventana_principal adaptee) {
+    this.adaptee = adaptee;
+  }
+  public void actionPerformed(ActionEvent e) {
+    adaptee.jButton2_actionPerformed(e);
   }
 }

@@ -9,7 +9,6 @@ import Haskore
 import Progresiones
 import PrologAHaskell -- de aqui solo necesito el tipo AcordeOrdenado
 import Ratio
-import Ritmo -- este solo para hacer pruebas
 import Random
 
 -----------------------------------------------------------

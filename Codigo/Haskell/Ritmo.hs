@@ -6,6 +6,8 @@ where
 import Haskore
 import Ratio
 import PrologAHaskell
+import TraduceCifrados --BORRAME: SOLO PARA PRUEBAS
+import Progresiones
 
 
 ------------------------------------------------------------------------------------------------------------------
@@ -184,12 +186,34 @@ type NotasLigadas = [(NotasLigadasVertical,Dur)]
 
 -- FUNCIONES
 
+{-
 -- consumeVertical: fusiona un patron ritmico y un acorde ordenado (disgregado en alturas y duracion) en las notas ligadas
 consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> NotasLigadas
 consumeVertical lp durAcorde _ 
 	| durAcorde <= 0 = []
 consumeVertical lp durAcorde ((urv, (acento, dur)) : resto) = 
 	(insertaAcentoYDur acento dur (encaja lp urv), dur) : consumeVertical lp (durAcorde - dur) resto
+
+-}
+
+-- consumeVertical: fusiona un patron ritmico y un acorde ordenado (disgregado en alturas y duracion) en las notas ligadas
+-- Cuando se acaba el acorde vuelve a empezar el patron ritmico
+consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> NotasLigadas
+consumeVertical lp durAcorde ((urv, (acento, durH)) : resto) 
+	| durAcorde == durH = ( insertaAcentoYDur acento durH (encaja lp urv) , durH ) : []
+	| durAcorde < durH = ( insertaAcentoYDur acento durAcorde (encaja lp urv) , durAcorde ) : []
+	| durAcorde > durH = (insertaAcentoYDur acento durH (encaja lp urv), durH) : consumeVertical lp (durAcorde - durH) resto
+
+-- Cuando se acaba el acorde no vuelve a empezar el patron ritmico sino que continua con el elemento que le toque
+consumeVertical2 :: [AcordeOrdenado] -> PatronRitmico -> NotasLigadas
+consumeVertical2 [] _ = []
+consumeVertical2 ((lp,durA) : restoA) ( (urv, (acento, durH)) : restoH)
+	| durA > durH = 
+		(insertaAcentoYDur acento durH (encaja lp urv), durH) : consumeVertical2 ((lp,durA-durH):restoA) restoH
+	| durA == durH =  
+		(insertaAcentoYDur acento durH (encaja lp urv), durH) : consumeVertical2 restoA restoH
+	| durA < durH = 
+		(insertaAcentoYDur acento durA (encaja lp urv), durA) : consumeVertical2 restoA ((urv,(acento,durH-durA)):restoH)
 
 
 -- insertaAcentoYDur: introduce el acento (volumen) y la duracion en la lista de alturas para formar la lista de notas
@@ -216,6 +240,20 @@ deAcordesOrdenadosANotasLigadas pr lao = foldr (++) [] (map (deAcordeOrdenadoANo
 -- en forma de patron vertical y horizontal en notas ligadas
 deAcordesOrdenadosANotasLigadas2 :: PatronVertical -> PatronHorizontal -> [AcordeOrdenado] -> NotasLigadas
 deAcordesOrdenadosANotasLigadas2 pV pH lao = foldr (++) [] (map (deAcordeOrdenadoANotasLigadas (fusionaPatrones pV pH)) lao)
+
+
+----------------------------------------------------------
+-- CON CIERTA CONTINUIDAD: LO NUEVO
+----------------------------------------------------------
+
+deAcordesOrdenadosANotasLigadas3 :: PatronRitmico -> [AcordeOrdenado] -> NotasLigadas
+deAcordesOrdenadosANotasLigadas3 pr lao = consumeVertical2 lao pr
+
+deAcordesOrdenadosANotasLigadas4 :: PatronVertical -> PatronHorizontal -> [AcordeOrdenado] -> NotasLigadas
+deAcordesOrdenadosANotasLigadas4 pV pH lao = consumeVertical2 lao (fusionaPatrones pV pH)
+
+----------------------------------------------------------
+
 
 -- buscaNota: busca la altura en la lista de notasLigadasVertical y devuelve su duracion si la encuentra o 0%1 si no
 buscaNota :: Pitch -> NotasLigadasVertical -> Dur
@@ -284,45 +322,37 @@ paraleliza (( nota, _ ):resto) = nota :=: paraleliza resto
 
 
 
+-- NOTA: HAY QUE CAMBIAR LO DE deAcordesOrdenadosANotasLigadas4 (antes tenia el 2)
 -- Usando todas las funciones anterior pasa una lista de acordes ordenados con los patrones a Haskore
 deAcordesOrdenadosAMusica :: [AcordeOrdenado] -> PatronVertical -> PatronHorizontal -> Music
-deAcordesOrdenadosAMusica lao pV pH = deNotasLigadasAMusica (  (eliminaLigaduras (deAcordesOrdenadosANotasLigadas2 pV pH lao)))
+deAcordesOrdenadosAMusica lao pV pH = deNotasLigadasAMusica (  (eliminaLigaduras (deAcordesOrdenadosANotasLigadas4 pV pH lao)))
 
 
 
 
 
--------------------------------------------------
---BATERIA
--------------------------------------------------
+-----------BORRAME YA---------------
 
+numNotas :: Int
+numNotas = 4
 
+progresion :: Progresion
+progresion = [((I,Mayor),1%2),((V,Mayor),1%2),((I,Mayor),1%1)]
 
-bombo :: Pitch
-bombo = pitch (fromEnum BassDrum1 + 35)
+patronH :: PatronHorizontal
+patronH = [(100,1%4)]
 
-charles :: Pitch
-charles = pitch (fromEnum PedalHiHat + 35)
+patronV1 :: PatronVertical
+patronV1 = [[(i,False) | i<-[1..numNotas]] , [(1,False)]]
 
-platillo :: Pitch
-platillo = pitch (fromEnum SplashCymbal + 35)
+patronV2 :: PatronVertical
+patronV2 = [[(i,False)] | i<-[1..numNotas]]
 
-
-bateria :: [Pitch]
-bateria = [bombo, charles, platillo]
-
-
-patronVB :: PatronVertical
-patronVB = [[(1,False),(2,False),(3,False)],[(2,False)],[(1,False),(2,False)],[(2,False)]]
-
-patronHB :: PatronHorizontal
-patronHB = [(80, 1%8)]
+traduccion1 :: [AcordeOrdenado]
+traduccion1 = traduceProgresionSistemaContinuo numNotas progresion
 
 musica1 :: Music
-musica1 = Instr "Drums" (deAcordesOrdenadosAMusica [(bateria, 3%1)] patronVB patronHB)
-
-
-
+musica1 = deAcordesOrdenadosAMusica traduccion1 patronV2 patronH 
 
 
 

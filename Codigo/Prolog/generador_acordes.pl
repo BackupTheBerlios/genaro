@@ -113,39 +113,21 @@ out: La resultado de las transformaciones, Cumple es_progresion(La)
 */
 %modifica_prog(S,N,La) :- natural(N), numCompases(S,Ls), Ls <= N, ¿?? 
 
-/* cambia_acordes(Po, N, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd donde se han realizado N cambios de un acorde por otro de la misma función tonal y que dura lo mismo (misma figura en la progresión)
+/* cambia_acordes(Po, N, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd donde se han realizado 1 cambio de un acorde por otro de la misma función tonal y que dura lo mismo (misma figura en la progresión)
 in: Po progresión origen cumple es_progresion(Po)
-    N: natural, indica cuantos cambios se harán
 out:Pd progresión destino cumple es_progresion(Po)
 Pre!!! Lo en forma normal sería recomendable */
-cambia_acordes(progresion(Lo), N, progresion(Ld)) :- cambia_acordesLista(Lo, N, Ld).
-cambia_acordesLista([], _,[]) .
-cambia_acordesLista(Lo, N, Lo) :- N=<0.
-cambia_acordesLista(Lo, N, Ld) :- 
+cambia_acordes(progresion(Lo), progresion(Ld)) :- cambia_acordesLista(Lo, Ld).
+cambia_acordesLista([], []) .
+cambia_acordesLista(Lo, Ld) :- 
 	dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
       ,dame_cuat_funcTonal_equiv(AcordElegido, AcordSustituto)
- 	,sublista(Lo, 1, PosElegida, LdA), length(Lo, L),
-      PosElegMas is PosElegida + 1, sublista(Lo, PosElegMas, L, LdB), 
-      append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, LdC),
-	NMenos is N -1, cambia_acordesLista(LdC, NMenos, Ld).
-
-
-
-
-
-/*cambia_acordesLista(Lo, N, Ld) :- 
-	dame_elemento_aleatorio(Lo, (cifrado(GradoElegido,_), F), PosElegida)
-	,dame_grado_funcTonal_equiv(GradoElegido, GradoSustituto)
-	,hazCuatriada(GradoSustituto, AcorSustit), sublista(Lo, 1, PosElegida, LdA), 
-	length(Lo, L),
-      PosElegMas is PosElegida + 1, sublista(Lo, PosElegMas, L, LdB), 
-      append(LdA, [(AcorSustit, F)], Laux), append(Laux, LdB, LdC),
-	NMenos is N -1, cambia_acordesLista(LdC, NMenos, Ld).*/
-
-
+ 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1, 
+      sublista_suf(Lo, PosElegMas, LdB), 
+      append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, Ld).
 
 /* sublista(Xs, Iini, Ifin, Ys)
-Ys es la lista que tiene los elementos en posiciones en [Iini, Ifin), con pos empezando en 1*/
+Ys es la lista que tiene los elementos de Xs en posiciones en [Iini, Ifin), contando las posiciones empezando por el 1*/
 sublista(Xs, Iini, Ifin, Ys) :- sublista_acu(Xs, Iini, Ifin, 1, Ys).
 sublista_acu([], _, _, _, []) :- !.
 %se pone a la altura del marcador izquierdo
@@ -157,6 +139,29 @@ sublista_acu([X|Xs], Iini, Ifin, PosAct, [X|Ys]) :- PosAct >= Iini, PosAct < Ifi
 %ha sobrepasado el marcador derecho
 sublista_acu(_, _, Ifin, PosAct, []) :- PosAct >=Ifin.
 
+/*sublista_pref(Xs, Ifin, Ys)
+Ys es la lista que tiene los elementos de Xs en posiciones en [1, Ifin), contando las posiciones empezando por el 1*/
+sublista_pref(Xs, Ifin, Ys) :- sublista_pref_acu(Xs, Ifin, 1, Ys).
+sublista_pref_acu([], _, _, []) :- !.
+%esta delante del marcador derecho
+sublista_pref_acu([X|Xs], Ifin, PosAct, [X|Ys]) :- PosAct < Ifin, PosAct2 is PosAct +1
+						,sublista_pref_acu( Xs, Ifin, PosAct2, Ys).
+%ha sobrepasado el marcador derecho
+sublista_pref_acu(_, Ifin, PosAct, []) :- PosAct >=Ifin.
+
+/*sublista_suf(Xs, Iini, Ys)
+Ys es la lista que tiene los elementos de Xs en posiciones desde Iini (inclusive) hasta el final de la lista, es decir, en
+posiciones [Iini, Tam_lista] si lenght(Xs, TamLista)*/
+sublista_suf(Xs, Iini, Ys) :- sublista_suf_acu(Xs, Iini, 1, Ys).
+sublista_suf_acu([], _, _, []) :- !.
+%se pone a la altura del marcador izquierdo
+sublista_suf_acu([_|Xs], Iini, PosAct, Ys) :- PosAct < Iini, PosAct2 is PosAct +1
+						,sublista_suf_acu( Xs, Iini, PosAct2, Ys).
+%ha sobrepasado el marcador izquierdo
+sublista_suf_acu([X|Xs], Iini, PosAct, [X|Ys]) :- PosAct  >= Iini, PosAct2 is PosAct +1
+						,sublista_suf_acu( Xs, Iini, PosAct2, Ys).
+
+
 %FUNCIONES TONALES
 mismaFuncionTonal(G1,G2) :- dameFuncionTonal(G1, F), dameFuncionTonal(G2, F).
 
@@ -166,6 +171,14 @@ dameFuncionTonal(grado(G), dominante) :- member(G, [v, vii]).
 
 /*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)*/
 dame_grado_funcTonal_equiv(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc),dame_elemento_aleatorio(Lc, Gd).
+/*dame_elemento_aleatorio(Lista, E) 
+in: Lista lista de elementos de cualquier tipo
+out: E es un elemento de E elegido aleatoriamente. La probabilidad de elegir cada elemento es la misma, e.d. 1/numero de elementos de Lista
+dame_elemento_aleatorio(Lista, E, Pos) 
+in: Lista lista de elementos de cualquier tipo
+out: E es un elemento de E elegido aleatoriamente. La probabilidad de elegir cada elemento es la misma, e.d. 1/numero de elementos de Lista
+Pos: posicion de E dentro de la lista numerando a partir de 1
+*/
 dame_elemento_aleatorio(Lista, E) :- length(Lista, L), random(0, L, Pos)	,nth0(Pos, Lista, E).
 dame_elemento_aleatorio(Lista, E, PosAux) :- length(Lista, L), random(0, L, Pos) ,nth0(Pos, Lista, E), PosAux is Pos + 1.
 

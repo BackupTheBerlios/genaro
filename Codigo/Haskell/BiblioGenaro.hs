@@ -202,7 +202,6 @@ Devuelve True si el string de entrada representa a un natural.
 -}
 
 esNaturalString :: String -> Bool
-
 esNaturalString = parseoExitoso natural
 
 
@@ -218,70 +217,109 @@ Devuelve True si el string de entrada representa a un float.
 -}
 
 esFloatString :: String -> Bool
-
 esFloatString = parseoExitoso float
 
 
 
 pideFloat :: String -> IO Float
-
 pideFloat mensaje = do putStrLn mensaje
-
                        cadenaNum <- getLine
-
                        if (esFloatString cadenaNum)
-
                           then do num <- readIO cadenaNum
-
                                   return num
-
                           else do putStrLn "dato con formato incorrecto, vuelva a introducir el dato: "
-
                                   pideFloat mensaje
 
 pruPideFloat :: IO ()
-
 pruPideFloat = do f <- pideFloat "dame un Float"
-
                   putStr "el float era: "
-
                   print f
 
 
 
 pideInt :: String -> IO Int
-
 pideInt mensaje = do putStrLn mensaje
-
                      cadenaNum <- getLine
-
                      if (esIntString cadenaNum)
-
                         then do num <- readIO cadenaNum
-
                                 return num
-
                         else do putStrLn "dato con formato incorrecto, vuelva a introducir el dato: "
-
                                 pideInt mensaje
 
+{-
+Muestra un mensaje de pedidad y lee un entero de la entrada estándar hasta que realmente sea un entero. Si no el usuario no ha escrito un
+ entero muestra el mensaje de error especificado. No escribe los mensajes con saltos de linea forzados 
+-}
+pideIntMensajeError :: String -> String -> IO Int
+pideIntMensajeError mensajePedida mensajeError = do putStr mensajePedida
+                                                    cadenaNum <- getLine
+                                                    if (esIntString cadenaNum)
+                                                       then do num <- readIO cadenaNum
+                                                               return num
+                                                       else do putStr mensajeError
+                                                               pideIntMensajeError mensajePedida mensajeError
+{-
+recursion final de listas con acumulador impaciente
+-}
+foldl' :: (b -> a -> b) -> b -> [a] -> b
+foldl' f e []     = e
+foldl' f e (x:xs) = (foldl' f $! f e x) xs
 
+{-
+recursion final de listas no vacias con acumulador impaciente. Se toma el primer elemento de 
+la lista como acumulador inicial
+-}
+foldl1' :: (a -> a -> a) -> [a] -> a
+foldl1' f (x:xs) = foldl' f x xs
+
+{-
+Dada una lista de listas y un separador del mismo tipo que las elementos de la superlista devuelve
+la lista resultado de concatenar las listas de la superlista separandolas con el separador
+-}
+juntaCon :: [a] -> [[a]] -> [a]
+juntaCon separador = foldl1' (\xs-> \ys ->xs++separador++ys )
+
+type FuncionInteraccion = IO()
+type Mensaje = String
+type DatosInteraccion = (Mensaje, [(Mensaje, FuncionInteraccion)])
+
+ejemploInteraccion :: DatosInteraccion
+ejemploInteraccion = ("¿Con cual de estos tipos quieres cenar esta noche?"
+                      ,[(mensajeManolo, accionManolo),(mensajeAntonio, accionAntonio)])
+
+mensajeManolo = "Manolo es un tipo duro, de los fuertes y callados"
+accionManolo = do {putStrLn "Hola wapa, ¿te vienes a matar humanos?"}
+mensajeAntonio = "Antonio es un hombre sensible, le encantan las flores y los cuadros de Manet"
+accionAntonio = do {putStrLn "Hola, ¿te vienes a ver cuadros?"}
+
+hazInteraccion :: DatosInteraccion -> IO()
+hazInteraccion (mensajeBienvenida, listaOpciones) = do putStrLn mensajeBienvenida
+                                                       putStrLn mensajeOpciones
+                                                       opcion <- pideOpcion
+                                                       if (opcion >=1 && opcion <= (length listaOpciones))
+                                                           then do putStrLn ""
+                                                                   listaAcciones !! (opcion - 1)
+                                                           else do putStrLn mensajeError
+                                                                   hazInteraccion (mensajeBienvenida, listaOpciones)
+                                                       where mensajeOpciones = "\n" ++ formateaOpciones (map fst listaOpciones)
+                                                             mensajePedida   = ""
+                                                             mensajeError    = "\nDebes introducir un entero correspondiente a una de las opciones\n"
+                                                             pideOpcion      = pideIntMensajeError  mensajePedida mensajeError
+                                                             listaAcciones   = map snd listaOpciones
+{-
+Muestra las opciones de la lista en formato numero.opcion salto_de_linea, donde numero empieza a contar desde uno
+-}
+formateaOpciones :: [Mensaje] -> Mensaje
+formateaOpciones mensajes = formateaOpcionesAcu 1 mensajes
+                            where formateaOpcionesAcu _ [] = []
+                                  formateaOpcionesAcu n (m:ms) = (show n) ++ "."++ m ++ "\n" ++ formateaOpcionesAcu (n+1) ms
 
 main = do putStrLn "me mola la coca-cola"
-
-
 lola =  do x <- getStdGen
-
            print (next x)
-
 	   newStdGen
-
 	   x <- getStdGen
-
 	   print (next x)
-
 	   newStdGen
-
 	   x <- getStdGen
-
 	   print (next x)

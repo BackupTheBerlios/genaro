@@ -11,7 +11,7 @@ import PrologAHaskell -- de aqui solo necesito el tipo AcordeOrdenado
 import Ratio
 import Random
 import BiblioGenaro
---import Ritmo
+
 
 -----------------------------------------------------------
 
@@ -223,87 +223,3 @@ organizarRec gen referencia (x:xs) = nuevaRef : organizarRec sigGen nuevaRef xs
 
 
 
--- BORRAME: EJEMPLOS DE RANDOM
-
-{-
-aleatorio :: Int -> [Int]
-aleatorio n = aleatorioRec n (mkStdGen 1)
-
-aleatorioRec :: RandomGen g => Int -> g -> [Int]
-aleatorioRec 0 _ = []
-aleatorioRec n g = (fst aleatorio) : aleatorioRec (n-1) (snd aleatorio)
-	where aleatorio = randomR (0,10) g
-
-rollDice :: IO Int
-rollDice = getStdRandom (randomR (1,6))
-
-
-dado :: IO Int
-dado = do{	x <- rollDice;
-		return x
-	}
-
-dado2 :: Int
-dado2 = dado
--}
-
-
--- BORRAME: EJEMPLOS DE PRUEBA
-
-{-
-progresion1 :: Progresion
-progresion1 = [((I, Maj7),1%1),((VI, Men7),1%1),((II, Men7),1%1),((V7 I, Sept),1%1)]
-
-progresion2 :: Progresion
-progresion2 = [((I, Maj7),1%1),((VI, Men7),1%1),((II, Men7),1%1),((V, Sept),1%1),((I, Maj7),1%1)]
-
-numNotas :: Int
-numNotas = 4
-
-acordes :: [AcordeOrdenado]
-acordes = traduceProgresionSistemaContinuo numNotas progresion2
-
-patronH1 :: PatronHorizontal
-patronH1 = [(100,1%8)]
-
-patronV1 :: PatronVertical
-patronV1 = [[(i,False)] | i<-[1..numNotas]]
-
-patronH2 :: PatronHorizontal
-patronH2 = [(100,1%1)]
-
-patronV2 :: PatronVertical
-patronV2 = [ [(i,False) | i<-[1..numNotas]] ]
-
-
-musica1 :: Music
-musica1 = deAcordesOrdenadosAMusica acordes patronV1 patronH1
-
-musica2 :: Music
-musica2 = deAcordesOrdenadosAMusica acordes patronV2 patronH2
--}
-
-{-
-numNotas :: Int
-numNotas = 10
-
-progresion :: Progresion
-progresion = [((I,Maj7),1%1),((V7 IV,Sept),1%1),((IV, Maj7),1%1),((V, Sept),1%1),((I,Mayor),1%1)]
-
-patronH :: PatronHorizontal
-patronH = [(100,1%(4*numNotas))]
-
-patronV1 :: PatronVertical
-patronV1 = [ [(1,True),(2,True),(3, False)], [(1,True),(2,True),(4, False)], [(1,False),(2,False),(5, False)] ]
-
-patronV2 :: PatronVertical
-patronV2 = [[(i,False)] | i<-[1..numNotas]]
-
-traduccion1 :: [AcordeOrdenado]
-traduccion1 = traduceProgresionSistemaContinuo numNotas progresion
-
-musica1 :: Music
-musica1 = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronV2 patronH numNotas traduccion1 
-
-
--}

@@ -63,3 +63,8 @@ working_directory(-Old, +New)
 */
 haz_ejecutable(NombreArchivo,Objetivo) :- 
     qsave_program(NombreArchivo, [goal(Objetivo), stand_alone(true)]).
+
+/**
+* coge_argumentos(-Args): devuelve en Args la lista de argumentos con la que se ha llamado a un posible exe de Prolog. Se esperan llamadas de la forma: ejecutable.exe -arg1 -arg2 ... -argn
+*/
+coge_argumentos(Args) :- current_prolog_flag(argv, [_|Args]).

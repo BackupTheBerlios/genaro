@@ -3,9 +3,10 @@ module ArmonizaMelodia where
 
 import Haskore
 import Progresiones
-import TraduceCifrados ( traduceCifrado, elementoAleatorio )
+import TraduceCifrados ( traduceCifrado )
 import Ratio
 import Random
+import BiblioGenaro ( elementoAleatorio )
 
 
 type Melodia = [ HaskoreSimple ]
@@ -83,13 +84,16 @@ acordesDiatonicos :: [Cifrado]
 acordesDiatonicos = acordesDiatonicosTriadas ++ acordesDiatonicosCuatriadas
 
 
-armonizaNotasPrincipales :: [NotaPrincipal] -> [(Cifrado, Dur)]
-armonizaNotasPrincipales = map armonizaNotaPrincipal
+armonizaNotasPrincipales :: RandomGen g => g -> [NotaPrincipal] -> [(Cifrado, Dur)]
+armonizaNotasPrincipales gen [] = []
+armonizaNotasPrincipales gen (notaP : resto) = cifradoYDur : armonizaNotasPrincipales sigGen resto
+           where (cifradoYDur, sigGen) = armonizaNotaPrincipal gen notaP
 
-armonizaNotaPrincipal :: NotaPrincipal -> (Cifrado, Dur)
-armonizaNotaPrincipal (notaP, dur) = (cifradoAleatorio, dur)
+armonizaNotaPrincipal :: RandomGen g => g -> NotaPrincipal -> ((Cifrado, Dur), g)
+armonizaNotaPrincipal gen (notaP, dur) = ((cifradoAleatorio, dur), sigGen)
            where cifradosCandidatos = buscaCifradosCandidatos notaP acordesDiatonicos
-                 cifradoAleatorio = fst (elementoAleatorio (mkStdGen 10) cifradosCandidatos ) --cifradosCandidatos !! 0 --elementoAleatorio cifradosCandidatos
+                 (cifradoAleatorio , sigGen )= elementoAleatorio gen cifradosCandidatos 
+
 
 
 buscaCifradosCandidatos :: PitchClass -> [Cifrado] -> [Cifrado]

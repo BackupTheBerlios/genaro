@@ -1,5 +1,5 @@
 module Main where
 import PrologAMidi
 main = do putStr "\n Empezando a generar midi a partir de Prolog\n"
-          hazArchivoMidi "c:/hlocal/acordes.txt" "c:/hlocal/acordes.mid"
+          progresionPrologAMidi2 "c:/hlocal/acordes.txt" "c:/hlocal/acordes.mid"
           putStr "\n Terminado el proceso \n"

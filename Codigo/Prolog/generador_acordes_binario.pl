@@ -163,7 +163,8 @@ monta_dominante_sec(grado(G),grado(v7 / G)).
 * @param +Lo cumple es_progresion(progresion(Lo))
 * @param +Ld cumple es_progresion(progresion(Ld))
 */
-inserta_dominante_sec(_, [], [(cifrado(grado(v),matricula(7)), figura(1,1))]) :-!.
+/*no se puede insertar un dominante secundario en una progresion vacía
+inserta_dominante_sec(_, [], [(cifrado(grado(v),matricula(7)), figura(1,1))]) :-!.*/
 /*Cómo mantener el ritmo armónico: si el acorde al que le añado el dominante dura (N/D) tomo N/D como unidad. Como estamos
 en binario supongo invariante que N es 1 y D es potencia de 2 (demostrar!!!)."Lo" sólo tiene un acorde, entonces la posicion 0
 es fuerte y la posicion 0 + N/D es débil respecto a ella. Y tb ocurre que el segmento [0,2*N/D] se divide así

@@ -42,10 +42,10 @@
 %PREDICADOS
 
 	%RUTAS DE LOS PROCESOS DE E/S
-fichero_destinoGenAc_prog_ord('C:/hlocal/progresion_ordenada.txt').
-fichero_destinoGenAc_prog('C:/hlocal/progresion.txt').
-fichero_destinoGenAc_prog_con_rel('C:/hlocal/progresion_con_rel.txt').
-fichero_destinoGenAc_prog_semilla('C:/hlocal/progresion_semilla.txt').
+fichero_destinoGenAc_prog_ord('./progresion_ordenada.txt').
+fichero_destinoGenAc_prog('./progresion.txt').
+fichero_destinoGenAc_prog_con_rel('./progresion_con_rel.txt').
+fichero_destinoGenAc_prog_semilla('./progresion_semilla.txt').
 
 	%TIPOS Y ESTRUCTURAS
 /**

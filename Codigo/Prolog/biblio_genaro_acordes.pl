@@ -18,6 +18,7 @@
 
 :- use_module(representacion_prolog_haskore).
 :- use_module(compat_Sicstus_SWI).
+:- ensure_loaded(library(lists)).
 %:- use_module(library(random)).
 %:- use_module(library(lists)).
 

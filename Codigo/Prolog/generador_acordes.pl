@@ -23,6 +23,7 @@
 
 %BIBLIOTECAS
 :- use_module(compat_Sicstus_SWI).
+:- ensure_loaded(library(lists)).
 %%:- use_module(library(lists)).
 %%:- use_module(library(random)).
 

@@ -15,6 +15,7 @@
 
 %BIBLIOTECAS
 %%:- use_module(library(lists)).
+:- ensure_loaded(library(lists)).
 
 %ARCHIVOS PROPIOS CONSULTADOS
 :- use_module(generador_acordes_binario).

@@ -14,10 +14,11 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 %%:- module(generador_acordes_binario).
 :- module(generador_acordes_binario
     ,[genera_acordes/0
-      ,genera_acordes/4]).
+      ,genera_acordes/4
+     ,haz_progresion/4]).
 
 %BIBLIOTECAS
-
+:- ensure_loaded(library(lists)).
 %ARCHIVOS DE COMPATIBILIDAD
 :- use_module(compat_Sicstus_SWI).
 
@@ -79,7 +80,7 @@ termina_genera_acordes(ListaAcordes) :-
 * acordes generada
 */
 
-haz_progresion(N, _, _, progresion([])) :- N < 0, !.
+haz_progresion(N, _, _, progresion([])) :- N =< 0, !.
 haz_progresion(N, M, Tipo, Progresion) :- rango_prog_semilla(Tipo,MinComp, MaxComp)
 , intervaloEntero(MinComp, MaxComp, CompPos), divisores(N, CompPos, CompCand)
 , setof((CC,CC),member(CC,CompCand), ListaEligeSemilla)

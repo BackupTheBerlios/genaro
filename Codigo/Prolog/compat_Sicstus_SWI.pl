@@ -3,6 +3,7 @@
         ,gcd/3
         ,nth/3]).
 
+:- ensure_loaded(library(lists)).
 /*
 COMENTARIOS
 /*comentario varias lineas*/

@@ -12,6 +12,7 @@
 
 /* Modulos de Prolog */
 %%:- use_module(library(lists)).
+:- ensure_loaded(library(lists)).
 
 /* Modulos propios */
 :- use_module(representacion_prolog_haskore).

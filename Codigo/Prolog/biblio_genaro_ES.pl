@@ -2,7 +2,8 @@
 :- module(biblio_genaro_ES,[escribeTermino/3,escribeTermino/2]).
 
 %BIBLIOTECAS
-:- use_module(library(system)).
+:- ensure_loaded(library(system)).
+%:- use_module(library(system)).
 
 
 % use_module(library(system),[]),system:working_directory(_,'C:/hlocal').
@@ -58,13 +59,16 @@ working_directory(-Old, +New)
 /**
 * haz_ejecutable(+NombreArchivo,+Objetivo): salva el estado actual del programa en un ejecutable independiente
 * que tendrá como objetivo el atomo especificado
+* En windows hay que poner todos los archivos .dll que hay en la carpeta bin del directorio donde
+* este instalado SWI pq si no funcionan los exes
+* En windows no cargar el guitracer antes de hacer el exe o no funcionara
 * -http://gollem.science.uva.nl/SWI-Prolog/Manual/runtime.html
 * -ver que pasa con las dll
 */
-haz_ejecutable(NombreArchivo,Objetivo) :- 
+haz_ejecutable(NombreArchivo,Objetivo) :-
     qsave_program(NombreArchivo, [goal(Objetivo), stand_alone(true)]).
 
 /**
-* coge_argumentos(-Args): devuelve en Args la lista de argumentos con la que se ha llamado a un posible exe de Prolog. Se esperan llamadas de la forma: ejecutable.exe -arg1 -arg2 ... -argn
+* coge_argumentos(-Args): devuelve en Args la lista de argumentos con la que se ha llamado a un posible exe de Prolog. Se esperan llamadas de la forma: ejecutable.exe arg1 arg2 ... argn
 */
 coge_argumentos(Args) :- current_prolog_flag(argv, [_|Args]).

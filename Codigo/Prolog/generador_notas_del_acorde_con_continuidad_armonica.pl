@@ -5,6 +5,7 @@
 
 %%:-use_module(library(random)).
 %%:-use_module(library(lists)).
+:- ensure_loaded(library(lists)).
 :- use_module(compat_Sicstus_SWI).
 :-use_module(biblio_genaro_acordes).
 

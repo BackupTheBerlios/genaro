@@ -35,18 +35,8 @@ parserMusica :: Parser Char Music
 -- cadena es la entrada del analizador
 -- resto es lo que queda de cadena por analizar
 -- musica es el resultado del analisis
-parserMusica _ = [([], cancioncilla)]
+parserMusica = foldr genToken musBase [composicion]
 
-
--- lista de todos de los tokens de la entrada
-listaTokens :: [String]
-listaTokens = ["nota", "altura"]
-
-listaBlancos :: [String]
-listaBlancos =["\n", "\t", " "]
-
-
--- hazMusica _ = cancioncilla
 -- auxiliar para pruebas
 cancioncilla :: Music
 cancioncilla = Instr "piano" (Tempo (3%1) (
@@ -56,26 +46,62 @@ cancioncilla = Instr "piano" (Tempo (3%1) (
 	:=: (qnr :+: qnr :+: qnr :+: (b 4 wn []))
 	))
 
-type Op a = (Char, a->a->a)
-gen  ::  [Op a] -> Parser Char a -> Parser Char a
-gen ops p  =  chainr p (choice (map f ops))
-       where  f (s,c) = symbol s <@ const c
+type OpToken a = (String, a->a->a)
+genToken  ::  [OpToken a] -> Parser Char a -> Parser Char a
+genToken ops p  =  chainr p (choice (map f ops))
+       where  f (s,c) = token s <@ const c
 
-{-
+composicion = [(":+:", (:+:)), (":=:", (:=:))]
+
+
 musBase :: Parser Char Music
+{- viejo, hace más caso a Jerome pq el Rest lo hace musBase no silencio
 musBase =   silencio
             <@ Rest
+            la siguiente linea mala creo
         <|> nota <*> altura <*> figura
 -}
--- silencio :: Parser Char Music
--- silencio = (token "silencio" *> (parenthesized figura)) <@ Rest
-silencio :: Parser Char (Ratio Int)
-silencio = token "silencio" *> (parenthesized figura)
+musBase =   silencio
+       <|> nota
 
-figura :: Parser Char (Ratio Int)
--- figura = token "figura" *> parAFrac
--- guarreria
--- ((token "figura") *> figura) "figura(2,3)"
+silencio :: Parser Char Music
+silencio = (token "silencio" *> (parenthesized figura)) <@ Rest
+
+--tb muy parecida a altura, se podría hacer otra de alto nivel
+nota :: Parser Char Music
+nota = ( (token "nota") *> parenthesized(altura <*> ((token "," ) *> figura)) ) <@ f
+	where f = \(alt, fig) -> Note alt fig []
+
+altura :: Parser Char Pitch
+altura = (token "altura") *> parenthesized(numNota <*> ((token "," ) *> octava))
+
+-- no uso la funcion pitch :: Int -> Pitch pq Haskore cuenta 0 como C y nosotros 0 como A
+numNota :: Parser Char PitchClass
+numNota = ( (token "numNota") *> parenthesized(natural) ) <@ numAPitchClass
+
+-- en caso de entrada no valida devuelve Cf como marca de error = cutrez!HACER TODO
+-- CON MAYBE MAS TARDE!!!!!!!!!!!! Eleccion arbitraria entre las notas enarmónicas
+-- TB EN EL FUTURO HACER FUNC DE ORDEN SUPERIOR PARA PARSER SIMILARES COMO numNota, octava, silencio..
+numAPitchClass :: Int -> PitchClass
+numAPitchClass n
+        | n == 0    = A
+        | n == 1    = As
+        | n == 2    = B
+        | n == 3    = C
+        | n == 4    = Cs
+        | n == 5    = D
+        | n == 6    = Ds
+        | n == 7    = E
+        | n == 8    = F
+        | n == 9    = Fs
+        | n == 10    = G
+        | n == 11    = Gs
+        | otherwise = Cf
+
+octava :: Parser Char Octave
+octava = (token "octava") *> parenthesized(natural)
+
+figura :: Parser Char Dur
 figura = ((token "figura") *> parenthesized(commaList natural)) <@ parejaARatio
 
 parejaARatio :: [Int] -> (Ratio Int)
@@ -84,48 +110,6 @@ parejaARatio [_] = 0%1
 parejaARatio [a,b] = a%b
 parejaARatio (_:_:xs) = 0%1
 
-
-parAFrac :: Parser Char (Ratio Int)
--- parAFrac = (parenthesized natural <* (token ",") *> parenthesized natural)
---            <@ (uncurry(%))
-parAFrac = (natural <*> natural) <@ uncurry(%)
-
--- cutrez
-{-
--- Type-definition for parsetree
-
-data Expr = Con Int
-          | Var String
-          | Fun String [Expr]
-          | Expr :+: Expr
-          | Expr :-: Expr
-          | Expr :*: Expr
-          | Expr :/: Expr
-
--------------------------------------------------------------
--- Parser for expressions with aribitrary many priorities
-
-type Op a = (Char, a->a->a)
-
-fact' :: Parser Char Expr
-fact' =     integer
-            <@ Con
-        <|> identifier
-            <*> (option (parenthesized (commaList expr')) <?@ (Var,flip Fun))
-            <@ ap'
-        <|> parenthesized expr'
-
-gen  ::  [Op a] -> Parser Char a -> Parser Char a
-gen ops p  =  chainr p (choice (map f ops))
-       where  f (s,c) = symbol s <@ const c
-
-expr' :: Parser Char Expr
-expr'  =  foldr gen fact' [addis, multis]
-
-multis  =  [ ('*',(:*:)), ('/',(:/:)) ]
-addis   =  [ ('+',(:+:)), ('-',(:-:)) ]
-
--}
 ---------------------------------------------------------------------
 -- written by:
 -- Jeroen Fokker                                 |  jeroen@cs.ruu.nl

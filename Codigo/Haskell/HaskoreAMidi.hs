@@ -60,7 +60,7 @@ contextoDef :: Context
 contextoDef = Context { cTime   = 0,
 		     cPlayer = fancyPlayer,
 		     cInst   = "piano",
-		     cDur    = metro 150 qn,
+		     cDur    = metro 350 qn,
 		     cKey    = 0,
 		     cVol    = 127 }
 

@@ -43,7 +43,7 @@ parserRatioARatio :: Parser Char (Ratio Int)
 parserRatioARatio =  (integer <* tantoPorCien) <*> integer  <@ f
                      where f = \(a,b) -> a%b
 {-
-Dado una funcion/parser de tipo Parser Char a devuelve la función que aplica este parser, es decir,
+Dada una funcion/parser de tipo Parser Char a devuelve la función que aplica este parser, es decir,
 una funcion de tipo String -> a que devuelve el primer resultado del parseo o error si falla el
 análisis
 -}
@@ -53,6 +53,19 @@ aplicaParser parser cadena = if null resultados
                                 else if null (fst resul1)
                                         then snd resul1
                                         else error "el parser no reconoció la entrada completamente"
+		              where resultados = parser cadena
+                                    resul1     = head resultados
+
+{-
+Dado una funcion/parser de tipo Parser Char a devuelve y un string devuelve cierto si el parseo fue exitoso, 
+es decir, si la cadena se ajusta a la estructura sintáctica especificada por el parser; y falso en otro caso
+-}
+parseoExitoso :: (Parser Char a) -> (String -> Bool)
+parseoExitoso parser cadena = if null resultados
+                                 then False
+                                 else if null (fst resul1)
+                                         then True
+                                         else False
 		              where resultados = parser cadena
                                     resul1     = head resultados
 {-

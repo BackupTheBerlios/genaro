@@ -1,5 +1,7 @@
 module BiblioGenaro where
 import Random
+import Parser_library
+import Parsers
 
 {-
         - cada elemento de un tipo matriz es una fila cujos elementos i-esimos son los de la
@@ -83,18 +85,47 @@ rollDice :: IO Int
 rollDice = getStdRandom (randomR (1,6))
 
 {-
-genera un numero aleatorio en el intervalo [min, max]
+genera un numero aleatorio entero en el intervalo [min, max]
 -}
 numAleatorioIO :: Int -> Int -> IO Int
 numAleatorioIO min max
 	|min <= max = getStdRandom (randomR (min,max))
+        |otherwise = error "numAleatorioIO: el limite izquierdo debe ser menor o igual que el derecho"
 
 pruNumAleatorioIO :: Int -> Int -> IO()
 pruNumAleatorioIO min max = do num <- numAleatorioIO min max
                                putStr (show num)
 
 {-
-genera una lista de 'cuantos' numeros aleatorios en el intervalo [min, max]
+genera un numero aleatorio de tipo float en el intervalo [min, max]
+-}
+numAleatorioIOFloat :: Float -> Float -> IO Float
+numAleatorioIOFloat min max
+	|min <= max = getStdRandom (randomR (min,max))
+        |otherwise = error "numAleatorioIO: el limite izquierdo debe ser menor o igual que el derecho"
+
+pruNumAleatorioIOFloat :: Float -> Float -> IO ()
+pruNumAleatorioIOFloat min max = do num <- numAleatorioIOFloat min max
+                                    print num
+
+{-
+genera una lista de 'cuantos' numeros aleatorios de tipo float en el intervalo [min, max]
+-}
+
+listaNumAleatorioIOFloat :: Float -> Float -> Int -> IO [Float]
+listaNumAleatorioIOFloat min max cuantos = do if (cuantos <=0)
+                                                  then return []
+                                                  else do f <- numAleatorioIOFloat min max
+                                                          fs <- listaNumAleatorioIOFloat min max (cuantos - 1)
+                                                          return (f:fs)
+
+pruListaNumAleatorioIOFloat :: Float -> Float -> Int -> IO ()
+pruListaNumAleatorioIOFloat min max cuantos = do
+    lista <- listaNumAleatorioIOFloat min max cuantos
+    print lista
+
+{-
+genera una lista de 'cuantos' numeros aleatorios enteros en el intervalo [min, max]
 -}
 listaNumsAleatoriosIO :: Int -> Int -> Int -> IO [Int]
 listaNumsAleatoriosIO min max cuantos  = do semilla <-  numAleatorioIO min max
@@ -116,3 +147,60 @@ numsAleatoriosSemilla semilla min max
 	|min <= max = itera (mkStdGen semilla)
 		      where itera g = x:itera g1
 				      where (x,g1) = randomR (min,max) g
+
+{-
+Devuelve True si el string de entrada representa a un entero.
+   -Por tanto devuelve False para la cadena vacia
+   -Haskell se traga que le pongas 000 o 0001 0 -023, y asi lo hace tb esta funcion
+-}
+esIntString :: String -> Bool
+esIntString = parseoExitoso integer
+
+{-
+Devuelve True si el string de entrada representa a un natural.
+   -Por tanto devuelve False para la cadena vacia
+   -Haskell se traga que le pongas 000 o 0001 0 -023, y asi lo hace tb esta funcion
+-}
+esNaturalString :: String -> Bool
+esNaturalString = parseoExitoso natural
+
+{-
+Devuelve True si el string de entrada representa a un float.
+   -Por tanto devuelve False para la cadena vacia
+   -Haskell se traga que le pongas 000 o 0001 0 -023, y asi lo hace tb esta funcion
+-}
+esFloatString :: String -> Bool
+esFloatString = parseoExitoso float
+
+pideFloat :: String -> IO Float
+pideFloat mensaje = do putStrLn mensaje
+                       cadenaNum <- getLine
+                       if (esFloatString cadenaNum)
+                          then do num <- readIO cadenaNum
+                                  return num
+                          else do putStrLn "dato con formato incorrecto, vuelva a introducir el dato: "
+                                  pideFloat mensaje
+pruPideFloat :: IO ()
+pruPideFloat = do f <- pideFloat "dame un Float"
+                  putStr "el float era: "
+                  print f
+
+pideInt :: String -> IO Int
+pideInt mensaje = do putStrLn mensaje
+                     cadenaNum <- getLine
+                     if (esIntString cadenaNum)
+                        then do num <- readIO cadenaNum
+                                return num
+                        else do putStrLn "dato con formato incorrecto, vuelva a introducir el dato: "
+                                pideInt mensaje
+
+main = do putStrLn "me mola la coca-cola"
+
+lola =  do x <- getStdGen
+           print (next x)
+	   newStdGen
+	   x <- getStdGen
+	   print (next x)
+	   newStdGen
+	   x <- getStdGen
+	   print (next x)

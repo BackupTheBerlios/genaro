@@ -1,118 +1,7 @@
 
-
-% POSIBLEMENTE NO ES LA MEJOR FORMA DE IMPLEMENTARLO PERO ES LA MAS CLARA QUE HE ENCONTRADO YA QUE 
-% COINCIDE CON LA NOTACION MUSICAL
-
 :-use_module(library(random)).
 :-use_module(library(lists)).
 
-/*
-valores_posibles_de_estructura([1,3,5,7]).
-estructura_base(estructura(1,3,5,7)).
-
-es_estructura(estructura(A,B,C,D)) :- 
-	valores_posibles_de_estructura(L),
-	member(A,L),
-	member(B,L),
-	member(C,L),
-	member(D,L).
-
-invierte_acorde( estructura(A,B,C,D) , estructura(B,C,D,A) ).
-
-estado_fundamental( E ) :-
-	estructura_base( E ).
-
-inversion( 0, E ) :-
-	estado_fundamental( E ).
-inversion( 1, E ) :-
-	primera_inversion( E ).
-inversion( 2, E ) :-
-	segunda_inversion( E ).
-inversion( 3, E ) :-
-	tercera_inversion( E ).
-
-primera_inversion( E2 ) :-
-	estructura_base( E1 ),
-	invierte_acorde( E1, E2 ).
-
-segunda_inversion( E3 ) :-
-	estructura_base( E1 ),
-	invierte_acorde( E1, E2 ),
-	invierte_acorde( E2, E3 ).
-
-tercera_inversion( E4 ) :-
-	estructura_base( E1 ),
-	invierte_acorde( E1, E2 ),
-	invierte_acorde( E2, E3 ),
-	invierte_acorde( E3, E4 ).
-
-relacion_disposicion_con_primera_voz( 1, 1 ).
-relacion_disposicion_con_primera_voz( 2, 3 ).
-relacion_disposicion_con_primera_voz( 3, 5 ).
-relacion_disposicion_con_primera_voz( 4, 7 ).
-
-disposicion( Disposicion, estructura(A,B,C,Voz) , [A,B,C,Voz] ) :-
-	relacion_disposicion_con_primera_voz( Disposicion, Voz ),
-	!.
-disposicion( Disposicion, estructura(A,B,C,D) , [A,B,C,D,Voz] ) :-
-	relacion_disposicion_con_primera_voz( Disposicion, Voz ),
-	!.
-
-% N estructuras
-% P0 probabilidad de estar en estado fundamental (entre 0 y 100)
-% P1 probabilidad de estar en primera inversion
-% P2 probabilidad de estar en segunda inversion
-% 100-P0-P1-P2 probabilidad de estar en tercera inversion
-% L salida
-% D disposicion
-% TODO: falta hacer cambio de disposicion
-
-lista_de_estructuras( 0, _, _, _, _, [] ) :-
-	!.
-lista_de_estructuras( N, D, P0, P1, P2, [E2 | L2] ) :-
-	elegir_inversion_aleatoria(P0, P1, P2, E1),
-	disposicion( D, E1, E2 ),
-	N2 is N-1,
-	lista_de_estructuras( N2, D, P0, P1, P2, L2 ).
-	
-elegir_inversion_aleatoria(P0, P1, P2, E) :-
-	random(0, 100, NumAleatorio),
-	eleccion_aleatoria(NumAleatorio, P0, P1, P2, Inv),
-	inversion(Inv, E).	
-
-
-%% traduce el acorde a sus notas pero en la posicion fundamental
-traduce_acorde_a_notas( cifrado(G,M), L ) :-
-	vector_suma_triada( M, Vector3 ),
-	gradoANumNota( G, N ),
-	suma_vector( N, Vector3, L ).
-traduce_acorde_a_notas( cifrado(G,M), L ) :-
-	vector_suma_cuatriada( M, Vector4 ),
-	gradoANumNota( G, N ),
-	suma_vector( N, Vector4, L ).
-
-%% ordena las notas dependiendo de la estructura de orden
-ordena_segun_estructura( _, [], [] ).
-ordena_segun_estructura( ListaAlturas, [A | Resto], [Nota | RestoNotas] ) :-
-	dame_nota_iesima( A, ListaAlturas, Nota ),
-	ordena_segun_estructura( ListaAlturas, Resto, RestoNotas ).
-ordena_segun_estructura( ListaAlturas, [_ | Resto], RestoNotas ) :-
-	ordena_segun_estructura( ListaAlturas, Resto, RestoNotas ).
-
-dame_nota_iesima( Indice, Lista, Elem ) :-
-	relacion_disposicion_con_primera_voz( IndiceReal, Indice ),
-	nth(IndiceReal, Lista, Elem).
-
-
-ejemplo :-
-	traduce_acorde_a_notas(cifrado(grado(i), matricula(mayor)), L),
-	ordena_segun_estructura(L, [3,5,7,1,3], L2),
-	write(L2).
-
-*/
-/***************************************************************/
-
-%% empezamos otra vez
 
 suma_vector( altura(numNota(N), octava(Oc)), vector3(A,B,C), [
 		Altura1,
@@ -340,89 +229,29 @@ eleccion_aleatoria( NumAleatorio, P0, P1, P2, 2 ) :-
 eleccion_aleatoria( _, _, _, _, 3 ).
 
 
-bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2,ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas) :-
-	random(0,100,R1),
-	random(0,100,R2),
-	eleccion_aleatoria(R1, ProbI0, ProbI1, ProbI2, Inv),
-	eleccion_aleatoria(R2, ProbD1, ProbD2, ProbD3, Disp_aux),
-	Disp is Disp_aux + 1,
-	traduce(Cifrado, Inv, Disp, Alturas).
-
-bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2,ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas) :-
-	bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2,ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas).
-
-
-
-
-% inicializa los campos adecuados para su formula recursiva
-traduce_lista_cifrados( progresion([]),_,_,_,_,_,_,[] ).
-traduce_lista_cifrados( progresion([ (Cifrado, F) | ListaCifrados ]), 
-				ProbI0, ProbI1, ProbI2, 
-				ProbD1, ProbD2, ProbD3,
-				[ Acorde | ListaAcordes ] 
-) :-
-	bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2, ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas),
-	anade_figura(Alturas, F, Acorde),
-	traduce_lista_cifrados_recursivo(
-		ListaCifrados, ProbI0, ProbI1, ProbI2, 
-		ProbD1, ProbD2, ProbD3, Disp, ListaAcordes
-	).
-
-
-
-traduce_lista_cifrados_recursivo( [], _, _, _, _, _, _, _, _, _, [] ).
-traduce_lista_cifrados_recursivo( [(Cifrado,F) | ListaCifrados], 
-				ProbI0, ProbI1, ProbI2, 
-				ProbD1, ProbD2, ProbD3, DispAnterior, [ Acorde | ListaAcordes ] 
-) :-
-	bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2, ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas),
-	Disp == DispAnterior,
-	anade_figura(Alturas, F, Acorde),
-	traduce_lista_cifrados_recursivo(
-		ListaCifrados, ProbI0, ProbI1, ProbI2, 
-		ProbD1, ProbD2, ProbD3, Disp, ListaAcordes
-	).
-
-%%caso en que hay un cambio de disposicion
-traduce_lista_cifrados_recursivo( [(Cifrado,F) | ListaCifrados],
-				ProbI0, ProbI1, ProbI2, 
-				ProbD1, ProbD2, ProbD3, DispAnterior, [ cambio(Acorde1, Acorde2) | ListaAcordes ] 
-) :-
-	traduce(Cifrado, Inv, DispAnterior, Alturas1),
-	bucle_traduccion(Cifrado, ProbI0, ProbI1, ProbI2, ProbD1, ProbD2, ProbD3, Inv, Disp, Alturas),
-	Disp \== DispAnterior,
-	% ATENCION: FALTA DIVIDIR F ENTRE DOS
-	anade_figura(Alturas1, F, Acorde1),
-	anade_figura(Alturas2, F, Acorde2),
-	traduce_lista_cifrados_recursivo(
-		ListaCifrados, ProbI0, ProbI1, ProbI2, 
-		ProbD1, ProbD2, ProbD3, Disp, ListaAcordes
-	).
+modulo12( numNota(N1), numNota(N1) ) :-
+	-1<N1,
+	12>N1.
+modulo12( numNota(N1), numNota(N2) ) :-
+	N1<0,
+	Aux is N1 + 12,
+	modulo12( numNota(Aux), numNota(N2) ).
+modulo12( numNota(N1), numNota(N2) ) :-
+	N1>11,
+	Aux is N1 - 12,
+	modulo12( numNota(Aux), numNota(N2) ).
+	
 	
 
+distancia_alturas( altura(numNota(N1),octava(O1)), altura(numNota(N2),octava(O2)), Dist ) :-
+	N_aux1 is N1-3,
+	N_aux2 is N2-3,
+	modulo12(numNota(N_aux1), numNota(N_aux3)),
+	modulo12(numNota(N_aux2), numNota(N_aux4)),
+	Aux1 is (N_aux3 - 3) + (O1 * 12),
+	Aux2 is (N_aux4 - 3) + (O2 * 12),
+	Dist is abs(Aux1 - Aux2).
+	
 
-anade_figura( [], _, [] ).
-anade_figura( [ A | RestoAlturas ], F, [nota(A,F) | RestoNotas] ) :-
-	anade_figura( RestoAlturas, F, RestoNotas ).
-
-
-
-% solo para el ejemplo
-
-:- consult(['generador_acordes.pl']).
-ejemplo1 :- 
-	haz_progresion(10, 3, P),
-	nl,
-	traduce_lista_cifrados(P, 30,20,20, 0,0,0, L),
-	write(L).
-
-ejemplo2 :- 
-	traduce_lista_cifrados(
-	progresion([
-		(cifrado(grado(i), matricula(mayor)), figura(1,1)),
-		(cifrado(grado(ii), matricula(mayor)), figura(1,1))
-	]), 30,20,20, 0,0,10, L
-	),
-	write(L).
 
 

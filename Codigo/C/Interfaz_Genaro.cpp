@@ -7,6 +7,7 @@ USEFORM("FormularioPrincipal.cpp", Form1);
 USEUNIT("Interfaz_Prolog.cpp");
 USEUNIT("Unidad_Nexo.cpp");
 USEUNIT("Interfaz_Haskell.cpp");
+USE("Interfaz_Genaro.todo", ToDo);
 //---------------------------------------------------------------------------
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {

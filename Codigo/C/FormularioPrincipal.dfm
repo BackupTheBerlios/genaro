@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 151
-  Top = 98
+  Left = 138
+  Top = 105
   Width = 800
   Height = 600
   Caption = 'Form1'
@@ -12,8 +12,100 @@ object Form1: TForm1
   Font.Style = []
   Menu = MainMenu1
   OldCreateOrder = False
+  OnCreate = FormCreate
   PixelsPerInch = 96
   TextHeight = 13
+  object Label1: TLabel
+    Left = 136
+    Top = 16
+    Width = 124
+    Height = 23
+    Caption = 'Número acordes'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Comic Sans MS'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Label2: TLabel
+    Left = 128
+    Top = 72
+    Width = 147
+    Height = 23
+    Caption = 'Número mutaciones'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Comic Sans MS'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Label3: TLabel
+    Left = 440
+    Top = 72
+    Width = 157
+    Height = 23
+    Caption = 'Número repeticiones'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Comic Sans MS'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Etiqueta_Numero_Acordes: TLabel
+    Left = 312
+    Top = 40
+    Width = 12
+    Height = 27
+    Caption = '0'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clRed
+    Font.Height = -19
+    Font.Name = 'Comic Sans MS'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Etiqueta_Numero_Mutaciones: TLabel
+    Left = 312
+    Top = 96
+    Width = 12
+    Height = 27
+    Caption = '0'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clRed
+    Font.Height = -19
+    Font.Name = 'Comic Sans MS'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Etiqueta_Numero_Repeticiones: TLabel
+    Left = 632
+    Top = 96
+    Width = 12
+    Height = 27
+    Caption = '0'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clRed
+    Font.Height = -19
+    Font.Name = 'Comic Sans MS'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Label4: TLabel
+    Left = 424
+    Top = 16
+    Width = 174
+    Height = 23
+    Caption = 'Elige el Patrón Rítmico'
+    Font.Charset = ANSI_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -16
+    Font.Name = 'Comic Sans MS'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
   object Panel1: TPanel
     Left = 8
     Top = 168
@@ -85,30 +177,71 @@ object Form1: TForm1
     Caption = 'Exportar PDF'
     TabOrder = 8
   end
-  object EditFicheroProlog: TEdit
-    Left = 256
-    Top = 24
-    Width = 153
-    Height = 21
+  object Boton_Componer: TButton
+    Left = 296
+    Top = 128
+    Width = 121
+    Height = 25
+    Caption = 'Dámelo Todo, Genaro'
     TabOrder = 9
-    Text = 'generador_acordes.pl'
+    OnClick = Boton_ComponerClick
   end
-  object EditRelacionProlog: TEdit
-    Left = 480
-    Top = 24
-    Width = 153
-    Height = 21
+  object Barra_Numero_Acordes: TTrackBar
+    Left = 96
+    Top = 40
+    Width = 209
+    Height = 25
+    Max = 25
+    Orientation = trHorizontal
+    Frequency = 1
+    Position = 0
+    SelEnd = 0
+    SelStart = 0
     TabOrder = 10
-    Text = 'genera_acordes(5,5,paralelo)'
+    TickMarks = tmBottomRight
+    TickStyle = tsAuto
+    OnChange = Barra_Numero_AcordesChange
   end
-  object Button7: TButton
-    Left = 360
+  object Barra_Numero_Mutaciones: TTrackBar
+    Left = 96
     Top = 96
-    Width = 89
-    Height = 33
-    Caption = 'Button7'
+    Width = 209
+    Height = 25
+    Max = 25
+    Orientation = trHorizontal
+    Frequency = 1
+    Position = 0
+    SelEnd = 0
+    SelStart = 0
     TabOrder = 11
-    OnClick = Button7Click
+    TickMarks = tmBottomRight
+    TickStyle = tsAuto
+    OnChange = Barra_Numero_MutacionesChange
+  end
+  object Barra_Numero_Repeticiones: TTrackBar
+    Left = 400
+    Top = 96
+    Width = 225
+    Height = 25
+    Max = 30
+    Orientation = trHorizontal
+    Frequency = 1
+    Position = 0
+    SelEnd = 0
+    SelStart = 0
+    TabOrder = 12
+    TickMarks = tmBottomRight
+    TickStyle = tsAuto
+    OnChange = Barra_Numero_RepeticionesChange
+  end
+  object Selector_Patron_Ritmico: TComboBox
+    Left = 408
+    Top = 40
+    Width = 209
+    Height = 21
+    ItemHeight = 13
+    TabOrder = 13
+    Text = 'Elige el patrón rítmico'
   end
   object MainMenu1: TMainMenu
     Left = 8
@@ -127,7 +260,7 @@ object Form1: TForm1
     end
   end
   object OpenDialog: TOpenDialog
-    Left = 152
-    Top = 64
+    Left = 664
+    Top = 128
   end
 end

@@ -11,7 +11,57 @@
 
 #pragma package(smart_init)
 
-void Inicializacion(TOpenDialog* OpenDialog,TEdit *EditFicheroProlog,TEdit *EditRelacionProlog)
+void Unidad_Nexo::Inicializacion(String Ruta_prolog, String Ruta_haskell, String Ruta_codigo_haskell)
+{
+  if (Ya_inicializado==false)
+  {
+    interfaz_prolog=new Interfaz_Prolog(Ruta_prolog);
+    interfaz_haskell=new Interfaz_Haskell(Ruta_haskell,Ruta_codigo_haskell);
+    Ya_inicializado=true;
+  }
+}
+
+//---------------------------------------------------------------------------
+
+void Unidad_Nexo::Componer(String Num_Acordes, String Num_Mutaciones,String Patron_Ritmico, String Repeticiones)
+{
+  String pseudo_ruta_patrones="../../PatronesRitmicos/";
+  pseudo_ruta_patrones+=Patron_Ritmico;
+  interfaz_prolog->Ejecuta_Objetivo(Num_Acordes,Num_Mutaciones);
+  interfaz_haskell->Ejecuta_Funcion(pseudo_ruta_patrones,Repeticiones);
+}
+
+
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+void Inicializacion_old(TOpenDialog* OpenDialog,TEdit *EditFicheroProlog,TEdit *EditRelacionProlog)
 {
   String Ruta_codigo_haskell;
   String Ruta_haskell;
@@ -35,8 +85,8 @@ void Inicializacion(TOpenDialog* OpenDialog,TEdit *EditFicheroProlog,TEdit *Edit
     }
     Ruta_prolog=buffer1;
     Ruta_codigo_prolog="..\\Prolog";
-    Ruta_haskell="runhugs.exe";
-    Ruta_codigo_haskell = "..\\Haskell";
+    Ruta_haskell="..\\Haskell\\runhugs.exe";
+    Ruta_codigo_haskell = "..\\Haskell\\main.lhs";
     fichero_conf.close();
   }
   else
@@ -59,16 +109,16 @@ void Inicializacion(TOpenDialog* OpenDialog,TEdit *EditFicheroProlog,TEdit *Edit
           fichero_guardar.write((char*)&Ruta_prolog[i+1],sizeof(char));
         }
         Ruta_codigo_prolog="..\\Prolog";
-        Ruta_haskell="runhugs.exe";
-        Ruta_codigo_haskell = "..\\Haskell";
+        Ruta_haskell="..\\Haskell\\runhugs.exe";
+        Ruta_codigo_haskell = "..\\Haskell\\main.lhs";
         fichero_conf.close();
       }
       catch(...){}
   }
-  Interfaz_Prolog* nuevo_int_prolog=new Interfaz_Prolog(Ruta_prolog,Ruta_codigo_prolog);
-  nuevo_int_prolog->Ejecuta_Objetivo(EditFicheroProlog->Text/*"generador_acordes.pl"*/,EditRelacionProlog->Text/*"genera_acordes(10,10,paralelo)"*/);
+  Interfaz_Prolog* nuevo_int_prolog=new Interfaz_Prolog(Ruta_prolog);
+  nuevo_int_prolog->Ejecuta_Objetivo(EditFicheroProlog->Text,EditRelacionProlog->Text);
   Interfaz_Haskell* nuevo_int_haskell=new Interfaz_Haskell(Ruta_haskell,Ruta_codigo_haskell);
-  nuevo_int_haskell->Ejecuta_Funcion("main.hsx");
+  nuevo_int_haskell->Ejecuta_Funcion("../../PatronesRitmicos/cumbia.txt","4");
 }
 //--------------------------------------------------------------------
 

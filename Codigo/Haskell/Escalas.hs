@@ -1,6 +1,7 @@
 module Escalas where
 import Progresiones
 import Basics
+import BiblioGenaro
 
 {-
 del modulo Progresiones:
@@ -52,6 +53,19 @@ dameIntervaloPitch tonica p = grado
                       abs = absPitch p
                       grado = absPitchAGrado (abs - absTonica)
 
+{-
+dameGradoDiatonicoCercano subir escala gradoPartida devuelve el grado diatónico más cercano al
+indicado. En el caso de que haya dos grados diatónicos a la misma distancia devuelve el superior
+en el caso de q subir sea cierto y el inferior en el otro caso
+-}
+dameGradoDiatonicoCercano :: Bool -> Escala -> Grado -> Grado
+dameGradoDiatonicoCercano subir escala gradoPartida = gradoResul
+                            where (_,gradosEscala,_)  = dameInfoEscala escala
+                                  distancia g1 g2 = abs ((gradoAIntAbs g1) - (gradoAIntAbs g2))
+                                  gradosCandidatos = dameMinimizadores (distancia gradoPartida) gradosEscala
+                                  gradoResul = if subir
+                                                  then dameMinimizador (\g -> (-1)*(gradoAIntAbs g)) gradosCandidatos
+                                                  else dameMinimizador gradoAIntAbs gradosCandidatos
 
 {-
 Dada una escala devuelve una lista de parejas cuya primer componente es cada uno de los grados que

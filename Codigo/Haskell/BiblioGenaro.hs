@@ -54,6 +54,27 @@ eliminaApariciones elem (x:xs)
 eliminaApariciones2 elem = filter (/=elem)
 eliminaApariciones3 elem xs = [x | x <- xs, x /= elem]
 
+{-
+dameMinimizador f lista devuelve el elemento de lista que minimiza la función
+-}
+dameMinimizador :: Ord b => (a -> b) -> [a] -> a
+dameMinimizador f (x:xs) = dameMinimizadorAcu f x (f x) xs
+		where dameMinimizadorAcu f x _ [] = x
+                      dameMinimizadorAcu f x valMin (u:us)
+                                       |(f u) < valMin = dameMinimizadorAcu f u (f u) us
+                                       |otherwise = dameMinimizadorAcu f x valMin us
+
+{-
+dameMinimizadores f lista devuelve la lista de elementos de lista que minimizan la función
+-}
+dameMinimizadores :: Ord b => (a -> b) -> [a] -> [a]
+dameMinimizadores f (x:xs) = dameMinimizadorAcu f [x] (f x) xs
+		where dameMinimizadorAcu f elegidos _ [] = elegidos
+                      dameMinimizadorAcu f elegidos@(x:xs) valMin (u:us)
+                                       |nuevoVal < valMin  = dameMinimizadorAcu f [u] (f u) us
+                                       |nuevoVal == valMin = dameMinimizadorAcu f (u:elegidos) valMin us
+                                       |otherwise = dameMinimizadorAcu f elegidos valMin us
+                                                    where nuevoVal = f u
 
 -- permutacion: encontrada en la pagina http://polaris.lcc.uma.es/~pacog/apuntes/pd/cap06.pdf, en la pagina 25
 {-
@@ -359,7 +380,7 @@ lola =  do x <- getStdGen
 
 
 {-
-'elementoAleatorio' dada un generador de numeros aleatorios y una lista devuelve un elemento 
+'elementoAleatorio' dada un generador de numeros aleatorios y una lista devuelve un elemento
 aleatorio de la lista y el siguiente generador que hay que usar
 -}
 elementoAleatorio :: RandomGen b => b -> [a] -> (a,b)

@@ -4,18 +4,21 @@
 ]).
 
 /*
-SWI:random(+Int)
-Evaluates to a random integer i for which 0 =< i < Int. The seed of this random
- generator is determined by the system clock when SWI-Prolog was started.
-Sicstus:random(+Lower, +Upper, -Number)
-Binds Number to a random integer in the interval [Lower,Upper) if Lower and Upper
- are integers. Otherwise, Number is bound to a random float between Lower and Upper.
- Upper will never be generated.
+COMENTARIOS
+/*comentario varias lineas*/
+% comentario de una linea
 */
-random(LimiteIzdo, LimiteDcho, Num) :-
-    Rango is LimiteDcho - LimiteIzdo,
-    Azar is random(Rango),
-    Num is LimiteIzdo + Azar.
+/*
+RANDOM
+Sicstus:
+random(+Lower, +Upper, -Number)
+    Binds Number to a random integer in the interval [Lower,Upper) if Lower and Upper are integers. Otherwise, Number is bound to a random float between Lower and Upper. Upper will never be generated. 
+SWI:
+random(+Int)
+    Evaluates to a random integer i for which 0 =< i < Int. The seed of this random generator is determined by the system clock when SWI-Prolog was started.
+solo funciona si U>0 y L<U
+*/
+random(L,U,N) :- Rango is (U - L), Azar is random(Rango), N is L + Azar.
 
 /**
 * gcd(X, Y, D) D es el máximo común divisor de X e Y

@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <process.h>
 #include <dir.h>
+#include <stdio.h>
 #pragma hdrstop
 
 #include "Interfaz_Haskell.h"
@@ -28,9 +29,18 @@ Interfaz_Haskell::Interfaz_Haskell(String Ruta_runhugs, String Ruta_ficheros)
 //---------------------------------------------------------------------------
 void Interfaz_Haskell::Ejecuta_Funcion(String nombre_archivo, String num_repeticiones)
 {
+  FILE* salida_haskell;
+  int salida_standard;
+  salida_haskell=fopen("haskell.log","w");
+  salida_standard=dup(fileno(stdout));
+  dup2(fileno(salida_haskell),fileno(stdout));
+
   char work_dir[255];
   getcwd(work_dir, 255);
   int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo.c_str(),work_dir,nombre_archivo.c_str(),num_repeticiones.c_str(),NULL);
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando el runhugs de haskell.");}
+
+  dup2(salida_standard,fileno(stdout));
+
 }

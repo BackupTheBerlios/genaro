@@ -4,6 +4,7 @@
 #include <fstream.h>
 #include <windows.h>
 #include <process.h>
+#include <dir.h>
 #pragma hdrstop
 
 #include "Interfaz_Prolog.h"
@@ -25,7 +26,9 @@ Interfaz_Prolog::Interfaz_Prolog(String interprete)
 //---------------------------------------------------------------------------
 void Interfaz_Prolog::Ejecuta_Objetivo(String NAcordes, String NMutaciones)
 {
-  int valor_spawn=spawnl(P_WAIT,Ruta_Prolog.c_str(),Ruta_Prolog.c_str(),NAcordes.c_str(),NMutaciones.c_str(),NULL);
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  int valor_spawn=spawnl(P_WAIT,Ruta_Prolog.c_str(),Ruta_Prolog.c_str(),work_dir,NAcordes.c_str(),NMutaciones.c_str(),NULL);
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando el MainArgs de prolog.");}
 }

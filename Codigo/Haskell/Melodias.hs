@@ -76,16 +76,10 @@ saltaIntervaloGrado escala num gradoPartida = gradoSalida
 saltaIntervaloPitch escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
 tantos grados como num, contando desde gradoPartida. Por ejemplo saltaIntervalo jonica 2 I devuelve II
 -}
-saltaIntervaloPitch :: Escala -> Int -> Grado -> Grado
-saltaIntervaloPitch escala num gradoPartida = gradoSalida
-                                              where (_,gradosEscala,_)  = dameInfoEscala escala
-                                                    Just posGradoPartida = elemIndex gradoPartida gradosEscala
-                                                    numGrados = length gradosEscala
-                                                    posGradoSalida = (posGradoPartida + num -1) `mod` numGrados
-                                                    gradoSalida = gradosEscala !! posGradoSalida
+saltaIntervaloPitch :: Escala -> Int -> Pitch -> Pitch
+saltaIntervaloPitch escala num nota Partida =
 -}
-
-
+{- Pleister -}
 pruProg1 :: String -> IO()
 pruProg1 rutaProg = do prog <- leeProgresion rutaProg
                        putStr (menAcs prog)

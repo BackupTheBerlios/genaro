@@ -13,7 +13,8 @@
 	mostrar_acorde/1,
 	es_acorde/1,
 	es_lista_orden_acordes/1,
-	es_progresion_ordenada/1
+	es_progresion_ordenada/1,
+        hazCuatriada/2
 ]).
 
 
@@ -25,11 +26,11 @@
 /* Definicion de la estructura */
 
 /**
-* es_progresion_ordenada(+ProgresionOrd) 
+* es_progresion_ordenada(+ProgresionOrd)
 * Es una lista de acordes ordenados con la constructora progOrdenada
 * @param +ProgresionOrd verifica si es una progresion ordenada o no
 */
-es_progresion_ordenada(progOrdenada(Loa)) :- 
+es_progresion_ordenada(progOrdenada(Loa)) :-
 	es_lista_orden_acordes(Loa).
 
 /**
@@ -38,7 +39,7 @@ es_progresion_ordenada(progOrdenada(Loa)) :-
 * @param +ListaAcordesOrdenados verifica si es una lista de acordes ordenados
 */
 es_lista_orden_acordes([]).
-es_lista_orden_acordes([(Ac,F)|Loa]) :- 
+es_lista_orden_acordes([(Ac,F)|Loa]) :-
 	es_acorde(Ac),es_figura(F),
 	es_lista_orden_acordes(Loa).
 
@@ -91,7 +92,7 @@ es_vector4(vector(A,B,C,D)) :- integer(A), integer(B), integer(C), integer(D).
 * inversion_y_disposicion(+Inv, +Disp, +Acorde1, -Acorde2 )
 * este predicado representa una base de datos sobre los acordes y la forma de colocar sus
 * inversiones y disposiciones de la forma mas usual y en posicion cerrada.
-* @param +Inv 	es la inversion del acorde. El estado funcamental se representa con un 0. Las triadas solo 
+* @param +Inv 	es la inversion del acorde. El estado funcamental se representa con un 0. Las triadas solo
 * 	tienen las inversiones 0, 1 y 2 mientras que las triadas tienen las tres.
 * @param +Disp es la disposicion del acorde. Las disposiciones posibles para una triada son 1, 2 y 3 mientras que
 * 	para una cuatriada son las cuatro.
@@ -115,7 +116,7 @@ inversion_y_disposicion( 0, 4, acorde([A,B,C,D]), acorde([A,A1,B1,C1,D1]) ) :-
 	trasponer(D,12,D1).
 
 inversion_y_disposicion( 1, 1, acorde([A,B,C,D]), acorde([B1,B,C,D,A1]) ) :-
-	trasponer(A,12,A1),      
+	trasponer(A,12,A1),
 	trasponer(B,-12,B1).
 inversion_y_disposicion( 1, 2, acorde([A,B,C,D]), acorde([B,C,D,A1,B1]) ) :-
 	trasponer(A,12,A1),
@@ -131,7 +132,7 @@ inversion_y_disposicion( 1, 4, acorde([A,B,C,D]), acorde([B,A1,B1,C1,D1]) ) :-
 	trasponer(D,12,D1).
 
 inversion_y_disposicion( 2, 1, acorde([A,B,C,D]), acorde([C1,B,C,D,A1]) ) :-
-	trasponer(A,12,A1),         
+	trasponer(A,12,A1),
 	trasponer(C,-12,C1).
 inversion_y_disposicion( 2, 2, acorde([A,B,C,D]), acorde([C1,C,D,A1,B1]) ) :-
 	trasponer(A,12,A1),
@@ -147,12 +148,12 @@ inversion_y_disposicion( 2, 4, acorde([A,B,C,D]), acorde([C,A1,B1,C1,D1]) ) :-
 	trasponer(C,12,C1),
 	trasponer(D,12,D1).
 
-inversion_y_disposicion( 3, 1, acorde([A,B,C,D]), acorde([D1,B,C,D,A1]) ) :-   
+inversion_y_disposicion( 3, 1, acorde([A,B,C,D]), acorde([D1,B,C,D,A1]) ) :-
 	trasponer(A,12,A1),
 	trasponer(D,-12,D1).
-inversion_y_disposicion( 3, 2, acorde([A,B,C,D]), acorde([D1,C,D,A1,B1]) ) :- 
+inversion_y_disposicion( 3, 2, acorde([A,B,C,D]), acorde([D1,C,D,A1,B1]) ) :-
 	trasponer(A,12,A1),
-	trasponer(B,12,B1),        
+	trasponer(B,12,B1),
 	trasponer(D,-12,D1).
 inversion_y_disposicion( 3, 3, acorde([A,B,C,D]), acorde([D1,D,A1,B1,C1]) ) :-
 	trasponer(A,12,A1),
@@ -176,7 +177,7 @@ inversion_y_disposicion( 0, 3, acorde([A,B,C]), acorde([A,A1,B1,C1]) ) :-
 	trasponer(B,12,B1),
 	trasponer(C,12,C1).
 
-inversion_y_disposicion( 1, 1, acorde([A,B,C]), acorde([B1,B,C,A1]) ) :-   
+inversion_y_disposicion( 1, 1, acorde([A,B,C]), acorde([B1,B,C,A1]) ) :-
 	trasponer(A,12,A1),
 	trasponer(B,-12,B1).
 inversion_y_disposicion( 1, 2, acorde([A,B,C]), acorde([B,C,A1,B1]) ) :-
@@ -187,7 +188,7 @@ inversion_y_disposicion( 1, 3, acorde([A,B,C]), acorde([B,A1,B1,C1]) ) :-
 	trasponer(B,12,B1),
 	trasponer(C,12,C1).
 
-inversion_y_disposicion( 2, 1, acorde([A,B,C]), acorde([C1,B,C,A1]) ) :-   
+inversion_y_disposicion( 2, 1, acorde([A,B,C]), acorde([C1,B,C,A1]) ) :-
 	trasponer(A,12,A1),
 	trasponer(C,-12,C1).
 inversion_y_disposicion( 2, 2, acorde([A,B,C]), acorde([C1,C,A1,B1]) ) :-
@@ -256,7 +257,7 @@ suma_vector( Altura, vector3(A,B,C), acorde([
 		Altura1,
 		Altura2,
 		Altura3
-		]) 
+		])
 ) :-
 	trasponer(Altura, A, Altura1),
 	trasponer(Altura, B, Altura2),
@@ -267,7 +268,7 @@ suma_vector( Altura, vector4(A,B,C,D), acorde([
 		Altura2,
 		Altura3,
 		Altura4
-		]) 
+		])
 ) :-
 	trasponer(Altura, A, Altura1),
 	trasponer(Altura, B, Altura2),
@@ -283,7 +284,7 @@ suma_vector( Altura, vector4(A,B,C,D), acorde([
 * @param +Altura1 altura para normalizar
 * @param -Altura2 altura normalizada
 */
-normaliza_altura( altura(numNota(N), octava(O)) , altura(numNota(N), octava(O)) ) :-	
+normaliza_altura( altura(numNota(N), octava(O)) , altura(numNota(N), octava(O)) ) :-
 	N =< 11,
 	N >= 0,
 	!.
@@ -303,7 +304,7 @@ normaliza_altura( altura(numNota(N1), octava(O1)) , altura(numNota(N2), octava(O
 
 /**
 * trasponer( +Altura1, +NumSemitonos, -Altura2 )
-* Traspone Altura1 el numero de semintonos indicados en NumSemitonos. Entendemos por trasponer la accion de sumar a 
+* Traspone Altura1 el numero de semintonos indicados en NumSemitonos. Entendemos por trasponer la accion de sumar a
 * una altura un numero de semitonos especificados.
 * @param +Altura1 altura a trasponer
 * @param +NumSemitonos semitonos que se traspone Altura1
@@ -313,7 +314,7 @@ trasponer( altura(numNota(N), octava(O)), NumSemitonos, altura(numNota(N2), octa
 	N_aux is (12 + (N - 3)) mod 12,
 	N_aux2 is N_aux + NumSemitonos,
 	normaliza_altura( altura(numNota(N_aux2), octava(O)) , altura(numNota(N_aux3), octava(O2)) ),
-	N2 is (N_aux3 + 3) mod 12. 
+	N2 is (N_aux3 + 3) mod 12.
 
 
 traduce_a_estado_fundamental( cifrado(G, M), L ) :-
@@ -324,7 +325,7 @@ traduce_a_estado_fundamental( cifrado(G, M), L ) :-
 traduce_cifrado( Cifrado, Inv, Disp, Acorde ) :-
 	traduce_a_estado_fundamental( Cifrado, L ),
 	inversion_y_disposicion( Inv, Disp, L, Acorde).
-	
+
 
 /**
 * eleccion_aleatoria( +NumAleatorio, +P0, +P1, +P2, -Salida )
@@ -335,7 +336,7 @@ traduce_cifrado( Cifrado, Inv, Disp, Acorde ) :-
 * @param +P1 probabilidad de que suceda el valor 1
 * @param +P2 probabilidad de que suceda el valor 2
 * @param -Salida Numero elegido, entre 0 y 3
-*/	
+*/
 eleccion_aleatoria( NumAleatorio, P0, _, _, 0 ) :-
 	NumAleatorio =< P0,
 	!.
@@ -349,10 +350,20 @@ eleccion_aleatoria( NumAleatorio, P0, P1, P2, 2 ) :-
 	!.
 eleccion_aleatoria( _, _, _, _, 3 ).
 
-
-
-
-
-
-
-
+/**
+* hazCuatriada(+G,-C)
+* Dado un grado devuelve la cuatriada correspondiente a la armonizacion de la escala Jonica, en el caso de grados diatonicos
+* a esa escala. En el caso de los dominantes secundarios y segundas menores realtivos asigna la matricula de 7 y m7 respectivamente
+* , y en el caso de ivm6 se asigna m6. Este truco puede ser utilizado mas veces en el futuro, se pasa de entrada un termino
+* que en realidad no cumple es_grado para asi expresar que queremos una matricula concreta
+* @param +G cumple generador_acordes:es_grado(G) en el caso de queramos armonizar de forma estándar (usando la armonizacion de la escala jonica)
+* y si no lo cumple expresa que queremos asignar una matricula no estandar a un grado implicito en G
+* @param -C cifrado con la matrícula de cuatríada correspondiente al grado G, cumple generador_acordes:es_cifrado(C)
+*/
+hazCuatriada(grado(v7 / G), cifrado(grado(v7 / G), matricula(7))) :- !.
+hazCuatriada(grado(iim7 / G), cifrado(grado(iim7 / G), matricula(m7))) :- !.
+hazCuatriada(grado(ivm6), cifrado(grado(iv), matricula(m6))) :- !.
+hazCuatriada(grado(G),cifrado(grado(G), matricula(maj7))) :- 	member(G,[i,iv,bvii]),!.
+hazCuatriada(grado(G),cifrado(grado(G), matricula(m7))) :- member(G,[ii,iii,vi]),!.
+hazCuatriada(grado(G),cifrado(grado(G), matricula(7))) :- member(G,[v]),!.
+hazCuatriada(grado(G),cifrado(grado(G), matricula(m7b5))) :- member(G,[vii]),!.

@@ -1,0 +1,21 @@
+Prueba de armonizacion de una melodia.
+Las notas principales son aquellas cuya duracion es mayor de 1/4
+
+Melodia =    Note (C,5) (3%8) [] :+:
+             Note (D,5) (1%8) [] :+:
+             Note (E,5) (3%8) [] :+:
+             Note (D,5) (1%16) [] :+:
+             Note (C,5) (1%16) [] :+:
+             Note (G,5) (1%2) [] :+:
+             Note (F,5) (1%2) [] :+:
+             Note (C,5) (3%8) [] :+:
+             Note (D,5) (1%8) [] :+:
+             Note (E,5) (3%8) [] :+:
+             Note (D,5) (1%16) [] :+:
+             Note (C,5) (1%16) [] :+:
+             Note (G,5) (1%2) [] :+:
+             Note (C,5) (1%2) []
+
+progresion generada = [((VI,Men7),1 % 2),((VI,Men7),1 % 2),((V,Sept),1 % 2),((IV,Maj7),1 % 2),((IV,Maj7),1 % 2),((I,Maj7),1 % 2),((III,Menor),1 % 2),((VI,Menor),1 % 2)]   
+
+patron ritmico =  3 negras a la vez 

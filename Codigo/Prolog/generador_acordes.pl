@@ -12,6 +12,7 @@ Lower and Upper. Upper will never be generated.
 :- consult(['biblio_genaro_listas.pl']).
 :- consult(['biblio_genaro_fracciones.pl']).
 :- consult(['grados_e_intervalos.pl']).
+:- consult(['figuras_y_ritmo.pl']).
 
 /*
 GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
@@ -111,11 +112,13 @@ out: La resultado de las transformaciones, Cumple es_progresion(La)
 */
 %modifica_prog(S,N,La) :- natural(N), numCompases(S,Ls), Ls <= N, ¿?? 
 
-/* cambia_acordes(Po, N, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd donde se han realizado 
-1 cambio de un acorde por otro de la misma función tonal y que dura lo mismo (misma figura en la progresión)
+%CAMBIA ACORDES
+/* cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es idéntica a Po excepto
+poruqe se ha realizado 1 cambio de un acorde por otro de la misma función tonal y que dura lo mismo (misma figura en la progresión)
 in: Po progresión origen cumple es_progresion(Po)
 out:Pd progresión destino cumple es_progresion(Po)
-Pre!!! Lo en forma normal sería recomendable */
+Pre!!! Po en forma normal sería recomendable
+Post: Pd está en forma normal */
 cambia_acordes(progresion(Lo), progresion(Ld)) :- cambia_acordesLista(Lo, Ld).
 cambia_acordesLista([], []) .
 cambia_acordesLista(Lo, Ld) :- 
@@ -124,6 +127,22 @@ cambia_acordesLista(Lo, Ld) :-
  	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1, 
       sublista_suf(Lo, PosElegMas, LdB), 
       append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, Ld).
+
+%AÑADE ACORDES
+/* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es idéntica a  Po salvo porque se
+ha sustituido una de sus acordes por dos acordes, el primero del mismo cifrado del original pero durando la mitad y el segundo de la misma 
+función tonal que el original y durando también la mitad. El primero aparecerá siempre delante del segundo en la progresión
+in: Po progresión origen cumple es_progresion(Po)
+out:Pd progresión destino cumple es_progresion(Po)
+Pre!!! Lo en forma normal sería recomendable
+Post Ld está en forma normal
+*/
+/*aniade_acordes(progresion(Lo), progresion(Pd)) :- aniade_acordesLista(Lo, Ld).
+aniade_acordesLista([], []).
+aniade_acordesLista(Lo, Ld) :-
+       dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
+      ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)*/
+
 
 
 %FUNCIONES TONALES

@@ -159,8 +159,8 @@ numCompases(progresion(L),N,D) :- numCompasesLista(L, fraccion_nat(N,D)).
 *     Hace cierto es_progresion(La)
 */
 haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
- 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux3))
-                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux3, Pfin, La).
+ 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux3)), quita_grados_relativos(Laux3, Laux4)
+                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).
 
 
 /*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
@@ -183,7 +183,7 @@ fija_compases_aprox(ProgSemilla, N, ProgResul) :- alarga_progresion(ProgSemilla,
 alarga_progresion(Po, Pd) :- num_acciones_alarga(N), random(0, N, E), alarga_progresion(Po, E, Pd).
 alarga_progresion(Po, 0, Pd) :- aniade_dominante_sec(Po, Pd).
 alarga_progresion(Po, 1, Pd) :- aniade_iim7_rel(Po, Pd).
-%num_acciones_alarga(2).
+num_acciones_alarga(2).
 %alarga_progresion(Po, 3, Pd) :- aniade_acordes2(Po, Pd). un poco aburrido
 %num_acciones_alarga(3).
 
@@ -281,6 +281,18 @@ aniade_acordesLista(Lo, Ld) :-
 aniade_dominante_sec(progresion(Lo), progresion(Ld)) :- aniade_dom_sec_lista(Lo, Ld).
 aniade_dom_sec_lista([], []) :- !.
 aniade_dom_sec_lista(Lo, Ld):-
+        buscaCandidatosADominanteSec(Lo, Lc)
+	,length(Lc,Long), Long >0 ,!
+	,dame_elemento_aleatorio(Lc, (cifrado(grado(G),matricula(M)), F, PosElegida), _)
+	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+    ,sublista_suf(Lo, PosElegMas, LdB)
+    ,append(LdA, [(cifrado(grado(v7 / G),matricula(7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
+    ,append(Laux, LdB, Ld).
+
+aniade_dom_sec_lista(Lo, Lo).
+
+/*
+aniade_dom_sec_lista(Lo, Ld):-
 	setof((cifrado(grado(Gaux),matricula(M)), Faux, Pos)
 	  ,(member((cifrado(grado(Gaux),matricula(M)), Faux), Lo)
 	    ,nth(Pos, Lo, (cifrado(grado(Gaux),matricula(M)), Faux))
@@ -292,8 +304,25 @@ aniade_dom_sec_lista(Lo, Ld):-
     ,sublista_suf(Lo, PosElegMas, LdB)
     ,append(LdA, [(cifrado(grado(v7 / G),matricula(7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
     ,append(Laux, LdB, Ld).
+*/
 
-aniade_dom_sec_lista(Lo, Lo).
+%hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso empieza en dos
+buscaCandidatosADominanteSec(Li, Lo) :- buscaCandidatosADominanteSecAcu(Li, 2, Lo).
+buscaCandidatosADominanteSecAcu([], _, []).
+buscaCandidatosADominanteSecAcu([_],_,[]).%pq ya se habría examinado X
+% buscaCandidatosADominanteSecAcu(Li, PosActual, Lo)
+buscaCandidatosADominanteSecAcu([(cifrado(grado(v7 / G2),matricula(_)), _),(cifrado(grado(G2),matricula(M2)), F2)|Li]
+    , PosActual, Lo) :- !,PosSig is PosActual + 1
+                       ,buscaCandidatosADominanteSecAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
+buscaCandidatosADominanteSecAcu([_,(cifrado(grado(i),matricula(M2)), F2)|Li]
+    , PosActual, Lo) :- !,PosSig is PosActual + 1
+                       ,buscaCandidatosADominanteSecAcu([(cifrado(grado(i),matricula(M2)), F2)|Li], PosSig, Lo).
+buscaCandidatosADominanteSecAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
+    , PosActual, [(cifrado(grado(G2),matricula(M2)), F2, PosActual)|Lo]) :-
+                       PosSig is PosActual + 1
+                       ,buscaCandidatosADominanteSecAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
+
+
 
 
 %II-7 RELATIVO
@@ -301,7 +330,7 @@ aniade_dom_sec_lista(Lo, Lo).
 * aniade_iim7_rel(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un ii-7 de un
 * dominante elegido al azar, dando la misma probabilidad de ser elegidos a todos los acordes
 * El ii-7 se añadirá sin asegurarse de respetar las reglas de ritmo armónico y durará lo mismo
-* q el dominante sobre el q se coloca
+* q el dominante sobre el q se coloca. Falta lo mismo q con dominantes para no repetir!!!!!
 * @param +Po cumple es_progresion(Po)
 * @param -Po cumple es_progresion(Pd)
 */
@@ -373,6 +402,17 @@ aseg_ritmo_arm_acu([(C1,F1),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, N
     	,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na1, Da1), Lcout).
 
 
+%QUITA GRADOS RELATIVOS
+/**
+* quita_grados_relativos(Po, Pd) Pd es una progresion equivalente a Po en la que se han eliminado las referencias indirectas
+* a grados causadas por v7/G y iim7/G
+* @param +Po cumple es_progresion(Po)
+* @param -Pd cumple es_progresion(Pd)
+* */
+quita_grados_relativos(progresion(Po), progresion(Pd)) :- quita_grados_relativos_lista(Po, Pd).
+quita_grados_relativos_lista([], []).
+quita_grados_relativos_lista([(cifrado(Gi,M), F)|Li], [(cifrado(Go,M), F)|Lo]):-
+               gradoRelativoAAbsoluto(Gi, Go),quita_grados_relativos_lista(Li, Lo).
 
 %AÑADE ACORDES2
 /* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es

@@ -7,6 +7,7 @@
                               ,es_intervalo/1
                               ,sumaIntervaloAGrado/3
                               ,gradoAAltura/2
+                              ,gradoRelativoAAbsoluto/2
                               ,intervaloASemitonos/2]).
 
 %BIBLIOTECAS
@@ -69,6 +70,17 @@ sumaSemitonos(Ae, N, As) :- alturaAbsoluta(Ae, Ne), Ns is N + Ne, alturaAbsAAltu
 */
 sumaIntervaloAGrado(Gi, Ii, Gs) :- gradoAAltura(Gi, Ai), intervaloASemitonos(Ii, Si)
 			,trasponer(Ai, Si, As), alturaAGrado(As, Gs).
+/**
+* gradoRelativoAAbsoluto(Gi, Go) Go es un grado equivalente a Gi pero sin la notacion relativa debida
+* a v7/g o iim7/G
+* @param +Gi cumple es_grado(Gi)
+* @param +Go cumple es_grado(Go)
+*/
+gradoRelativoAAbsoluto(grado(v7 / G), Go) :-
+            !,sumaIntervaloAGrado(G, intervalo(interSimple(v),0), Gaux), gradoRelativoAAbsoluto(Gaux, Go).
+gradoRelativoAAbsoluto(grado(iim7 / G), Go) :-
+            !,sumaIntervaloAGrado(G, intervalo(interSimple(ii),0), Gaux), gradoRelativoAAbsoluto(Gaux, Go).
+gradoRelativoAAbsoluto(Gi, Gi).
 
 /**
 * Sólamente para uso interno en este módulo, gradoAAltura(G,A) hace una correspondencia arbitraria entre

@@ -62,7 +62,7 @@ numAcordesLista([C|Cs], Uc, N1) :- \+(C = Uc), numAcordesLista(Cs, C, N), N1 is 
 
 /*numCompases(P,S) indica el numero de compases que dura una progresión
 in: P que cumple es_progresion(P)
-out: S natural que indica el numero de compases que ocupa la progresión. !!!En Sicstus el ceiling da el float igual al menor entero mayor o igual q el float al q se aplica, e.d., ceiling(2.3) = 3.0 => estudiar en el futuro posible arreglo (restricciones?, ceiling propio dicotomico?, …?) 
+out: S natural que indica el numero de compases que ocupa la progresión. !!!En Sicstus el ceiling da el float igual al menor entero mayor o igual q el float al q se aplica, e.d., ceiling(2.3) = 3.0 => estudiar en el futuro posible arreglo (restricciones?, ceiling propio dicotomico?, ...?) 
 */
 numCompases(progresion(L),M) :- numCompasesLista(L, fraccion_nat(N,D)),
 	M is ceiling(N/D).
@@ -153,6 +153,11 @@ dame_elemento_aleatorio(Lista, E, PosAux) :- length(Lista, L), random(0, L, Pos)
 				,nth0(Pos, Lista, E), PosAux is Pos + 1.
 
 
+/* sublista(Xs, Iini, Ifin, Ys)
+Ys es la lista que tiene los elementos en posiciones en [Iini, Ifin), con pos empezando en 1*/
+sublista([], _, _, []).
+sublista(Xs, Iini, Ifin, Ys) :- Iini< Ifin, Iini>0, length(Xs, Tam), Inin =< 	Tam, Ifin > Tam.
+sublista([X|Xs])
 
 %FUNCIONES TONALES
 mismaFuncionTonal(G1,G2) :- dameFuncionTonal(G1, F), dameFuncionTonal(G2, F).

@@ -117,7 +117,7 @@ al menor entero mayor o igual q el float al q se aplica, e.d., ceiling(2.3) = 3.
 numCompases(progresion(L),M) :- numCompasesLista(L, fraccion_nat(N,D)),
 	M is ceiling(N/D).
 numCompasesLista([], fraccion_nat(0,1)).
-numCompasesLista([(_,figura(N,D))|Cs], F) :- numCompasesLista(Cs, Fl), 	sumaFracciones(fraccion_nat(N,D), Fl, F).
+numCompasesLista([(_,figura(N,D))|Cs], F) :- numCompasesLista(Cs, Fl), 	sumarFracciones(fraccion_nat(N,D), Fl, F).
   
 
 %GENERA UN PROGRESION DE ACORDES

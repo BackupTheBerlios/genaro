@@ -5,7 +5,7 @@
 	restarFracciones/3,
 	multiplicarFracciones/3,
 	dividirFracciones/3,
-	normalizarFracciones/2,
+	normalizarFraccion/2,
 	maximoFracciones/3,
 	mayorFracciones/2,
 	igualFracciones/2,
@@ -76,7 +76,7 @@ DESCRIPCION: F3 es la fraccion resultante de restar F1 con F2. F3 esta normaliza
 restarFracciones( fraccion_nat(Num1,Den1), fraccion_nat(Num2,Den2), fraccion_nat(Num, Den) ):-
 	NumAux is ( (Num1*Den2) - (Num2*Den1) ),
 	DenAux is Den1*Den2,
-	normalizarFracciones(fraccion_nat(NumAux,DenAux), fraccion_nat(Num, Den)).
+	normalizarFraccion(fraccion_nat(NumAux,DenAux), fraccion_nat(Num, Den)).
 
 
 /*
@@ -86,7 +86,7 @@ DESCRIPCION: F3 es la fraccion resultante de sumar F1 con F2. F3 esta normalizad
 sumarFracciones( fraccion_nat(Num1,Den1), fraccion_nat(Num2,Den2), fraccion_nat(Num, Den) ):-
 	NumAux is ( (Num1*Den2) + (Num2*Den1) ),
 	DenAux is Den1*Den2,
-	normalizarFracciones(fraccion_nat(NumAux,DenAux), fraccion_nat(Num, Den)).
+	normalizarFraccion(fraccion_nat(NumAux,DenAux), fraccion_nat(Num, Den)).
 
 
 /*
@@ -96,7 +96,7 @@ DESCRIPCION: F3 es la fraccion resultante de multiplicar F1 con F2. F3 esta norm
 multiplicarFracciones( fraccion_nat(Num1,Den1), fraccion_nat(Num2,Den2), fraccion_nat(Num, Den) ):-
 	NumAux is Num1*Num2,
 	DenAux is Den1*Den2,
-	normalizarFracciones(fraccion_nat(NumAux,DenAux), fraccion_nat(Num, Den)).
+	normalizarFraccion(fraccion_nat(NumAux,DenAux), fraccion_nat(Num, Den)).
 
 
 /*
@@ -106,7 +106,7 @@ DESCRIPCION: F3 es la fraccion resultante de dividir F1 con F2. F3 esta normaliz
 dividirFracciones( fraccion_nat(Num1,Den1), fraccion_nat(Num2,Den2), fraccion_nat(Num, Den) ):-
 	NumAux is Num1*Den2,
 	DenAux is Den1*Num2,
-	normalizarFracciones(fraccion_nat(NumAux,DenAux), fraccion_nat(Num, Den)).
+	normalizarFraccion(fraccion_nat(NumAux,DenAux), fraccion_nat(Num, Den)).
 
 
 /*
@@ -114,7 +114,7 @@ USO: normalizarFracciones( +F1,-F2 )
 DESCRIPCION: F2 es el resultado de normalizar F1. Decimos que una fraccion es la normalizacion de otra cuando 
 representan el mismo numero y tanto el denominador como el numerador no tienen factores primos comunes. 
 */
-normalizarFracciones( fraccion_nat(Num1,Den1), fraccion_nat(Num2, Den2) ) :-
+normalizarFraccion( fraccion_nat(Num1,Den1), fraccion_nat(Num2, Den2) ) :-
 	Num2 is Num1//gcd(Num1,Den1),
 	Den2 is Den1//gcd(Num1,Den1).
 

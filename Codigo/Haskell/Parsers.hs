@@ -14,6 +14,8 @@ import Ratio
 open = symbol '('
 close = symbol ')'
 coma = symbol ','
+espacio = symbol ' '
+saltoDLinea = symbol '\n'
 tantoPorCien = symbol '%'
 parentesisONO :: Parser Char a -> Parser Char a
 parentesisONO p = parenthesized p

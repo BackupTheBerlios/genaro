@@ -22,15 +22,39 @@
 :- use_module(library(lists)).
 
 
+/* Definicion de la estructura */
 
-es_progresion_ordenada(progOrdenada(Loa)) :- es_lista_orden_acordes(Loa).
+/**
+* es_progresion_ordenada(+ProgresionOrd) 
+* Es una lista de acordes ordenados con la constructora progOrdenada
+* @param +ProgresionOrd verifica si es una progresion ordenada o no
+*/
+es_progresion_ordenada(progOrdenada(Loa)) :- 
+	es_lista_orden_acordes(Loa).
 
+/**
+* es_lista_orden_acordes(+ListaAcordesOrdenados)
+* es una lista de acordes ordenados
+* @param +ListaAcordesOrdenados verifica si es una lista de acordes ordenados
+*/
 es_lista_orden_acordes([]).
-es_lista_orden_acordes([(Ac,F)|Loa]) :- es_acorde(Ac),es_figura(F), es_lista_orden_acordes(Loa).
+es_lista_orden_acordes([(Ac,F)|Loa]) :- 
+	es_acorde(Ac),es_figura(F),
+	es_lista_orden_acordes(Loa).
 
+/**
+* es_acorde(+Acorde)
+* Un acorde es una lista de alturas
+* @param +Acorde lista de alturas
+*/
 es_acorde( acorde(Lista) ) :-
 	es_acorde_recursivo(Lista).
 
+/**
+* es_acorde_recursivo(+ListaAlturas).
+* Objetivo auxiliar de es_acorde. Identifica cada elemento para ver si es una altura
+* @param +ListaAlturas una lista de alturas
+*/
 es_acorde_recursivo([]).
 es_acorde_recursivo([Altura | RestoAlturas]) :-
 	es_altura(Altura),

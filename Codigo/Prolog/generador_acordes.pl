@@ -9,6 +9,9 @@ Lower and Upper. Upper will never be generated.
 :- use_module(library(random)).
 %ARCHIVOS PROPIOS CONSULTADOS
 :- consult(['representacion_prolog_haskore.pl']).
+:- consult(['biblio_genaro_listas.pl']).
+:- consult(['biblio_genaro_fracciones.pl']).
+:- consult(['grados_e_intervalos.pl']).
 
 /*
 GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
@@ -21,14 +24,6 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 -todo de cadenas
 */
 
-%INTERVALOS SIMPLES
-%usuales
-es_interSimple(interSimple(G)) :- member(G, [i, bii, ii, biii, iii, iv, bv, v, auv, vi, bvii, vii]).
-%raros
-es_interSimple(interSimple(G)) :- member(G, [bbii, bbiii, auii, biv, auiii, auiv, bbvi, bvi, auvi, bviii, auviii ]).
-
-%GRADOS
-es_grado(grado(G)) :- es_interSimple(interSimple(G)).
 
 %CIFRADOS
 es_cifrado(cifrado(G,M)) :- es_grado(G), es_matricula(M).
@@ -51,8 +46,12 @@ es_listaDeCifrados([]).
 es_listaDeCifrados([(C, F)|Cs]) :- es_cifrado(C), es_figura(F)
        ,es_listaDeCifrados(Cs).
 
-/*numAcordes(P,N) indica el numero de acordes que hay en una progresión. Podemos definir que una progresión está en forma normal cuando no existen dos acordes adyacentes en el tiempo/ lista que tengan el mismo cifrado. Por ejemplo la progresión [(C-7, 1/2), (C-7 , 1/2), (Amaj7,1/1)] quedaría en forma normal como
-[(C-7, 1/1), (Amaj7,1/1)]. Sería deseable que todas las progresiones generadas por haz_progresion y sus predicados auxiliares generaran progresiones en forma normal (estos comentarios hay q estructurarlos luego). numAcordes(P,N) da el numero de elementos de la lista ListaAcordes si la forma normal de p es progresion(ListaAcordes)
+/*numAcordes(P,N) indica el numero de acordes que hay en una progresión. Podemos definir que una progresión 
+está en forma normal cuando no existen dos acordes adyacentes en el tiempo/ lista que tengan el mismo cifrado.
+ Por ejemplo la progresión [(C-7, 1/2), (C-7 , 1/2), (Amaj7,1/1)] quedaría en forma normal como
+[(C-7, 1/1), (Amaj7,1/1)]. Sería deseable que todas las progresiones generadas por haz_progresion y sus predicados
+ auxiliares generaran progresiones en forma normal (estos comentarios hay q estructurarlos luego). numAcordes(P,N) 
+da el numero de elementos de la lista ListaAcordes si la forma normal de p es progresion(ListaAcordes)
 */
 numAcordes(progresion(Lc), N) :- numAcordesLista(Lc,ninguno,N).
 /* numAcordesLista(Lc, Uc, N): Uc es el cifrado del acorde anterior*/
@@ -62,36 +61,35 @@ numAcordesLista([C|Cs], Uc, N1) :- \+(C = Uc), numAcordesLista(Cs, C, N), N1 is 
 
 /*numCompases(P,S) indica el numero de compases que dura una progresión
 in: P que cumple es_progresion(P)
-out: S natural que indica el numero de compases que ocupa la progresión. !!!En Sicstus el ceiling da el float igual al menor entero mayor o igual q el float al q se aplica, e.d., ceiling(2.3) = 3.0 => estudiar en el futuro posible arreglo (restricciones?, ceiling propio dicotomico?, ...?) 
+out: S natural que indica el numero de compases que ocupa la progresión. !!!En Sicstus el ceiling da el float igual
+al menor entero mayor o igual q el float al q se aplica, e.d., ceiling(2.3) = 3.0 => estudiar en el futuro posible arreglo
+ (restricciones?, ceiling propio dicotomico?, ...?) 
 */
 numCompases(progresion(L),M) :- numCompasesLista(L, fraccion_nat(N,D)),
 	M is ceiling(N/D).
 numCompasesLista([], fraccion_nat(0,1)).
 numCompasesLista([(_,figura(N,D))|Cs], F) :- numCompasesLista(Cs, Fl), 	sumaFracciones(fraccion_nat(N,D), Fl, F).
-
-sumaFracciones(fraccion_nat(N1,D1), fraccion_nat(N2,D2), F) :-
-  Na is ((N1*D2) + (N2*D1)), Da is D1*D2, simpFraccion(fraccion_nat(Na,Da),F).
-
-/* // es la division entera*/
-simpFraccion(fraccion_nat(N1,D1), fraccion_nat(N2,D2)) :- Mcd is gcd(N1,D1),
-	N2 is N1//Mcd, D2 is D1//Mcd.
   
 
 %GENERA UN PROGRESION DE ACORDES
 /*haz_progresion(N,La)
-in: N natural que indica el numero de compases que dura de la progresión. Me temo que tendrá que ser mayor o igual que 3 (longitud de la cadencia más larga)
-out: La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza. Hace cierto es_progresion(La)
+in: N natural que indica el numero de compases que dura de la progresión. Me temo que tendrá que ser mayor o igual
+    que 3 (longitud de la cadencia más larga)
+out: La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
+     Hace cierto es_progresion(La)
 */
 haz_progresion(N,La) :- haz_prog_semilla(S), modifica_prog(S,N,La).
 
 /* haz_prog_semilla(S)
-crea una progresión que será de la que parta el resto de la generación.En un principio me basaré en las cadencias así que tendrá entre dos y tres acordes.
+crea una progresión que será de la que parta el resto de la generación.En un principio me basaré en las cadencias así 
+que tendrá entre dos y tres acordes.
 out: S de tipo progresion*/
 haz_prog_semilla(S) :- num_cadencias(NumCads),random(0,NumCads, CadElegida)
 	,cadenciaValida(cadencia(ListaGrados,CadElegida)),listaGradosAProgresion(ListaGrados,S).
 
 /*listaGradosAProgresion(ListaGrados,Progresion).
-convierte una lista de grados en una progresión de acordes en la que cada acorde dura una redonda. A cada grado le hace corresponder su cuatríada por ahora!!!
+convierte una lista de grados en una progresión de acordes en la que cada acorde dura una redonda. A cada grado le hace 
+corresponder su cuatríada por ahora!!!
 in: ListaGrados hace cierto el predicado es_listaDeGrados
 out: Progresion hace cierto el predicado es_progresion
 */
@@ -113,7 +111,8 @@ out: La resultado de las transformaciones, Cumple es_progresion(La)
 */
 %modifica_prog(S,N,La) :- natural(N), numCompases(S,Ls), Ls <= N, ¿?? 
 
-/* cambia_acordes(Po, N, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd donde se han realizado 1 cambio de un acorde por otro de la misma función tonal y que dura lo mismo (misma figura en la progresión)
+/* cambia_acordes(Po, N, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd donde se han realizado 
+1 cambio de un acorde por otro de la misma función tonal y que dura lo mismo (misma figura en la progresión)
 in: Po progresión origen cumple es_progresion(Po)
 out:Pd progresión destino cumple es_progresion(Po)
 Pre!!! Lo en forma normal sería recomendable */
@@ -126,41 +125,6 @@ cambia_acordesLista(Lo, Ld) :-
       sublista_suf(Lo, PosElegMas, LdB), 
       append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, Ld).
 
-/* sublista(Xs, Iini, Ifin, Ys)
-Ys es la lista que tiene los elementos de Xs en posiciones en [Iini, Ifin), contando las posiciones empezando por el 1*/
-sublista(Xs, Iini, Ifin, Ys) :- sublista_acu(Xs, Iini, Ifin, 1, Ys).
-sublista_acu([], _, _, _, []) :- !.
-%se pone a la altura del marcador izquierdo
-sublista_acu([_|Xs], Iini, Ifin, PosAct, Ys) :- PosAct < Iini, PosAct < Ifin,  PosAct2 is PosAct +1
-						,sublista_acu( Xs, Iini, Ifin, PosAct2, Ys).
-%esta entre los dos marcadores
-sublista_acu([X|Xs], Iini, Ifin, PosAct, [X|Ys]) :- PosAct >= Iini, PosAct < Ifin, PosAct2 is PosAct +1
-						,sublista_acu( Xs, Iini, Ifin, PosAct2, Ys).
-%ha sobrepasado el marcador derecho
-sublista_acu(_, _, Ifin, PosAct, []) :- PosAct >=Ifin.
-
-/*sublista_pref(Xs, Ifin, Ys)
-Ys es la lista que tiene los elementos de Xs en posiciones en [1, Ifin), contando las posiciones empezando por el 1*/
-sublista_pref(Xs, Ifin, Ys) :- sublista_pref_acu(Xs, Ifin, 1, Ys).
-sublista_pref_acu([], _, _, []) :- !.
-%esta delante del marcador derecho
-sublista_pref_acu([X|Xs], Ifin, PosAct, [X|Ys]) :- PosAct < Ifin, PosAct2 is PosAct +1
-						,sublista_pref_acu( Xs, Ifin, PosAct2, Ys).
-%ha sobrepasado el marcador derecho
-sublista_pref_acu(_, Ifin, PosAct, []) :- PosAct >=Ifin.
-
-/*sublista_suf(Xs, Iini, Ys)
-Ys es la lista que tiene los elementos de Xs en posiciones desde Iini (inclusive) hasta el final de la lista, es decir, en
-posiciones [Iini, Tam_lista] si lenght(Xs, TamLista)*/
-sublista_suf(Xs, Iini, Ys) :- sublista_suf_acu(Xs, Iini, 1, Ys).
-sublista_suf_acu([], _, _, []) :- !.
-%se pone a la altura del marcador izquierdo
-sublista_suf_acu([_|Xs], Iini, PosAct, Ys) :- PosAct < Iini, PosAct2 is PosAct +1
-						,sublista_suf_acu( Xs, Iini, PosAct2, Ys).
-%ha sobrepasado el marcador izquierdo
-sublista_suf_acu([X|Xs], Iini, PosAct, [X|Ys]) :- PosAct  >= Iini, PosAct2 is PosAct +1
-						,sublista_suf_acu( Xs, Iini, PosAct2, Ys).
-
 
 %FUNCIONES TONALES
 mismaFuncionTonal(G1,G2) :- dameFuncionTonal(G1, F), dameFuncionTonal(G2, F).
@@ -171,16 +135,6 @@ dameFuncionTonal(grado(G), dominante) :- member(G, [v, vii]).
 
 /*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)*/
 dame_grado_funcTonal_equiv(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc),dame_elemento_aleatorio(Lc, Gd).
-/*dame_elemento_aleatorio(Lista, E) 
-in: Lista lista de elementos de cualquier tipo
-out: E es un elemento de E elegido aleatoriamente. La probabilidad de elegir cada elemento es la misma, e.d. 1/numero de elementos de Lista
-dame_elemento_aleatorio(Lista, E, Pos) 
-in: Lista lista de elementos de cualquier tipo
-out: E es un elemento de E elegido aleatoriamente. La probabilidad de elegir cada elemento es la misma, e.d. 1/numero de elementos de Lista
-Pos: posicion de E dentro de la lista numerando a partir de 1
-*/
-dame_elemento_aleatorio(Lista, E) :- length(Lista, L), random(0, L, Pos)	,nth0(Pos, Lista, E).
-dame_elemento_aleatorio(Lista, E, PosAux) :- length(Lista, L), random(0, L, Pos) ,nth0(Pos, Lista, E), PosAux is Pos + 1.
 
 /*dame_cuat_funcTonal_equiv(CuatOri,CuatDest)*/
 dame_cuat_funcTonal_equiv(cifrado(GradoElegido,_),CuatDest) :- dame_grado_funcTonal_equiv(GradoElegido, GradoSustituto)
@@ -188,7 +142,7 @@ dame_cuat_funcTonal_equiv(cifrado(GradoElegido,_),CuatDest) :- dame_grado_funcTo
 
 
 %CADENCIAS
-/*es_cadencia(cadencia(C,I)) :- es_listaDeGrados(C), natural(I), 			 		 		num_cadencias(N),I<N.*/
+/*es_cadencia(cadencia(C,I)) :- es_listaDeGrados(C), natural(I),num_cadencias(N),I<N.*/
 
 es_listaDeGrados([]).
 es_listaDeGrados([G|Gs]) :- es_grado(G), es_listaDeGrados(Gs).
@@ -217,47 +171,5 @@ cadencia([grado(ii),grado(v),grado(vi)],14).
 num_cadencias(15). Asumibles por intercambio de acordes*/
 num_cadencias(4).
 
-/*intervalo: como par formado por un intervalo simple y un natural
-que indica cuantas veces se ha salido de la octava: ej: 5º justa = intervalo(interSimple (v),0), 9ºmenor = intervalo(interSimple (bii),1)
-8ª = intervalo(interSimple (i),1)*/
-es_intervalo(intervalo(G,O)) :- es_interSimple(G), natural(O).
-
-/*convierte una altura a una escala absoluta que empieza a contar desde el la de la octava 0, que es el cero. Sólo funciona bien si alturaAbsoluta(A,N) tiene in=A tipo altura
-out=N natural
-*/
-alturaAbsoluta(altura(numNota(N),octava(0)),N).
-alturaAbsoluta(altura(numNota(N),octava(O)),A) :- O>0, O1 is O - 1, alturaAbsoluta(altura(numNota(N),octava(O1)),A2)
-						,A is A2 + 12.
-
-/*semitonosAIntervalo(S,I) : S es el numero (natural!!!!) de semitonos del intervalo I
--es biyectiva? pq sólo tiene en cuenta los intervalos simples usuales
--solo funiona bien con 
-	in=S natural q indica un numero de semitonos
-	out=I	tipo intervalo correpondiente
-*/
-semitonosAIntervalo(0, intervalo(interSimple(i),0)).
-semitonosAIntervalo(1, intervalo(interSimple(bii),0)).
-semitonosAIntervalo(2, intervalo(interSimple(ii),0)).
-semitonosAIntervalo(3, intervalo(interSimple(biii),0)).
-semitonosAIntervalo(4, intervalo(interSimple(iii),0)).
-semitonosAIntervalo(5, intervalo(interSimple(iv),0)).
-semitonosAIntervalo(6, intervalo(interSimple(bv),0)).
-semitonosAIntervalo(7, intervalo(interSimple(v),0)).
-semitonosAIntervalo(8, intervalo(interSimple(sv),0)).
-semitonosAIntervalo(9, intervalo(interSimple(vi),0)).
-semitonosAIntervalo(10, intervalo(interSimple(bvii),0)).
-semitonosAIntervalo(11, intervalo(interSimple(vii),0)).
-
-semitonosAIntervalo(S, intervalo(G,O)) :- S>11, S1 is S - 12, 	semitonosAIntervalo(S1, intervalo(G,O1)),O is O1 + 1.
-
-/*el intervalo entre dos alturas A1 y A2 se obtiene con dameIntervalo(A1, A2,I). 
-In =  A1 tipo altura
-	A2 de tipo altura
-Out = I intervalo entre ambos
-Funciona para A1 más bajo q A2 y viceversa
-*/
-dameIntervalo(A1, A2, I) :- alturaAbsoluta(A1, AA1),alturaAbsoluta(A2, AA2),
-					 IA is AA2 - AA1,	semitonosAIntervalo(IA,I),!.
-dameIntervalo(A1, A2, I) :- dameIntervalo(A2, A1, I).
 
 					

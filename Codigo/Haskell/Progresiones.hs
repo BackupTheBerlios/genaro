@@ -31,7 +31,10 @@ data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII
              |BIX|IX|BX|X|BXI|XI|AUXI|BXII|XII|AUXII|BXIII|XIII|AUXIII
              |V7 Grado
              |IIM7 Grado
-     deriving(Show,Eq,Ord)
+     deriving(Show,Ord)
+
+instance Eq Grado where
+  g1 == g2 = (gradoAInt g1::Int) == (gradoAInt g2::Int)
 
 data Matricula = Mayor|Menor|Au|Dis|Sexta|Men6|Men7B5|Maj7|Sept|Men7|MenMaj7|Au7|Dis7
      deriving(Enum,Read,Show,Eq,Ord,Bounded)
@@ -45,6 +48,72 @@ gradoAInt :: Grado -> Int
 gradoAInt (V7 grado) = mod (gradoAInt grado + 7) 12
 gradoAInt (IIM7 grado) = mod (gradoAInt grado + 2) 12
 gradoAInt grado = case grado of
+	I -> 0
+	II -> 2
+	III -> 4
+	IV -> 5
+	V -> 7
+	VI -> 9
+	VII -> 11
+	BII -> 1
+	BIII -> 3
+	BV -> 6
+	AUV -> 8
+	BVII -> 10
+	BBII -> 1
+	BBIII -> 2
+	AUII -> 3
+	BIV -> 4
+	AUIII -> 5
+	AUIV -> 10
+	BBVI -> 7
+	BVI -> 8
+	AUVI -> 10
+	BVIII -> 11
+	AUVIII -> gradoAInt BII
+        BIX -> gradoAInt BII
+        IX -> gradoAInt II
+        BX -> gradoAInt BIII
+        X -> gradoAInt III
+        BXI -> gradoAInt BIV
+        XI -> gradoAInt IV
+        AUXI -> gradoAInt AUIV
+        BXII -> gradoAInt BV
+        XII -> gradoAInt V
+        AUXII -> gradoAInt AUV
+        BXIII -> gradoAInt BVI
+        XIII -> gradoAInt VI
+        AUXIII -> gradoAInt AUVI
+
+
+{-
+Esta funcion solo tienen sentido en el modo de C mayor. Da un valor por defecto a
+un AbsPitch
+
+-}
+absPitchAGrado :: Int -> Grado
+absPitchAGrado absP
+  | absP ==  0  = I
+  | absP ==  1  = BII
+  | absP ==  2  = II
+  | absP ==  3  = BIII
+  | absP ==  4  = III
+  | absP ==  5  = IV
+  | absP ==  6  = BV
+  | absP ==  7  = V
+  | absP ==  8  = AUV
+  | absP ==  9  = VI
+  | absP ==  10 = BVII
+  | absP ==  11 = VII
+  | absP >= 12  = absPitchAGrado (absP `mod` 12)
+  | absP <0     = absPitchAGrado (absP `mod` 12)
+
+
+{-Como gradoAInt pero sin el modulo-}
+gradoAIntAbs :: Grado -> Int
+gradoAIntAbs (V7 grado) = gradoAInt grado + 7
+gradoAIntAbs (IIM7 grado) = gradoAInt grado + 2
+gradoAIntAbs grado = case grado of
 	I -> 0
 	II -> 2
 	III -> 4
@@ -81,6 +150,8 @@ gradoAInt grado = case grado of
         BXIII -> 20
         XIII -> 21
         AUXIII -> 22
+
+
 
 -- Pasa de una altura cualquiera a su PitchClass. Ej: 0 -> C, 1 -> Cs, 12 -> C, 24 -> C
 absPitchAPitchClass :: AbsPitch -> PitchClass

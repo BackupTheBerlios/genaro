@@ -42,6 +42,18 @@ dameInfoEscala MixolidiaB9B13AU9 = ([BIX,BXIII],[I,BII,AUII,III,IV,V,BVI,BVII],[
 
 
 {-
+dameIntervaloPitch :: PitchClass -> Pitch -> Grado
+dameIntervaloPitch tonica pitch devuelve que grado es la nota indicada por pitch respecto
+a tonica
+-}
+dameIntervaloPitch :: PitchClass -> Pitch -> Grado
+dameIntervaloPitch tonica p = grado
+                where absTonica = absPitch (tonica,0)
+                      abs = absPitch p
+                      grado = absPitchAGrado (abs - absTonica)
+
+
+{-
 Dada una escala devuelve una lista de parejas cuya primer componente es cada uno de los grados que
 conforman la escala y cuya segunda componente es un peso asociado a cada grado que indica la probabilidad
 que sea la nota con la que se empiece una melodía para un acorde.

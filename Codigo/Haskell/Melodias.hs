@@ -31,6 +31,19 @@ Do, luego ya se puede trasponer el tono f�cilmente con la constructora Trans d
 type Escala = [Grado]
 
 -}
+
+{-
+Numero de grados que se mueve hacia arriba la melodia desde el punto anterior
+-}
+type SaltoMelodico = Int
+{-
+Numero de grados que se mueve hacia arriba la melodia desde el punto anterior, y duración de
+este punto
+-}
+type PuntoMelodico = (SaltoMelodico, Dur)
+type CurvaMelodica = [PuntoMelodico]
+
+
 hazMelodiaParaAcorde :: Cifrado -> Music
 hazMelodiaParaAcorde = line . hazMelodiaParaAcordeLista
 
@@ -52,7 +65,7 @@ aleatorios entre 1 y 100
 {-
 --daListaNotasDeMelodiaSobreAcorde :: Cifrado -> [Pitch]
 daListaNotasDeMelodiaSobreAcorde :: [Int] -> Cifrado -> ([Pitch], [Int])
-daListaNotasDeMelodiaSobreAcorde (n1:n2) acorde =
+daListaNotasDeMelodiaSobreAcorde (n1:n2:ns) acorde =
                                          where numMaxNotas = 8 --luego será parametro, o saldrá con la duración del cifrado?
                                                numNotas = round (fromIntegral n1*numMaxNotas/100)
                                                escala = escalaDelAcorde acorde
@@ -62,23 +75,62 @@ daListaNotasDeMelodiaSobreAcorde (n1:n2) acorde =
 -}
 {-
 saltaIntervaloGrado escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
-tantos grados como num, contando desde gradoPartida. Por ejemplo saltaIntervalo jonica 2 I devuelve II
+tantos grados como num, sin contar desde gradoPartida. Por ejemplo:
+  -saltaIntervalo jonica 1 I devuelve II
+  -saltaIntervalo jonica -1 I devuelve VII
+  -saltaIntervalo jonica 0 I devuelve I
 -}
 saltaIntervaloGrado :: Escala -> Int -> Grado -> Grado
-saltaIntervaloGrado escala num gradoPartida = gradoSalida
+saltaIntervaloGrado escala num gradoPartida = case (elemIndex gradoPartida gradosEscala) of
+                                                   Just posGradoPartida -> gradoSalida
+                                                                              where numGrados = length gradosEscala
+                                                                                    posGradoSalida = (posGradoPartida + num) `mod` numGrados
+                                                                                    gradoSalida = gradosEscala !! posGradoSalida
+                                                   Nothing              -> gradoSalida
+                                                                              where gradoSalida
+                                                                                      | num == 0 = gradoPartida
+                                                                                      | num > 0  = I
+                                              where (_,gradosEscala,_)  = dameInfoEscala escala
+
+
+
+
+{-saltaIntervaloGrado escala num gradoPartida = gradoSalida
                                               where (_,gradosEscala,_)  = dameInfoEscala escala
                                                     Just posGradoPartida = elemIndex gradoPartida gradosEscala
                                                     numGrados = length gradosEscala
-                                                    posGradoSalida = (posGradoPartida + num -1) `mod` numGrados
+                                                    posGradoSalida = (posGradoPartida + num) `mod` numGrados
                                                     gradoSalida = gradosEscala !! posGradoSalida
-{-
-{-
-saltaIntervaloPitch escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
-tantos grados como num, contando desde gradoPartida. Por ejemplo saltaIntervalo jonica 2 I devuelve II
+                                                    -}
+
+{--- caso de grado no diatónico
+saltaIntervaloGrado escala num gradoPartida
+  | num == 0 = gradoPartida
+  | num > 0  =
+  | num < 0  =
+
+
+                                              where (_,gradosEscala,_)  = dameInfoEscala escala
+                                                    Nothing  = elemIndex gradoPartida gradosEscala
+                                                    numGrados = length gradosEscala
+                                                    posGradoSalida = (posGradoPartida + num) `mod` numGrados
+                                                    gradoSalida = gradosEscala !! posGradoSalida
 -}
-saltaIntervaloPitch :: Escala -> Int -> Pitch -> Pitch
-saltaIntervaloPitch escala num nota Partida =
+{-
+saltaIntervaloPitch escala num gradoPartida, devuelve el Pitch correspondiente a saltar en la escala indicada
+tantos grados como num, contando desde gradoPartida
 -}
+saltaIntervaloPitch :: Escala -> PitchClass -> Int -> Pitch -> Pitch
+saltaIntervaloPitch escala tonica num notaPartida = resul
+                where (_,gradosEscala,_)  = dameInfoEscala escala
+                      gradoPartida = dameIntervaloPitch tonica notaPartida
+                      gradoSalida = saltaIntervaloGrado escala num gradoPartida
+                      salto = (gradoAIntAbs gradoSalida) - (gradoAIntAbs gradoPartida)
+                      resul = pitch ((absPitch notaPartida) + salto)
+
+                      --resul = if (elem intervalo gradosEscala) falta ver si partida no es diatonico
+                      --           then
+
 {- Pleister -}
 pruProg1 :: String -> IO()
 pruProg1 rutaProg = do prog <- leeProgresion rutaProg

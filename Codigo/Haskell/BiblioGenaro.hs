@@ -336,9 +336,9 @@ formateaOpciones mensajes = formateaOpcionesAcu 1 mensajes
 {-
 cambiaExtension nuevaExtension ruta
 devuelve una ruta igual a la de entrada salvo que la extension se ha cambiado para que sea la indicada.
--La extensión se deberá indicar sin el punto, por ejemplo "mid", NO ".mid" (que pondría dos puntos, lo que
+-La extensiï¿½n se deberï¿½ indicar sin el punto, por ejemplo "mid", NO ".mid" (que pondrï¿½a dos puntos, lo que
 esta bien si es lo que se quiere)
--Si la ruta de entrada no tiene extension se añadirá la extensión con un punto sin quitar nada, por ejemplo
+-Si la ruta de entrada no tiene extension se aï¿½adirï¿½ la extensiï¿½n con un punto sin quitar nada, por ejemplo
 cambiaExtension "txt" "pepe" = pepe.txt
 -}
 cambiaExtension :: String -> String -> String

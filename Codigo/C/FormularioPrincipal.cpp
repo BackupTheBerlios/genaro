@@ -68,7 +68,7 @@ void __fastcall TForm1::Boton_ComponerClick(TObject *Sender)
         {
           fichero_guardar.write((char*)&Ruta_prolog[i+1],sizeof(char));
         }
-        Ruta_prolog="..\\Prolog";
+        //Ruta_prolog="..\\Prolog";
         Ruta_haskell="..\\Haskell\\runhugs.exe";
         Ruta_codigo_haskell = "..\\Haskell\\main.lhs";
         fichero_conf.close();

@@ -1,0 +1,50 @@
+
+REPRESENTACION DE BAJO NIVEL PARA UNA CANCION
+
+2 REPRESENTACION DE PIANOLA DE RANURA VARIABLE
+
+esduracion(duracion(Num, Den))   %Es una duracion, representamos las duraciones como una fracion en relacion con la redonda
+esduracion(duracion(1, 1)).  % es la duracion de una redonda
+esduracion(duracion(1, 2)).  % es la duracion de una blanca, que es la mitad de una redonda
+esduracion(duracion(1, 4)).  % es la duracion de una negra, un cuarto de la redonda
+esduracion(duracion(1, 12)). % es una corchea de un tresillo, que es la tercera parte de una negra, es decir, 1/12
+esduracion(duracion(2, 1)).  % dura el doble que una redonda, es decir, dos redondas ligadas
+esduracion(duracion(0, 1)).  % seria una nota que no dura nada, tiene sentido solo en la separacion de las notas que se vera despues
+.
+.
+.
+
+
+esintensidad(I).	 % I es un valor entero entre 0 y 100 que representa la fuerza con que se ataca a la nota
+esintensidad(I):- 0<=I, I<=100.
+
+
+essonido(S).  % S es uno de los 12 sonidos de una octava. 0 es LA, 1 es LA#, etc.
+essonido(S):- 0<=S, S<12.
+
+
+esoctava(O). %No se cuantas octavas vamos a tener pero O representa la octava
+
+
+esaltura(altura(S,O)).  % la altura de una nota (su frecuencia) esta definida por el sonido y la octava
+esaltura(altura(S,O)):- essonido(S), esoctava(O).
+
+
+esligada(L). % es simplemente un valor binario (un booleano). indica si la nota esta ligada con la siguiente o no
+esligada(L):-esbooleano(L).
+
+esbooleano(si).
+esbooleano(no).
+
+es_elemento_ranura(elem(A,L)). %es un elemento de una ranura, es como una nota pero su duracion esta implicita por la longitud de la ranura
+es_elemento_ranura(elem(A,L)):- esaltura(A),esligada(L).
+
+esranura(ranura(D,Lista)). %especifica una ranura. Simplemente es una duracion (la resolucion de esa ranura) y la lista de notas
+esranura(ranura(D,Lista)):- esduracion(D), es_lista_elementos_ranura(Lista).
+
+es_lista_elementos_ranura([]).
+es_lista_elementos_ranura([Elem | Resto]) :- es_elemento_ranura(Elem), es_lista_elementos_ranura(Resto).
+
+escancion(C). %una cancion es una lista de ranuras, vamos, como una pianola que es una lista de listas de notas de igual duracion
+escancion([]).
+escancion([Ranura | Resto]):- esranura(Ranura), escancion(Resto):

@@ -54,3 +54,12 @@ working_directory(-Old, +New)
 -obtener cual es el directorio de trabajo actual:  working_directory(Wd,Wd).
 -cambiar el directorio de trabajo: working_directory(_,'c:/hlocal').
 */
+
+/**
+* haz_ejecutable(+NombreArchivo,+Objetivo): salva el estado actual del programa en un ejecutable independiente
+* que tendrá como objetivo el atomo especificado
+* -http://gollem.science.uva.nl/SWI-Prolog/Manual/runtime.html
+* -ver que pasa con las dll
+*/
+haz_ejecutable(NombreArchivo,Objetivo) :- 
+    qsave_program(NombreArchivo, [goal(Objetivo), stand_alone(true)]).

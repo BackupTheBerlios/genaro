@@ -1,7 +1,11 @@
-% comentarios: % o /* */
+%DECLARACION DEL MODULO
+:- module(representacion_prolog_haskore,[es_musica/1]).
+
 %BIBLIOTECAS
 :- use_module(library(lists)).
 
+%ARCHIVOS PROPIOS CONSULTADOS
+:- use_module(biblio_genaro_fracciones).
 
 %OPERADORES
 %composicion secuencial (asocia a dcha)
@@ -38,7 +42,7 @@ es_octava(octava(O)) :- member(O,[0,1,2,3,4,5,6]).
 %una figura es una fracción, N es el numerador y D el denominador
 es_figura(figura(N,D)) :- es_fraccionNat(N, D).
 es_fraccionNat(N, D) :- natural(N), natural(D).
-natural(N) :- integer(N), N>=0.
+%natural(N) :- integer(N), N>=0.
 
 %INSTRUMENTOS
 es_instrumento(instrumento(N)) :- member(N, [mano_izquierda, bateria, mano_derecha, bajo]).

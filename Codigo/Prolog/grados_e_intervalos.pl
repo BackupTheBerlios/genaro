@@ -1,3 +1,7 @@
+%DECLARACION DEL MODULO
+:- module(grados_e_intervalos,[alturaAbsoluta/2,sumaSemitonos/3,semitonosAIntervalo/2, dameIntervalo/3]).
+
+
 %INTERVALOS SIMPLES
 %usuales
 es_interSimple(interSimple(G)) :- member(G, [i, bii, ii, biii, iii, iv, bv, v, auv, vi, bvii, vii]).

@@ -4,17 +4,20 @@ Binds Number to a random integer in the interval [Lower,Upper) if Lower and
 Upper are integers. Otherwise Number is bound to a random oat between
 Lower and Upper. Upper will never be generated.
 */
+%DECLARACION DEL MODULO
+:- module(generador_acordes,[genera_acordes/2, haz_progresion/3]).
+
 %BIBLIOTECAS
 :- use_module(library(lists)).
 :- use_module(library(random)).
-%ARCHIVOS PROPIOS CONSULTADOS
-:- consult(['representacion_prolog_haskore.pl']).
-:- consult(['biblio_genaro_listas.pl']).
-:- consult(['biblio_genaro_fracciones.pl']).
-:- consult(['biblio_genaro_ES.pl']).
-:- consult(['grados_e_intervalos.pl']).
-:- consult(['figuras_y_ritmo.pl']).
 
+%ARCHIVOS PROPIOS CONSULTADOS
+:- use_module(representacion_prolog_haskore).
+:- use_module(biblio_genaro_listas).
+:- use_module(biblio_genaro_fracciones).
+:- use_module(biblio_genaro_ES).
+:- use_module(grados_e_intervalos).
+:- use_module(figuras_y_ritmo).
 /*
 GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 

@@ -1,5 +1,8 @@
+%DECLARACION DEL MODULO
+:- module(figuras_y_ritmo,[divideFigura/3, sumaFiguras/3]).
+
 %ARCHIVOS PROPIOS CONSULTADOS
-:- consult(['biblio_genaro_fracciones.pl']).
+:- use_module(biblio_genaro_fracciones).
 
 /*divideFigura(Fe, N, Fs)
 divide la figura Fi por el natural N

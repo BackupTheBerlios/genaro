@@ -1,3 +1,6 @@
+%DECLARACION DEL MODULO
+:- module(biblio_genaro_ES,[escribeTermino/3,escribeTermino/2,existeArchivo/1]).
+
 %BIBLIOTECAS
 :- use_module(library(system)).
 

@@ -1,3 +1,11 @@
+%DECLARACION DEL MODULO
+:- module(biblio_genaro_listas,[sublista/4,sublista_pref/3,sublista_suf/3, dame_elemento_aleatorio/2
+			,dame_elemento_aleatorio/3]).
+
+%BIBLIOTECAS
+:- use_module(library(lists)).
+:- use_module(library(random)).
+
 /* sublista(Xs, Iini, Ifin, Ys)
 Ys es la lista que tiene los elementos de Xs en posiciones en [Iini, Ifin), contando las posiciones empezando por el 1*/
 sublista(Xs, Iini, Ifin, Ys) :- sublista_acu(Xs, Iini, Ifin, 1, Ys).

@@ -8,6 +8,7 @@
                               ,sumaIntervaloAGrado/3
                               ,gradoAAltura/2
                               ,gradoRelativoAAbsoluto/2
+                              ,listaGradosNoDiatonicos/2
                               ,intervaloASemitonos/2]).
 
 %BIBLIOTECAS
@@ -24,6 +25,14 @@ es_interSimple(interSimple(G)) :- member(G, [bbii, bbiii, auii, biv, auiii, auiv
 es_grado(grado(G)) :- es_interSimple(interSimple(G)).
 es_grado(grado(v7 / G)) :- es_grado(grado(G)).
 es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
+
+/**
+ * listaGradosNoDiatonicos(TipoEscala, L) devuelve en L una lista de patrones correspondientes a los grados no diátónicos
+ * a la escala indicada
+ * @param +TipoEscala por ahora solo implementado para TipoEscala perteneciente a {jonico}
+ * @param -L lista de patrones de la forma grado(v7 / _) , etc
+ */
+listaGradosNoDiatonicos(jonico, [grado(v7 / _), grado(iim7 / _)]).
 
 /*intervalo: como par formado por un intervalo simple y un natural
 que indica cuantas veces se ha salido de la octava: ej: 5º justa = intervalo(interSimple (v),0), 9ºmenor = intervalo(interSimple (bii),1)

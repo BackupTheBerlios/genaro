@@ -41,7 +41,7 @@ genera_acordes :- genera_acordes(6,3).
 /*genera_acordes(N, M) hace una progresion de N compases aprox y con M transformaciones
 guarda el resultado en C:/hlocal/acordes.txt. Solo funciona si C:/hlocal existe
 */
-genera_acordes(N, M) :- random(1, 3, E), genera_acordes(N, M, E).
+genera_acordes(N, M) :- random(1, 4, E), genera_acordes(N, M, E).
 
 genera_acordes(N,M, paralelo) :- random(1, 3, E), genera_acordes(N, M, paralelo, E).
 genera_acordes(N,M, continuidad) :- random(1, 3, E), genera_acordes(N, M, continuidad, E).
@@ -223,6 +223,7 @@ accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).
 * */
 haz_prog_semilla(1,S) :- haz_prog_semilla1(S).
 haz_prog_semilla(2,S) :- haz_prog_semilla2(S).
+haz_prog_semilla(3,S) :- haz_prog_semilla3(S).
 
 /**
 * haz_prog_semilla1(S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
@@ -255,22 +256,33 @@ listaGradosAProgresionRec([G|Gs],[(C, figura(1,1))|Ps]) :-
 		hazCuatriada(G,C) ,listaGradosAProgresionRec(Gs,Ps).
 
 %CAMBIA ACORDES
-/* cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
-idéntica a Po excepto porque se ha realizado 1 cambio de un acorde por otro de la misma función tonal
-(elegido al azar y distinto) y que dura lo mismo (misma figura en la progresión). El acorde que será
-sustituido se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser elegidos
-in: Po progresión origen cumple es_progresion(Po)
-out:Pd progresión destino cumple es_progresion(Po)
-Pre!!! Po en forma normal sería recomendable
-Post: Pd está en forma normal */
+/** cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
+* idéntica a Po excepto porque se ha realizado 1 cambio de un acorde diatónico!!! por otro de la misma función tonal
+* (elegido al azar y distinto) y que dura lo mismo (misma figura en la progresión). El acorde que será
+* sustituido se elige al azar, teniendo todos los acordes comsiderados la misma probabilidad de ser elegidos
+* Pre!!! Po en forma normal sería recomendable
+* Post: Pd está en forma normal
+* @param +Po progresión origen cumple es_progresion(Po)
+* @param -Pd progresión destino cumple es_progresion(Po)
+*/
 cambia_acordes(progresion(Lo), progresion(Ld)) :- cambia_acordesLista(Lo, Ld).
-cambia_acordesLista([], []) .
+cambia_acordesLista([], []) :- !.
 cambia_acordesLista(Lo, Ld) :-
-	dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
+       setof((cifrado(Gc,Mc), Fc, Posc),
+             (
+       	      nth(Posc, Lo, (cifrado(Gc,Mc), Fc))
+              ,listaGradosNoDiatonicos(jonico,ListaGrados)
+              ,\+(member(Gc, ListaGrados))
+             )
+              , Lc)
+       ,length(Lc, Long), Long > 0, !
+      ,dame_elemento_aleatorio(Lc, (AcordElegido, F, PosElegida), _)
       ,dame_cuat_funcTonal_equiv(AcordElegido, AcordSustituto)
- 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+      ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
       ,sublista_suf(Lo, PosElegMas, LdB)
       ,append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, Ld).
+
+cambia_acordesLista(Lo, Lo).
 
 %AÑADE ACORDES
 /* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es

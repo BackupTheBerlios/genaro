@@ -95,6 +95,8 @@ hazAcordePosTonica(nota(A, F), matricula(7), [nota(A,F4), nota(Ter,F4), nota(Qui
 	divideFigura(F,4,F4) ,sumaSemitonos(A, 4, Ter),sumaSemitonos(A, 7, Qui),sumaSemitonos(A, 10, Sept).
 hazAcordePosTonica(nota(A, F), matricula(m7b5), [nota(A,F4), nota(Ter,F4), nota(Qui,F4), nota(Sept,F4)]):-
 	divideFigura(F,4,F4) ,sumaSemitonos(A, 3, Ter),sumaSemitonos(A, 6, Qui),sumaSemitonos(A, 10, Sept).
+hazAcordePosTonica(nota(A, F), matricula(m6), [nota(A,F4), nota(Ter,F4), nota(Qui,F4), nota(Sept,F4)]):-
+	divideFigura(F,4,F4) ,sumaSemitonos(A, 3, Ter),sumaSemitonos(A, 7, Qui),sumaSemitonos(A, 9, Sept).
 
 
 /*hazCompSecuencial(ListaNotas, Musica)*/
@@ -158,13 +160,9 @@ numCompases(progresion(L),N,D) :- numCompasesLista(L, fraccion_nat(N,D)).
 * @param -La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
 *     Hace cierto es_progresion(La)
 */
-/*haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
- 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux3)), quita_grados_relativos(Laux3, Laux4)
-                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).*/
 haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
- 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux4))
-                 ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).
-
+ 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, Laux3), quita_grados_relativos(Laux3, progresion(Laux4))
+                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).
 
 /*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
 progresion de longitud N (N compases) APROXIMADAMENTE
@@ -222,11 +220,6 @@ corresponder su cuatríada por ahora!!!
 in: ListaGrados hace cierto el predicado es_listaDeGrados
 out: Progresion hace cierto el predicado es_progresion
 */
-
-/*listaGradosAProgresion([],progresion([])).
-listaGradosAProgresion([G|Gs],progresion([(C, figura(1,1))|Ps])) :-
-		hazCuatriada(G,C) ,listaGradosAProgresion(Gs,Ps).*/
-
 listaGradosAProgresion(LG, progresion(Prog)) :- listaGradosAProgresionRec(LG,Prog).
 listaGradosAProgresionRec([],[]).
 listaGradosAProgresionRec([G|Gs],[(C, figura(1,1))|Ps]) :-
@@ -277,7 +270,7 @@ aniade_acordesLista(Lo, Ld) :-
 * aniade_dominante_sec(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un dominante
 * secundario de un acorde elegido al azar, dando la misma probabilidad de ser elegidos a todos los acordes
 * El dominante secundario se añadirá sin asegurarse de respetar las reglas de ritmo armónico y durará lo mismo
-* q el acorde del que ejerce de dominante secundario
+* q el acorde sobre el que ejerce de dominante secundario
 * @param +Po cumple es_progresion(Po)
 * @param -Po cumple es_progresion(Pd)
 */
@@ -294,26 +287,31 @@ aniade_dom_sec_lista(Lo, Ld):-
 
 aniade_dom_sec_lista(Lo, Lo).
 
-/*
-aniade_dom_sec_lista(Lo, Ld):-
-	setof((cifrado(grado(Gaux),matricula(M)), Faux, Pos)
-	  ,(member((cifrado(grado(Gaux),matricula(M)), Faux), Lo)
-	    ,nth(Pos, Lo, (cifrado(grado(Gaux),matricula(M)), Faux))
-	    ,\+(Gaux = i) )
-	  , Lc)
-	,length(Lc,Long), Long >0 ,!,
-	dame_elemento_aleatorio(Lc, (cifrado(grado(G),matricula(M)), F, PosElegida), _)
-	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
-    ,sublista_suf(Lo, PosElegMas, LdB)
-    ,append(LdA, [(cifrado(grado(v7 / G),matricula(7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
-    ,append(Laux, LdB, Ld).
+/**
+* buscaCandidatosADominanteSec(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
+* en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
+* les puede añadir un dominante secundario por delante de ellos, esto es, aquellos que no son acordes del primer grado y a los que
+* no se les ha añadido ya un dominante secundario
+* @param +Li cumple es_progresion(progresion(Li))
+* @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
+* intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
 */
-
-%hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso empieza en dos
-buscaCandidatosADominanteSec(Li, Lo) :- buscaCandidatosADominanteSecAcu(Li, 2, Lo).
+buscaCandidatosADominanteSec([(cifrado(grado(i),_), _)|Li], Lo) :- !,buscaCandidatosADominanteSecAcu(Li, 2, Lo).
+buscaCandidatosADominanteSec([(cifrado(grado(G),M), F)|Li], [(cifrado(grado(G),M), F, 1)|Lo])
+	:-!,buscaCandidatosADominanteSecAcu(Li, 2, Lo).
+/**
+* buscaCandidatosADominanteSec(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
+* en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
+* les puede añadir un dominante secundario por delante de ellos, esto es, aquellos que no son acordes del primer grado y a los que
+* no se les ha añadido ya un dominante secundario
+* @param +Li cumple es_progresion(progresion(Li))
+* @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
+* intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
+*/
 buscaCandidatosADominanteSecAcu([], _, []).
-buscaCandidatosADominanteSecAcu([_],_,[]).%pq ya se habría examinado X
+buscaCandidatosADominanteSecAcu([_],_,[]).%pq _ ya se habría examinado
 % buscaCandidatosADominanteSecAcu(Li, PosActual, Lo)
+%hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso empieza en dos
 buscaCandidatosADominanteSecAcu([(cifrado(grado(v7 / G2),matricula(_)), _),(cifrado(grado(G2),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
                        ,buscaCandidatosADominanteSecAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
@@ -324,8 +322,6 @@ buscaCandidatosADominanteSecAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
     , PosActual, [(cifrado(grado(G2),matricula(M2)), F2, PosActual)|Lo]) :-
                        PosSig is PosActual + 1
                        ,buscaCandidatosADominanteSecAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
-
-
 
 
 %II-7 RELATIVO
@@ -590,9 +586,9 @@ es_patron_acordes(patAcord(C,I)) :- es_listaDeGrados(C), natural(I),num_patrones
 patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).
 patAcordesVal(patAcord([grado(i),grado(v7 / v),grado(ii),grado(v)],1)).
 patAcordesVal(patAcord([grado(i),grado(v7 / ii),grado(ii),grado(v)],2)).
-%patAcordesVal(patAcord([grado(i),grado(v7 / iv),grado(iv),grado(iv -6)],3)). lo dejamos para otro dia
-%num_patrones_acordes(4).
-num_patrones_acordes(3).
+patAcordesVal(patAcord([grado(i),grado(v7 / iv),grado(iv),grado(ivm6)],3)).
+num_patrones_acordes(4).
+%num_patrones_acordes(3).
 
 /*hazCuatriada(G,C)
 in: G de tipo grado
@@ -601,6 +597,7 @@ por ahora
 */
 hazCuatriada(grado(v7 / G), cifrado(grado(v7 / G), matricula(7))) :- !.
 hazCuatriada(grado(iim7 / G), cifrado(grado(iim7 / G), matricula(m7))) :- !.
+hazCuatriada(grado(ivm6), cifrado(grado(iv), matricula(m6))) :- !.
 hazCuatriada(grado(G),cifrado(grado(G), matricula(maj7))) :- 	member(G,[i,iv,bvii]),!.
 hazCuatriada(grado(G),cifrado(grado(G), matricula(m7))) :- member(G,[ii,iii,vi]),!.
 hazCuatriada(grado(G),cifrado(grado(G), matricula(7))) :- member(G,[v]),!.

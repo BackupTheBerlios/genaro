@@ -55,13 +55,15 @@ genera_acordes :- genera_acordes(6,3, continuidad,1).
 * FALTA ELEGIR LA DISPISICION SI CORRESPONDE
 * */
 genera_acordes(N,M, paralelo, TipoSemilla) :- haz_progresion(N, M, TipoSemilla, Prog)
-        ,generador_notas_del_acorde_con_sistema_paralelo:traduce_lista_cifrados(Prog,100,0,100,0,0,Lista)
-        ,fichero_destinoGenAc_prog_ord(Dd), escribeTermino(Dd, Lista).
+        ,generador_notas_del_acorde_con_sistema_paralelo:traduce_lista_cifrados(Prog,100,0,100,0,0,ListaAcordes)
+        ,termina_genera_acordes(ListaAcordes).
 
 genera_acordes(N,M, continuidad, TipoSemilla) :- haz_progresion(N, M, TipoSemilla, Prog)
-        ,generador_notas_del_acorde_con_continuidad_armonica:traduce_lista_cifrados(Prog,Lista)
-        ,fichero_destinoGenAc_prog_ord(Dd), escribeTermino(Dd, Lista).
+        ,generador_notas_del_acorde_con_continuidad_armonica:traduce_lista_cifrados(Prog,ListaAcordes)
+        ,termina_genera_acordes(ListaAcordes).
 
+termina_genera_acordes(ListaAcordes) :-
+        fichero_destinoGenAc_prog_ord(Dd), escribeTermino(Dd, ListaAcordes).
 
 	%PREDICADOS DE GENERACION
 
@@ -82,9 +84,9 @@ haz_progresion(N, M, 1, Progresion) :- N>=0, N =< 4,!, haz_prog_semilla(N, 1, PA
 haz_progresion(N, M, 3, Progresion) :- N>=0, N =< 3,!, haz_prog_semilla(N, 3, PAux1),
 	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
 haz_progresion(N, M, Tipo, progresion(La)) :- haz_prog_semilla(Tipo, progresion(S))
-                ,escribeLista(S, 'C:/hlocal/cifradosSemilla.txt')
+                ,escribeLista('C:/hlocal/cifradosSemilla.txt',S)
 		,fija_compases_aprox(progresion(S), N, Laux1), modifica_prog(Laux1, M, progresion(Laux2))
-                ,escribeLista(Laux2, 'C:/hlocal/cifradospreFin.txt')
+                ,escribeLista('C:/hlocal/cifradospreFin.txt',Laux2)
                 ,haz_prog_semilla(1,progresion(Pfin)), append(Laux2, Pfin, Laux4)
                 ,quita_grados_relativos(progresion(Laux4), progresion(La))
                 ,escribeLista('C:/hlocal/cifrados.txt', La)

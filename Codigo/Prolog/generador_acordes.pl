@@ -16,6 +16,7 @@
                 ,dame_grado_funcTonal_equiv2/2
                 ,dame_cuat_funcTonal_equiv/2
                 ,dame_cuat_funcTonal_equiv2/2
+                ,quita_grados_relativos/2
                 ,numCompases/2]).
 
 %BIBLIOTECAS

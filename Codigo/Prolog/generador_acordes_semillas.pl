@@ -8,7 +8,9 @@
 %DECLARACION DEL MODULO
 %:- module(generador_acordes_semillas).
 :- module(generador_acordes_semillas,
-     [haz_prog_semilla/3, termina_haz_prog_semilla/1]).
+                 [haz_prog_semilla/3
+                  ,haz_prog_semilla/2
+                  ,termina_haz_prog_semilla/1]).
 
 %BIBLIOTECAS
 %%:- use_module(library(lists)).
@@ -21,16 +23,6 @@
 :- use_module(biblio_genaro_fracciones).
 
 		%PREDICADOS PARA CONSTRUIR SEMILLAS
-/**
-* haz_prog_semilla(+Tipo,-S) lanza el objetivo haz_prog_semilla/3 eligiendo aleatoriamente
-* entre los números de compases posibles, para devolver en S una progresion pequeña usada
-* en el principio de la generación.
-* @param +Tipo si vale n entonces se utilizará haz_prog_semillan/2 para la generacion de la semilla, debe pertenecer al conjunto
-* {1, 3} por ahora
-* @param -S cumple generador_acordes:es_progresion(S)
-* */
-haz_prog_semilla(Tipo,S) :- rango_prog_semilla1(Min, Max),
-
 /*!!!NO USA haz_prog_semilla2 PQ NO SE SI MANTIENE COMO INVARIANTE QUE EL RITMO ARMONICO SEA CORRECTO*/
 /**
 * haz_prog_semilla(+NumCompases, +Tipo,-S) devuelve en S una progresion pequeña usada en el principio de la generación.
@@ -50,8 +42,7 @@ haz_prog_semilla(1,_ ,progresion([(C, figura(1,1))])) :-
 
 haz_prog_semilla(N, Tipo, S) :-
 	haz_prog_semilla(Tipo, S),  numCompases(S, NumCompFloat),
-        %%NumComp is ceiling(NumCompFloat), N >= NumComp, N =< NumComp, /*pq en Sicstus el ceiling da un float*/
-        NumComp is ceiling(NumCompFloat), N = NumComp, /*pq en Sicstus el ceiling da un float*/
+        NumComp is ceiling(NumCompFloat), N = NumComp, /*pq en SWI el ceiling da un entero*/
         termina_haz_prog_semilla(S).
 
 termina_haz_prog_semilla(progresion(S)) :-
@@ -65,9 +56,9 @@ termina_haz_prog_semilla(progresion(S)) :-
 * {1, 3} por ahora
 * @param -S cumple generador_acordes:es_progresion(S)
 * */
-haz_prog_semilla(1,S) :- haz_prog_semilla1(S).
-/*haz_prog_semilla(2,S) :- haz_prog_semilla2(S). garantiza el ritmo armonico correcto?? */
-haz_prog_semilla(3,S) :- haz_prog_semilla3(S).
+haz_prog_semilla(1,S) :- haz_prog_semilla1(S), termina_haz_prog_semilla(S).
+/*haz_prog_semilla(2,S) :- haz_prog_semilla2(S), termina_haz_prog_semilla(S). garantiza el ritmo armonico correcto?? */
+haz_prog_semilla(3,S) :- haz_prog_semilla3(S), termina_haz_prog_semilla(S).
 
 /**
 * haz_prog_semilla1(-S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion

@@ -4,6 +4,7 @@
                         ,sublista_pref/3
                         ,sublista_suf/3
                         ,escribeLista/2
+                        ,listaAListaConSaltos/2
                         ,dame_elemento_aleatorio/2
 			,dame_elemento_aleatorio/3
                         ,dame_elemento_aleatorio/4

@@ -104,7 +104,8 @@ void MatrizNotas::CambiaResolucion(unsigned int NuevaResolucion)
   }
   //adaptamos la matriz para adecuarnos a la nueva resolucion, crenado nuevos vectores voces y convirtiendo los anteriores a estos.
   Cancion.clear();
-  Cancion=CancionTemp;  
+  Cancion=CancionTemp;
+  Columnas=Columnas*diferencia;  
 }
 
 //---------------------------------------------------------------------------

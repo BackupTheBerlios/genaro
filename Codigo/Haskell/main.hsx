@@ -1,5 +1,18 @@
 module Main where
 import PrologAMidi
-main = do putStr "\n Empezando a generar midi a partir de Prolog\n"
-          progresionPrologAMidi2 "c:/hlocal/acordes.txt" "c:/hlocal/acordes.mid"
-          putStr "\n Terminado el proceso \n"
+import Directory
+
+rutaOrigen :: String
+rutaOrigen = "./progresion_ordenada.txt"
+
+rutaDestino :: String
+rutaDestino = "./musica_genara.mid"
+
+main :: String -> IO()
+main dirTrabajo = do putStr mensajeCambiaDir
+                     setCurrentDirectory dirTrabajo
+                     putStr "\n Empezando a generar midi a partir de Prolog\n"
+                     progresionPrologAMidi2 rutaOrigen rutaDestino
+                     putStr "\n Terminado el proceso de generacion de musica\n"
+                     where mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
+

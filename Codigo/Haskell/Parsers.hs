@@ -57,7 +57,7 @@ aplicaParser parser cadena = if null resultados
                                     resul1     = head resultados
 
 {-
-Dado una funcion/parser de tipo Parser Char a devuelve y un string devuelve cierto si el parseo fue exitoso, 
+Dado una funcion/parser de tipo Parser Char a devuelve y un string devuelve cierto si el parseo fue exitoso,
 es decir, si la cadena se ajusta a la estructura sintáctica especificada por el parser; y falso en otro caso
 -}
 parseoExitoso :: (Parser Char a) -> (String -> Bool)
@@ -105,3 +105,10 @@ como listaSeparadaChar pero especificando el separador como un string en vez de 
 -}
 listaSeparadaString :: String -> Parser Char a -> Parser Char [a]
 listaSeparadaString separador parser = listOf parser (token separador)
+
+
+{-
+devuelve el string correspondiente a quitar los espacios del string de entrada
+-}
+quitaEspacios :: String -> String
+quitaEspacios =  filter (' '/=)

@@ -15,7 +15,7 @@ import Parsers
 import Progresiones
 
 hazMusica :: String -> Music
-hazMusica = aplicaParser parserMusica
+hazMusica = (aplicaParser parserMusica) . quitaEspacios
 
 -- parserMusica :: String -> [(String, Music)]
 parserMusica :: Parser Char Music
@@ -130,7 +130,7 @@ cancioncilla = Instr "piano" (Tempo (3%1) (
 type AcordeOrdenadoMusic = [Music]
 
 hazProgresionOrdenadaMusic :: String -> [AcordeOrdenadoMusic]
-hazProgresionOrdenadaMusic = aplicaParser parserProgresionOrdenadaMusic
+hazProgresionOrdenadaMusic = (aplicaParser parserProgresionOrdenadaMusic) . quitaEspacios
 
 -- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
 -- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
@@ -164,7 +164,7 @@ parserAcordeOrdMusic = (token "acorde") *> parenthesized(bracketed(commaList(alt
 type AcordeOrdenado = ([Pitch],Dur)
 
 hazProgresionOrdenada :: String -> [AcordeOrdenado]
-hazProgresionOrdenada = aplicaParser parserProgresionOrdenada
+hazProgresionOrdenada = (aplicaParser parserProgresionOrdenada) . quitaEspacios
 
 -- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
 -- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces

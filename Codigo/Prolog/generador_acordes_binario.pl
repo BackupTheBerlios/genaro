@@ -15,7 +15,8 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 :- module(generador_acordes_binario
     ,[genera_acordes/0
       ,genera_acordes/4
-      ,cambia_acordes/2]).
+      ,cambia_acordes/2
+      ,inserta_dominante_sec/2]).
 
 %BIBLIOTECAS
 
@@ -95,44 +96,17 @@ haz_progresion(N, M, Tipo, Progresion) :- rango_prog_semilla(Tipo,MinComp, MaxCo
 , setof((CC,CC),member(CC,CompCand), ListaEligeSemilla)
 , dame_elemento_aleat_lista_pesos(ListaEligeSemilla, NCompasesSemilla, _, _)
 , haz_prog_semilla(NCompasesSemilla, Tipo, ProgSemilla)
-, modifica_prog(ProgSemilla, M, ProgMutada)
+, FactorMul is N // NCompasesSemilla
+, multiplica_duracion(ProgSemilla, FactorMul, ProgMutable)
+, modifica_prog(ProgMutable, M, ProgMutada)
 , termina_haz_progresion(ProgMutada, Progresion).
-
-
-
-
-/*setof((N,N),member(N,Xs), Ys)*/
-                
 
 termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
 		fichero_destinoGenAc_prog(FichNoRel), fichero_destinoGenAc_prog_con_rel(FichRel),
                 escribeLista(FichRel, ProgRel), quita_grados_relativos(progresion(ProgRel), ProgNoRel),
                 escribeTermino(FichNoRel, ProgNoRel).
 
-		%PREDICADOS QUE AÑADEN MAS COMPASES A LA PROGRESION
-/*fija_compases(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
-progresion de longitud N (N compases) alragando la de entrada. Por tanto si la progresión de entrada
-dura N o más compases entonces no hace nada.
-in: ProgSemilla progresión de partida (semilla). Cumple es_progresion(ProgSemilla)
-    N numero de compases que tendra la progresion.
-out: ProgResul resultado de las transformaciones, Cumple es_progresion(ProgResul)
-*/
-fija_compases(ProgSemilla, N, ProgSemilla) :- numCompases(ProgSemilla, NumComp), NumComp >= N,!.
-fija_compases(ProgSemilla, N, ProgResul) :- alarga_progresion(ProgSemilla, ProgAux)
-		,fija_compases(ProgAux, N, ProgResul).
-
-/**
-* alarga_progresion(Po, Pd) devuelve en Pd una progresion igual a Po salvo por que se le ha añadido un acorde
-* extra que la hace más larga, elegiendo este acorde según las reglas de la armonía
-* @param +Po cumple es_progresion(Po)
-* @param -Pd cumple es_progresion(Pd)
-* */
-alarga_progresion(Po, Pd) :- num_acciones_alarga(N), random(0, N, E), alarga_progresion(Po, E, Pd).
-alarga_progresion(Po, 0, Pd) :- aniade_dominante_sec(Po, Pd).
-alarga_progresion(Po, 1, Pd) :- aniade_iim7_rel(Po, Pd).
-num_acciones_alarga(2).
-%alarga_progresion(Po, 3, Pd) :- aniade_acordes2(Po, Pd). un poco aburrido
-%num_acciones_alarga(3).
+		%PREDICADOS QUE CAMBIAN LA PROGRESION SIN AÑADIR COMPASES
 
 			%DOMINANTES SECUNDARIOS
 /**
@@ -148,17 +122,23 @@ aniade_dom_sec_lista([], []) :- !.
 aniade_dom_sec_lista(Lo, Ld):-
         buscaCandidatosADominanteSec(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
-	,dame_elemento_aleatorio(Lc, (cifrado(grado(G),matricula(M)), F, PosElegida), _)
+	,dame_elemento_aleatorio(Lc, (Cif, F, PosElegida), _)
 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
-    ,sublista_suf(Lo, PosElegMas, LdB)
-    ,append(LdA, [(cifrado(grado(v7 / G),matricula(7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
-    ,append(Laux, LdB, Ld).
+        ,sublista_suf(Lo, PosElegMas, LdB)
+        ,inserta_dominante_sec((Cif,F), ListaInsertar)
+        ,append(LdA, ListaInsertar, Laux),append(Laux, LdB, Ld).
 
 aniade_dom_sec_lista(Lo, Lo).
 
-monta_dominante_sec(grado(i),grado(v)).
+monta_dominante_sec(grado(i),grado(v)) :-!.
 monta_dominante_sec(grado(G),grado(v7 / G)).
 
+inserta_dominante_sec((cifrado(grado(G),matricula(M)), F)
+      , [(cifrado(grado(G),matricula(M)), Fcuart),(cifrado(GDominante,matricula(7)), Fcuart), (cifrado(grado(G),matricula(M)), Fmed)])
+              :- !, monta_dominante_sec(grado(G), GDominante), divideFigura(F,2,Fmed), divideFigura(F,4,Fcuart).
+
+
+/*
 /**
 * inserta_dominante_sec(Posicion, Lo, Ld). Devuelve en ListaResul el resultado de insertar en lista origen el cifrado correspondiente
 * al dominante del acorde situado en la posicion indicada
@@ -186,6 +166,8 @@ inserta_dominante_sec(_, [(cifrado(grado(G),matricula(M)), F)]
 /*inserta_dominante_sec(_, [(cifrado(grado(G),matricula(M)), F)]
       , [(cifrado(GDominante,matricula(7)), figura(1,1)), (cifrado(grado(G),matricula(M)), F)])
               :- !, monta_dominante_sec(grado(G), GDominante).*/
+
+*/
 /**
 * buscaCandidatosADominanteSec(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
@@ -291,96 +273,15 @@ buscaCandidatosAiimRelAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
                        PosSig is PosActual + 1
                        ,buscaCandidatosAiimRelAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
 
-			%RITMO ARMONICO
-/**
-* asegura_ritmo_armonico(Po, Pd) dada la progresion Po devuelve en Pd el resultado de modificar Po para que
-* se respeten las normas de ritmo armónico, es decir, que los acordes más inestables estén en compases más débiles
-* que los acordes más estables
-* @param +Po cumple es_progresion(Po)
-* @param -Pd cumple es_progresion(Pd)
-* */
-asegura_ritmo_armonico(progresion(Lo), progresion(Ld))
-	:- aseg_ritmo_arm_acu(Lo,(0,1),Ld).
-
-aseg_ritmo_arm_acu([],_,[]).
-aseg_ritmo_arm_acu([X],_,[X]).
-aseg_ritmo_arm_acu([X,Y],_,[X,Y]).
-
-aseg_ritmo_arm_acu([(C1,figura(N1,D1)),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, NumCompPre2Den)
-	, [(C1,figura(N1,D1)),(C1,figura(N1,D1)),(C2,figura(N2,D2))|Lcout]) :-
-		dameFuncionTonalCifrado(C2, FuncTonal2)
-		,dameFuncionTonalCifrado(C3, FuncTonal3)
-		,menosEstable(FuncTonal2, FuncTonal3)
-    	,fuerzaEnElCompas(NumCompPre2Nom,NumCompPre2Den,binario, fuerte),!
-    	%el acorde 2 está en parte fuerte y el 1 y el 3 en débil al ser binario el compás, no mola pq el acorde 2
-    	%es menos estable que el 3 => repito el acorde 1 para desplazar F2 a parte debil
-    	,sumarFracciones(fraccion_nat(NumCompPre2Nom,NumCompPre2Den), fraccion_nat(N1,D1), fraccion_nat(Na1, Da1))
-    	,sumarFracciones(fraccion_nat(Na1, Da1), fraccion_nat(N2,D2), fraccion_nat(Na2, Da2))
-		,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na2, Da2), Lcout).
-
-aseg_ritmo_arm_acu([(C1,figura(N1,D1)),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, NumCompPre2Den)
-	, [(C1,figura(N1,D1)),(C1,figura(N1,D1)),(C2,figura(N2,D2))|Lcout]) :-
-		dameFuncionTonalCifrado(C2, FuncTonal2)
-		,dameFuncionTonalCifrado(C3, FuncTonal3)
-		,menosEstable(FuncTonal3, FuncTonal2)
-    	,fuerzaEnElCompas(NumCompPre2Nom,NumCompPre2Den,binario, debil),!
-    	%el acorde 2 está en parte débil y el 1 y el 3 en fuerte al ser binario el compás, no mola pq el acorde 2
-    	%es mas estable que el 3 => repito el acorde 1 para desplazar F2 a parte fuerte
-    	,sumarFracciones(fraccion_nat(NumCompPre2Nom,NumCompPre2Den), fraccion_nat(N1,D1), fraccion_nat(Na1, Da1))
-    	,sumarFracciones(fraccion_nat(Na1, Da1), fraccion_nat(N2,D2), fraccion_nat(Na2, Da2))
-		,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na2, Da2), Lcout).
-
-aseg_ritmo_arm_acu([(C1,F1),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, NumCompPre2Den)
-	, [(C1,F1),(C2,figura(N2,D2))|Lcout]) :-
-		%ninguno de los anteriores => OK
-    	sumarFracciones(fraccion_nat(NumCompPre2Nom,NumCompPre2Den), fraccion_nat(N2,D2), fraccion_nat(Na1, Da1))
-    	,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na1, Da1), Lcout).
-
-
-
-		%AÑADE ACORDES2
-/**
-* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
-* idéntica a  Po salvo porque se ha sustituido uno de sus acordes diatónicos!! por dos acordes, el primero del mismo cifrado
-* del original y durando lo mismo y, el segundo de la misma función tonal que el original (elegido al azar
-* y distinto) y durando lo mismo. El primero aparecerá siempre delante del segundo en la progresión. El
-* acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
-* elegidos
-* PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
-* Pre!!! Lo en forma normal sería recomendable
-* Post Ld está en forma normal
-* in: Po progresión origen cumple es_progresion(Po)
-* out:Pd progresión destino cumple es_progresion(Po)
-*/
-aniade_acordes2(progresion(Lo), progresion(Ld)) :- aniade_acordesLista2(Lo, Ld).
-aniade_acordesLista2([], []) :-!.
-aniade_acordesLista2(Lo, Ld) :-
-       setof((cifrado(Gc,Mc), Fc, Posc),
-             (
-       	      nth(Posc, Lo, (cifrado(Gc,Mc), Fc))
-              ,listaGradosNoDiatonicos(jonico,ListaGrados)
-              ,\+(member(Gc, ListaGrados))
-             )
-              , Lc)
-       ,length(Lc, Long), Long > 0, !
-       ,dame_elemento_aleatorio(Lc, (AcordElegido, F), PosElegida)
-      ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)
-      ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
-      ,sublista_suf(Lo, PosElegMas, LdB)
-      ,append(LdA, [(AcordElegido, F),(AcordAniadir, F)], Laux), append(Laux, LdB, Ld).
-
-aniade_acordesLista2(Lo, Lo).
-
-
-		%PREDICADOS QUE CAMBIAN LA PROGRESION SIN AÑADIR COMPASES
-
 modifica_prog(Pin, M, Pin) :- M =< 0.
 modifica_prog(Pin, M, Pout) :- accion_modif(Pin, Paux), M1 is M - 1, modifica_prog(Paux, M1, Pout).
+accion_modif(Pin, Pout) :- aniade_dominante_sec(Pin,Pout).
+/* modif por pruebas
 num_acciones_modif(3).
 accion_modif(Pin, Pout) :- num_acciones_modif(N), random(0, N, NumAccion), accion_modif(Pin, Pout, NumAccion).
 accion_modif(Pin, Pout, 0) :- aniade_acordes(Pin, Pout).
 accion_modif(Pin, Pout, 1) :- quita_acordes(Pin, Pout).
-accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).
+accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).*/
 
 			%CAMBIA ACORDES
 /**

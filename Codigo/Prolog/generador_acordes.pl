@@ -17,6 +17,7 @@
                 ,dame_cuat_funcTonal_equiv/2
                 ,dame_cuat_funcTonal_equiv2/2
                 ,quita_grados_relativos/2
+                ,multiplica_duracion/3
                 ,numCompases/2]).
 
 %BIBLIOTECAS
@@ -242,3 +243,15 @@ busca_acordes_afines_acu([(cifrado(GAct,MAct),_)|La], PosAct, AcAnterior, [PosAn
 
 busca_acordes_afines_acu([(AcAct,_)|La], PosAct, _, Lp):-
 	 PosSig is PosAct + 1,busca_acordes_afines_acu(La, PosSig, AcAct, Lp).
+
+		%PREDICADOS QUE AÑADEN MAS COMPASES A LA PROGRESION
+/**
+* multiplica_duracion(+Po, +N, -Pd). Pd es el resultado de multiplicar por N la duración de cada uno de sus acordes
+* @param +Po cumple es_progresion(Po)
+* @param +N es un natural
+* @param -Pd cumple es_progresion(Pd)
+* */
+multiplica_duracion(progresion(Lo), N, progresion(Ld)) :- multiplica_duracionLista(Lo, N, Ld).
+multiplica_duracionLista([], _, []).
+multiplica_duracionLista([(Cif, F)|Los], N, [(Cif, FMul)|Lds])
+     :- multiplicaFigura(F, N, FMul), multiplica_duracionLista(Los, N, Lds).

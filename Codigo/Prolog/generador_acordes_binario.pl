@@ -111,17 +111,28 @@ termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
 			%DOMINANTES SECUNDARIOS
 /**
 * aniade_dominante_sec(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un dominante
-* secundario de un acorde elegido al azar, dando la misma probabilidad de ser elegidos a todos los acordes
-* El dominante secundario se añadirá sin asegurarse de respetar las reglas de ritmo armónico y durará lo mismo
-* q el acorde sobre el que ejerce de dominante secundario
+* secundario de un acorde elegido al azar, dando mayor probabilidad de recibir dominante a los acordes que
+* duran más
+* El dominante secundario se añadirá según generador_acordes_binario:inserta_dominante_sec/2, por lo que no
+* añadirá más acordes a la progresión
 * @param +Po cumple es_progresion(Po)
 * @param -Pd cumple es_progresion(Pd)
 */
 aniade_dominante_sec(progresion(Lo), progresion(Ld)) :- aniade_dom_sec_lista(Lo, Ld).
 aniade_dom_sec_lista([], []) :- !.
+/*aniade_dom_sec_lista(Lo, Ld):-
+        buscaCandidatosADominanteSec(Lo, Lc)
+	,length(Lc,Long), Long >0 ,!
+	,dame_elemento_aleatorio(Lc, (Cif, F, PosElegida), _)
+	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+        ,sublista_suf(Lo, PosElegMas, LdB)
+        ,inserta_dominante_sec((Cif,F), ListaInsertar)
+        ,append(LdA, ListaInsertar, Laux),append(Laux, LdB, Ld).*/
+
 aniade_dom_sec_lista(Lo, Ld):-
         buscaCandidatosADominanteSec(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
+        ,setof(((Cif, F, PosElegida),Peso),member(CC,CompCand), ListaEligeSemilla)
 	,dame_elemento_aleatorio(Lc, (Cif, F, PosElegida), _)
 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
         ,sublista_suf(Lo, PosElegMas, LdB)
@@ -130,44 +141,29 @@ aniade_dom_sec_lista(Lo, Ld):-
 
 aniade_dom_sec_lista(Lo, Lo).
 
+
+/*setof((CC,CC),member(CC,CompCand), ListaEligeSemilla)
+, dame_elemento_aleat_lista_pesos(ListaEligeSemilla, NCompasesSemilla, _, _)
+*/
+
 monta_dominante_sec(grado(i),grado(v)) :-!.
 monta_dominante_sec(grado(G),grado(v7 / G)).
 
-inserta_dominante_sec((cifrado(grado(G),matricula(M)), F)
-      , [(cifrado(grado(G),matricula(M)), Fcuart),(cifrado(GDominante,matricula(7)), Fcuart), (cifrado(grado(G),matricula(M)), Fmed)])
-              :- !, monta_dominante_sec(grado(G), GDominante), divideFigura(F,2,Fmed), divideFigura(F,4,Fcuart).
-
-
-/*
 /**
-* inserta_dominante_sec(Posicion, Lo, Ld). Devuelve en ListaResul el resultado de insertar en lista origen el cifrado correspondiente
-* al dominante del acorde situado en la posicion indicada
-* Se aumenta la duración de la progresión en una fracción de un compás potencia de dos compás.
-* Respeta la continuidad armónica, debido a ello puede duplicar algunos acordes
-* @param +Dominante: cumple es_grado(GDominante) y sigue el patrón grado(v7 / G) o grado(v)
-* @param +Posicion es un natural
-* @param +Lo cumple es_progresion(progresion(Lo))
+* inserta_dominante_sec((+Cif,+Figura), -Ld). Devuelve en Ld una lista de parejas (cifrado,acorde) correspondientes a una progresion
+* formada por el acorde correspondiente a Cif durando un cuarto de lo que duraba éste, seguido del dominate correspondiente a Cif
+* durando un cuarto de lo que duraba Cif, seguido del acorde correspondiente a Cif durando un medio de lo que duraba éste. De esta
+* forma se obtiene una progresión que dura lo mismo que el acorde correspondiente a Cif y que respeta el ritmo armónico
+*   F              D
+* F    D       F      D
+*
+* @param +Cif cumple es_cifrado(Cif)
+* @param +Figura cumple es_figura(Figura)
 * @param +Ld cumple es_progresion(progresion(Ld))
 */
-/*no se puede insertar un dominante secundario en una progresion vacía
-inserta_dominante_sec(_, [], [(cifrado(grado(v),matricula(7)), figura(1,1))]) :-!.*/
-/*Cómo mantener el ritmo armónico: si el acorde al que le añado el dominante dura (N/D) tomo N/D como unidad. Como estamos
-en binario supongo invariante que N es 1 y D es potencia de 2 (demostrar!!!)."Lo" sólo tiene un acorde, entonces la posicion 0
-es fuerte y la posicion 0 + N/D es débil respecto a ella. Y tb ocurre que el segmento [0,2*N/D] se divide así
-  F              D
-F    D       F      D
-0    N/2*D   N/D    3*N/2*D , cada fragmento de los 4 dura N/2*D
-
-se alarga la progresion en N/D
-*/
-inserta_dominante_sec(_, [(cifrado(grado(G),matricula(M)), F)]
-      , [(cifrado(grado(G),matricula(M)), Fmed),(cifrado(GDominante,matricula(7)), Fmed), (cifrado(grado(G),matricula(M)), F)])
-              :- !, monta_dominante_sec(grado(G), GDominante), divideFigura(F,2,Fmed).
-/*inserta_dominante_sec(_, [(cifrado(grado(G),matricula(M)), F)]
-      , [(cifrado(GDominante,matricula(7)), figura(1,1)), (cifrado(grado(G),matricula(M)), F)])
-              :- !, monta_dominante_sec(grado(G), GDominante).*/
-
-*/
+inserta_dominante_sec((cifrado(grado(G),Mat), F)
+      , [(cifrado(grado(G),Mat), Fcuart),(cifrado(GDominante,matricula(7)), Fcuart), (cifrado(grado(G),Mat), Fmed)])
+              :- !, monta_dominante_sec(grado(G), GDominante), divideFigura(F,2,Fmed), divideFigura(F,4,Fcuart).
 /**
 * buscaCandidatosADominanteSec(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
@@ -201,13 +197,12 @@ dos con PosActual valiendo 2*/
 buscaCandidatosADominanteSecAcu([(cifrado(grado(v7 / G2),matricula(_)), _),(cifrado(grado(G2),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
                        ,buscaCandidatosADominanteSecAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
-/*buscaCandidatosADominanteSecAcu([_,(cifrado(grado(i),matricula(M2)), F2)|Li]
-    , PosActual, Lo) :- !,PosSig is PosActual + 1
-                       ,buscaCandidatosADominanteSecAcu([(cifrado(grado(i),matricula(M2)), F2)|Li], PosSig, Lo).*/
+
 /*evita añadir otra vez el v grado delante de un i grado precedido de v grado*/
 buscaCandidatosADominanteSecAcu([(cifrado(grado(v),matricula(_)), _),(cifrado(grado(i),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
                        ,buscaCandidatosADominanteSecAcu([(cifrado(grado(i),matricula(M2)), F2)|Li], PosSig, Lo).
+
 buscaCandidatosADominanteSecAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
     , PosActual, [(cifrado(grado(G2),matricula(M2)), F2, PosActual)|Lo]) :-
                        PosSig is PosActual + 1

@@ -148,7 +148,7 @@ dame_elemento_aleatorio(Lista, E, PosAux, Resto) :-
 * todos los elementos de la lista
 * */
 dame_elemento_aleat_lista_pesos(ListaPesos, Elem, Pos, Resto) :-
-	calculaSumaPesos(ListaPesos, SumaPesos), SumaPesosMas is SumaPesos + 1,
+	calculaSumaPesos(ListaPesos, SumaPesos), SumaPesos >0, SumaPesosMas is SumaPesos + 1,
         random(1, SumaPesosMas, Porcentaje), aplicaPorcentajeSumaPesos(Porcentaje, ListaPesos, Elem, Pos, Resto).
 
 calculaSumaPesos([], 0).
@@ -203,6 +203,5 @@ escribeLista(Ruta, Lista) :-
 listaAListaConSaltos([], []).
 listaAListaConSaltos([X|Xs], [X, '\n'|Ys]) :-
 	listaAListaConSaltos(Xs, Ys).
-
 
 

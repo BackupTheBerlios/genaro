@@ -17,3 +17,8 @@ escribeTermino(NombreArchivo, Directorio, Termino) :- system:working_directory(_
 %ampliar luego a crear tb el dir
 escribeTermino(NombreArchivo, Termino) :- open(NombreArchivo, write,Str, [type(text)])
 	, write(Str, Termino), close(Str).
+
+existeArchivo(NombreArchivo) :-  nofileerrors
+	,open(NombreArchivo, read, Str, [type(text)]), close(Str)
+	,filerrors.
+

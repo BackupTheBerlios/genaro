@@ -18,6 +18,7 @@
                 ,dame_cuat_funcTonal_equiv2/2
                 ,quita_grados_relativos/2
                 ,multiplica_duracion/3
+                ,busca_acordes_afines/2
                 ,numCompases/2]).
 
 %BIBLIOTECAS

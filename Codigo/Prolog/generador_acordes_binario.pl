@@ -14,9 +14,7 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 %%:- module(generador_acordes_binario).
 :- module(generador_acordes_binario
     ,[genera_acordes/0
-      ,genera_acordes/4
-      ,cambia_acordes/2
-      ,inserta_dominante_sec/2]).
+      ,genera_acordes/4]).
 
 %BIBLIOTECAS
 
@@ -96,6 +94,25 @@ termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
 		fichero_destinoGenAc_prog(FichNoRel), fichero_destinoGenAc_prog_con_rel(FichRel),
                 escribeLista(FichRel, ProgRel), quita_grados_relativos(progresion(ProgRel), ProgNoRel),
                 escribeTermino(FichNoRel, ProgNoRel).
+
+
+modifica_prog(Pin, M, Pin) :- M =< 0.
+modifica_prog(Pin, M, Pout) :- accion_modif(Pin, Paux), M1 is M - 1, modifica_prog(Paux, M1, Pout).
+accion_modif(Pin, Pout) :- num_acciones_modif(N), random(0, N, NumAccion), accion_modif(Pin, Pout, NumAccion).
+num_acciones_modif(5).
+accion_modif(Pin, Pout, 0) :- aniade_dominante_sec(Pin,Pout).
+accion_modif(Pin, Pout, 1) :- aniade_iim7_rel(Pin, Pout).
+accion_modif(Pin, Pout, 2) :- aniade_acordes(Pin, Pout).
+accion_modif(Pin, Pout, 3) :- quita_acordes(Pin, Pout).
+accion_modif(Pin, Pout, 4) :- cambia_acordes(Pin, Pout).
+
+/* modif por pruebas
+num_acciones_modif(3).
+accion_modif(Pin, Pout) :- num_acciones_modif(N), random(0, N, NumAccion), accion_modif(Pin, Pout, NumAccion).
+accion_modif(Pin, Pout, 0) :- aniade_acordes(Pin, Pout).
+accion_modif(Pin, Pout, 1) :- quita_acordes(Pin, Pout).
+accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).*/
+
 
 		%PREDICADOS QUE CAMBIAN LA PROGRESION SIN AÑADIR COMPASES
 
@@ -196,7 +213,7 @@ buscaCandidatosADominanteSecAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
 * aniade_iim7_rel(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un ii-7 de un
 * dominante elegido al azar, dando mayor probabilidad de recibir ii-7 a los dominantes que
 * duran más
-* El dominante secundario se añadirá según 
+* El dominante secundario se añadirá según
 * @param +Po cumple es_progresion(Po)
 * @param -Pd cumple es_progresion(Pd)
 */
@@ -216,16 +233,6 @@ aniade_iim7_rel_lista(Lo, Ld):-
     ,inserta_iim7_rel((Cif,F), ListaInsertar)
     ,append(LdA, ListaInsertar, Laux),append(Laux, LdB, Ld).
 
-/*aniade_iim7_rel_lista(Lo, Ld) :-
-	 buscaCandidatosAiimRel(Lo, Lc)
-	,length(Lc,Long), Long >0 ,!
-   	,dame_elemento_aleatorio(Lc, (cifrado(grado(G),matricula(M)), F, PosElegida), _)
-   	,monta_iim(grado(G),Seg)
-	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
-    ,sublista_suf(Lo, PosElegMas, LdB)
-    ,append(LdA, [(cifrado(Seg,matricula(m7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
-    ,append(Laux, LdB, Ld).*/
-
 aniade_iim7_rel_lista(Lo, Lo).
 
 monta_iim(grado(v),grado(ii)).
@@ -234,7 +241,7 @@ monta_iim(grado(v7 / G),grado(iim7 / G)).
 
 /**
 * inserta_iim7_rel((+CifDom,+Figura), -Ld). Devuelve en Ld una lista de parejas (cifrado,acorde) correspondientes a una progresion
-* formada por el acorde correspondiente al iim7 relativo de CifDom durando la mitad de lo que duraba éste, seguido del acorde 
+* formada por el acorde correspondiente al iim7 relativo de CifDom durando la mitad de lo que duraba éste, seguido del acorde
 * correspondiente a CifDom durando un medio de lo que duraba éste. De esta forma se obtiene una progresión que dura lo mismo que el
 * acorde correspondiente a CifDom y que respeta el ritmo armónico
 *   F              D
@@ -246,7 +253,6 @@ monta_iim(grado(v7 / G),grado(iim7 / G)).
 inserta_iim7_rel((cifrado(GD,matricula(7)), F)
       , [(cifrado(GIIm7,matricula(m7)), Fmed),(cifrado(GD,matricula(7)), Fmed)])
               :- !, monta_iim(GD, GIIm7), divideFigura(F,2,Fmed).
-
 
 /**
 * buscaCandidatosAiimRel(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
@@ -267,7 +273,7 @@ buscaCandidatosAiimRel([(cifrado(grado(G), M), F)|Li], Lo)
 /**
 * buscaCandidatosAIImRelAcu(Li, PosActual, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los dominantes a los que se
-* les puede añadir un iim7 relativo por delante de ellos, esto es, aquellos a los que no se les ha añadido ya un iim7 relativo 
+* les puede añadir un iim7 relativo por delante de ellos, esto es, aquellos a los que no se les ha añadido ya un iim7 relativo
 * PosActual indica la posicion del acorde que se considera, dentro de la lista
 * total sobre la que se ha llamado a buscaCandidatosAiimRelAcu, que a su vez habrá llamado a este predicado
 * @param +Li cumple es_progresion(progresion(Li))
@@ -301,18 +307,6 @@ buscaCandidatosAiimRelAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
                        PosSig is PosActual + 1
                        ,buscaCandidatosAiimRelAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
 
-modifica_prog(Pin, M, Pin) :- M =< 0.
-modifica_prog(Pin, M, Pout) :- accion_modif(Pin, Paux), M1 is M - 1, modifica_prog(Paux, M1, Pout).
-accion_modif(Pin, Pout) :- num_acciones_modif(N), random(0, N, NumAccion), accion_modif(Pin, Pout, NumAccion).
-num_acciones_modif(2).
-accion_modif(Pin, Pout, 0) :- aniade_dominante_sec(Pin,Pout).
-accion_modif(Pin, Pout, 1) :- aniade_iim7_rel(Pin, Pout).
-/* modif por pruebas
-num_acciones_modif(3).
-accion_modif(Pin, Pout) :- num_acciones_modif(N), random(0, N, NumAccion), accion_modif(Pin, Pout, NumAccion).
-accion_modif(Pin, Pout, 0) :- aniade_acordes(Pin, Pout).
-accion_modif(Pin, Pout, 1) :- quita_acordes(Pin, Pout).
-accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).*/
 
 			%CAMBIA ACORDES
 /**
@@ -320,9 +314,6 @@ accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).*/
 * idéntica a Po excepto porque se ha realizado 1 cambio de un acorde diatónico!!! por otro de la misma función tonal
 * (elegido al azar y distinto) y que dura lo mismo (misma figura en la progresión). El acorde que será
 * sustituido se elige al azar, teniendo todos los acordes comsiderados la misma probabilidad de ser elegidos
-* PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
-* Pre!!! Po en forma normal sería recomendable
-* Post: Pd está en forma normal
 * @param +Po progresión origen cumple es_progresion(Po)
 * @param -Pd progresión destino cumple es_progresion(Po)
 */
@@ -395,7 +386,8 @@ aniade_acordesLista(Lo, Lo).
 **/
 quita_acordes(progresion(Lo), progresion(Ld)) :- quita_acordesLista(Lo, Ld).
 quita_acordesLista([], []) :- !.
-quita_acordesLista(Lo, Ld) :- busca_acordes_afines(Lo,LPos),dame_elemento_aleatorio(LPos, PosElegida),!
+quita_acordesLista(Lo, Ld) :- busca_acordes_afines(Lo,LPos),
+      length(LPos, Long), Long >0, dame_elemento_aleatorio(LPos, PosElegida),!
       ,nth(PosElegida, Lo, (Acord1, F1)), P2 is PosElegida + 1,nth(P2, Lo, (_, F2))
       ,dame_cuat_funcTonal_equiv2(Acord1, AcordSustituto), sumaFiguras(F1, F2, FigSustit)
       ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 2 ,sublista_suf(Lo, PosElegMas, LdB)

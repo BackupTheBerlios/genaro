@@ -123,72 +123,6 @@ cancioncilla = Instr "piano" (Tempo (3%1) (
 	))
 
 --
--- PARSER VIEJO PARA EL RITMO
---
-
--- version vieja
-type AcordeOrdenadoMusic = [Music]
-
-hazProgresionOrdenadaMusic :: String -> [AcordeOrdenadoMusic]
-hazProgresionOrdenadaMusic = (aplicaParser parserProgresionOrdenadaMusic) . quitaEspacios
-
--- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
--- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
--- ya elegidas
-parserProgresionOrdenadaMusic :: Parser Char [AcordeOrdenadoMusic]
-parserProgresionOrdenadaMusic = (token "progOrdenada") *> parenthesized(parserListaOrdenAcsMusic)
-
--- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
--- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
--- ya elegidas
-parserListaOrdenAcsMusic :: Parser Char [AcordeOrdenadoMusic]
-parserListaOrdenAcsMusic = bracketed(commaList(parserParAcordeFigura)) <@ daFiguraAListaAcordes
-		      where parserParAcordeFigura = parenthesized( (parserAcordeOrdMusic <* coma) <*> figura)
-                            daFiguraAListaAcordes = map daFiguraAAcorde
-                            daFiguraAAcorde (acorde, figura) = map (\(Note a _ l) -> (Note a figura l)) acorde
-
-
--- lee un String q corresponde a un termino Prolog T que cumple biblio_genaro_acorde:es_acorde(T)
--- y devuelve  un valor de tipo AcordeOrdenado asignando por defecto la duracion de redonda a todas
--- las notas
-parserAcordeOrdMusic :: Parser Char AcordeOrdenadoMusic
-parserAcordeOrdMusic = (token "acorde") *> parenthesized(bracketed(commaList(altura))) <@f
-                where f = map (\altura -> Note altura wn [])
-
---
---
--- PARSER DEFINITIVO PARA EL RITMO
---
-
--- version definitiva empleada en Ritmo.hs, lo suyo sería terminar importándolo
-type AcordeOrdenado = ([Pitch],Dur)
-
-hazProgresionOrdenada :: String -> [AcordeOrdenado]
-hazProgresionOrdenada = (aplicaParser parserProgresionOrdenada) . quitaEspacios
-
--- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
--- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
--- ya elegidas
-parserProgresionOrdenada :: Parser Char [AcordeOrdenado]
-parserProgresionOrdenada = (token "progOrdenada") *> parenthesized(parserListaOrdenAcs)
-
-
--- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
--- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
--- ya elegidas
-parserListaOrdenAcs :: Parser Char [AcordeOrdenado]
-parserListaOrdenAcs = bracketed(commaList(parserParAcordeFigura))
-		      where parserParAcordeFigura = parenthesized( (parserAcordeOrd <* coma) <*> figura )
-
-
--- lee un String q corresponde a un termino Prolog T que cumple biblio_genaro_acorde:es_acorde(T)
--- y devuelve  un valor de tipo AcordeOrdenado asignando por defecto la duracion de redonda a todas
--- las notas
-parserAcordeOrd :: Parser Char [Pitch]
-parserAcordeOrd = (token "acorde") *> parenthesized(bracketed(commaList(altura)))
-
-
---
 --
 --	PARSER DE PROGRESIONES DE ACORDES EN PROLOG
 --
@@ -215,8 +149,18 @@ es_grado(grado(v7 / G)) :- es_grado(grado(G)).
 es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
 
 -}
+{-
+Esta es la función que deben llamar otros modulos, dada una ruta lee el fichero en ella y realiza todo el
+analisis
+-}
+leeProgresion :: String -> IO Progresion
+leeProgresion ruta = do texto <- readFile ruta
+                        return ((aplicaParser parserProgresion) texto)
+{-
+Parser de strings en el formato de es_progesion de Prolog a elementos de tipo Progresion
+-}
 parserProgresion :: Parser Char Progresion
-parserProgresion = (token "progresion") *> parenthesized(bracketed(commaList(parCifDur)))
+parserProgresion = (token "progresion") *> parenthesized(bracketed(commaList(parCifDur))) . quitaEspacios
 		where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)
 -- parserProgresion = bracketed(commaList(parCifDur))
 --		where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)

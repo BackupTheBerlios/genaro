@@ -107,7 +107,18 @@ fusionaPatrones2 (urv : restoPV) ((ac, dur) : restoPH) = (urv, (ac, dur)) : fusi
 -- que indica la ligadura con una nota posterior
 encaja :: [Pitch] -> URV -> [(Pitch, Bool)]
 encaja lp [] = []
-encaja lp ( (voz, ligado) : resto) = ( lp !! (voz-1), ligado) : encaja lp resto
+encaja lp ( (voz, ligado) : resto) = ( dameElementoSeguro lp (voz-1), ligado) : encaja lp resto
+
+
+-- dameElementoSeguro: cuando el indice esta entre 0 y la longitud-1 de la lista se comporta igual que !!
+-- pero cuando se sale de dicho rango devuelve siempre el elemento mayor, es decir, el que ocupa la
+-- posicion longitud-1
+dameElementoSeguro :: [a] -> Int -> a
+dameElementoSeguro lista indice
+	| (longitud-1) >= indice && indice >= 0 = lista !! indice
+	| otherwise = lista !! (longitud - 1)
+		where longitud = length lista
+
 
 
 -- CONSTANTES
@@ -276,6 +287,50 @@ paraleliza (( nota, _ ):resto) = nota :=: paraleliza resto
 -- Usando todas las funciones anterior pasa una lista de acordes ordenados con los patrones a Haskore
 deAcordesOrdenadosAMusica :: [AcordeOrdenado] -> PatronVertical -> PatronHorizontal -> Music
 deAcordesOrdenadosAMusica lao pV pH = deNotasLigadasAMusica (  (eliminaLigaduras (deAcordesOrdenadosANotasLigadas2 pV pH lao)))
+
+
+
+
+
+-------------------------------------------------
+--BATERIA
+-------------------------------------------------
+
+
+
+bombo :: Pitch
+bombo = pitch (fromEnum BassDrum1 + 35)
+
+charles :: Pitch
+charles = pitch (fromEnum PedalHiHat + 35)
+
+platillo :: Pitch
+platillo = pitch (fromEnum SplashCymbal + 35)
+
+
+bateria :: [Pitch]
+bateria = [bombo, charles, platillo]
+
+
+patronVB :: PatronVertical
+patronVB = [[(1,False),(2,False),(3,False)],[(2,False)],[(1,False),(2,False)],[(2,False)]]
+
+patronHB :: PatronHorizontal
+patronHB = [(80, 1%8)]
+
+musica1 :: Music
+musica1 = Instr "Drums" (deAcordesOrdenadosAMusica [(bateria, 3%1)] patronVB patronHB)
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -38,6 +38,8 @@ if (Columnas_Temporales>Maximo_Columnas_Temporal){Columnas_Temporales=Maximo_Col
 int Ancho_Columna_Temporal=Ancho/Columnas_Temporales;
 
 int Numero_Filas=Alto/Altura_Columna;
+int Numero_Filas_A_Dibujar=Partitura->DameVoces()-BarraVoces->Position;
+int Fin_Columnas=100+((Numero_Filas-Numero_Filas_A_Dibujar)*Altura_Columna);
 //a estas alturas sabemos cual es el número máximo de columnas que podemos dibujar
 //ahora dibujamos las rayas de columnas y filas con 2 bucles for
 
@@ -70,13 +72,13 @@ for (int columna=0;columna<=Columnas_Temporales;columna++)
   {
     el_pico_acumulado+=el_pico;
     this->Canvas->MoveTo(100+(columna*Ancho_Columna_Temporal)+(semi_columna*Ancho_Semi_Columna)+el_pico_acumulado,100);
-    this->Canvas->LineTo(100+(columna*Ancho_Columna_Temporal)+(semi_columna*Ancho_Semi_Columna)+el_pico_acumulado,this->ClientHeight-100);
+    this->Canvas->LineTo(100+(columna*Ancho_Columna_Temporal)+(semi_columna*Ancho_Semi_Columna)+el_pico_acumulado,this->ClientHeight-Fin_Columnas);//FIXMEVOZ
     if (maximo_final<100+(columna*Ancho_Columna_Temporal)+(semi_columna*Ancho_Semi_Columna)+el_pico_acumulado){maximo_final=100+(columna*Ancho_Columna_Temporal)+(semi_columna*Ancho_Semi_Columna)+el_pico_acumulado;};
     el_pico_acumulado+=el_pico;
   }
   this->Canvas->Pen->Color=clBlack;
   this->Canvas->MoveTo(100+(columna*Ancho_Columna_Temporal),95);
-  this->Canvas->LineTo(100+(columna*Ancho_Columna_Temporal),this->ClientHeight-100);
+  this->Canvas->LineTo(100+(columna*Ancho_Columna_Temporal),this->ClientHeight-Fin_Columnas);//FIXMEVOZ
   if (columna!=Columnas_Temporales)
   {
       if((Ancho_Columna_Temporal>25)||(columna%2==0))
@@ -91,11 +93,11 @@ for (int columna=0;columna<=Columnas_Temporales;columna++)
   }
 
 }
-for (int fila=0;fila<=Numero_Filas;fila++)
+for (int fila=0;fila<=Numero_Filas_A_Dibujar;fila++)
 {
   this->Canvas->MoveTo(40,100+(fila*Altura_Columna));
   this->Canvas->LineTo(maximo_final,100+(fila*Altura_Columna));
-  if (fila!=Numero_Filas)
+  if (fila!=Numero_Filas_A_Dibujar)
   {
     TColor color_temporal=this->Canvas->Brush->Color;
     if (Fila_Seleccionada==fila)
@@ -187,6 +189,7 @@ if ((X>100)&&(Y>this->ClientHeight-100)&&(Y<this->ClientHeight-25))
   Dibuja_Notas();
   Ajustar_Grid->Checked=temporal;
 }
+BarraVoces->Max=Partitura->DameVoces()-1;
 }
 //---------------------------------------------------------------------------
 void TForm1::CambiarVelocity(int X, int nuevo_velocity)
@@ -242,6 +245,13 @@ void TForm1::CambiarIndice(int X, int Y)
 {
 //1- Habrá que averiguar a que fila y columna pertenece, y luego a la semicolumna.
 int Fila_Pulsada=(Y-100)/Alto_Minimo_Columna_Pantalla;
+
+if ((Fila_Pulsada+BarraVoces->Position)>=Partitura->DameVoces())
+{
+  Etiqueta_Mensajes->Caption="Has pinchado en una Voz inexistente";
+  return;
+}
+
 Fila_Seleccionada=Fila_Pulsada;
 int Columna_Pulsada=(X-100)/Ancho_Columna_Pantalla;
 int Semi_Columna_Pulsada=(X-100-(Ancho_Columna_Pantalla*Columna_Pulsada))/((float)(Ancho_Semi_Columnas_Pantalla+Pico_Ajuste_Semi_Columnas));
@@ -276,15 +286,16 @@ for (int i=0;i<total_casillas_a_recorrer;i++)
 }
 if (esta_libre==false){Etiqueta_Mensajes->Caption="No se puede añadir, pisa otra nota añadida anteriormente";return;}
 //2- recorremos esas posiciones añadiendo una nota "ligado" hasta llegar a la última, que añadimos "simple"
+int velocity_elegida=Velocity_Selector->Max-Velocity_Selector->Position;
 for (int i=0;i<total_casillas_a_recorrer;i++)
 {
   if (i==total_casillas_a_recorrer-1)
   {
-    Partitura->Inserta(primera_posicion+i,Fila_Pulsada_Real,(TipoNota)1,50);//Velocity sin añadir como es debido
+    Partitura->Inserta(primera_posicion+i,Fila_Pulsada_Real,(TipoNota)1,velocity_elegida);//Velocity sin añadir como es debido
   }
   else
   {
-    Partitura->Inserta(primera_posicion+i,Fila_Pulsada_Real,(TipoNota)2,50);//Velocity sin añadir como es debido
+    Partitura->Inserta(primera_posicion+i,Fila_Pulsada_Real,(TipoNota)2,velocity_elegida);//Velocity sin añadir como es debido
   }
 }
 }
@@ -341,12 +352,13 @@ void __fastcall TForm1::Nuevo1Click(TObject *Sender)
 {
 if (!Inicializado)
 {
-  Partitura=new MatrizNotas(2);
+  Partitura=new MatrizNotas(4);
   Partitura->CambiaResolucion(128);
   Inicializado=true;
   PosicionActual=0;
   FilaActual=0;
   Fila_Seleccionada=0;
+  BarraVoces->Max=Partitura->DameVoces()-1;
 }
 else
 {
@@ -355,12 +367,13 @@ else
     Aux2=Partitura;
     Partitura=Aux1;
     delete Aux2;
-    Partitura=new MatrizNotas(2);
+    Partitura=new MatrizNotas(4);
     Partitura->CambiaResolucion(128);
     Inicializado=true;
     PosicionActual=0;
     FilaActual=0;
     Fila_Seleccionada=0;
+    BarraVoces->Max=Partitura->DameVoces()-1;    
 }
 Dibuja_Esqueleto();
 }
@@ -493,6 +506,7 @@ if (Inicializado)
   PosicionActual=0;
   FilaActual=0;
   Fila_Seleccionada=0;
+  BarraVoces->Max=Partitura->DameVoces()-1;
 }
 else
 {
@@ -503,6 +517,7 @@ else
   Partitura->CambiaResolucion(128);
   PosicionActual=0;
   FilaActual=0;
+  BarraVoces->Max=Partitura->DameVoces()-1;  
 }
 Dibuja_Esqueleto();
 Dibuja_Notas();
@@ -554,7 +569,7 @@ int Fila_Pulsada=(Y-100)/Alto_Minimo_Columna_Pantalla;
 Fila_Seleccionada=Fila_Pulsada;
 int Columna_Pulsada=(X-100)/Ancho_Columna_Pantalla;
 int Semi_Columna_Pulsada=(X-100-(Ancho_Columna_Pantalla*Columna_Pulsada))/((float)(Ancho_Semi_Columnas_Pantalla+Pico_Ajuste_Semi_Columnas));
-int duracion_nota=pow(2,Barra_Nota->Position);
+//int duracion_nota=pow(2,Barra_Nota->Position);
 int duracion_grid=pow(2,Barra_Grid->Position);
 if(Semi_Columna_Pulsada>(duracion_grid-1)){Semi_Columna_Pulsada=duracion_grid-1;}
 //ShowMessage("Columna: "+IntToStr(Columna_Pulsada)+" Fila: "+IntToStr(Fila_Pulsada)+" Semi Columna: "+IntToStr(Semi_Columna_Pulsada));
@@ -607,3 +622,21 @@ while (!fin_nota)
 
 }
 //---------------------------------------------------------------------------
+void __fastcall TForm1::Boton_Nueva_VozClick(TObject *Sender)
+{
+if (Inicializado)
+{
+  Partitura->NuevaFila();
+  BarraVoces->Max=Partitura->DameVoces()-1;
+  Dibuja_Esqueleto();
+  Dibuja_Notas();  
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Velocity_SelectorChange(TObject *Sender)
+{
+Etiqueta_Mensajes->Caption="Velocity reajustado a "+IntToStr(Velocity_Selector->Max-Velocity_Selector->Position);  
+}
+//---------------------------------------------------------------------------
+

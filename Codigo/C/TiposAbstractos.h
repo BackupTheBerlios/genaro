@@ -37,6 +37,7 @@ public:
     void CambiaResolucion(unsigned int NuevaResolucion);  //aquí es cuando hacemos el trabajo duro que te cagasss
     void CreaFicheroTexto(String fichero);
     void CargaFicheroTexto(AnsiString fichero);
+    void NuevaFila();
 };
 //---------------------------------------------------------------------------
 #endif

@@ -17,8 +17,6 @@ class TForm1 : public TForm
 {
 __published:	// IDE-managed Components
   TPanel *Panel1;
-  TScrollBar *ScrollBar1;
-  TScrollBar *ScrollBar2;
   TButton *Button2;
   TButton *Button3;
   TButton *Button5;

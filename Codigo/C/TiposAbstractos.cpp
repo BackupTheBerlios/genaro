@@ -256,3 +256,10 @@ archivo<<"\n";
 }
 
 //----------------------------------------------------------------------------
+void MatrizNotas::NuevaFila()
+{
+Voz NuevaVoz;
+NuevaVoz.clear();
+Cancion.push_back(NuevaVoz);
+Voces++;
+}

@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 94
-  Top = 123
+  Left = 37
+  Top = 68
   BorderStyle = bsSingle
   Caption = 'Form1'
   ClientHeight = 456
@@ -30,25 +30,12 @@ object Form1: TForm1
     Font.Style = [fsBold]
     ParentFont = False
   end
-  object Label2: TLabel
-    Left = 272
-    Top = 56
-    Width = 47
-    Height = 19
-    Caption = 'Zoom -'
-    Font.Charset = ANSI_CHARSET
-    Font.Color = clRed
-    Font.Height = -13
-    Font.Name = 'Comic Sans MS'
-    Font.Style = [fsBold]
-    ParentFont = False
-  end
   object Label3: TLabel
-    Left = 24
-    Top = 56
-    Width = 47
+    Left = 120
+    Top = 40
+    Width = 187
     Height = 19
-    Caption = 'Zoom +'
+    Caption = 'Zoom In            Zoom Out'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
     Font.Height = -13
@@ -92,7 +79,7 @@ object Form1: TForm1
     OnChange = BarraChange
   end
   object Barra_Zoom: TTrackBar
-    Left = 72
+    Left = 112
     Top = 56
     Width = 201
     Height = 25
@@ -130,6 +117,7 @@ object Form1: TForm1
     Width = 16
     Height = 353
     Kind = sbVertical
+    Max = 0
     PageSize = 0
     TabOrder = 3
     OnChange = BarraVocesChange
@@ -209,6 +197,38 @@ object Form1: TForm1
       Font.Style = [fsBold]
       ParentFont = False
     end
+  end
+  object Velocity_Selector: TTrackBar
+    Left = 48
+    Top = 360
+    Width = 25
+    Height = 89
+    Max = 127
+    Orientation = trVertical
+    PageSize = 5
+    Frequency = 1
+    Position = 77
+    SelEnd = 0
+    SelStart = 0
+    TabOrder = 7
+    TickMarks = tmBottomRight
+    TickStyle = tsAuto
+    OnChange = Velocity_SelectorChange
+  end
+  object Boton_Nueva_Voz: TButton
+    Left = 16
+    Top = 48
+    Width = 89
+    Height = 33
+    Caption = 'Nueva Voz'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clBlack
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+    TabOrder = 8
+    OnClick = Boton_Nueva_VozClick
   end
   object MainMenu1: TMainMenu
     Left = 840

@@ -25,7 +25,6 @@ __published:	// IDE-managed Components
   TMenuItem *Archivo1;
   TMenuItem *Nuevo1;
   TScrollBar *BarraVoces;
-  TLabel *Label2;
   TLabel *Label3;
   TMenuItem *GuardarPatrnRtmico1;
   TCheckBox *Ajustar_Grid;
@@ -41,6 +40,8 @@ __published:	// IDE-managed Components
   TLabel *Etiqueta_Mensajes;
   TOpenDialog *Cargar_Patron;
   TSaveDialog *Guardar_Patron;
+  TTrackBar *Velocity_Selector;
+  TButton *Boton_Nueva_Voz;
   void __fastcall FormClick(TObject *Sender);
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall BarraChange(TObject *Sender);
@@ -54,6 +55,8 @@ __published:	// IDE-managed Components
   void __fastcall ToolButton1Click(TObject *Sender);
   void __fastcall ToolButton2Click(TObject *Sender);
   void __fastcall ToolButton3Click(TObject *Sender);
+  void __fastcall Boton_Nueva_VozClick(TObject *Sender);
+  void __fastcall Velocity_SelectorChange(TObject *Sender);
 private:	// User declarations
         int Numero_Columnas_Pantalla;
         int Ancho_Columna_Pantalla;

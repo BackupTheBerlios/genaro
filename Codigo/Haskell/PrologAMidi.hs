@@ -35,7 +35,7 @@ parserMusica :: Parser Char Music
 -- cadena es la entrada del analizador
 -- resto es lo que queda de cadena por analizar
 -- musica es el resultado del analisis
-parserMusica = foldr genToken musBase [composicion]
+parserMusica = foldr genTokenParens musBase [composicion]
 
 -- auxiliar para pruebas
 cancioncilla :: Music
@@ -51,6 +51,10 @@ genToken  ::  [OpToken a] -> Parser Char a -> Parser Char a
 genToken ops p  =  chainr p (choice (map f ops))
        where  f (s,c) = token s <@ const c
 
+genTokenParens  ::  [OpToken a] -> Parser Char a -> Parser Char a
+genTokenParens ops p  =  chainr (comeParentesis p) (choice (map f ops))
+       where  f (s,c) = token s <@ const c
+
 composicion = [(":+:", (:+:)), (":=:", (:=:))]
 
 parenthesizedONO :: Parser Char a -> Parser Char a
@@ -58,20 +62,33 @@ parenthesizedONO parser = parenthesized parser
 		 <|> parser
 
 comeParentesis :: Parser Char a -> Parser Char a
--- comeParentesis parser = foldparens fst parser
--- comeParentesis parser = (foldparens fst ()) *> parser
-{-comeParentesis parser = p1 *> parser
-	where p1 = (open *> p1 <* close) <*> p1 <@ fst
-        	<|> todo -}
+comeParentesis parser xs = [(resto, resul) | (restoPre, resulPre) <- comeParentesisAux xs
+                                           ,(resto, resul) <- parser resulPre
+                                           ]
 
-comeParentesis parser = p1 *> parser
-	where p1 = (open *> p1 <* close)
-        	<|> todo
-
+-- hacer func de alto nivel luego
 pepe :: Parser Char String
 pepe = (open *> pepe <* close)
-	<|>  notSymbols ['(',')']
+	<|>  notSymbolsCad ['(',')']
 
+comeParentesisAux :: Parser Char String
+comeParentesisAux xs = [("", centro)]
+	 where (sinPref, numAbre) = dropWhileCuantos ((==) '(') xs
+               centro = dropLast numAbre sinPref
+
+takeWhileCuantos :: (a -> Bool) -> [a] -> ([a], Int)
+takeWhileCuantos _ [] = ([], 0)
+takeWhileCuantos cond (x:xs)
+  | cond x	= (x:listaResul, valResul + 1)
+  | otherwise = ([], 0)
+  		where (listaResul, valResul) = takeWhileCuantos cond xs
+
+dropWhileCuantos :: (a -> Bool) -> [a] -> ([a], Int)
+dropWhileCuantos _ [] = ([], 0)
+dropWhileCuantos cond xs@(x:xs')
+  | cond x	= (listaResul, valResul + 1)
+  | otherwise = (xs, 0)
+  		where (listaResul, valResul) = dropWhileCuantos cond xs'
 
 foldparens :: ((a,a) -> a) -> a -> Parser Char a
 foldparens f e = p
@@ -81,12 +98,22 @@ foldparens f e = p
 todo :: Parser a [a]
 todo xs = [(xs,xs)]
 
--- notSymbols :: Eq s  =>  [s] -> Parser s s
--- notSymbols :: String -> Parser Char Char
-notSymbols :: String -> Parser Char String
+notSymbols :: Eq s  =>  [s] -> Parser s s
 notSymbols ss [] = []
-notSymbols ss (x:xs) = [(x:xs, x:xs) | not (elem x ss)]
+notSymbols ss (x:xs) = [(xs, x) | not (elem x ss)]
 
+notSymbolsCad :: Eq s  =>  [s] -> Parser s [s]
+notSymbolsCad ss [] = []
+notSymbolsCad ss xs = [(resto, resul)]
+                      where  resul  = takeWhile noElem xs
+                             resto  = dropWhile noElem xs
+                             noElem = (\x -> not (elem x ss))
+
+takeLast :: Int -> [a] -> [a]
+takeLast n = reverse . take n . reverse
+
+dropLast :: Int -> [a] -> [a]
+dropLast n = reverse . drop n . reverse
 
 open = symbol '('
 close = symbol ')'

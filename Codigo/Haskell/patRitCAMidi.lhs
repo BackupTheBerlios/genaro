@@ -15,6 +15,10 @@
 
 \begin{verbatim}
 
+Se llama pasando unicamente la ruta absoluta de un fichero de patron ritmico de C y crea un fichero
+midi por defecto correspondiente a ese patron ritmico, de mismo nombre que el fichero de patron ritmico
+pero con la extensión .mid
+
 > main :: IO()
 > main = do [ruta] <- getArgs
 >           fichPatRitAMidi ruta

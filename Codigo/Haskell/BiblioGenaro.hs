@@ -8,7 +8,7 @@ import Parsers
         - cada elemento de un tipo matriz es una fila cujos elementos i-esimos son los de la
 columna i-esima
         - Se supone que todas las filas deben ser igual de largas
-        -Sería más correcto usar vectores
+        -Serï¿½a mï¿½s correcto usar vectores
 -}
 type Matriz a = [[a]]
 
@@ -176,6 +176,40 @@ numsAleatoriosSemilla semilla min max
 				      where (x,g1) = randomR (min,max) g
 
 {-
+Dada una lista de parejas (termino, peso), donde los pesos son naturales, devuelve en Elem un elemento
+(es decir, primer componente de una de las parejas que forman la lista de entrada) elegido al azar entre
+de los de la lista asignando a cada elemento/pareja una probabilidad de ser elegida igual a (peso/sumaPesos)*100
+, donde suma pesos es la suma de los pesos de todos los elementos de la lista. Para ello se le debe suministrar un
+numero aleatorio entre 1 y 100. Se devuelve el elemento elegido y su posicion
+-}
+dameElemAleatListaPesos :: Int -> [(a, Int)] -> (a, Int)
+dameElemAleatListaPesos aleat listaParejas = aplicaAleat aleatNorm listaParejas 1 1
+        where listaPesos = map snd listaParejas
+              sumaPesos = foldl1' (+) listaPesos
+              aleatNorm = round ( fromIntegral (aleat * sumaPesos) / 100)
+              aplicaAleat porcentaje ((term,peso):xs) posEnRecta posEnLista
+                  | porcentaje <= extDcho  = (term, posEnLista)
+                  | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)
+                                             where extDcho = posEnRecta + peso - 1
+
+{-
+aplicaPorcentajeSumaPesos(Porcentaje, ListaPesos, Elem, Pos, Resto) :-
+	aplicaPorcentajeSumaPesosAcu(Porcentaje, ListaPesos, 1, 1, Elem, Pos),
+        sublista_pref(ListaPesos, Pos, Laux1),
+        PosAux is Pos + 1, sublista_suf(ListaPesos, PosAux, Laux2),
+        append(Laux1, Laux2, Resto).
+
+aplicaPorcentajeSumaPesosAcu(_, [], _, _, ninguno, -1) :- !.
+aplicaPorcentajeSumaPesosAcu(Porcentaje, [(Termino, Peso)|_], PosEnRecta, PosEnLista, Termino, PosEnLista) :-
+	Porcentaje >= PosEnRecta,
+        ExtremoDcho is (PosEnRecta + Peso - 1), Porcentaje =< ExtremoDcho,!.
+
+aplicaPorcentajeSumaPesosAcu(Porcentaje, [(_, Peso)|Ls], PosEnRecta, PosEnLista, Elem, Pos) :-
+	SigPosEnRecta is (PosEnRecta + Peso), SigPosEnLista is PosEnLista + 1,
+	aplicaPorcentajeSumaPesosAcu(Porcentaje, Ls, SigPosEnRecta, SigPosEnLista, Elem, Pos).
+
+-}
+{-
 
 Devuelve True si el string de entrada representa a un entero.
 
@@ -247,8 +281,8 @@ pideInt mensaje = do putStrLn mensaje
                                 pideInt mensaje
 
 {-
-Muestra un mensaje de pedidad y lee un entero de la entrada estándar hasta que realmente sea un entero. Si no el usuario no ha escrito un
- entero muestra el mensaje de error especificado. No escribe los mensajes con saltos de linea forzados 
+Muestra un mensaje de pedidad y lee un entero de la entrada estï¿½ndar hasta que realmente sea un entero. Si no el usuario no ha escrito un
+ entero muestra el mensaje de error especificado. No escribe los mensajes con saltos de linea forzados
 -}
 pideIntMensajeError :: String -> String -> IO Int
 pideIntMensajeError mensajePedida mensajeError = do putStr mensajePedida
@@ -266,7 +300,7 @@ foldl' f e []     = e
 foldl' f e (x:xs) = (foldl' f $! f e x) xs
 
 {-
-recursion final de listas no vacias con acumulador impaciente. Se toma el primer elemento de 
+recursion final de listas no vacias con acumulador impaciente. Se toma el primer elemento de
 la lista como acumulador inicial
 -}
 foldl1' :: (a -> a -> a) -> [a] -> a
@@ -284,13 +318,13 @@ type Mensaje = String
 type DatosInteraccion = (Mensaje, [(Mensaje, FuncionInteraccion)])
 
 ejemploInteraccion :: DatosInteraccion
-ejemploInteraccion = ("¿Con cual de estos tipos quieres cenar esta noche?"
+ejemploInteraccion = ("ï¿½Con cual de estos tipos quieres cenar esta noche?"
                       ,[(mensajeManolo, accionManolo),(mensajeAntonio, accionAntonio)])
 
 mensajeManolo = "Manolo es un tipo duro, de los fuertes y callados"
-accionManolo = do {putStrLn "Hola wapa, ¿te vienes a matar humanos?"}
+accionManolo = do {putStrLn "Hola wapa, ï¿½te vienes a matar humanos?"}
 mensajeAntonio = "Antonio es un hombre sensible, le encantan las flores y los cuadros de Manet"
-accionAntonio = do {putStrLn "Hola, ¿te vienes a ver cuadros?"}
+accionAntonio = do {putStrLn "Hola, ï¿½te vienes a ver cuadros?"}
 
 hazInteraccion :: DatosInteraccion -> IO()
 hazInteraccion (mensajeBienvenida, listaOpciones) = do putStrLn mensajeBienvenida

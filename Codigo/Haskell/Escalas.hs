@@ -1,5 +1,6 @@
 module Escalas where
 import Progresiones
+import Basics
 
 {-
 del modulo Progresiones:
@@ -38,6 +39,8 @@ dameInfoEscala Eolia = ([IX,XI],[I,II,BIII,IV,V,BVI,BVII],[BVI])
 dameInfoEscala Locria = ([XI,BXIII],[I,BII,BIII,IV,BV,BVI,BVII],[BII])
 dameInfoEscala MixolidiaB13 = ([BIX,IX,BXIII],[I,II,III,IV,V,BVI,BVII],[IV])
 dameInfoEscala MixolidiaB9B13AU9 = ([BIX,BXIII],[I,BII,AUII,III,IV,V,BVI,BVII],[IV])
+
+
 
 {-
 Para un acorde especificado con un elemento de tipo cifrado devuelve su escala,

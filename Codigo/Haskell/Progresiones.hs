@@ -68,6 +68,19 @@ gradoAInt grado = case grado of
 	AUVI -> 10
 	BVIII -> 11
 	AUVIII -> 13
+        BIX -> 13
+        IX -> 14
+        BX -> 15
+        X -> 16
+        BXI -> 16
+        XI -> 17
+        AUXI -> 18
+        BXII -> 18
+        XII -> 19
+        AUXII -> 20
+        BXIII -> 20
+        XIII -> 21
+        AUXIII -> 22
 
 -- Pasa de una altura cualquiera a su PitchClass. Ej: 0 -> C, 1 -> Cs, 12 -> C, 24 -> C
 absPitchAPitchClass :: AbsPitch -> PitchClass

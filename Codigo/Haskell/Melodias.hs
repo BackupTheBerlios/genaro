@@ -3,6 +3,7 @@ import Basics
 import Progresiones
 import Escalas
 import PrologAHaskell --para pruebas
+import List
 
 
 {-
@@ -37,9 +38,24 @@ hazMelodiaParaAcordeLista :: Cifrado -> [Music]
 hazMelodiaParaAcordeLista _ = [Rest 0]
 
 {-
-saltaIntervalo escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
+saltaIntervaloGrado escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
 tantos grados como num, contando desde gradoPartida. Por ejemplo saltaIntervalo jonica 2 I devuelve II
 -}
-saltaIntervalo :: Escala -> Int -> Grado -> Grado
-saltaIntervalo
+saltaIntervaloGrado :: Escala -> Int -> Grado -> Grado
+saltaIntervaloGrado escala num gradoPartida = gradoSalida
+                                              where (_,gradosEscala,_)  = dameInfoEscala escala
+                                                    Just posGradoPartida = elemIndex gradoPartida gradosEscala
+                                                    numGrados = length gradosEscala
+                                                    posGradoSalida = (posGradoPartida + num -1) `mod` numGrados
+                                                    gradoSalida = gradosEscala !! posGradoSalida
 
+
+
+pruProg1 :: String -> IO()
+pruProg1 rutaProg = do prog <- leeProgresion rutaProg
+                       putStr (menAcs prog)
+                       putStr (menEcs prog)
+                       putStr (menInfoEcs prog)
+                       where menAcs prog = "\nAcordes: "++ (show prog) ++"\n"
+                             menEcs prog = "\nEscalas del momento: " ++  (show (map escalaDelAcorde (map fst prog))) ++ "\n"
+                             menInfoEcs prog = "\nInfo de escalas del momento: " ++  (show (map infoAcordeMayor (map fst prog))) ++ "\n"

@@ -1,4 +1,4 @@
-Progresion usada en los ejemplos:
+Progresion usada en los ejemplos 23-3-2005A.mid y 23-3-2005B.mid:
 [ (cifrado(grado(i), matricula(maj7)), figura(1, 4)), 
 , (cifrado(grado(iim7/iii), matricula(m7)), figura(1, 8)), 
 , (cifrado(grado(v7/iii), matricula(7)), figura(1, 8)), 
@@ -8,7 +8,7 @@ Progresion usada en los ejemplos:
 , (cifrado(grado(vii), matricula(m7b5)), figura(1, 4)), 
 , (cifrado(grado(i), matricula(maj7)), figura(1, 2)), 
 ]
-23-3-2005A.txt:
+23-3-2005A.mid:
 arpegio_6_voces_negras.txt:
 VOCES 6
 COLUMNAS 6
@@ -20,7 +20,7 @@ SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO FIN
 SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO FIN
 SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO SILENCIO FIN
 
-23-3-2005B.txt:
+23-3-2005B.mid:
 sin_nombre_6_voces_corcheas.txt
 VOCES 6
 COLUMNAS 6
@@ -30,4 +30,40 @@ SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO FIN
 SILENCIO SILENCIO SILENCIO SILENCIO SIMPLE 50 SILENCIO FIN
 SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO FIN
 SILENCIO SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO FIN
+SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO SILENCIO FIN
+
+Progresion usada en los ejemplos 23-3-2005medA y 23-3-2005medB:
+[ (cifrado(grado(ii), matricula(m7)), figura(1, 4)), 
+, (cifrado(grado(v7/ii), matricula(7)), figura(1, 4)), 
+, (cifrado(grado(ii), matricula(m7)), figura(1, 2)), 
+, (cifrado(grado(iim7/ii), matricula(m7)), figura(1, 2)), 
+, (cifrado(grado(v7/ii), matricula(7)), figura(1, 8)), 
+, (cifrado(grado(v7/ (v7/ii)), matricula(7)), figura(1, 8)), 
+, (cifrado(grado(v7/ii), matricula(7)), figura(1, 4)), 
+, (cifrado(grado(ii), matricula(m7)), figura(2, 1)), 
+, (cifrado(grado(vii), matricula(m7b5)), figura(2, 1)), 
+, (cifrado(grado(v), matricula(7)), figura(2, 1)), 
+]
+23-3-2005medA:
+arpegio_6_voces_negras.txt:
+VOCES 6
+COLUMNAS 6
+RESOLUCION 4
+SILENCIO SILENCIO SILENCIO SILENCIO SILENCIO SIMPLE 50 FIN
+SILENCIO SILENCIO SILENCIO SILENCIO SIMPLE 50 SILENCIO FIN
+SILENCIO SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO FIN
+SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO FIN
+SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO FIN
+SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO SILENCIO FIN
+
+23-3-2005medB:
+arpegio_6_voces_corcheas.txt:
+VOCES 6
+COLUMNAS 6
+RESOLUCION 8
+SILENCIO SILENCIO SILENCIO SILENCIO SILENCIO SIMPLE 50 FIN
+SILENCIO SILENCIO SILENCIO SILENCIO SIMPLE 50 SILENCIO FIN
+SILENCIO SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO FIN
+SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO FIN
+SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO FIN
 SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO SILENCIO FIN

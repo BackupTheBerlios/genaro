@@ -55,7 +55,7 @@ eliminaApariciones2 elem = filter (/=elem)
 eliminaApariciones3 elem xs = [x | x <- xs, x /= elem]
 
 {-
-dameMinimizador f lista devuelve el elemento de lista que minimiza la función
+dameMinimizador f lista devuelve el elemento de lista que minimiza la funciï¿½n
 -}
 dameMinimizador :: Ord b => (a -> b) -> [a] -> a
 dameMinimizador f (x:xs) = dameMinimizadorAcu f x (f x) xs
@@ -65,7 +65,7 @@ dameMinimizador f (x:xs) = dameMinimizadorAcu f x (f x) xs
                                        |otherwise = dameMinimizadorAcu f x valMin us
 
 {-
-dameMinimizadores f lista devuelve la lista de elementos de lista que minimizan la función
+dameMinimizadores f lista devuelve la lista de elementos de lista que minimizan la funciï¿½n
 -}
 dameMinimizadores :: Ord b => (a -> b) -> [a] -> [a]
 dameMinimizadores f (x:xs) = dameMinimizadorAcu f [x] (f x) xs
@@ -198,15 +198,15 @@ numsAleatoriosSemilla semilla min max
 				      where (x,g1) = randomR (min,max) g
 
 {-
-resolucionRandom valor que se tomara de resolucion de los cálculos aleatorios. Por ejemplo
-, si resolucionRandom vale 100 los random de harán de 1 a 100
+resolucionRandom valor que se tomara de resolucion de los cï¿½lculos aleatorios. Por ejemplo
+, si resolucionRandom vale 100 los random de harï¿½n de 1 a 100
 -}
 resolucionRandom :: Int
 resolucionRandom = 1000
 {-
 Dada una lista de parejas (termino, peso), donde los pesos son naturales, devuelve en Elem un elemento
 (es decir, primer componente de una de las parejas que forman la lista de entrada) elegido al azar entre
-de los de la lista asignando a cada elemento/pareja una probabilidad de ser elegida igual a (peso/sumaPesos)*100
+de los de la lista asignando a cada elemento/pareja una probabilidad de ser elegida igual a (peso/sumaPesos)
 , donde suma pesos es la suma de los pesos de todos los elementos de la lista. Para ello se le debe suministrar un
 numero aleatorio entre 1 y resolucionRandom. Se devuelve el elemento elegido y su posicion
 -dameElemAleatListaPesos aleat listaParejas

@@ -44,6 +44,21 @@ este punto
 type PuntoMelodico = (SaltoMelodico, Dur)
 type CurvaMelodica = [PuntoMelodico]
 
+
+{-
+dada una lista infinita de numeros enteros aleatorios entre 1 y resolucionRandom construye
+una curva melódica aleatoria según ciertos criterios
+contruyeCurvaMelodicaAleat aleat numPuntos duracionTotal
+-}
+{-hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Dur -> CurvaMelodica
+hazCurvaMelodicaAleat aleat saltoMax numPuntos duracionTotal = hazCurvaMelodicaAleatAcu aleat saltoMax numPuntos duracionTotal 0
+    where hazCurvaMelodicaAleatAcu _ _ 0 _ _ = []
+          hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sm n durTotal movAcumulado
+            | n > 0 =
+               where dur = durTotal / n --esta función solo debería dar los pitch, el ritmo se ajusta luego
+                     salto = dameElemAleatListaPesos a1 (zip [1..sm] [1..sm])
+  -}
+--    hazCurvaMelodicaAleatAcu aleat numPuntos duracionTotal 0
 {-
 aplicaCurvaMelodica escala tonica curva pitchPartida
 -}

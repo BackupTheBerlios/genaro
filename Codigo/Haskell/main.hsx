@@ -22,10 +22,6 @@ rutaPatronRitmico = "./patron_ritmico.txt"
 rutaDestinoMidi :: String
 rutaDestinoMidi = "./musica_genara.mid"
 
---hazInteraccion (mensajeBienvenida, listaOpciones)
---type DatosInteraccion = (Mensaje, [(Mensaje, FuncionInteraccion)])
---ejemploInteraccion :: DatosInteraccion
-
 mainInteractivo :: IO()
 mainInteractivo = do putStrLn "Introduce el directorio de trabajo" 
                      dirTrabajo <- getLine
@@ -36,16 +32,8 @@ mainInteractivo = do putStrLn "Introduce el directorio de trabajo"
 interaccion :: DatosInteraccion
 interaccion = (introInteraccion, [(msjPatRitCYOrdHaskell,genPatRitCYOrdHaskell)])
         where introInteraccion = "\nBienvenido a Genaro, elija una de las opciones de generacion siguientes: "
-              genPatRitCYOrdHaskell = main4'
+              genPatRitCYOrdHaskell = main'
               msjPatRitCYOrdHaskell = "Generacion usando el patron ritmico de C y la ordenacion de las voces de Haskell"
-
-main :: String -> IO()
-main dirTrabajo = do putStr mensajeCambiaDir
-                     setCurrentDirectory dirTrabajo
-                     putStr "\n Empezando a generar midi a partir de Prolog\n"
-                     progresionPrologAMidi2 rutaProgresionOrdenada rutaDestinoMidi
-                     putStr "\n Terminado el proceso de generacion de musica\n"
-                     where mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
 
 progEjemplo :: Progresion
 progEjemplo = [((I,Maj7),1%1),((V7 IV,Sept),1%1),((IV, Maj7),1%1),((V, Sept),1%1),((I,Mayor),1%1)]
@@ -57,45 +45,25 @@ paramEjemplo :: ParametrosTraduceCifrados
 paramEjemplo = Paralelo 4 0 1 4
 
 
-main2 :: String -> IO()
-main2 dirTrabajo = do putStr mensajeCambiaDir
-                      setCurrentDirectory dirTrabajo
-                      putStr "\n Empezando a generar midi a partir de Prolog\n"
-                      haskoreAMidi musica rutaDestinoMidi
-                      where  mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
-                             traduccion = traduceProgresion paramEjemplo  progEjemplo
-                             musica = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patronEjemplo traduccion
+main :: String -> IO()
+main dirTrabajo = do putStr mensajeCambiaDir
+                     setCurrentDirectory dirTrabajo
+                     putStr "\n Procesando el archivo de progresion de acordes de Prolog\n"
+                     progresion <- leeProgresion rutaProgresion
+                     putStr "\n Procesando el archivo de patron ritmico de C\n"
+                     (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
+                     putStr "\n Generando el archivo midi\n"
+                     haskoreAMidi (hazMusica progresion patronRitmico) rutaDestinoMidi
+                     where  mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
+                            progOrd =  traduceProgresion paramEjemplo
+                            hazMusica prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
 
-main3 :: String -> IO()
-main3 dirTrabajo = do putStr mensajeCambiaDir
-                      setCurrentDirectory dirTrabajo
-                      putStr "\n Procesando el archivo de patron ritmico de C\n"
-                      (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
-                      putStr "\n Generando el archivo midi\n"
-                      haskoreAMidi (hazMusica patronRitmico) rutaDestinoMidi
-                      where  mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
-                             traduccion = traduceProgresion paramEjemplo  progEjemplo
-                             hazMusica = \patRit -> (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit traduccion)
-
-main4 :: String -> IO()
-main4 dirTrabajo = do putStr mensajeCambiaDir
-                      setCurrentDirectory dirTrabajo
-                      putStr "\n Procesando el archivo de progresion de acordes de Prolog\n"
-                      progresion <- leeProgresion rutaProgresion
-                      putStr "\n Procesando el archivo de patron ritmico de C\n"
-                      (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
-                      putStr "\n Generando el archivo midi\n"
-                      haskoreAMidi (hazMusica progresion patronRitmico) rutaDestinoMidi
-                      where  mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
-                             progOrd =  traduceProgresion paramEjemplo
-                             hazMusica prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
-
-main4' :: IO()
-main4' = do putStr "\n Procesando el archivo de progresion de acordes de Prolog\n"
-            progresion <- leeProgresion rutaProgresion
-            putStr "\n Procesando el archivo de patron ritmico de C\n"
-            (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
-            putStr "\n Generando el archivo midi\n"
-            haskoreAMidi (hazMusica progresion patronRitmico) rutaDestinoMidi
-            where  progOrd =  traduceProgresion paramEjemplo
-                   hazMusica prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
+main' :: IO()
+main' = do putStr "\n Procesando el archivo de progresion de acordes de Prolog\n"
+           progresion <- leeProgresion rutaProgresion
+           putStr "\n Procesando el archivo de patron ritmico de C\n"
+           (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
+           putStr "\n Generando el archivo midi\n"
+           haskoreAMidi (hazMusica progresion patronRitmico) rutaDestinoMidi
+           where  progOrd =  traduceProgresion paramEjemplo
+                  hazMusica prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)

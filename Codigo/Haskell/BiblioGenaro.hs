@@ -1,4 +1,5 @@
 module BiblioGenaro where
+import Random
 
 {-
         - cada elemento de un tipo matriz es una fila cujos elementos i-esimos son los de la
@@ -69,3 +70,17 @@ segundo (a,b,c) = b
 
 tercero :: (a,b,c) -> c
 tercero (a,b,c) = c
+
+{-
+Generacion de numeros aleatorios
+-}
+rollDice :: IO Int
+rollDice = getStdRandom (randomR (1,6))
+
+numAleatorioIO :: Int -> Int -> IO Int
+numAleatorioIO min max
+	|min <= max = getStdRandom (randomR (min,max))
+
+pruNumAleatorioIO :: Int -> Int -> IO()
+pruNumAleatorioIO min max = do num <- numAleatorioIO min max
+                               putStr (show num)

@@ -1,5 +1,5 @@
-:- module(biblio_genaro_listas).
-/*:- module(biblio_genaro_listas,
+%%:- module(biblio_genaro_listas).
+:- module(biblio_genaro_listas,
 			[sublista/4
                         ,sublista_pref/3
                         ,sublista_suf/3
@@ -8,11 +8,12 @@
 			,dame_elemento_aleatorio/3
                         ,dame_elemento_aleatorio/4
                         ,dame_permutacion_aleatoria/2
-                        ,dame_elemento_aleat_lista_pesos/4]).*/
+                        ,dame_elemento_aleat_lista_pesos/4]).
 
 /* Modulos de Prolog */
-:- use_module(library(lists)).
-:- use_module(library(random)).
+:- use_module(compat_Sicstus_SWI).
+%%:- use_module(library(lists)).
+%%:- use_module(library(random)).
 
 /* Modulos propios consultados */
 :- use_module(biblio_genaro_ES).
@@ -176,7 +177,7 @@ aplicaPorcentajeSumaPesosAcu(Porcentaje, [(_, Peso)|Ls], PosEnRecta, PosEnLista,
 * @param +Lista lista de entrada sobre la que se permuta
 * @param -ListaPermutada formada por los elementos de la lista de entrada permutados aleatoriamente
 */
-dame_permutacion_aleatoria([], []).
+dame_permutacion_aleatoria([], []):-!.
 dame_permutacion_aleatoria(ListaEntrada, [ElemElegido| RestoPermutado]) :-
 	dame_elemento_aleatorio(ListaEntrada, ElemElegido, _ ,RestoParcial),
 	dame_permutacion_aleatoria(RestoParcial, RestoPermutado).

@@ -1,5 +1,3 @@
-
-
 :- module(biblio_genaro_acordes,[
 	inversion_y_disposicion/4,
 	vector_suma/2,
@@ -19,8 +17,9 @@
 
 
 :- use_module(representacion_prolog_haskore).
-:- use_module(library(random)).
-:- use_module(library(lists)).
+:- use_module(compat_Sicstus_SWI).
+%:- use_module(library(random)).
+%:- use_module(library(lists)).
 
 
 /* Definicion de la estructura */

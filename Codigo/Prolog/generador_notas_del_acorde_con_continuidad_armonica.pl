@@ -3,8 +3,9 @@
 :-module(generador_notas_del_acorde_con_continuidad_armonica,[traduce_lista_cifrados/2]).
 
 
-:-use_module(library(random)).
-:-use_module(library(lists)).
+%%:-use_module(library(random)).
+%%:-use_module(library(lists)).
+:- use_module(compat_Sicstus_SWI).
 :-use_module(biblio_genaro_acordes).
 
 
@@ -25,7 +26,7 @@ modulo12( numNota(N1), numNota(N2) ) :-
 	N1>11,
 	Aux is N1 - 12,
 	modulo12( numNota(Aux), numNota(N2) ).
-	
+
 
 /**
 * distancia_alturas( +Altura1, +Altura2, -Distancia )
@@ -42,7 +43,7 @@ distancia_alturas( altura(numNota(N1),octava(O1)), altura(numNota(N2),octava(O2)
 	Aux1 is N_aux3 + (O1 * 12),
 	Aux2 is N_aux4 + (O2 * 12),
 	Dist is abs(Aux1 - Aux2).
-	
+
 /**
 * distancia_acorde( +Acorde1, +Acorde2, -Distancia)
 * Calcula la distancia entre el Acorde1 y el Acorde2. Entendemos por distancia la suma de las distancias en
@@ -97,7 +98,7 @@ menor_lista_acordes( Acorde_referencia, [Acorde | Resto], Acorde_salida) :-
 	menor_acorde(Acorde_referencia, Acorde_menor, Acorde, Acorde_salida ).
 
 
-	
+
 /**
 * elimina_diferentes( +Acorde_referencia, +Distancia_menor, +ListaEntrada, -ListaAcordes )
 * elimina de la ListaEntrada aquellos acordes cuya distancia con Acorde_referencia sea mayor que
@@ -129,7 +130,7 @@ elegir_aleatoriamente( L, A ) :-
 /**
 * traduce_lista_cifrados(+Progresion,-ListaAcrodes )
 * Este predicado traduce una lista de cifrados a una lista de acordes, en donde ya estan representadas las
-* alturas de las notas, por el metodo de continuidad armonica. Dicho metodo consisten en buscar la inversion y 
+* alturas de las notas, por el metodo de continuidad armonica. Dicho metodo consisten en buscar la inversion y
 * la disposicion de cada acorde que haga que el movimiento de cada voz entre acordes sea el menor.
 * 	El algoritmo consiste en lo siguiente. Primero elegimos una inversion y una disposicion aleatoriamente
 * que nos servira de referencia para el siguiente acorde. Para cada cifrado de la progresion hacemos lo siguiente:

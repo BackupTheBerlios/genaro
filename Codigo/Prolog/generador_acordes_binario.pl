@@ -11,7 +11,9 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 */
 
 %DECLARACION DEL MODULO
-:- module(generador_acordes_binario).
+%%:- module(generador_acordes_binario).
+:- module(generador_acordes_binario
+    ,[genera_acordes/1]).
 
 %BIBLIOTECAS
 

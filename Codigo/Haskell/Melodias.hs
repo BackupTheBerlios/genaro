@@ -1,12 +1,12 @@
 module Melodias where
+import List
 import Basics
+import BiblioGenaro
 import Progresiones
 import Escalas
+import HaskoreAMidi
 import PrologAHaskell --para pruebas
 import Ratio          --para pruebas
-import List
-
-
 {-
 del modulo Progresiones:
 data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII
@@ -47,57 +47,56 @@ type CurvaMelodica = [PuntoMelodico]
 
 {-
 dada una lista infinita de numeros enteros aleatorios entre 1 y resolucionRandom construye
-una curva melódica aleatoria según ciertos criterios
-contruyeCurvaMelodicaAleat aleat numPuntos duracionTotal
+una curva melodica aleatoria segun ciertos criterios
+contruyeCurvaMelodicaAleat aleat numPuntos duracionTotal = (curva, aleatSobrantes)
 -}
-{-hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Dur -> CurvaMelodica
+hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Dur -> (CurvaMelodica, [Int])
 hazCurvaMelodicaAleat aleat saltoMax numPuntos duracionTotal = hazCurvaMelodicaAleatAcu aleat saltoMax numPuntos duracionTotal 0
-    where hazCurvaMelodicaAleatAcu _ _ 0 _ _ = []
-          hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sm n durTotal movAcumulado
-            | n > 0 =
-               where dur = durTotal / n --esta función solo debería dar los pitch, el ritmo se ajusta luego
-                     salto = dameElemAleatListaPesos a1 (zip [1..sm] [1..sm])
-  -}
---    hazCurvaMelodicaAleatAcu aleat numPuntos duracionTotal 0
+
+hazCurvaMelodicaAleatAcu :: [Int] -> Int -> Int -> Dur -> Int -> (CurvaMelodica, [Int])
+hazCurvaMelodicaAleatAcu aleat _ 0 _ _ = ([],aleat)
+hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sm n durTotal movAcumulado
+  | n > 0 = (nuevoPunto:restoCurva, aleatSobran)
+               where dur          = 1%4 --esta funcion solo deberia dar los pitch, el ritmo se ajusta luego
+                     salta        = (fromIntegral a1/fromIntegral resolucionRandom) >= (fromIntegral movAcumulado/fromIntegral sm)
+                     candsNoSalto =  map (\x -> (x,(1/ fromIntegral x))) [1..sm]
+                     candsSalto   =  map (\(val,peso)-> (val,peso + fromIntegral val* fromIntegral movAcumulado)) candsNoSalto
+                     (salto,_)    = if salta
+                                       then dameElemAleatListaPesosFloat a2 candsSalto
+                                       else dameElemAleatListaPesosFloat a2 candsNoSalto
+                     nuevoPunto    = (salto, dur)
+                     (restoCurva,aleatSobran)    = hazCurvaMelodicaAleatAcu as sm (n-1) durTotal (movAcumulado + salto)
+{-
+pepe :: Int -> Int -> Int -> Bool
+pepe x y z = (fromIntegral x/ fromIntegral resolucionRandom) >= (fromIntegral y / fromIntegral z)
+
+loli :: Int -> [(Int, Float)]
+loli sm = map (\x -> (x,(1/ fromIntegral x))) [1..sm]
+-}
 {-
 aplicaCurvaMelodica escala tonica curva pitchPartida
 -}
-aplicaCurvaMelodica :: Escala -> PitchClass -> CurvaMelodica -> Pitch -> [Music]
-aplicaCurvaMelodica escala tonica [] pitchPartida = []
-aplicaCurvaMelodica escala tonica ((salto,dur):pms) pitchPartida = nuevaNota:restoMelodia
+aplicaCurvaMelodica :: Escala -> PitchClass -> CurvaMelodica -> Pitch -> Music
+aplicaCurvaMelodica escala tonica [] pitchPartida = Rest 0
+aplicaCurvaMelodica escala tonica ((salto,dur):pms) pitchPartida = nuevaNota :+: restoMelodia
                     where nuevoPitch   = saltaIntervaloPitch escala tonica salto pitchPartida
                           nuevaNota    = Note nuevoPitch dur []
                           restoMelodia = aplicaCurvaMelodica escala tonica pms nuevoPitch
 
-hazMelodiaParaAcorde :: Cifrado -> Music
-hazMelodiaParaAcorde = line . hazMelodiaParaAcordeLista
-
-hazMelodiaParaAcordeLista :: Cifrado -> [Music]
-hazMelodiaParaAcordeLista _ = [Rest 0]
-
 {-
-Dado un acorde devuelve una lista de alturas de notas que se usarán para formar una melodia sobre
-ese acorde. El ritmo todavia no interviene
-daListaNotasDeMelodiaSobreAcorde listaAleat cifrado:
-- listaAleat es una lista infinita de numeros enteros
-aleatorios entre 1 y resolucionRandom
-- cifrado es el acorde sobre el que se hace la melodia
--devuelve (Notas, listaAleat2):
-  -Notas: lista de pitch que forman la melodia
-  -listaAleat2: lista de entrada al quitarle los numeros aleatorios empleados
-
+supone siempre que la tonica es Do
 -}
-{-
---daListaNotasDeMelodiaSobreAcorde :: Cifrado -> [Pitch]
-daListaNotasDeMelodiaSobreAcorde :: [Int] -> Cifrado -> ([Pitch], [Int])
-daListaNotasDeMelodiaSobreAcorde (n1:n2:ns) acorde =
-                                         where numMaxNotas = 8 --luego será parametro, o saldrá con la duración del cifrado?
-                                               numNotas = round (fromIntegral n1*numMaxNotas/resolucionRandom)
-                                               escala = escalaDelAcorde acorde
-                                               notasYPesos = dameNotasYPesosDeEscala escala
-                                               (gradoIni,_) = dameElemAleatListaPesos n2 notasYPesos
+hazMelodiaParaAcorde :: [Int] -> Int -> Int -> (Cifrado, Dur) -> (Music,[Int])
+hazMelodiaParaAcorde aleat@(a1:as) saltoMax numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)
+		where escala = escalaDelAcorde acorde
+                      notasYPesos = dameNotasYPesosDeEscala escala
+                      (gradoIni,_) = dameElemAleatListaPesos a1 notasYPesos
+                      pitchDeTonicaDelAcorde = pitch (gradoAIntAbs grado + 24) -- 24 pq supone Do de tonica
+                      tonica = fst pitchDeTonicaDelAcorde
+                      pitchPartida = pitch (gradoAIntAbs gradoIni + absPitch pitchDeTonicaDelAcorde)
+                      (curvaAleat,restoAleat) = hazCurvaMelodicaAleat as saltoMax numNotas duracion
+                      musica = aplicaCurvaMelodica escala tonica curvaAleat pitchPartida
 
--}
 {-
 saltaIntervaloGrado escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
 tantos grados como num, sin contar desde gradoPartida. Por ejemplo:
@@ -136,11 +135,22 @@ saltaIntervaloPitch escala tonica num notaPartida = resul
                       resul               = pitch ((absPitch notaPartida) + salto)
 
 {- Pleister -}
-pruProg1 :: String -> IO()
-pruProg1 rutaProg = do prog <- leeProgresion rutaProg
-                       putStr (menAcs prog)
-                       putStr (menEcs prog)
-                       putStr (menInfoEcs prog)
-                       where menAcs prog = "\nAcordes: "++ (show prog) ++"\n"
-                             menEcs prog = "\nEscalas del momento: " ++  (show (map escalaDelAcorde (map fst prog))) ++ "\n"
-                             menInfoEcs prog = "\nInfo de escalas del momento: " ++  (show (map infoAcordeMayor (map fst prog))) ++ "\n"
+pruMelAc :: IO()
+pruMelAc = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+              putStr mensajeGenerandoMidi
+              haskoreAMidi (musica aleat) rutaDestinoMidi
+              putStr "\n Proceso terminado satisfactoriamente\n"
+              where rutaDestinoMidi = "c:/hlocal/midiMeloso.mid"
+                    mensajeGenerandoMidi = "\n Generando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
+                    musica aleat = fst (hazMelodiaParaAcorde aleat 4 8 ((I,Maj7), 2%1))
+{-
+pruMelAcArgs :: Int IO()
+pruMelAcArgs= do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+              putStr mensajeGenerandoMidi
+              haskoreAMidi (musica aleat) rutaDestinoMidi
+              putStr "\n Proceso terminado satisfactoriamente\n"
+              where rutaDestinoMidi = "c:/hlocal/midiMeloso.mid"
+                    mensajeGenerandoMidi = "\n Generando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
+                    musica aleat = fst (hazMelodiaParaAcorde aleat 4 8 ((I,Maj7), 2%1))
+-}
+--hazMelodiaParaAcorde aleat@(a1:as) saltoMax numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)

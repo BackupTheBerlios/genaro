@@ -185,6 +185,13 @@ pruListaNumsAleatoriosIO min max cuantos = do lista <- listaNumsAleatoriosIO min
                                               print lista
 
 {-
+genera una lista infinita de numeros aleatorios enteros en el intervalo [min, max]
+-}
+listaInfNumsAleatoriosIO :: Int -> Int -> IO [Int]
+listaInfNumsAleatoriosIO min max  = do semilla <-  numAleatorioIO min max
+                                       return (numsAleatoriosSemilla semilla min max)
+
+{-
 genera una lista infinita de enteros generados a partir de un entero semilla por medio de una
 funcion determinista que ditribuye los numeros del intervalo [min, max] de forma homogenea y
 les asigna posiciones en la lista resultado en funcion de semilla. La cosa es generar la semilla
@@ -216,6 +223,19 @@ dameElemAleatListaPesos aleat listaParejas = aplicaAleat aleatNorm listaParejas 
         where listaPesos = map snd listaParejas
               sumaPesos = foldl1' (+) listaPesos
               aleatNorm = round ( fromIntegral (aleat * sumaPesos) / fromIntegral resolucionRandom)
+              aplicaAleat porcentaje ((term,peso):xs) posEnRecta posEnLista
+                  | porcentaje <= extDcho  = (term, posEnLista)
+                  | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)
+                                             where extDcho = posEnRecta + peso - 1
+
+{-
+como dameElemAleatListaPesos pero con pesos de tipo Float
+-}
+dameElemAleatListaPesosFloat :: Int -> [(a, Float)] -> (a, Int)
+dameElemAleatListaPesosFloat aleat listaParejas = aplicaAleat aleatNorm listaParejas 1.0 1
+        where listaPesos = map snd listaParejas
+              sumaPesos = foldl1' (+) listaPesos
+              aleatNorm = (fromIntegral aleat) * sumaPesos / (fromIntegral resolucionRandom)
               aplicaAleat porcentaje ((term,peso):xs) posEnRecta posEnLista
                   | porcentaje <= extDcho  = (term, posEnLista)
                   | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)

@@ -53,6 +53,49 @@ genToken ops p  =  chainr p (choice (map f ops))
 
 composicion = [(":+:", (:+:)), (":=:", (:=:))]
 
+parenthesizedONO :: Parser Char a -> Parser Char a
+parenthesizedONO parser = parenthesized parser
+		 <|> parser
+
+comeParentesis :: Parser Char a -> Parser Char a
+-- comeParentesis parser = foldparens fst parser
+-- comeParentesis parser = (foldparens fst ()) *> parser
+{-comeParentesis parser = p1 *> parser
+	where p1 = (open *> p1 <* close) <*> p1 <@ fst
+        	<|> todo -}
+
+comeParentesis parser = p1 *> parser
+	where p1 = (open *> p1 <* close)
+        	<|> todo
+
+pepe :: Parser Char String
+pepe = (open *> pepe <* close)
+	<|>  notSymbols ['(',')']
+
+
+foldparens :: ((a,a) -> a) -> a -> Parser Char a
+foldparens f e = p
+	where p = (open *> p <* close) <*> p <@ f
+        	<|> succeed e
+
+todo :: Parser a [a]
+todo xs = [(xs,xs)]
+
+-- notSymbols :: Eq s  =>  [s] -> Parser s s
+-- notSymbols :: String -> Parser Char Char
+notSymbols :: String -> Parser Char String
+notSymbols ss [] = []
+notSymbols ss (x:xs) = [(x:xs, x:xs) | not (elem x ss)]
+
+
+open = symbol '('
+close = symbol ')'
+data Tree = Nil
+          | Bin (Tree, Tree)
+          deriving Show
+
+parens :: Parser Char Tree
+parens = foldparens Bin Nil
 
 musBase :: Parser Char Music
 {- viejo, hace más caso a Jerome pq el Rest lo hace musBase no silencio

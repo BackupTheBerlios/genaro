@@ -12,40 +12,42 @@ import Progresiones
 --
 -- PATRON RITMICO
 --
--- se tienen en cuenta los ligados
 type Voz = Int
-type Acento = Float  -- Acento: intensidad con que se ejecuta ese tiempo. Valor de 0 a 100
-type Ligado = Bool
-type URV = [(Voz, Acento, Ligado)]	-- Unidad de ritmo vertical
-type URH = Dur 				-- Unidad de ritmo horizontal
-type UPR = ( URV , URH)
-type PatronRitmico = [UPR] 
-
+type Acento = Float         -- Acento: intensidad con que se ejecuta ese tiempo. Valor de 0 a 100
+type Ligado = Bool          -- Ligado: indica si una voz de una columna esta ligada con la se la siguiente columna
+                            -- en caso de que no este dicha voz el ligado se ignora
+type URV = [(Voz, Acento, Ligado)]	-- Unidad de ritmo vertical, especifica todas las filas de una unica columna
+type URH = Dur 				-- Unidad de ritmo horizontal, especifica la duracion de una columna
+type UPR = ( URV , URH)                 -- Unidad del patron ritmico, especifica completamente toda la informacion necesaria
+                                        -- para una columna (con todas sus filas) en la matriz que representa el patron
 type AlturaPatron = Int			-- numero maximo de voces que posee el patron
+type MatrizRitmica = [UPR]              -- Una lista de columnas, vamos, como una matriz
+
+type PatronRitmico = (AlturaPatron, MatrizRitmica)
 
 
 
-deAcordesOrdenadosAMusica :: ModoPatronHorizontal -> ModoPatronVertical -> PatronRitmico -> AlturaPatron -> [AcordeOrdenado] -> Music
-deAcordesOrdenadosAMusica mH mV pR alturaP lao = 
-	deNotasLigadasAMusica ( (eliminaLigaduras (deAcordesOrdenadosANotasLigadas mH mV (repetirInfinito pR) alturaP lao)))
+deAcordesOrdenadosAMusica :: ModoPatronHorizontal -> ModoPatronVertical -> PatronRitmico -> [AcordeOrdenado] -> Music
+deAcordesOrdenadosAMusica mH mV (alturaP, mR) lao = 
+	deNotasLigadasAMusica ( (eliminaLigaduras (deAcordesOrdenadosANotasLigadas mH mV (repetirInfinito mR) alturaP lao)))
 
 
 
 
-deAcordesOrdenadosANotasLigadas :: ModoPatronHorizontal -> ModoPatronVertical -> PatronRitmico -> AlturaPatron -> [AcordeOrdenado] -> NotasLigadas
+deAcordesOrdenadosANotasLigadas :: ModoPatronHorizontal -> ModoPatronVertical -> MatrizRitmica  -> AlturaPatron -> [AcordeOrdenado] -> NotasLigadas
 deAcordesOrdenadosANotasLigadas mH mV pR alturaP lao
 	| mH == Ciclico 		= consumeVerticalCiclico mV lao pR alturaP
 	| mH == NoCiclico		= foldr (++) [] (map (deAcordeOrdenadoANotasLigadas_NoCiclico mV pR alturaP) lao)
 
 
 
-deAcordeOrdenadoANotasLigadas_NoCiclico :: ModoPatronVertical -> PatronRitmico -> AlturaPatron -> AcordeOrdenado -> NotasLigadas
+deAcordeOrdenadoANotasLigadas_NoCiclico :: ModoPatronVertical -> MatrizRitmica  -> AlturaPatron -> AcordeOrdenado -> NotasLigadas
 deAcordeOrdenadoANotasLigadas_NoCiclico mV pR alturaP (lp, durAcorde) = consumeVerticalNoCiclico mV lp durAcorde pR alturaP
 
 
 -- consumeVertical: fusiona un patron ritmico y un acorde ordenado (disgregado en alturas y duracion) en las notas ligadas
 -- Cuando se acaba el acorde vuelve a empezar el patron ritmico
-consumeVerticalNoCiclico :: ModoPatronVertical -> [Pitch] -> Dur -> PatronRitmico -> AlturaPatron -> NotasLigadas
+consumeVerticalNoCiclico :: ModoPatronVertical -> [Pitch] -> Dur -> MatrizRitmica  -> AlturaPatron -> NotasLigadas
 consumeVerticalNoCiclico mV lp durAcorde ( (urv , durH) : restoP ) alturaP
 	| durAcorde == durH = ( insertaDur durH listaPitch  , durH ) : []
 	| durAcorde < durH = ( insertaDur durAcorde listaPitch  , durAcorde ) : []
@@ -74,7 +76,7 @@ insertaDur2 dur ((pitch, ligado, acento) : resto) =
 
 
 -- Cuando se acaba el acorde no vuelve a empezar el patron ritmico sino que continua con el elemento que le toque
-consumeVerticalCiclico :: ModoPatronVertical -> [AcordeOrdenado] -> PatronRitmico -> AlturaPatron -> NotasLigadas
+consumeVerticalCiclico :: ModoPatronVertical -> [AcordeOrdenado] -> MatrizRitmica  -> AlturaPatron -> NotasLigadas
 consumeVerticalCiclico _ [] _ _ = []
 consumeVerticalCiclico mV ((lp,durA) : restoA) ( (urv, durH) : restoP) alturaP 
 	| durA > durH = 
@@ -226,10 +228,10 @@ aplanar ll = foldr (++) [] ll
 -- FUNCIONES
 
 -- fusionaPatrones: dado un patron vertical y uno horizontal los fusiona en un patron ritmico.
---fusionaPatrones :: PatronVertical -> PatronHorizontal -> PatronRitmico
+--fusionaPatrones :: PatronVertical -> PatronHorizontal -> MatrizRitmica 
 --fusionaPatrones pv ph = fusionaPatrones2 (repetirInfinito pv) (repetirInfinito ph)
 
---fusionaPatrones2 :: PatronVertical -> PatronHorizontal -> PatronRitmico
+--fusionaPatrones2 :: PatronVertical -> PatronHorizontal -> MatrizRitmica 
 --fusionaPatrones2 (urv : restoPV) ((ac, dur) : restoPH) = (urv, (ac, dur)) : fusionaPatrones2 restoPV restoPH
 
 
@@ -256,7 +258,7 @@ type NotasLigadas = [(NotasLigadasVertical,Dur)]
 
 {-
 -- consumeVertical: fusiona un patron ritmico y un acorde ordenado (disgregado en alturas y duracion) en las notas ligadas
-consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> NotasLigadas
+consumeVertical :: [Pitch] -> Dur -> MatrizRitmica  -> NotasLigadas
 consumeVertical lp durAcorde _ 
 	| durAcorde <= 0 = []
 consumeVertical lp durAcorde ((urv, (acento, dur)) : resto) = 

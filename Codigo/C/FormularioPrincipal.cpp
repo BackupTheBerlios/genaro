@@ -23,7 +23,14 @@ void __fastcall TForm1::Boton_ComponerClick(TObject *Sender)
   String Ruta_codigo_haskell;
   String Ruta_haskell;
   String Ruta_prolog;
-  ifstream fichero_conf;
+
+// FIXME FIXME esto está si no se usa fichero de configuración
+    Ruta_prolog="..\\Prolog\\mainArgs.exe";
+    Ruta_haskell="..\\Haskell\\runhugs.exe";
+    Ruta_codigo_haskell = "..\\Haskell\\main.lhs";
+// FIXME FIXME fin del  fixme
+
+  /*ifstream fichero_conf;
   int esta=FileOpen("configuracion.cfg", fmOpenRead);
   if (esta!=-1)
   {
@@ -67,7 +74,7 @@ void __fastcall TForm1::Boton_ComponerClick(TObject *Sender)
         fichero_conf.close();
       }
       catch(...){}
-  }
+  }*/
 unidad_de_union->Inicializacion(Ruta_prolog,Ruta_haskell,Ruta_codigo_haskell);
 
 //SI NO HAY NINGUNO SELECCIONADO EN PATRONES RITMICOS COGEMOS UNO
@@ -136,6 +143,12 @@ Etiqueta_Numero_Mutaciones->Caption=IntToStr(Barra_Numero_Mutaciones->Position);
 void __fastcall TForm1::Barra_Numero_RepeticionesChange(TObject *Sender)
 {
 Etiqueta_Numero_Repeticiones->Caption=IntToStr(Barra_Numero_Repeticiones->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Salir1Click(TObject *Sender)
+{
+Close();  
 }
 //---------------------------------------------------------------------------
 

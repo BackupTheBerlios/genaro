@@ -48,6 +48,7 @@ __published:	// IDE-managed Components
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
   void __fastcall Barra_Numero_RepeticionesChange(TObject *Sender);
+  void __fastcall Salir1Click(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
 public:		// User declarations

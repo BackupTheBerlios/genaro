@@ -250,6 +250,7 @@ object Form1: TForm1
       Caption = '&Archivo'
       object Salir1: TMenuItem
         Caption = '&Salir'
+        OnClick = Salir1Click
       end
     end
     object Edicin1: TMenuItem

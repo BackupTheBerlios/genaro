@@ -8,38 +8,72 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include "TiposAbstractos.h"
+#include <ComCtrls.hpp>
+#include <Menus.hpp>
+#include <ToolWin.hpp>
+#include <ImgList.hpp>
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
 __published:	// IDE-managed Components
-        TButton *Button1;
-  TEdit *Edit1;
-  TLabel *Label1;
-  TComboBox *SelectorZoom;
   TScrollBar *Barra;
-  TButton *Button2;
+  TTrackBar *Barra_Zoom;
+  TTrackBar *Barra_Nota;
+  TLabel *Etiqueta_Duracion_Nota;
+  TMainMenu *MainMenu1;
+  TMenuItem *Archivo1;
+  TMenuItem *Nuevo1;
+  TScrollBar *BarraVoces;
+  TLabel *Label2;
+  TLabel *Label3;
+  TMenuItem *GuardarPatrnRtmico1;
+  TCheckBox *Ajustar_Grid;
+  TLabel *Resolucion_Grid;
+  TTrackBar *Barra_Grid;
+  TMenuItem *CargarPatrnRtmico1;
+  TLabel *Label1;
+  TToolBar *ToolBar1;
+  TToolButton *ToolButton1;
+  TImageList *ImageList1;
+  TToolButton *ToolButton2;
+  TToolButton *ToolButton3;
+  TLabel *Etiqueta_Mensajes;
   void __fastcall FormClick(TObject *Sender);
   void __fastcall FormCreate(TObject *Sender);
-  void __fastcall Button1Click(TObject *Sender);
-   void __fastcall SelectorZoomChange(TObject *Sender);
   void __fastcall BarraChange(TObject *Sender);
-  void __fastcall Button2Click(TObject *Sender);
+  void __fastcall Barra_ZoomChange(TObject *Sender);
+  void __fastcall Barra_NotaChange(TObject *Sender);
+  void __fastcall Nuevo1Click(TObject *Sender);
+  void __fastcall BarraVocesChange(TObject *Sender);
+  void __fastcall GuardarPatrnRtmico1Click(TObject *Sender);
+  void __fastcall Barra_GridChange(TObject *Sender);
+  void __fastcall CargarPatrnRtmico1Click(TObject *Sender);
+  void __fastcall ToolButton1Click(TObject *Sender);
+  void __fastcall ToolButton2Click(TObject *Sender);
+  void __fastcall ToolButton3Click(TObject *Sender);
 private:	// User declarations
-        int AnchoColumna;
-        int AltoColumna;
-        int NumVoces;
-        int NumColumnas;
-        int TotalColumnas;
-        int AjusteAncho;//Ajustes por los bordes
-        int AjusteAlto;
+        int Numero_Columnas_Pantalla;
+        int Ancho_Columna_Pantalla;
+        int Numero_Filas_Pantalla;
+        int Numero_Semi_Columnas_Pantalla;
+        int Ancho_Semi_Columnas_Pantalla;
+        int Ancho_Minimo_Columna_Pantalla;
+        int Alto_Minimo_Columna_Pantalla;
         unsigned int PosicionActual;//indica cual es la primera columna
+        unsigned int FilaActual;
         bool Inicializado;
+        float Pico_Ajuste_Semi_Columnas;
+        int Fila_Seleccionada;
+        int Estado_Trabajo;//0-insertar, 1-borrar, 2- elegir fila
         MatrizNotas* Partitura;
 public:		// User declarations
         int CalcularArea(int& ancho,int& alto);
-        void DibujaColumnas(int NumeroVoces,int NumeroColumnas, int ancho, int alto);
         void CambiarIndice(int X, int Y);
-        void Refrescar();
+        void BorrarIndice(int X, int Y);
+        void CambiarVelocity(int X, int nuevo_velocity);
+        void Dibuja_Esqueleto();
+        void Dibuja_Notas();
+        void Actualiza_Fila_Seleccionada(int Y);
         __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

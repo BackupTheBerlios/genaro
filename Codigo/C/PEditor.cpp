@@ -5,6 +5,7 @@
 USERES("PEditor.res");
 USEFORM("Editor.cpp", Form1);
 USEUNIT("TiposAbstractos.cpp");
+USE("PEditor.todo", ToDo);
 //---------------------------------------------------------------------------
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {

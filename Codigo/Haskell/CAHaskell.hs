@@ -22,14 +22,18 @@ Ligado viene representado en el editor por el color ROJO, Simple por el color AM
 
 {-
 --
--- PATRON RITMICO, borrar luego
+-- PATRON RITMICO
 --
 -- se tienen en cuenta los ligados
 type Voz = Int
-type Acento = Float
+type Acento = Float  -- Acento: intensidad con que se ejecuta ese tiempo. Valor de 0 a 100
 type Ligado = Bool
-type UPR = [(Voz, Acento, Ligado, Dur)]
+type URV = [(Voz, Acento, Ligado)]	-- Unidad de ritmo vertical
+type URH = Dur 				-- Unidad de ritmo horizontal
+type UPR = ( URV , URH)
 type PatronRitmico = [UPR]
+type AlturaPatron = Int			-- numero maximo de voces que posee el patron
+
 -}
 {- TIPOS DE DATOS QUE REPRESENTAN LO DEVUELTO POR EL ANALISIS DEL STRING CORRESPONDIENTE AL FICHERO JAVA SOBRE PATRONES
 RITMICOS
@@ -40,22 +44,6 @@ type Voces = Int
 type Cols = Int
 type Resolucion = Dur
 
-{-parserFichPatronRitmicoJava :: Parser Char FichPatronRitmicoJava
-parserFichPatronRitmicoJava = (parserVoces <*> parserCols <*> parserResolucion <*> parserJavaPatsMatriz) <@ formatea
-			where 	parserVoces = (token "VOCES" *> (espacio *> natural)) <* saltoDLinea
-				parserCols = (token "COLUMNAS" *> (espacio *> natural)) <* saltoDLinea
-				parserResolucion = (token "RESOLUCION" *> (espacio *> natural)) <* saltoDLinea
-                        	formatea x = FPRJ (voz x) (col x) (1 % (res x)) (patHori x) (patVert x)
-				voz x = fst x
-				col x = fst (snd x)
-				res x = fst (snd (snd x))
-				matriz x  = snd (snd (snd x))
-				patHori x = matrizJavaAPatHorizontal (1 % (res x)) (matriz x)
-				patVert x = matrizJavaAPatVertical (matriz x)-}
-
---parserFichPatronRitmicoC :: Parser Char FichPatronRitmicoC
-
-
 {-
 TIPOS DE DATOS PARA MANIPULAR LA PARTE DE MATRIZ PURA DEL FICHERO JAVA SOBRE PATRONES RITMICOS
 -}
@@ -64,15 +52,30 @@ data TokenCPatrones = Ligado Acento
                      |Silencio
                 deriving(Show,Eq,Ord)
 type MatrizCPatrones = [[TokenCPatrones]]
-{-
-listaTokenCPatrones :: [(String, TokenCPatrones)]
-listaTokenCPatrones = [("LIGADO",Ligado),("SIMPLE",Simple),("SILENCIO",Silencio)]-}
 
-parserTokenCPats :: Parser Char TokenCPatrones
---parserTokenCPats = listaParesTokenDatoAParser listaTokenCPatrones
-parserTokenCPats = token "SILENCIO" <@ const Silencio
-                <|> ((token "LIGADO" <* espacio) <*> integer ) <@ (\(t,i)-> Ligado (fromIntegral i))
-                <|> ((token "SIMPLE" <* espacio) <*> integer ) <@ (\(t,i)-> Simple (fromIntegral i))
+{-
+PARSERS
+-}
+parserFichPatronRitmicoC :: Parser Char FichPatronRitmicoC
+parserFichPatronRitmicoC = (parserVoces <*> parserCols <*> parserResolucion <*> parserCPatsMatriz) <@ formatea
+			where 	parserVoces = (token "VOCES" *> (espacio *> natural)) <* saltoDLinea
+				parserCols = (token "COLUMNAS" *> (espacio *> natural)) <* saltoDLinea
+				parserResolucion = (token "RESOLUCION" *> (espacio *> natural)) <* saltoDLinea
+                        	formatea x = FPRC (voz x) (col x) (1 % (res x)) (patronRit x)
+				voz x = fst x
+				col x = fst (snd x)
+				res x = fst (snd (snd x))
+				matriz x  = snd (snd (snd x))
+                                patronRit x = matrizCAPatronRitmico (1 % (res x)) (matriz x)
+
+matrizCAPatronRitmico :: Dur -> MatrizCPatrones -> PatronRitmico
+matrizCAPatronRitmico resolucion matriz = [(procesaUPR 1 (invertir fila), resolucion) | fila <- matTraspuesta]
+		                 where matTraspuesta = trasponer matriz
+                                       procesaUPR _ [] = []
+                                       procesaUPR pos (Silencio:xs) = procesaUPR (pos+1) xs
+                                       procesaUPR pos ((Simple acento):xs) = (pos, acento, False): (procesaUPR (pos+1) xs)
+                                       procesaUPR pos ((Ligado acento):xs) = (pos, acento, True): (procesaUPR (pos+1) xs)
+
 {-
 Se come la parte de la matriz de un fichero C y devuelve una lista en la que cada elemento es una fila de esta matriz,
 empezando por la de arriba, que será la cabeza. Cada fila será a su vez una lista de elementos de tipo TokenCPatrones,
@@ -83,79 +86,20 @@ claro. Pero por el formato del fichero y que es una matriz podemos suponer:
 parserCPatsMatriz :: Parser Char MatrizCPatrones
 parserCPatsMatriz = listaSeparadaChar '\n' parserFila
 			where parserFila = (listaSeparadaChar ' ' parserTokenCPats) <* (espacio <*> token "FIN")
+
+parserTokenCPats :: Parser Char TokenCPatrones
+parserTokenCPats = token "SILENCIO" <@ const Silencio
+                <|> ((token "LIGADO" <* espacio) <*> integer ) <@ (\(t,i)-> Ligado (fromIntegral i))
+                <|> ((token "SIMPLE" <* espacio) <*> integer ) <@ (\(t,i)-> Simple (fromIntegral i))
+
+{-
+PRUEBAS
+-}
 pruebaParserMatriz :: String -> IO()
 pruebaParserMatriz rutaOrigen = do texto <- readFile rutaOrigen
                                    putStr ( show (head ( parserCPatsMatriz texto)))
-{-
-matrizJavaAPatVertical :: MatrizJavaPatrones -> PatronVertical
-matrizJavaAPatVertical matriz = [procesaURV 1 fila | fila <- matTraspuesta]
-		                 where matTraspuesta = trasponer matriz
-                                       procesaURV _ [] = []
-                                       procesaURV n (Silencio:xs) = procesaURV (n+1) xs
-                                       procesaURV n (Simple:xs) = (n, False): (procesaURV (n+1) xs)
-                                       procesaURV n (Ligado:xs) = (n, True): (procesaURV (n+1) xs)
 
-{-
-por ahora da a cada columna el valor fuerte de intensidad, en una ampliacion futura la matriz podría dar valores
-de fuerza/velocity: ahora mismo siempre hace lo mismo sin importar la matriz, pero dejo este esquema para hacer más
-faciles las ampliaciones en el futuro
-	- el parametro Dur indica la resolucion de la matriz
--}
-matrizJavaAPatHorizontal :: Dur -> MatrizJavaPatrones -> PatronHorizontal
-matrizJavaAPatHorizontal resolucion matriz = [procesaURH fila | fila <- matTraspuesta]
-				   where matTraspuesta = trasponer matriz
-                                   	 procesaURH _ = (fuerte, resolucion)
---PRUEBAS
 
-pruebaParserMatrizVertical :: String -> IO()
-pruebaParserMatrizVertical rutaOrigen = do texto <- readFile rutaOrigen
-                                           putStr ( show (matrizJavaAPatVertical(snd(head ( parserJavaPatsMatriz texto)))))
-
-pruebaParserMatrizHorizontal :: String -> IO()
-pruebaParserMatrizHorizontal rutaOrigen = do texto <- readFile rutaOrigen
-                                             putStr ( show (matrizJavaAPatHorizontal qn (snd(head ( parserJavaPatsMatriz texto)))))
-
-pruebaParserFichPatronRitJava :: String -> IO()
-pruebaParserFichPatronRitJava rutaOrigen = do texto <- readFile rutaOrigen
-                                              putStr ( show ( head (parserFichPatronRitmicoJava texto)))
-
--------------------------------------------------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------------
-----------ABAJO PARSER VIEJO DE STRINGS CON EL MISMO FORMATO EXACTO QUE LOS TIPOS PatronHorizontal Y PatronVertical------------
--------------------------------------------------------------------------------------------------------------------------------
--------------------------------------------------------------------------------------------------------------------------------
-{-
-Parsea un string con un formato igual que el tipo PatronHorizontal para obtener
-valores de este mismo tipo. Ver Parser_library.hs para ver el tipo Parser (aqui iría
-un link si supiera como ponerlo)
--}
-parserPatronHorizontal :: Parser Char PatronHorizontal
-parserPatronHorizontal = bracketed(commaList(parserURH))
-		      where parserURH = parenthesized( (Parser_library.float <* coma) <*> parserRatioARatio )
-
-{-
-Esta función parsea el archivo de texto especificado con la ruta que es el String que es su único parámetro
-, y devuelve error si falla el análisis o el primer resultado del parseo como IO si no. Se parsea un archivo
-de texto con un formato igual que el tipo PatronHorizontal para obtener valores de este mismo tipo
--}
-leePatronHorizontal :: String -> IO PatronHorizontal
-leePatronHorizontal = leeYParsea parserPatronHorizontal
-
-{-
-Parsea un string con un formato igual que el tipo PatronVertical para obtener
-valores de este mismo tipo. Ver Parser_library.hs para ver el tipo Parser (aqui iría
-un link si supiera como ponerlo)
--}
-parserPatronVertical :: Parser Char PatronVertical
-parserPatronVertical = bracketed(commaList(parserURV))
-		      where parserURV = bracketed(commaList(parserUnidadURV))
-                            parserUnidadURV = parenthesized((integer <* coma) <*> parserBool)
-
-{-
-Esta función parsea el archivo de texto especificado con la ruta que es el String que es su único parámetro
-, y devuelve error si falla el análisis o el primer resultado del parseo como IO si no. Se parsea un archivo
-de texto con un formato igual que el tipo PatronVertical para obtener valores de este mismo tipo
--}
-leePatronVertical :: String -> IO PatronVertical
-leePatronVertical = leeYParsea parserPatronVertical
--}
+pruebaParserFichPatronRitmicoC :: String -> IO()
+pruebaParserFichPatronRitmicoC rutaOrigen = do texto <- readFile rutaOrigen
+                                               putStr ( show (head ( parserFichPatronRitmicoC texto)))

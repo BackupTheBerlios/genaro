@@ -1,6 +1,7 @@
 module BiblioGenaro where
 import Random
 import Parser_library
+
 import Parsers
 
 {-
@@ -18,6 +19,16 @@ trasponer :: Matriz a -> Matriz a
 trasponer matriz = [[fila !! (n-1) | fila <- matriz] | n <- [1..(length (head matriz))] ]
 -- trasponer matriz = [dameColumna n matriz| n <- [1..(length (head matriz))] ], mas eficiente lo otro
 -- pq no comprueba los limites de dameColumna ya que sabe q son buenos
+
+{-
+Dada una lista devuelve el resultado de darle la vuelta, por ejemplo invertir [1,2,3] = [3,2,1]
+-}
+invertir :: [a] -> [a]
+--invertir [] = []
+--invertir (x:xs) = (invertir xs) ++ [x]
+invertir = invertirAcu []
+invertirAcu acu [] = acu
+invertirAcu acu (x:xs) = invertirAcu (x:acu) xs
 
 {-
 Dado un entero y una matriz devuelve la columna indicada por el entero.El entero n si vale de 1 a el numero de columnas
@@ -46,7 +57,7 @@ eliminaApariciones3 elem xs = [x | x <- xs, x /= elem]
 -- permutacion: encontrada en la pagina http://polaris.lcc.uma.es/~pacog/apuntes/pd/cap06.pdf, en la pagina 25
 {-
 Inserta un elemento en todas las posiciones posiblesde una lista.
-Ej: 
+Ej:
 intercala 4 [1,2,3] = [[4,1,2,3],[1,4,2,3],[1,2,4,3],[1,2,3,4]]
 -}
 intercala :: a -> [a] -> [[a]]
@@ -97,15 +108,23 @@ pruNumAleatorioIO min max = do num <- numAleatorioIO min max
                                putStr (show num)
 
 {-
+
 genera un numero aleatorio de tipo float en el intervalo [min, max]
+
 -}
+
 numAleatorioIOFloat :: Float -> Float -> IO Float
+
 numAleatorioIOFloat min max
+
 	|min <= max = getStdRandom (randomR (min,max))
+
         |otherwise = error "numAleatorioIO: el limite izquierdo debe ser menor o igual que el derecho"
 
 pruNumAleatorioIOFloat :: Float -> Float -> IO ()
+
 pruNumAleatorioIOFloat min max = do num <- numAleatorioIOFloat min max
+
                                     print num
 
 {-
@@ -113,15 +132,23 @@ genera una lista de 'cuantos' numeros aleatorios de tipo float en el intervalo [
 -}
 
 listaNumAleatorioIOFloat :: Float -> Float -> Int -> IO [Float]
+
 listaNumAleatorioIOFloat min max cuantos = do if (cuantos <=0)
+
                                                   then return []
+
                                                   else do f <- numAleatorioIOFloat min max
+
                                                           fs <- listaNumAleatorioIOFloat min max (cuantos - 1)
+
                                                           return (f:fs)
 
 pruListaNumAleatorioIOFloat :: Float -> Float -> Int -> IO ()
+
 pruListaNumAleatorioIOFloat min max cuantos = do
+
     lista <- listaNumAleatorioIOFloat min max cuantos
+
     print lista
 
 {-
@@ -139,68 +166,122 @@ pruListaNumsAleatoriosIO min max cuantos = do lista <- listaNumsAleatoriosIO min
 genera una lista infinita de enteros generados a partir de un entero semilla por medio de una
 funcion determinista que ditribuye los numeros del intervalo [min, max] de forma homogenea y
 les asigna posiciones en la lista resultado en funcion de semilla. La cosa es generar la semilla
-de forma aleatoria (con numAleatorioIO) luego usar esta funcion para obtener los numeros aleatorios 
+de forma aleatoria (con numAleatorioIO) luego usar esta funcion para obtener los numeros aleatorios
 que queramos
 -}
 numsAleatoriosSemilla :: Int -> Int -> Int -> [Int]
-numsAleatoriosSemilla semilla min max 
+numsAleatoriosSemilla semilla min max
 	|min <= max = itera (mkStdGen semilla)
 		      where itera g = x:itera g1
 				      where (x,g1) = randomR (min,max) g
 
 {-
+
 Devuelve True si el string de entrada representa a un entero.
+
    -Por tanto devuelve False para la cadena vacia
+
    -Haskell se traga que le pongas 000 o 0001 0 -023, y asi lo hace tb esta funcion
+
 -}
+
 esIntString :: String -> Bool
+
 esIntString = parseoExitoso integer
 
+
+
 {-
+
 Devuelve True si el string de entrada representa a un natural.
+
    -Por tanto devuelve False para la cadena vacia
+
    -Haskell se traga que le pongas 000 o 0001 0 -023, y asi lo hace tb esta funcion
+
 -}
+
 esNaturalString :: String -> Bool
+
 esNaturalString = parseoExitoso natural
 
+
+
 {-
+
 Devuelve True si el string de entrada representa a un float.
+
    -Por tanto devuelve False para la cadena vacia
+
    -Haskell se traga que le pongas 000 o 0001 0 -023, y asi lo hace tb esta funcion
+
 -}
+
 esFloatString :: String -> Bool
+
 esFloatString = parseoExitoso float
 
+
+
 pideFloat :: String -> IO Float
+
 pideFloat mensaje = do putStrLn mensaje
+
                        cadenaNum <- getLine
+
                        if (esFloatString cadenaNum)
+
                           then do num <- readIO cadenaNum
+
                                   return num
+
                           else do putStrLn "dato con formato incorrecto, vuelva a introducir el dato: "
+
                                   pideFloat mensaje
+
 pruPideFloat :: IO ()
+
 pruPideFloat = do f <- pideFloat "dame un Float"
+
                   putStr "el float era: "
+
                   print f
 
+
+
 pideInt :: String -> IO Int
+
 pideInt mensaje = do putStrLn mensaje
+
                      cadenaNum <- getLine
+
                      if (esIntString cadenaNum)
+
                         then do num <- readIO cadenaNum
+
                                 return num
+
                         else do putStrLn "dato con formato incorrecto, vuelva a introducir el dato: "
+
                                 pideInt mensaje
+
+
 
 main = do putStrLn "me mola la coca-cola"
 
+
 lola =  do x <- getStdGen
+
            print (next x)
+
 	   newStdGen
+
 	   x <- getStdGen
+
 	   print (next x)
+
 	   newStdGen
+
 	   x <- getStdGen
+
 	   print (next x)

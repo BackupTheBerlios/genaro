@@ -139,8 +139,7 @@ inversion_y_disposicion( 0, 3, acorde([A,B,C]), acorde([A,A1,B1,C1]) ) :-
 
 inversion_y_disposicion( 1, 1, acorde([A,B,C]), acorde([B1,B,C,A1]) ) :-   
 	trasponer(A,12,A1),
-	trasponer(B,-12,B1),
-	trasponer(C,12,C1).
+	trasponer(B,-12,B1).
 inversion_y_disposicion( 1, 2, acorde([A,B,C]), acorde([B,C,A1,B1]) ) :-
 	trasponer(A,12,A1),
 	trasponer(B,12,B1).
@@ -273,7 +272,7 @@ traduce_cifrado( Cifrado, Inv, Disp, Acorde ) :-
 
 	
 eleccion_aleatoria( NumAleatorio, P0, _, _, 0 ) :-
-	NumAleatorio < P0,
+	NumAleatorio =< P0,
 	!.
 eleccion_aleatoria( NumAleatorio, P0, P1, _, 1 ) :-
 	NumAleatorio > P0,

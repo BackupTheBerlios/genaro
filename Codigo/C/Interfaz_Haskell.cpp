@@ -42,5 +42,5 @@ void Interfaz_Haskell::Ejecuta_Funcion(String nombre_archivo, String num_repetic
   {ShowMessage("Error ejecutando el runhugs de haskell.");}
 
   dup2(salida_standard,fileno(stdout));
-
+  fclose(salida_haskell);
 }

@@ -38,3 +38,21 @@ eliminaApariciones elem (x:xs)
 
 eliminaApariciones2 elem = filter (/=elem)
 eliminaApariciones3 elem xs = [x | x <- xs, x /= elem]
+
+
+-- permutacion: encontrada en la pagina http://polaris.lcc.uma.es/~pacog/apuntes/pd/cap06.pdf, en la pagina 25
+{-
+Inserta un elemento en todas las posiciones posiblesde una lista.
+Ej: 
+intercala 4 [1,2,3] = [[4,1,2,3],[1,4,2,3],[1,2,4,3],[1,2,3,4]]
+-}
+intercala :: a -> [a] -> [[a]]
+intercala x [] = [[x]]
+intercala x ls@(y:ys) = (x:ls) : map (y:) (intercala x ys)
+
+{-
+Calcula todas las permutaciones de una lista de elementos
+-}
+perms :: [a] -> [[a]]
+perms [] = [[]]
+perms (x:xs) = concat (map (intercala x) (perms xs))

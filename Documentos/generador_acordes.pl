@@ -8,7 +8,7 @@ Lower and Upper. Upper will never be generated.
 :- use_module(library(lists)).
 :- use_module(library(random)).
 %ARCHIVOS PROPIOS CONSULTADOS
-:- consult([representacion_prolog_haskore.pl]).
+:- consult(['representacion_prolog_haskore.pl']).
 
 /*
 GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
@@ -39,21 +39,48 @@ in: G de tipo grado
 out: C cifrado con la matrícula de cuatríada correspondiente al grado G en la escala de C Jónico
 por ahora 
 */
-hazCuatriada(G,cifrado(G,maj7)) :- member(G,[i,iv,bvii]).
-hazCuatriada(G,cifrado(G,m7)) :- member(G,[ii,iii,vi]).
-hazCuatriada(G,cifrado(G,7)) :- member(G,[v]).
-hazCuatriada(G,cifrado(G,m7b5)) :- member(G,[vii]).
+hazCuatriada(grado(G),cifrado(grado(G), matricula(maj7))) :- 	member(G,[i,iv,bvii]).
+hazCuatriada(grado(G),cifrado(grado(G), matricula(m7))) :- member(G,[ii,iii,vi]).
+hazCuatriada(grado(G),cifrado(grado(G), matricula(7))) :- member(G,[v]).
+hazCuatriada(grado(G),cifrado(grado(G), matricula(m7b5))) :- member(G,[vii]).
 
 %PROGRESION DE ACORDES
 /*es una lista de cifrados*/
 es_progresion(progresion(P)) :- es_listaDeCifrados(P).
 es_listaDeCifrados([]).
-es_listaDeCifrados([C|Cs]) :- es_cifrado(C), es_listaDeCifrados(Cs).
+es_listaDeCifrados([(C, F)|Cs]) :- es_cifrado(C), es_figura(F)
+       ,es_listaDeCifrados(Cs).
+
+/*numAcordes(P,N) indica el numero de acordes que hay en una progresión. Podemos definir que una progresión está en forma normal cuando no existen dos acordes adyacentes en el tiempo/ lista que tengan el mismo cifrado. Por ejemplo la progresión [(C-7, 1/2), (C-7 , 1/2), (Amaj7,1/1)] quedaría en forma normal como
+[(C-7, 1/1), (Amaj7,1/1)]. Sería deseable que todas las progresiones generadas por haz_progresion y sus predicados auxiliares generaran progresiones en forma normal (estos comentarios hay q estructurarlos luego). numAcordes(P,N) da el numero de elementos de la lista ListaAcordes si la forma normal de p es progresion(ListaAcordes)
+*/
+numAcordes(progresion(Lc), N) :- numAcordesLista(Lc,ninguno,N).
+/* numAcordesLista(Lc, Uc, N): Uc es el cifrado del acorde anterior*/
+numAcordesLista([], _ ,0).
+numAcordesLista([C|Cs], C, N) :- numAcordesLista(Cs, C, N).
+numAcordesLista([C|Cs], Uc, N1) :- \+(C = Uc), numAcordesLista(Cs, C, N), N1 is N + 1.
+
+/*numCompases(P,S) indica el numero de compases que dura una progresión
+in: P que cumple es_progresion(P)
+out: S natural que indica el numero de compases que ocupa la progresión. !!!En Sicstus el ceiling da el float igual al menor entero mayor o igual q el float al q se aplica, e.d., ceiling(2.3) = 3.0 => estudiar en el futuro posible arreglo (restricciones?, ceiling propio dicotomico?, …?) 
+*/
+numCompases(progresion(L),M) :- numCompasesLista(L, fraccion_nat(N,D)),
+	M is ceiling(N/D).
+numCompasesLista([], fraccion_nat(0,1)).
+numCompasesLista([(_,figura(N,D))|Cs], F) :- numCompasesLista(Cs, Fl), 	sumaFracciones(fraccion_nat(N,D), Fl, F).
+
+sumaFracciones(fraccion_nat(N1,D1), fraccion_nat(N2,D2), F) :-
+  Na is ((N1*D2) + (N2*D1)), Da is D1*D2, simpFraccion(fraccion_nat(Na,Da),F).
+
+/* // es la division entera*/
+simpFraccion(fraccion_nat(N1,D1), fraccion_nat(N2,D2)) :- Mcd is gcd(N1,D1),
+	N2 is N1//Mcd, D2 is D1//Mcd.
+  
 
 %GENERA UN PROGRESION DE ACORDES
 /*haz_progresion(N,La)
-in: N natural que indica el numero de acordes de la progresión. Me temo que tendrá que ser mayor o igual que 3 (longitud de la cadencia más larga)
-out: La lista de N acordes que se espera q se interpreten uno tras otro empezando por la cabeza
+in: N natural que indica el numero de compases que dura de la progresión. Me temo que tendrá que ser mayor o igual que 3 (longitud de la cadencia más larga)
+out: La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza. Hace cierto es_progresion(La)
 */
 haz_progresion(N,La) :- haz_prog_semilla(S), modifica_prog(S,N,La).
 
@@ -61,13 +88,81 @@ haz_progresion(N,La) :- haz_prog_semilla(S), modifica_prog(S,N,La).
 crea una progresión que será de la que parta el resto de la generación.En un principio me basaré en las cadencias así que tendrá entre dos y tres acordes.
 out: S de tipo progresion*/
 haz_prog_semilla(S) :- num_cadencias(NumCads),random(0,NumCads, CadElegida)
-		,cadenciaValida(cadencia(ListaGrados,CadElegida)),listaGradosAProgresion(ListaGrados,S).
+	,cadenciaValida(cadencia(ListaGrados,CadElegida)),listaGradosAProgresion(ListaGrados,S).
+
+/*listaGradosAProgresion(ListaGrados,Progresion).
+convierte una lista de grados en una progresión de acordes en la que cada acorde dura una redonda. A cada grado le hace corresponder su cuatríada por ahora!!!
+in: ListaGrados hace cierto el predicado es_listaDeGrados
+out: Progresion hace cierto el predicado es_progresion
+*/
+
+/*listaGradosAProgresion([],progresion([])).
+listaGradosAProgresion([G|Gs],progresion([(C, figura(1,1))|Ps])) :-
+		hazCuatriada(G,C) ,listaGradosAProgresion(Gs,Ps).*/
+
+listaGradosAProgresion(LG, progresion(Prog)) :- 			listaGradosAProgresionRec(LG,Prog).
+listaGradosAProgresionRec([],[]).
+listaGradosAProgresionRec([G|Gs],[(C, figura(1,1))|Ps]) :-
+		hazCuatriada(G,C) ,listaGradosAProgresionRec(Gs,Ps).
+
+
+/*modifica_prog(S,N,La). Partiendo de la progresión S construye otra progresión de longitud N (N compases)
+in: S progresión de partida (semilla). Cumple es_progresion(S)
+    N numero de compases que tendrá la progresión. Es un natural mayor o igual que el numero de acordes de S
+out: La resultado de las transformaciones, Cumple es_progresion(La)
+*/
+%modifica_prog(S,N,La) :- natural(N), numCompases(S,Ls), Ls <= N, ¿?? 
+
+/* cambia_acordes(Po, N, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd donde se han realizado N cambios de un acorde por otro de la misma función tonal y que dura lo mismo (misma figura en la progresión)
+in: Po progresión origen cumple es_progresion(Po)
+    N: natural, indica cuantos cambios se harán
+out:Pd progresión destino cumple es_progresion(Po)
+
+Pre!!! (Creo) Lo en forma normal (comprobar esto, por lo menos lo pensé así)
+*/
+/*cambia_acordes(progresion(Lo), N, progresion(Ld)) :- natural(N), 	cambia_acordesLista(Lo, N, Ld).
+cambia_acordesLista(Lo, 0, Lo).
+cambia_acordesLista(Lo, N, Ld) :- numAcordesLista(Lo, Na), Na2 is Na +1, 	random(1, Na2, NumAcordeElegido)
+	,nth(Num, NumAcordeElegido, (cifrado(G,M),Fe)),  
+
+(CifraElegida,Fe)),
+*/
+/*si supongo forma canónica el predicado numAcordesLista se vuelve prescindible*/
+/*cambia_acordesLista(Lo, 0, Lo).
+cambia_acordesLista(Lo, N, Ld) :- 
+	dame_elemento_aleatorio(Lo, (cifrado(GradoElegido,_), F), PosElegida)
+	,dame_grado_funcTonal_equiv(GradoElegido, GradoSustituto)
+	,hazCuatriada(GradoSustituto, AcorSustit)
+	,setof(E, (member(E))
+
+	setof(E, (member), Ld)*/
+
+
+
+/*listaEnterosIntervalo(Eini,Efin,L) L es la lista que contiene a los enteros en [Eini, Efin]*/
+listaEnterosIntervalo(Eini,Efin,L) :- setof(N, (N>=Eini, N=<Efin,integer(N)), L). 
+/*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)*/
+dame_grado_funcTonal_equiv(Go, Gd) :-
+	setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc)
+	,dame_elemento_aleatorio(Lc, Gd).
+
+
+dame_elemento_aleatorio(Lista, E) :- length(Lista, L), random(0, L, Pos)
+				,nth0(Pos, Lista, E).
+dame_elemento_aleatorio(Lista, E, PosAux) :- length(Lista, L), random(0, L, Pos)
+				,nth0(Pos, Lista, E), PosAux is Pos + 1.
+
 
 
 %FUNCIONES TONALES
-es_tonica(grado(G)):- member(G, [i, iii, vi]).
-es_subdominante(grado(G)):- member(G, [ii, iv]).
-es_dominante(grado(G)):- member(G, [v, vii]).
+mismaFuncionTonal(G1,G2) :- dameFuncionTonal(G1, F), dameFuncionTonal(G2, F).
+
+dameFuncionTonal(grado(G), tonica) :- member(G, [i, iii, vi]).
+dameFuncionTonal(grado(G), subdominante) :- member(G, [ii, iv]).
+dameFuncionTonal(grado(G), dominante) :- member(G, [v, vii]).
+
+
+
 
 %CADENCIAS
 /*es_cadencia(cadencia(C,I)) :- es_listaDeGrados(C), natural(I), 			 		 		num_cadencias(N),I<N.*/
@@ -77,11 +172,11 @@ es_listaDeGrados([G|Gs]) :- es_grado(G), es_listaDeGrados(Gs).
 %lista de cadencias
 	%conclusivas
 		%autentica
-cadenciaValida(cadencia([grado(v),grado(i)],0))). 			%autentica basica
-cadencia([grado(iv),grado(v),grado(i)],1). 	%autentica 
-cadencia([grado(ii),grado(v),grado(i)],2). 	%autentica moderna
+cadenciaValida(cadencia([grado(v),grado(i)],0)).%autentica basica
+cadenciaValida(cadencia([grado(iv),grado(v),grado(i)],1)).	%autentica 
+cadenciaValida(cadencia([grado(ii),grado(v),grado(i)],2)).	%autentica moderna
 		%plagal
-cadencia([grado(iv),grado(i)],3).			%plagal basica
+cadenciaValida(cadencia([grado(iv),grado(i)],3)).			%plagal basica
 /*cadencia([grado(iv),grado(iii)],4).			%plagal
 cadencia([grado(iv),grado(vi)],5).			%plagal
 cadencia([grado(ii),grado(i)],6).			%plagal

@@ -1,3 +1,12 @@
+-- PARSER BASADO EN EL ARTICULO: Jeroen Fokker
+-- 				 Functional Parsers
+--				 in: Johan Jeuring and Erik Meijer (eds.)
+--				     Advanced Functional Programming
+--				     Fst. Int. School on Advanced Functional Programming Techniques
+--				     Tutorial Text
+--				     Springer LNCS 925, pp. 1-23, 1995 
+
+
 module Parsers where
 
 -- analiza una lista de elementos de tipo simbolo y devuelve una lista de parejas de la forma 
@@ -55,10 +64,40 @@ option :: Parser s a -> Parser s [a]
 option p =     p <@ (\x -> [x]) 
 	   <|> epsilon <@ (\x -> [])
 
+-- chainl procesa una lista de operadores asociativos a la izquierda
+chainl :: Parser s a -> Parser s (a->a->a) -> Parser s a
+chainl p pf = p <*> many (pf <*> p)
+	      <@ uncurry (foldl (flip ap2))
+	where ap2 (op,y) = (`op` y)
+
+-- chainr procesa una lista de operadores asociativos a la derecha
+chainr :: Parser s a -> Parser s (a->a->a) -> Parser s a
+chainr p pf = many (p <*> pf) <*> p
+	      <@ uncurry (flip (foldr ap1))
+	where ap1 (x, op) = (x `op`)
+
+-- parser fallo
+
+parserFallo    ::  Parser s r
+parserFallo xs  =  []
+
+--
+choice       ::  [Parser s a] -> Parser s a
+choice        =  foldr (<|>) parserFallo
+--
+type Op a = (Char, a->a->a)
+gen :: [Op a] -> Parser Char a -> Parser Char a 
+gen ops p = chainr p (choice (map f ops))
+	where f (s,c) = symbol s <@ const c
+
 -- dado un parser para un token de apertura, un cuerpo y un token de cierre pack hace un parser para el 
 -- cuerpo encerrado entre esos dos tokens
 pack :: Parser s a -> Parser s b -> Parser s c -> Parser s b
 pack s1 p s2 = s1 *> p <* s2
+
+
+parenthesized :: Parser Char a -> Parser Char a
+parenthesized p = pack (symbol '(')  p (symbol ')')
 
 --symbol reconoce un simbolo concreto
 symbol :: Eq s => s -> Parser s s
@@ -117,3 +156,26 @@ close = symbol ')'
 parens :: Parser Char Tree
 parens = (((open *> (parens <* close)) <*> parens) <@ Bin)
 	<|> (succed Nil)
+
+fact :: Parser Char Expr
+fact =     integer 
+            <@ Con
+        <|> identifier 
+            <*> (option (parenthesized (commaList expr)) <?@ (Var,flip Fun))
+            <@ ap2
+        <|> parenthesized expr
+
+ap  (f,x)    = f x
+ap2 (x,f)    = f x
+
+(<?@)        ::  Parser s [a] -> (b,a->b) -> Parser s b
+p <?@ (n,y)   =  p <@ f
+          where  f []  = n
+                 f [h] = y h
+
+expr :: Parser Char Expr
+expr  =  foldr gen fact [addis, multis]
+
+multis  =  [ ('*',(:*:)), ('/',(:/:)) ]
+addis   =  [ ('+',(:+:)), ('-',(:-:)) ]
+

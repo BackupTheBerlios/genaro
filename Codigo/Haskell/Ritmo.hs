@@ -89,7 +89,7 @@ type PatronVertical = [URV]
 -- Para que sea coherente con el resto del programa un PatronRitmico es una lista infinita que encaja
 -- con la informacion de los acordes ordenados para formar las notas. Cuando se encaja con los acordes
 -- ordenados (que es una lista finita) el patron ritmico se trunca.
-type PatronRitmico = [ ( URV, Acento, Dur )]
+type PatronRitmico = [ ( URV, URH)]
 
 
 -- FUNCIONES
@@ -99,7 +99,7 @@ fusionaPatrones :: PatronVertical -> PatronHorizontal -> PatronRitmico
 fusionaPatrones pv ph = fusionaPatrones2 (repetirInfinito pv) (repetirInfinito ph)
 
 fusionaPatrones2 :: PatronVertical -> PatronHorizontal -> PatronRitmico
-fusionaPatrones2 (urv : restoPV) ((ac, dur) : restoPH) = (urv, ac, dur) : fusionaPatrones2 restoPV restoPH
+fusionaPatrones2 (urv : restoPV) ((ac, dur) : restoPH) = (urv, (ac, dur)) : fusionaPatrones2 restoPV restoPH
 
 
 -- encaja: encaja una lista de alturas con una unidad de ritmo vertical.
@@ -177,7 +177,7 @@ type NotasLigadas = [(NotasLigadasVertical,Dur)]
 consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> NotasLigadas
 consumeVertical lp durAcorde _ 
 	| durAcorde <= 0 = []
-consumeVertical lp durAcorde ((urv, acento, dur) : resto) = 
+consumeVertical lp durAcorde ((urv, (acento, dur)) : resto) = 
 	(insertaAcentoYDur acento dur (encaja lp urv), dur) : consumeVertical lp (durAcorde - dur) resto
 
 

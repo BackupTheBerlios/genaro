@@ -1,4 +1,6 @@
 
+-- Este modulo contiene las funciones necesarias para convertir una lista de acordes en su representacion
+-- de cifrados, es decir, como [( (Grado,Matricula), Dur )], a una lista de alturas como [Pitch]
 
 module TraduceCifrados
 where
@@ -12,17 +14,20 @@ import Random
 
 -----------------------------------------------------------
 
-type AcordeSimple = [Int]
+type AcordeSimple = [Int] -- Indica el orden de las voces en el acorde sin centrarse en que notas son
 
 type Inversion = Int -- 0 es el estado fundamental
 type Disposicion = Int
+type NumNotasFund = Int -- notas del acorde pero sin repetir ninguna (ej: cuatriadas tienen cuatro notas)
+type NumNotasTotal = Int -- notas total del acorde. Puede un numero mayor o igual a 2
 
 
-formarAcordeSimple :: Int -> Int -> Inversion -> Disposicion -> AcordeSimple
+-- Forma un acorde simple
+formarAcordeSimple :: NumNotasFund -> NumNotasTotal -> Inversion -> Disposicion -> AcordeSimple
 formarAcordeSimple numNotasFund numNotasTotal inv disp = reverse (disp : anade numNotasFund (numNotasTotal - 2) [inv + 1])
 
-
-anade :: Int -> Int -> [Int] -> [Int]
+-- Añade notas (modulo NumNotasFund)+1, es decir, si numNotasFund = 4 y comenzamos con 2 entonces añade 3, 4, 1, 2, ...
+anade :: NumNotasFund -> Int -> [Int] -> [Int]
 anade _ 0 lista = lista
 anade numNotasFund notasResto (nota : lista)
 	|nota == numNotasFund 	= anade numNotasFund (notasResto - 1) (1 : nota : lista)
@@ -36,90 +41,15 @@ traduceDirecto lpc [] = []
 traduceDirecto lpc (num : resto) = (lpc !! (num - 1)) : traduceDirecto lpc resto
 
 
-arreglaOctavas :: Int -> [PitchClass] -> [Pitch]
+arreglaOctavas :: Octave -> [PitchClass] -> [Pitch]
 arreglaOctavas octavaIni (cabeza : resto) = (cabeza, octavaIni) : arreglaOctavasRec octavaIni cabeza resto
 
 
-arreglaOctavasRec :: Int -> PitchClass -> [PitchClass] -> [Pitch]
+arreglaOctavasRec :: Octave -> PitchClass -> [PitchClass] -> [Pitch]
 arreglaOctavasRec _ _ [] = []
 arreglaOctavasRec octava pitchAnt (cabeza : resto) 
 	|pitchClass pitchAnt >= pitchClass cabeza = (cabeza, octava + 1) : arreglaOctavasRec (octava + 1) cabeza resto
 	|otherwise				 		= (cabeza, octava) : arreglaOctavasRec octava cabeza resto
-
-
-
-
--------------------------------------------------------
-
-
-
--- TODO: PASAR ESTO A PROGRESIONES.HS
-
--- Estas funciones, por supuesto, solo son posibles en el modo de C mayor
-gradoAInt :: Grado -> Int
-gradoAInt (V7 grado) = mod (gradoAInt grado + 7) 12
-gradoAInt (IIM7 grado) = mod (gradoAInt grado + 2) 12
-gradoAInt grado = case grado of 
-	I -> 0
-	II -> 2
-	III -> 4
-	IV -> 5
-	V -> 7
-	VI -> 9
-	VII -> 11
-	BII -> 1
-	BIII -> 3
-	BV -> 6
-	AUV -> 8
-	BVII -> 10
-	BBII -> 1
-	BBIII -> 2
-	AUII -> 3
-	BIV -> 4
-	AUIII -> 5
-	AUIV -> 10
-	BBVI -> 7
-	BVI -> 8
-	AUVI -> 10
-	BVIII -> 11
-	AUVIII -> 13
-
-absPitchAPitchClass :: AbsPitch -> PitchClass
-absPitchAPitchClass = fst.pitch
-
-gradoAPitchClass :: Grado -> PitchClass
-gradoAPitchClass = absPitchAPitchClass.gradoAInt
-
------------------------------------------------------------------------
-
-
-type Vector = [Int]
-
-sumaVector :: Vector -> Int -> Vector
-sumaVector vector base = map (+ base) vector
-
-
-matriculaAVector :: Matricula -> Vector
-matriculaAVector m = case m of
-	Mayor -> [0,4,7]
-	Menor -> [0,3,7]
-	Au -> [0,4,8]
-	Dis -> [0,3,6]
-	Sexta -> [0,4,7,9]
-	Men6 -> [0,3,7,9]
-	Men7B5 -> [0,0,0,0]			-- mirarme este
-	Maj7 -> [0,4,7,11]
-	Sept -> [0,4,7,10]
-	Men7 -> [0,3,7,10]
-	MenMaj7 -> [0,3,7,11]
-	Au7 -> [0,4,8,10]
-	Dis7 -> [0,3,6,9]			--no se si este esta bien
-	
--- Dice cuantas notas diferentes tiene el acorde en funcion de su matricula
-matriculaAInt :: Matricula -> Int
-matriculaAInt m 
-	| elem m [Mayor, Menor] = 3
-	| elem m [Au, Dis, Sexta, Men6, Men7B5, Maj7, Sept, Men7, MenMaj7, Au7, Dis7] = 4 
 
 
 -- traduce solo a estado fundamental

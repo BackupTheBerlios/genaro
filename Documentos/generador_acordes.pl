@@ -1,14 +1,14 @@
 % comentarios: % o /* */
+/*random(+Lower, +Upper, -Number)
+Binds Number to a random integer in the interval [Lower,Upper) if Lower and
+Upper are integers. Otherwise Number is bound to a random oat between
+Lower and Upper. Upper will never be generated.
+*/
 %BIBLIOTECAS
 :- use_module(library(lists)).
-
-
-%OPERADORES
-%composicion secuencial (asocia a dcha)
-:- op(100, xfy,[:+:]).
-%composicion paralela (asocia a dcha)
-:- op(101, xfy, [:=:]).
-
+:- use_module(library(random)).
+%ARCHIVOS PROPIOS CONSULTADOS
+:- consult([representacion_prolog_haskore.pl]).
 
 /*
 GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
@@ -20,16 +20,6 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 -pg 81 : bVII
 -todo de cadenas
 */
-
-natural(N) :- integer(N), N>0.
-
-%ALTURA TONAL
-% la altura de una nota es su nombre y su octava 
-es_altura(altura(N,O)) :- es_numNota(N), es_octava(O).
-%la correspondencia es la=0, las/sib=1, si=2, ...
-es_numNota(numNota(N)) :- member(N,[0,1,2,3,4,5,6,7,8,9,10,11]).
-%el numero de octavas que consideremos, este esta puesto al azar aqui
-es_octava(octava(O)) :- member(O,[0,1,2,3,4,5,6]).
 
 %INTERVALOS SIMPLES
 %usuales
@@ -54,12 +44,25 @@ hazCuatriada(G,cifrado(G,m7)) :- member(G,[ii,iii,vi]).
 hazCuatriada(G,cifrado(G,7)) :- member(G,[v]).
 hazCuatriada(G,cifrado(G,m7b5)) :- member(G,[vii]).
 
-
 %PROGRESION DE ACORDES
 /*es una lista de cifrados*/
 es_progresion(progresion(P)) :- es_listaDeCifrados(P).
 es_listaDeCifrados([]).
 es_listaDeCifrados([C|Cs]) :- es_cifrado(C), es_listaDeCifrados(Cs).
+
+%GENERA UN PROGRESION DE ACORDES
+/*haz_progresion(N,La)
+in: N natural que indica el numero de acordes de la progresión. Me temo que tendrá que ser mayor o igual que 3 (longitud de la cadencia más larga)
+out: La lista de N acordes que se espera q se interpreten uno tras otro empezando por la cabeza
+*/
+haz_progresion(N,La) :- haz_prog_semilla(S), modifica_prog(S,N,La).
+
+/* haz_prog_semilla(S)
+crea una progresión que será de la que parta el resto de la generación.En un principio me basaré en las cadencias así que tendrá entre dos y tres acordes.
+out: S de tipo progresion*/
+haz_prog_semilla(S) :- num_cadencias(NumCads),random(0,NumCads, CadElegida)
+		,cadenciaValida(cadencia(ListaGrados,CadElegida)),listaGradosAProgresion(ListaGrados,S).
+
 
 %FUNCIONES TONALES
 es_tonica(grado(G)):- member(G, [i, iii, vi]).
@@ -67,14 +70,14 @@ es_subdominante(grado(G)):- member(G, [ii, iv]).
 es_dominante(grado(G)):- member(G, [v, vii]).
 
 %CADENCIAS
-es_cadencia(cadencia(C,I)) :- es_listaDeGrados(C), natural(I), 			 		 		num_cadencias(N),I<N.
+/*es_cadencia(cadencia(C,I)) :- es_listaDeGrados(C), natural(I), 			 		 		num_cadencias(N),I<N.*/
 
 es_listaDeGrados([]).
 es_listaDeGrados([G|Gs]) :- es_grado(G), es_listaDeGrados(Gs).
 %lista de cadencias
 	%conclusivas
 		%autentica
-cadencia([grado(v),grado(i)],0). 			%autentica basica
+cadenciaValida(cadencia([grado(v),grado(i)],0))). 			%autentica basica
 cadencia([grado(iv),grado(v),grado(i)],1). 	%autentica 
 cadencia([grado(ii),grado(v),grado(i)],2). 	%autentica moderna
 		%plagal
@@ -95,10 +98,6 @@ cadencia([grado(ii),grado(v),grado(iii)],13).
 cadencia([grado(ii),grado(v),grado(vi)],14).
 num_cadencias(15). Asumibles por intercambio de acordes*/
 num_cadencias(4).
-
-
-
-
 
 /*intervalo: como par formado por un intervalo simple y un natural
 que indica cuantas veces se ha salido de la octava: ej: 5º justa = intervalo(interSimple (v),0), 9ºmenor = intervalo(interSimple (bii),1)

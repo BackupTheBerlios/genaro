@@ -256,6 +256,10 @@ object Form1: TForm1
     end
     object Edicin1: TMenuItem
       Caption = '&Edición'
+      object EditordePianola1: TMenuItem
+        Caption = 'Editor de &Pianola'
+        OnClick = EditordePianola1Click
+      end
     end
     object Insertar1: TMenuItem
       Caption = '&Insertar'

@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <fstream.h>
 #include <dir.h>
+#include <process.h>
 #pragma hdrstop
 
 #include "FormularioPrincipal.h"
@@ -155,6 +156,15 @@ Etiqueta_Numero_Repeticiones->Caption=IntToStr(Barra_Numero_Repeticiones->Positi
 void __fastcall TForm1::Salir1Click(TObject *Sender)
 {
 Close();  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::EditordePianola1Click(TObject *Sender)
+{
+  String Editor_Pianola=".\\Codigo\\C\\PEditor.exe";
+  int valor_spawn=spawnl(P_WAIT,Editor_Pianola.c_str(),Editor_Pianola.c_str(),NULL);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el editor de pianola.");}
 }
 //---------------------------------------------------------------------------
 

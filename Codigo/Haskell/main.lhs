@@ -19,7 +19,7 @@ Hay q revisar pq importa módulos de más
 > import Basics
 > import Parsers
 > import Parser_library
-> import HaskoreALilypond 
+> import HaskoreALilypond
 
 \end{verbatim}
 
@@ -31,48 +31,43 @@ Hay q revisar pq importa módulos de más
 > rutaDestinoMidi :: String
 > rutaDestinoMidi = "./musica_genara.mid"
 
-> rutaDestinoPartitura :: String 
+> rutaDestinoPartitura :: String
 > rutaDestinoPartitura = "./musica_genara.ly"
 
 \end{verbatim}
 
 \begin{verbatim}
 
-Se suponen llamadas del estilo: runhugs main.lhs rutaAbsolutaPatronRitmico numeroRepeticiones
-,el directorio de trabajo siempre es el directorio desde donde se llama a runhugs
+Se suponen llamadas del estilo: runhugs main.lhs directorioDeTrabajo rutaPatronRitmico numeroRepeticiones
 
 > main :: IO()
 > main = do args <- getArgs
->           mainArgumentos (rutaPatRit args) (numReps args)
->           where rutaPatRit = head
->                 numReps = (aplicaParser natural) . head . tail
->
->           --mainArgumentos (formateaArgumentos argumentos)
->           --where formateaArgumentos [ruta,numReps] = \
+>           mainArgumentos args
+
 
 > paramEjemplo :: ParametrosTraduceCifrados
 > paramEjemplo = Paralelo 4 0 1 4
 
-Los argumentos son la ruta absoluta del patron ritmico y el numero de repeticiones del bulcle
+Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero de repeticiones del bulcle
 
-> mainArgumentos :: String -> Int -> IO()
-> mainArgumentos rutaPatRit numReps = do dirTrabajo <- getCurrentDirectory
->                                        putStr (mensajeDirTrabajo dirTrabajo)
->                                        putStr (mensajeProcesandoProgresion dirTrabajo)
->                                        progresion <- leeProgresion rutaProgresion
->                                        putStr mensajeProcesandoPatronRit
->                                        (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatRit
->                                        putStr (mensajeGenerandoMidi dirTrabajo)
->                                        putStr (mensajeGenerandoPartitura dirTrabajo)
->                                        hazMusicaYPartitura numReps progresion patronRitmico
->                                        where  mensajeDirTrabajo dir = "\n El directorio de trabajo es: " ++ dir ++ "\n"
->                                               rutaAbsProgresion =  (++ "\\" ++ (tail (tail rutaProgresion)))
->                                               mensajeProcesandoProgresion dirTrabajo = "\n Procesando el archivo de progresion de acordes de Prolog: "++ (rutaAbsProgresion dirTrabajo) ++ "\n"
->                                               mensajeProcesandoPatronRit = "\n Procesando el archivo de patron ritmico de C: " ++ rutaPatRit++ "\n"
->                                               rutaAbsArchivoMidi = (++ "\\" ++ (tail (tail rutaDestinoMidi)))
->                                               mensajeGenerandoMidi dirTrabajo = "\n Generando el archivo midi: " ++ (rutaAbsArchivoMidi dirTrabajo)++ "\n"
->                                               rutaAbsArchivoPartitura = (++ "\\" ++ (tail (tail rutaDestinoPartitura)))
->                                               mensajeGenerandoPartitura dirTrabajo = "\n Generando el archivo de partitura lilypond: " ++ (rutaAbsArchivoPartitura dirTrabajo)++ "\n"
+> mainArgumentos :: [String] -> IO()
+> mainArgumentos [dirTrabajo,rutaPatRit,numReps] = do setCurrentDirectory dirTrabajo
+>                                                     putStr (mensajeDirTrabajo dirTrabajo)
+>                                                     putStr (mensajeProcesandoProgresion dirTrabajo)
+>                                                     progresion <- leeProgresion rutaProgresion
+>                                                     putStr mensajeProcesandoPatronRit
+>                                                     (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatRit
+>                                                     putStr (mensajeGenerandoMidi dirTrabajo)
+>                                                     putStr (mensajeGenerandoPartitura dirTrabajo)
+>                                                     hazMusicaYPartitura ((aplicaParser natural) numReps) progresion patronRitmico
+>                                                     where mensajeDirTrabajo dir = "\n El directorio de trabajo es: " ++ dir ++ "\n"
+>                                                           rutaAbsProgresion =  (++ "\\" ++ (tail (tail rutaProgresion)))
+>                                                           mensajeProcesandoProgresion dirTrabajo = "\n Procesando el archivo de progresion de acordes de Prolog: "++ (rutaAbsProgresion dirTrabajo) ++ "\n"
+>                                                           mensajeProcesandoPatronRit = "\n Procesando el archivo de patron ritmico de C: " ++ rutaPatRit++ "\n"
+>                                                           rutaAbsArchivoMidi = (++ "\\" ++ (tail (tail rutaDestinoMidi)))
+>                                                           mensajeGenerandoMidi dirTrabajo = "\n Generando el archivo midi: " ++ (rutaAbsArchivoMidi dirTrabajo)++ "\n"
+>                                                           rutaAbsArchivoPartitura = (++ "\\" ++ (tail (tail rutaDestinoPartitura)))
+>                                                           mensajeGenerandoPartitura dirTrabajo = "\n Generando el archivo de partitura lilypond: " ++ (rutaAbsArchivoPartitura dirTrabajo)++ "\n"
 
 
 

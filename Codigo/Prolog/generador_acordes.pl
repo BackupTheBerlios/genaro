@@ -44,9 +44,9 @@
 %PREDICADOS
 
 	%RUTAS DE LOS PROCESOS DE E/S
-fichero_destinoGenAc_prog('../../progresion.txt').
-fichero_destinoGenAc_prog_depura('../../progresion_dep.txt').
-fichero_destinoGenAc_prog_semilla('../../progresion_semilla.txt').
+fichero_destinoGenAc_prog('./progresion.txt').
+fichero_destinoGenAc_prog_depura('./progresion_dep.txt').
+fichero_destinoGenAc_prog_semilla('./progresion_semilla.txt').
 
 	%TIPOS Y ESTRUCTURAS
 /**

@@ -59,6 +59,8 @@ gradoAAltura(grado(vii), altura(numNota(2),octava(4))).
 sólo metidas las cuatriadas basicas, falta picar mas datos
 la duracion de las notas es la de la fundamental entre el numero de notas del acorde
 */
+/*hazAcordePosTonica(nota(A, F), _, [nota(A,F4)]):-
+	divideFigura(F,4,F4).*/
 hazAcordePosTonica(nota(A, F), matricula(maj7), [nota(A,F4), nota(Ter,F4), nota(Qui,F4), nota(Sept,F4)]):-
 	divideFigura(F,4,F4) ,sumaSemitonos(A, 4, Ter),sumaSemitonos(A, 7, Qui),sumaSemitonos(A, 11, Sept).
 hazAcordePosTonica(nota(A, F), matricula(m7), [nota(A,F4), nota(Ter,F4), nota(Qui,F4), nota(Sept,F4)]):-

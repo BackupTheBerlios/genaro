@@ -39,8 +39,6 @@ type Cifrado = (Grado, Matricula)
 
 type Progresion = [(Cifrado, Dur)]
 
-
-
 -- Estas funciones, por supuesto, solo tienen sentido en el modo de C mayor
 gradoAInt :: Grado -> Int
 gradoAInt (V7 grado) = mod (gradoAInt grado + 7) 12

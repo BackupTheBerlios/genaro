@@ -5,19 +5,23 @@ import Progresiones
 import PatronesRitmicos
 import TraduceCifrados
 import HaskoreAMidi
+import CAHaskell
 import Ratio	--para ejemplo
 
-rutaOrigen :: String
-rutaOrigen = "./progresion_ordenada.txt"
+rutaProgresionOrdenada :: String
+rutaProgresionOrdenada = "./progresion_ordenada.txt"
 
-rutaDestino :: String
-rutaDestino = "./musica_genara.mid"
+rutaPatronRitmico :: String
+rutaPatronRitmico = "./patron_ritmico.txt"
+
+rutaDestinoMidi :: String
+rutaDestinoMidi = "./musica_genara.mid"
 
 main :: String -> IO()
 main dirTrabajo = do putStr mensajeCambiaDir
                      setCurrentDirectory dirTrabajo
                      putStr "\n Empezando a generar midi a partir de Prolog\n"
-                     progresionPrologAMidi2 rutaOrigen rutaDestino
+                     progresionPrologAMidi2 rutaProgresionOrdenada rutaDestinoMidi
                      putStr "\n Terminado el proceso de generacion de musica\n"
                      where mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
 
@@ -25,13 +29,27 @@ progEjemplo::Progresion
 progEjemplo = [((I,Maj7),1%1),((V7 IV,Sept),1%1),((IV, Maj7),1%1),((V, Sept),1%1),((I,Mayor),1%1)]
 
 patronEjemplo :: PatronRitmico
-patronEjemplo = [ ([(1,100, True)],1%4), ([(1,100, True), (2,100, False)],1%4), ([(1,100, True), (3,100, False)],1%4), ([(1,100, False), (4,100, False)],1%4)] 
+patronEjemplo = [ ([(1,100, True)],1%4), ([(1,100, True), (2,100, False)],1%4), ([(1,100, True), (3,100, False)],1%4), ([(1,100, False), (4,100, False)],1%4)]
 
 main2 :: String -> IO()
 main2 dirTrabajo = do putStr mensajeCambiaDir
                       setCurrentDirectory dirTrabajo
                       putStr "\n Empezando a generar midi a partir de Prolog\n"
-                      haskoreAMidi musica rutaDestino
+                      haskoreAMidi musica rutaDestinoMidi
                       where  mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
                              traduccion = traduceProgresionSistemaParalelo 0 1 4 progEjemplo
                              musica = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patronEjemplo 4 traduccion
+
+
+{-IMPORTANTE!!! ES EL NUMERO DE VOCES DEL PATRON EL PARÁMETRO  ALTURAPATRON DE deAcordesOrdenadosAMusica ??????-}
+main3 :: String -> IO()
+main3 dirTrabajo = do putStr mensajeCambiaDir
+                      setCurrentDirectory dirTrabajo
+                      --putStr "\n Empezando a generar midi a partir de Prolog\n"
+                      putStr "\n Procesando el archivo de patron ritmico de C\n"
+                      (FPRC voces cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
+                      haskoreAMidi (hazMusica patronRitmico voces) rutaDestinoMidi
+                      where  mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
+                             traduccion = traduceProgresionSistemaParalelo 0 1 4 progEjemplo
+                             hazMusica = \patRit -> \voces -> (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit voces traduccion)
+

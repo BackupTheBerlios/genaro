@@ -103,3 +103,11 @@ pruebaParserMatriz rutaOrigen = do texto <- readFile rutaOrigen
 pruebaParserFichPatronRitmicoC :: String -> IO()
 pruebaParserFichPatronRitmicoC rutaOrigen = do texto <- readFile rutaOrigen
                                                putStr ( show (head ( parserFichPatronRitmicoC texto)))
+
+{-
+Esta es la función que deben llamar otros modulos, dada una ruta lee el fichero en ella y realiza todo el
+analisis
+-}
+leePatronRitmicoC :: String -> IO FichPatronRitmicoC
+leePatronRitmicoC ruta = do texto <- readFile ruta
+                            return ((aplicaParser parserFichPatronRitmicoC) texto)

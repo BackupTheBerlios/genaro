@@ -59,8 +59,8 @@ symbol'' a []                    =  []
 symbol'' a (x:xs)  |  a==x       =  [ (xs,x) ]
                    |  otherwise  =  []
 
--- token  ::  Eq [s]  =>  [s] -> Parser s [s]
-token :: String -> Parser Char String
+token  ::  Eq s  =>  [s] -> Parser s [s]
+-- token :: String -> Parser Char String
 token   =  p_sequence . map symbol
 
 
@@ -261,5 +261,6 @@ twopass lex synt xs = [ (rest,tree)
 -- Jeroen Fokker                                 |  jeroen@cs.ruu.nl
 -- dept.of Computer Science, Utrecht University  |  tel.+31-30-2534129
 -- PObox 80089, 3508TB Utrecht, the Netherlands  |  fax.+31-30-2513791
+
 
 

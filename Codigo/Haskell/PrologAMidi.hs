@@ -67,15 +67,28 @@ musBase =   silencio
             <@ Rest
         <|> nota <*> altura <*> figura
 -}
-silencio :: Parser Char Music
-silencio = token "silencio" <*> (parenthesized figura)
+-- silencio :: Parser Char Music
+-- silencio = (token "silencio" *> (parenthesized figura)) <@ Rest
+silencio :: Parser Char (Ratio Int)
+silencio = token "silencio" *> (parenthesized figura)
 
 figura :: Parser Char (Ratio Int)
-figura = token "figura" *> parAFrac
+-- figura = token "figura" *> parAFrac
+-- guarreria
+-- ((token "figura") *> figura) "figura(2,3)"
+figura = ((token "figura") *> parenthesized(commaList natural)) <@ parejaARatio
+
+parejaARatio :: [Int] -> (Ratio Int)
+parejaARatio [] = 0%1
+parejaARatio [_] = 0%1
+parejaARatio [a,b] = a%b
+parejaARatio (_:_:xs) = 0%1
+
 
 parAFrac :: Parser Char (Ratio Int)
-parAFrac = (parenthesized natural <* (token ",") *> parenthesized natural)
-            <@ (uncurry(%))
+-- parAFrac = (parenthesized natural <* (token ",") *> parenthesized natural)
+--            <@ (uncurry(%))
+parAFrac = (natural <*> natural) <@ uncurry(%)
 
 -- cutrez
 {-

@@ -175,13 +175,6 @@ masCoincidente gen referencia aInvertir = (elegido, sigGen)
 		listaFiltrada2 = filter ((distanciaMenor==).(distancia referencia)) listaFiltrada ;
 		(elegido, sigGen) = elementoAleatorio gen listaFiltrada2
 
---NOTA: HACERLO BIEN Y PASARLO A BIBLIOGENARO.HS
-elementoAleatorio :: RandomGen b => b -> [a] -> (a,b)
-elementoAleatorio g l = (l !! pos, sigg)
-	where 	longitud = length l;
-		(pos, sigg) = randomR (0, longitud - 1) g
-
-
 -- Igual que traduceSistemaContinuo pero esta vez la semilla se pasa como un numero entero.
 traduceProgresionSistemaContinuo2 :: SemillaInt -> OctaveIni -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
 traduceProgresionSistemaContinuo2 semillaInt octaveIni = traduceProgresionSistemaContinuo (mkStdGen semillaInt) octaveIni

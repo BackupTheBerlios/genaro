@@ -41,10 +41,10 @@ haskoreAMidi musica ruta = outputMidiFile ruta midi
 				where interpretacion = perform tablaInterpretesDef contextoDef musica
 
 -- Igual que haskoreAMidi pero con un parametro mas que indica el numero de negras por minuto
---haskoreAMidi :: Music -> Int -> String -> IO()
---haskoreAMidi musica negras_min ruta = outputMidiFile ruta midi
---				where midi = performToMidi interpretacion tablaPatchDef 
---					where interpretacion = perform tablaInterpretesDef (contextoConMetro negras_min ) musica
+haskoreAMidi2 :: Music -> Int -> String -> IO()
+haskoreAMidi2 musica negras_min ruta = outputMidiFile ruta midi
+				where midi = performToMidi interpretacion tablaPatchDef 
+					where interpretacion = perform tablaInterpretesDef (contextoConMetro negras_min ) musica
 
 tablaInterpretesDef :: String -> Player
 tablaInterpretesDef nomInterprete =
@@ -70,12 +70,11 @@ contextoDef = Context { cTime   = 0,
 		     cDur    = metro 350 qn,
 		     cKey    = 0,
 		     cVol    = 127 }
-{-
+
 contextoConMetro :: Int -> Context
 contextoConMetro negras_min = Context { 	cTime   = 0,
 						     	cPlayer = fancyPlayer,
 						     	cInst   = "piano",
-		     					cDur    = metro (fromInt negras_min) qn,
+		     					cDur    = metro (fromIntegral negras_min) qn,
 		     					cKey    = 0,
 		     					cVol    = 127 }
--}

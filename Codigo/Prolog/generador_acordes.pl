@@ -1,20 +1,34 @@
 %DESCRIPCION
-/*
+/**
 * Modulo que agrupa predicados utilizados por todos los modulos que generan secuencias
 * de acordes expresadas por términos que cumplen el predicado es_progresion_ordenada
 */
 
 %DECLARACION DEL MODULO
-:- module(generador_acordes).
+%%:- module(generador_acordes).
+:- module(generador_acordes
+              , [menosEstable/2
+                ,fichero_destinoGenAc_prog_ord/1
+                ,fichero_destinoGenAc_prog/1
+                ,fichero_destinoGenAc_prog_con_rel/1
+                ,fichero_destinoGenAc_prog_semilla/1
+                ,dame_grado_funcTonal_equiv/2
+                ,dame_grado_funcTonal_equiv2/2
+                ,dame_cuat_funcTonal_equiv/2
+                ,dame_cuat_funcTonal_equiv2/2
+                ,numCompases/2]).
 
 %BIBLIOTECAS
-:- use_module(library(lists)).
-:- use_module(library(random)).
+:- use_module(compat_Sicstus_SWI).
+%%:- use_module(library(lists)).
+%%:- use_module(library(random)).
 
 %ARCHIVOS PROPIOS CONSULTADOS
 :- use_module(generador_acordes_binario).
 :- use_module(grados_e_intervalos).
 :- use_module(biblio_genaro_acordes).
+:- use_module(biblio_genaro_listas).
+:- use_module(biblio_genaro_fracciones).
 
 %:- use_module(representacion_prolog_haskore).
 %:- use_module(biblio_genaro_listas).
@@ -33,7 +47,6 @@ fichero_destinoGenAc_prog_con_rel('C:/hlocal/progresion_con_rel.txt').
 fichero_destinoGenAc_prog_semilla('C:/hlocal/progresion_semilla.txt').
 
 	%TIPOS Y ESTRUCTURAS
-
 /**
 * es_progresion(+P)
 * Se cumple si P es un termino con la estructura que se le exige a una progresion,
@@ -210,7 +223,7 @@ quita_grados_relativos_lista([(cifrado(Gi,M), F)|Li], [(cifrado(Go,M), F)|Lo]):-
 busca_acordes_afines(Lacords, Lpos):-busca_acordes_afines_acu(Lacords, 1, ninguno, Lpos).
 /*
 busca_acordes_afines_acu(Lacords, PosActual, AcordeAnterior, ListaPos)
-SOLO PARA DOCUMENTACION INTERNA, POR ESO NO TIENE /**
+SOLO PARA DOCUMENTACION INTERNA, POR ESO NO TIENE doble *
 @param +Lacords cumple es_listaDeCifrados(Lacords), lista de cifrados cuya cabeza se está examinando
 @param +PosActual natural que indica la posicion de la cabeza de Lacords respecto a la lista más grande sobre
 la que se está haciendo esta recursión

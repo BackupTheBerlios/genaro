@@ -1,5 +1,3 @@
-
-
 :- module(grados_e_intervalos,[alturaAbsoluta/2
                               ,sumaSemitonos/3
                               ,semitonosAIntervalo/2

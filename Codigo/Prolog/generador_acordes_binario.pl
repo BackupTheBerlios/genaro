@@ -13,9 +13,13 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 %DECLARACION DEL MODULO
 %%:- module(generador_acordes_binario).
 :- module(generador_acordes_binario
-    ,[genera_acordes/1]).
+    ,[genera_acordes/0
+      ,cambia_acordes/2]).
 
 %BIBLIOTECAS
+
+%ARCHIVOS DE COMPATIBILIDAD
+:- use_module(compat_Sicstus_SWI).
 
 %ARCHIVOS PROPIOS CONSULTADOS
 :- use_module(generador_acordes).
@@ -23,6 +27,7 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 :- use_module(biblio_genaro_listas).
 :- use_module(biblio_genaro_fracciones).
 :- use_module(figuras_y_ritmo).
+:- use_module(grados_e_intervalos).
 :- use_module(biblio_genaro_ES).
 :- use_module(generador_notas_del_acorde_con_sistema_paralelo).
 :- use_module(generador_notas_del_acorde_con_continuidad_armonica).
@@ -71,10 +76,10 @@ genera_acordes(N,M, continuidad, TipoSemilla) :- haz_progresion(N, M, TipoSemill
 * @param -Progresion termino que hace cierto el predicado es_progresion con el que se expresa la progresion de
 * acordes generada
 */
-haz_progresion(N, _, _, progresion([])) :- N =< 0, !.
-haz_progresion(N, M, 1, Progresion) :- N>0,! , N =< 4, haz_prog_semilla(N, 1, PAux1),
+haz_progresion(N, _, _, progresion([])) :- N < 0, !.
+haz_progresion(N, M, 1, Progresion) :- N>=0, N =< 4,!, haz_prog_semilla(N, 1, PAux1),
 	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
-haz_progresion(N, M, 3, Progresion) :- N>0,! , N =< 3, haz_prog_semilla(N, 3, PAux1),
+haz_progresion(N, M, 3, Progresion) :- N>=0, N =< 3,!, haz_prog_semilla(N, 3, PAux1),
 	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
 haz_progresion(N, M, Tipo, progresion(La)) :- haz_prog_semilla(Tipo, progresion(S))
                 ,escribeLista(S, 'C:/hlocal/cifradosSemilla.txt')

@@ -7,10 +7,11 @@
 
 %DECLARACION DEL MODULO
 %:- module(generador_acordes_semillas).
-:- module(generador_acordes_semillas,[haz_prog_semilla/3]).
+:- module(generador_acordes_semillas,
+     [haz_prog_semilla/3, termina_haz_prog_semilla/1]).
 
 %BIBLIOTECAS
-:- use_module(library(lists)).
+%%:- use_module(library(lists)).
 
 %ARCHIVOS PROPIOS CONSULTADOS
 :- use_module(generador_acordes_binario).
@@ -20,6 +21,15 @@
 :- use_module(biblio_genaro_fracciones).
 
 		%PREDICADOS PARA CONSTRUIR SEMILLAS
+/**
+* haz_prog_semilla(+Tipo,-S) lanza el objetivo haz_prog_semilla/3 eligiendo aleatoriamente
+* entre los números de compases posibles, para devolver en S una progresion pequeña usada
+* en el principio de la generación.
+* @param +Tipo si vale n entonces se utilizará haz_prog_semillan/2 para la generacion de la semilla, debe pertenecer al conjunto
+* {1, 3} por ahora
+* @param -S cumple generador_acordes:es_progresion(S)
+* */
+haz_prog_semilla(Tipo,S) :- rango_prog_semilla1(Min, Max),
 
 /*!!!NO USA haz_prog_semilla2 PQ NO SE SI MANTIENE COMO INVARIANTE QUE EL RITMO ARMONICO SEA CORRECTO*/
 /**
@@ -33,14 +43,15 @@
 * {1, 3} por ahora
 * @param -S cumple generador_acordes:es_progresion(S)
 * */
-haz_prog_semilla(N,_ ,progresion([])) :- N =< 0, !, termina_haz_prog_semilla([]).
+haz_prog_semilla(N,_ ,progresion([])) :- N =< 0, !, termina_haz_prog_semilla(progresion([])).
 haz_prog_semilla(1,_ ,progresion([(C, figura(1,1))])) :-
 	!, dame_grado_funcTonal_equiv2(grado(i), G), hazCuatriada(G,C),
         termina_haz_prog_semilla(progresion([(C, figura(1,1))])).
 
 haz_prog_semilla(N, Tipo, S) :-
 	haz_prog_semilla(Tipo, S),  numCompases(S, NumCompFloat),
-        NumComp is ceiling(NumCompFloat), N >= NumComp, N =< NumComp, /*pq en Sicstus el ceiling da un float*/
+        %%NumComp is ceiling(NumCompFloat), N >= NumComp, N =< NumComp, /*pq en Sicstus el ceiling da un float*/
+        NumComp is ceiling(NumCompFloat), N = NumComp, /*pq en Sicstus el ceiling da un float*/
         termina_haz_prog_semilla(S).
 
 termina_haz_prog_semilla(progresion(S)) :-
@@ -67,6 +78,14 @@ haz_prog_semilla(3,S) :- haz_prog_semilla3(S).
 haz_prog_semilla1(S) :- setof(Lg1, cadenciaValida(cadencia(Lg1,_)), Lc1)
         ,setof(Lg2, patAcordesVal(patAcord(Lg2,_)), Lc2), append(Lc1,Lc2,Lc)
 	,dame_elemento_aleatorio(Lc, ListaGrados),listaGradosAProgresion(ListaGrados,S).
+/**
+* rango_prog_semilla1(-NumMin, -NumMax).
+* @param -NumMin indica el número mínimo de compases que puede durar una progresión generada
+* con el predicado haz_prog_semilla1/1
+* @param -NumMax indica el número máximo de compases que puede durar una progresión generada
+* con el predicado haz_prog_semilla1/1
+* */
+rango_prog_semilla1(0,4).
 
 /**
 * haz_prog_semilla3(-S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
@@ -81,6 +100,14 @@ haz_prog_semilla3(S) :- setof(Lg, cadenciaValida(cadencia(Lg,_)), Lc)
 
 aplica_cambia_acordes(Ori, N, Dest) :- N>0, !, N1 is N -1, cambia_acordes(Ori, Aux1), aplica_cambia_acordes(Aux1, N1, Dest).
 aplica_cambia_acordes(Ori, _, Ori).
+/**
+* rango_prog_semilla3(-NumMin, -NumMax).
+* @param -NumMin indica el número mínimo de compases que puede durar una progresión generada
+* con el predicado haz_prog_semilla3/1
+* @param -NumMax indica el número máximo de compases que puede durar una progresión generada
+* con el predicado haz_prog_semilla3/1
+* */
+rango_prog_semilla3(0,3).
 
 %CADENCIAS
 /**

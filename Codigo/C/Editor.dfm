@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 33
-  Top = 118
+  Left = 94
+  Top = 123
   BorderStyle = bsSingle
   Caption = 'Form1'
   ClientHeight = 456
@@ -18,59 +18,59 @@ object Form1: TForm1
   PixelsPerInch = 96
   TextHeight = 13
   object Etiqueta_Duracion_Nota: TLabel
-    Left = 576
+    Left = 584
     Top = 56
-    Width = 26
-    Height = 21
+    Width = 23
+    Height = 19
     Caption = '1/1'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -15
+    Font.Height = -13
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
   end
   object Label2: TLabel
-    Left = 264
+    Left = 272
     Top = 56
-    Width = 54
-    Height = 21
+    Width = 47
+    Height = 19
     Caption = 'Zoom -'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -15
+    Font.Height = -13
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
   end
   object Label3: TLabel
-    Left = 0
+    Left = 24
     Top = 56
-    Width = 54
-    Height = 21
+    Width = 47
+    Height = 19
     Caption = 'Zoom +'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -15
+    Font.Height = -13
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
   end
   object Resolucion_Grid: TLabel
-    Left = 856
+    Left = 848
     Top = 56
-    Width = 26
-    Height = 21
+    Width = 23
+    Height = 19
     Caption = '1/1'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -15
+    Font.Height = -13
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
   end
   object Label1: TLabel
-    Left = 368
+    Left = 376
     Top = 32
     Width = 147
     Height = 21
@@ -92,7 +92,7 @@ object Form1: TForm1
     OnChange = BarraChange
   end
   object Barra_Zoom: TTrackBar
-    Left = 56
+    Left = 72
     Top = 56
     Width = 201
     Height = 25
@@ -109,7 +109,7 @@ object Form1: TForm1
     OnChange = Barra_ZoomChange
   end
   object Barra_Nota: TTrackBar
-    Left = 320
+    Left = 328
     Top = 56
     Width = 257
     Height = 25
@@ -125,7 +125,7 @@ object Form1: TForm1
     OnChange = Barra_NotaChange
   end
   object BarraVoces: TScrollBar
-    Left = 9
+    Left = 17
     Top = 88
     Width = 16
     Height = 353
@@ -135,7 +135,7 @@ object Form1: TForm1
     OnChange = BarraVocesChange
   end
   object Ajustar_Grid: TCheckBox
-    Left = 672
+    Left = 664
     Top = 32
     Width = 145
     Height = 17
@@ -151,7 +151,7 @@ object Form1: TForm1
     TabOrder = 4
   end
   object Barra_Grid: TTrackBar
-    Left = 624
+    Left = 616
     Top = 56
     Width = 233
     Height = 25
@@ -211,7 +211,7 @@ object Form1: TForm1
     end
   end
   object MainMenu1: TMainMenu
-    Left = 848
+    Left = 840
     Top = 24
     object Archivo1: TMenuItem
       Caption = '&Archivo'

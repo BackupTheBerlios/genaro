@@ -2,6 +2,8 @@ module CAHaskell where
 import PatronesRitmicos
 import Haskore
 import Ratio
+import Basics
+import HaskoreAMidi
 import Parser_library
 import Parsers
 import BiblioGenaro
@@ -52,6 +54,32 @@ data TokenCPatrones = Ligado Acento
                      |Silencio
                 deriving(Show,Eq,Ord)
 type MatrizCPatrones = [[TokenCPatrones]]
+
+{-
+Dado un elemento de tipo FichPatronRitmicoC devuelve un music correspondiente a asociar a cada fila/voz
+del patron rítmico correspondiente una nota, empezando por asociar a la primera voz el Do y siguiendo por
+semitonos. A este acorde se le aplica el patron rítmico y se produce la musica
+-}
+fichPatRitAMusic :: FichPatronRitmicoC -> Music
+fichPatRitAMusic (FPRC cols res patron@(altura, matriz)) = Trans 36 (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patron [acordeOrd])
+                                               where duracionAcorde = (fromIntegral cols) * res
+                                                     triada 0 = (C,0)
+                                                     triada 1 = (E,0)
+                                                     triada 2 = (G,0)
+                                                     triada n
+                                                      | n>2 = pitch (12 + (absPitch (triada (n-3))))
+                                                     listaPitch = map triada [0..(altura - 1)]
+                                                     --listaPitch = map pitch [0..(altura - 1)]
+                                                     acordeOrd = (listaPitch, duracionAcorde)
+
+fichPatRitAMidi :: String -> IO()
+fichPatRitAMidi ruta = do putStr mensajeProcesandoPatronRit
+                          ficheroPatron <- leePatronRitmicoC ruta
+                          putStr mensajeGenerandoMidi
+                          haskoreAMidi (fichPatRitAMusic ficheroPatron) rutaDestinoMidi
+                          where rutaDestinoMidi = (invertir (tail (dropWhile (/='.') (invertir ruta)))) ++ ".mid"
+                                mensajeProcesandoPatronRit = "\n Procesando el archivo de patron ritmico de C: " ++ ruta ++ "\n"
+                                mensajeGenerandoMidi = "\n Generando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
 
 {-
 PARSERS

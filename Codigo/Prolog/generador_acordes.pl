@@ -9,13 +9,14 @@ Lower and Upper. Upper will never be generated.
 			               	, genera_acordes/2
 			   				, genera_acordes/3
                             , genera_acordes/0
-                            , haz_progresion/3]).*/
+                            , haz_progresion/4]).*/
 :- module(generador_acordes).
 
 %BIBLIOTECAS
 :- use_module(library(lists)).
 :- use_module(library(random)).
 :- use_module(generador_notas_del_acorde_con_sistema_paralelo).
+:- use_module(generador_notas_del_acorde_con_continuidad_armonica).
 
 %ARCHIVOS PROPIOS CONSULTADOS
 :- use_module(representacion_prolog_haskore).
@@ -35,17 +36,28 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 -todo de cadenas
 */
 fichero_destinoGenAc('C:/hlocal/acordes.txt').
+fichero_destinoCifrados('C:/hlocal/cifrados.txt').
 %Muy provisional
 genera_acordes :- genera_acordes(6,3).
 /*genera_acordes(N, M) hace una progresion de N compases aprox y con M transformaciones
 guarda el resultado en C:/hlocal/acordes.txt. Solo funciona si C:/hlocal existe
 */
-genera_acordes(N, M) :- haz_progresion(N, M, Prog), progresion_a_Haskore(Prog, Musica)
-	,fichero_destinoGenAc(Dd), escribeTermino(Dd, Musica).
+genera_acordes(N, M) :- random(1, 3, E), genera_acordes(N, M, E).
 
-genera_acordes(N,M, paralelo) :- haz_progresion(N, M, Prog)
-        ,traduce_lista_cifrados(Prog,100,0,100,0,0,Lista)
+genera_acordes(N,M, paralelo) :- random(1, 3, E), genera_acordes(N, M, paralelo, E).
+genera_acordes(N,M, continuidad) :- random(1, 3, E), genera_acordes(N, M, continuidad, E).
+
+genera_acordes(N, M, Tipo) :- haz_progresion(N, M, Tipo, Prog), fichero_destinoCifrados(Df), escribeTermino(Df, Prog)
+        , progresion_a_Haskore(Prog, Musica), fichero_destinoGenAc(Dd), escribeTermino(Dd, Musica).
+
+genera_acordes(N,M, paralelo, Tipo) :- haz_progresion(N, M, Tipo, Prog), fichero_destinoCifrados(Df), escribeTermino(Df, Prog)
+        ,generador_notas_del_acorde_con_sistema_paralelo:traduce_lista_cifrados(Prog,100,0,100,0,0,Lista)
         ,fichero_destinoGenAc(Dd), escribeTermino(Dd, Lista).
+
+genera_acordes(N,M, continuidad, Tipo) :- haz_progresion(N, M, Tipo, Prog), fichero_destinoCifrados(Df), escribeTermino(Df, Prog)
+        ,generador_notas_del_acorde_con_continuidad_armonica:traduce_lista_cifrados(Prog,Lista)
+        ,fichero_destinoGenAc(Dd), escribeTermino(Dd, Lista).
+
 
 %CIFRADOS
 es_cifrado(cifrado(G,M)) :- es_grado(G), es_matricula(M).
@@ -138,15 +150,18 @@ numCompases(progresion(L),N,D) :- numCompasesLista(L, fraccion_nat(N,D)).
 
 
 %GENERA UN PROGRESION DE ACORDES
-/*haz_progresion(N, M, La)
-in: N natural que indica el numero aproximado de compases que dura de la progresión. Me temo que tendrá que ser mayor o igual
-    que 3 (longitud de la cadencia más larga)
-    M natural que indica el numero de mutaciones que se realizaran para conseguir la progresion
-out: La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
-     Hace cierto es_progresion(La)
+/**haz_progresion(N, M, Tipo, La)
+* @param +N natural que indica el numero aproximado de compases que dura de la progresión. Me temo que tendrá que ser mayor o igual
+*    que 3 (longitud de la cadencia más larga)
+* @param +M natural que indica el numero de mutaciones que se realizaran para conseguir la progresion
+* @param +Tipo indica si se utilizará haz_prog_semilla 1 o 2
+* @param -La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
+*     Hace cierto es_progresion(La)
 */
-haz_progresion(N, M, La) :- natural(N), natural(M), haz_prog_semilla2(S), fija_compases_aprox(S, N, Laux1),
- 		modifica_prog(Laux1, M, La).
+haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
+ 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux3))
+                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux3, Pfin, La).
+
 
 /*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
 progresion de longitud N (N compases) APROXIMADAMENTE
@@ -156,8 +171,22 @@ in: ProgSemilla progresión de partida (semilla). Cumple es_progresion(ProgSemill
 out: ProgResul resultado de las transformaciones, Cumple es_progresion(ProgResul)
 */
 fija_compases_aprox(ProgSemilla, N, ProgSemilla) :- numCompases(ProgSemilla, NumComp), NumComp >= N,!.
-fija_compases_aprox(ProgSemilla, N, ProgResul) :- aniade_acordes2(ProgSemilla, ProgAux)
+fija_compases_aprox(ProgSemilla, N, ProgResul) :- alarga_progresion(ProgSemilla, ProgAux)
 		,fija_compases_aprox(ProgAux, N, ProgResul).
+
+/**
+* alarga_progresion(Po, Pd) devuelve en Pd una progresion igual a Po salvo por que se le ha añadido un acorde
+* extra que la hace más larga, elegiendo este acorde según las reglas de la armonía
+* @param +Po cumple es_progresion(Po)
+* @param -Pd cumple es_progresion(Pd)
+* */
+alarga_progresion(Po, Pd) :- num_acciones_alarga(N), random(0, N, E), alarga_progresion(Po, E, Pd).
+alarga_progresion(Po, 0, Pd) :- aniade_dominante_sec(Po, Pd).
+alarga_progresion(Po, 1, Pd) :- aniade_iim7_rel(Po, Pd).
+%num_acciones_alarga(2).
+%alarga_progresion(Po, 3, Pd) :- aniade_acordes2(Po, Pd). un poco aburrido
+%num_acciones_alarga(3).
+
 
 modifica_prog(Pin, M, Pin) :- M =< 0.
 modifica_prog(Pin, M, Pout) :- accion_modif(Pin, Paux), M1 is M - 1, modifica_prog(Paux, M1, Pout).
@@ -167,12 +196,22 @@ accion_modif(Pin, Pout, 0) :- aniade_acordes(Pin, Pout).
 accion_modif(Pin, Pout, 1) :- quita_acordes(Pin, Pout).
 accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).
 
-/* haz_prog_semilla(S)
-crea una progresión que será de la que parta el resto de la generación.En un principio me basaré en las cadencias así
-que tendrá entre dos y tres acordes.
-out: S de tipo progresion*/
-haz_prog_semilla(S) :- num_cadencias(NumCads),random(0,NumCads, CadElegida)
-	,cadenciaValida(cadencia(ListaGrados,CadElegida)),listaGradosAProgresion(ListaGrados,S).
+/**
+* haz_prog_semilla(Tipo,S) devuelve en S una progresion pequeña usada en el principio de la generación.
+* @param +Tipo si vale 1 S será una cadencia o patron de acordes, si vale 2 entonces S se generará de forma pseudoaleatoria
+* @param -S cumple es_progresion(S)
+* */
+haz_prog_semilla(1,S) :- haz_prog_semilla1(S).
+haz_prog_semilla(2,S) :- haz_prog_semilla2(S).
+
+/**
+* haz_prog_semilla1(S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
+* de salida es una cadencia o un patrón de acordes (ver es_patron_acordes/1 y es_cadencia/1)
+* @param -S cumple es_progresion(S)
+* */
+haz_prog_semilla1(S) :- setof(Lg1, cadenciaValida(cadencia(Lg1,_)), Lc1)
+        ,setof(Lg2, patAcordesVal(patAcord(Lg2,_)), Lc2), append(Lc1,Lc2,Lc)
+	,dame_elemento_aleatorio(Lc, ListaGrados),listaGradosAProgresion(ListaGrados,S).
 
 /*listaGradosAProgresion(ListaGrados,Progresion).
 convierte una lista de grados en una progresión de acordes en la que cada acorde dura una redonda. A cada grado le hace
@@ -232,7 +271,7 @@ aniade_acordesLista(Lo, Ld) :-
 
 %DOMINANTES SECUNDARIOS
 /**
-* aniade_dominante_sec(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un dominante 
+* aniade_dominante_sec(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un dominante
 * secundario de un acorde elegido al azar, dando la misma probabilidad de ser elegidos a todos los acordes
 * El dominante secundario se añadirá sin asegurarse de respetar las reglas de ritmo armónico y durará lo mismo
 * q el acorde del que ejerce de dominante secundario
@@ -247,19 +286,19 @@ aniade_dom_sec_lista(Lo, Ld):-
 	    ,nth(Pos, Lo, (cifrado(grado(Gaux),matricula(M)), Faux))
 	    ,\+(Gaux = i) )
 	  , Lc)
-	,length(Lc,Long), Long >0 ,!,	
+	,length(Lc,Long), Long >0 ,!,
 	dame_elemento_aleatorio(Lc, (cifrado(grado(G),matricula(M)), F, PosElegida), _)
 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
     ,sublista_suf(Lo, PosElegMas, LdB)
     ,append(LdA, [(cifrado(grado(v7 / G),matricula(7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
     ,append(Laux, LdB, Ld).
-    
+
 aniade_dom_sec_lista(Lo, Lo).
 
 
 %II-7 RELATIVO
 /**
-* aniade_iim7_rel(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un ii-7 de un 
+* aniade_iim7_rel(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un ii-7 de un
 * dominante elegido al azar, dando la misma probabilidad de ser elegidos a todos los acordes
 * El ii-7 se añadirá sin asegurarse de respetar las reglas de ritmo armónico y durará lo mismo
 * q el dominante sobre el q se coloca
@@ -268,7 +307,7 @@ aniade_dom_sec_lista(Lo, Lo).
 */
 aniade_iim7_rel(progresion(Lo), progresion(Ld)) :- aniade_iim7_rel_lista(Lo, Ld).
 aniade_iim7_rel_lista([],[]) :- !.
-aniade_iim7_rel_lista(Lo, Ld) :- 
+aniade_iim7_rel_lista(Lo, Ld) :-
 	setof((cifrado(grado(Gaux),matricula(M)), Faux, Pos)
 	  ,(member((cifrado(grado(Gaux),matricula(M)), Faux), Lo)
 	    ,nth(Pos, Lo, (cifrado(grado(Gaux),matricula(M)), Faux))
@@ -280,8 +319,8 @@ aniade_iim7_rel_lista(Lo, Ld) :-
     ,sublista_suf(Lo, PosElegMas, LdB)
     ,append(LdA, [(cifrado(Seg,matricula(m7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
     ,append(Laux, LdB, Ld).
-  
-    
+
+
 aniade_iim7_rel_lista(Lo, Lo).
 
 monta_iim(grado(v),grado(ii)).
@@ -296,9 +335,9 @@ monta_iim(grado(v7 / G),grado(iim7 / G)).
 * @param +Po cumple es_progresion(Po)
 * @param -Pd cumple es_progresion(Pd)
 * */
-asegura_ritmo_armonico(progresion(Lo), progresion(Ld)) 
+asegura_ritmo_armonico(progresion(Lo), progresion(Ld))
 	:- aseg_ritmo_arm_acu(Lo,(0,1),Ld).
-	
+
 aseg_ritmo_arm_acu([],_,[]).
 aseg_ritmo_arm_acu([X],_,[X]).
 aseg_ritmo_arm_acu([X,Y],_,[X,Y]).
@@ -314,7 +353,7 @@ aseg_ritmo_arm_acu([(C1,figura(N1,D1)),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCom
     	,sumarFracciones(fraccion_nat(NumCompPre2Nom,NumCompPre2Den), fraccion_nat(N1,D1), fraccion_nat(Na1, Da1))
     	,sumarFracciones(fraccion_nat(Na1, Da1), fraccion_nat(N2,D2), fraccion_nat(Na2, Da2))
 		,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na2, Da2), Lcout).
-		
+
 aseg_ritmo_arm_acu([(C1,figura(N1,D1)),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, NumCompPre2Den)
 	, [(C1,figura(N1,D1)),(C1,figura(N1,D1)),(C2,figura(N2,D2))|Lcout]) :-
 		dameFuncionTonalCifrado(C2, FuncTonal2)
@@ -326,7 +365,7 @@ aseg_ritmo_arm_acu([(C1,figura(N1,D1)),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCom
     	,sumarFracciones(fraccion_nat(NumCompPre2Nom,NumCompPre2Den), fraccion_nat(N1,D1), fraccion_nat(Na1, Da1))
     	,sumarFracciones(fraccion_nat(Na1, Da1), fraccion_nat(N2,D2), fraccion_nat(Na2, Da2))
 		,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na2, Da2), Lcout).
-		
+
 aseg_ritmo_arm_acu([(C1,F1),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, NumCompPre2Den)
 	, [(C1,F1),(C2,figura(N2,D2))|Lcout]) :-
 		%ninguno de los anteriores => OK
@@ -402,7 +441,7 @@ busca_acordes_afines_acu([(AcAct,_)|La], PosAct, _, Lp):-
 /**
 * menosEstable(F1,F2) se cumple si la función tonal F1 es menos estable que la funcion tonal F2
 * @param +F1 pertenece a {tonica, subdominante, dominante}
-* @param +F2 pertenece a {tonica, subdominante, dominante} 
+* @param +F2 pertenece a {tonica, subdominante, dominante}
 */
 menosEstable(dominante,tonica).
 menosEstable(dominante,subdominante).
@@ -484,30 +523,33 @@ cadenciaValida(cadencia([grado(iv),grado(v),grado(i)],1)).	%autentica
 cadenciaValida(cadencia([grado(ii),grado(v),grado(i)],2)).	%autentica moderna
 		%plagal
 cadenciaValida(cadencia([grado(iv),grado(i)],3)).			%plagal basica
-/*cadencia([grado(iv),grado(iii)],4).			%plagal
-cadencia([grado(iv),grado(vi)],5).			%plagal
-cadencia([grado(ii),grado(i)],6).			%plagal
-cadencia([grado(ii),grado(iii)],7).			%plagal
-cadencia([grado(ii),grado(vi)],8).			%plagal
+cadenciaValida(cadencia([grado(iv),grado(iii)],4)).			%plagal
+cadenciaValida(cadencia([grado(iv),grado(vi)],5)).			%plagal
+cadenciaValida(cadencia([grado(ii),grado(i)],6)).			%plagal
+cadenciaValida(cadencia([grado(ii),grado(iii)],7)).			%plagal
+cadenciaValida(cadencia([grado(ii),grado(vi)],8)).			%plagal
 	%suspensivas
 		%semicadencia: reposo en dominante??
 		%rota
-cadencia([grado(v),grado(iii)],9).
-cadencia([grado(v),grado(vi)],10).
-cadencia([grado(iv),grado(v),grado(iii)],11).
-cadencia([grado(iv),grado(v),grado(vi)],12).
-cadencia([grado(ii),grado(v),grado(iii)],13).
-cadencia([grado(ii),grado(v),grado(vi)],14).
-num_cadencias(15). Asumibles por intercambio de acordes*/
-num_cadencias(4).
+cadenciaValida(cadencia([grado(v),grado(iii)],9)).
+cadenciaValida(cadencia([grado(v),grado(vi)],10)).
+cadenciaValida(cadencia([grado(iv),grado(v),grado(iii)],11)).
+cadenciaValida(cadencia([grado(iv),grado(v),grado(vi)],12)).
+cadenciaValida(cadencia([grado(ii),grado(v),grado(iii)],13)).
+cadenciaValida(cadencia([grado(ii),grado(v),grado(vi)],14)).
+num_cadencias(15).
+/*No asumo las cadencias como cambios de las cadencias básicas pq entonces no estoy
+contando bien el numero de mutaciones q hago a la progresion*/
+
 
 %PATRONES DE ACORDES
-/*es_patron_acordes(patAcord(C,I)) :- es_listaDeGrados(C), natural(I),num_patrones_acordes(N),I<N.
+es_patron_acordes(patAcord(C,I)) :- es_listaDeGrados(C), natural(I),num_patrones_acordes(N),I<N.
 patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).
-patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).
-patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).
-patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).*/
-
+patAcordesVal(patAcord([grado(i),grado(v7 / v),grado(ii),grado(v)],1)).
+patAcordesVal(patAcord([grado(i),grado(v7 / ii),grado(ii),grado(v)],2)).
+%patAcordesVal(patAcord([grado(i),grado(v7 / iv),grado(iv),grado(iv -6)],3)). lo dejamos para otro dia
+%num_patrones_acordes(4).
+num_patrones_acordes(3).
 
 /*hazCuatriada(G,C)
 in: G de tipo grado

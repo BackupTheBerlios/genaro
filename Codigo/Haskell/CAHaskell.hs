@@ -19,28 +19,28 @@ Los guiones no son parte del fichero, y el \n simboliza el fín de línea.
 La resolución es 1/ número especificado
 Ligado viene representado en el editor por el color ROJO, Simple por el color AMARILLO y Silencio por el color BLANCO
 -}
-
 {-
 --
 -- PATRON RITMICO
 --
--- se tienen en cuenta los ligados
 type Voz = Int
-type Acento = Float  -- Acento: intensidad con que se ejecuta ese tiempo. Valor de 0 a 100
-type Ligado = Bool
-type URV = [(Voz, Acento, Ligado)]	-- Unidad de ritmo vertical
-type URH = Dur 				-- Unidad de ritmo horizontal
-type UPR = ( URV , URH)
-type PatronRitmico = [UPR]
+type Acento = Float         -- Acento: intensidad con que se ejecuta ese tiempo. Valor de 0 a 100
+type Ligado = Bool          -- Ligado: indica si una voz de una columna esta ligada con la se la siguiente columna
+                            -- en caso de que no este dicha voz el ligado se ignora
+type URV = [(Voz, Acento, Ligado)]	-- Unidad de ritmo vertical, especifica todas las filas de una unica columna
+type URH = Dur 				-- Unidad de ritmo horizontal, especifica la duracion de una columna
+type UPR = ( URV , URH)                 -- Unidad del patron ritmico, especifica completamente toda la informacion necesaria
+                                        -- para una columna (con todas sus filas) en la matriz que representa el patron
 type AlturaPatron = Int			-- numero maximo de voces que posee el patron
+type MatrizRitmica = [UPR]              -- Una lista de columnas, vamos, como una matriz
 
+type PatronRitmico = (AlturaPatron, MatrizRitmica)
 -}
 {- TIPOS DE DATOS QUE REPRESENTAN LO DEVUELTO POR EL ANALISIS DEL STRING CORRESPONDIENTE AL FICHERO JAVA SOBRE PATRONES
 RITMICOS
 -}
-data FichPatronRitmicoC = FPRC Voces Cols Resolucion PatronRitmico
+data FichPatronRitmicoC = FPRC Cols Resolucion PatronRitmico
 	deriving(Show,Eq,Ord)
-type Voces = Int
 type Cols = Int
 type Resolucion = Dur
 
@@ -61,15 +61,16 @@ parserFichPatronRitmicoC = (parserVoces <*> parserCols <*> parserResolucion <*> 
 			where 	parserVoces = (token "VOCES" *> (espacio *> natural)) <* saltoDLinea
 				parserCols = (token "COLUMNAS" *> (espacio *> natural)) <* saltoDLinea
 				parserResolucion = (token "RESOLUCION" *> (espacio *> natural)) <* saltoDLinea
-                        	formatea x = FPRC (voz x) (col x) (1 % (res x)) (patronRit x)
+                        	formatea x = FPRC (col x) (1 % (res x)) (patronRit x)
 				voz x = fst x
 				col x = fst (snd x)
 				res x = fst (snd (snd x))
-				matriz x  = snd (snd (snd x))
-                                patronRit x = matrizCAPatronRitmico (1 % (res x)) (matriz x)
+				matrizIn x  = snd (snd (snd x))
+                                matrizRitmica x = matrizCAMatrizRitmica (1 % (res x)) (matrizIn x)
+                                patronRit x = (voz x, matrizRitmica x)
 
-matrizCAPatronRitmico :: Dur -> MatrizCPatrones -> PatronRitmico
-matrizCAPatronRitmico resolucion matriz = [(procesaUPR 1 (invertir fila), resolucion) | fila <- matTraspuesta]
+matrizCAMatrizRitmica :: Dur -> MatrizCPatrones -> MatrizRitmica
+matrizCAMatrizRitmica resolucion matriz = [(procesaUPR 1 (invertir fila), resolucion) | fila <- matTraspuesta]
 		                 where matTraspuesta = trasponer matriz
                                        procesaUPR _ [] = []
                                        procesaUPR pos (Silencio:xs) = procesaUPR (pos+1) xs

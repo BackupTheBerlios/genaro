@@ -5,7 +5,7 @@ import Progresiones
 import PatronesRitmicos
 import TraduceCifrados
 import HaskoreAMidi
---import CAHaskell
+import CAHaskell
 import Ratio	--para ejemplo
 
 rutaProgresionOrdenada :: String
@@ -44,21 +44,15 @@ main2 dirTrabajo = do putStr mensajeCambiaDir
                              traduccion = traduceProgresion paramEjemplo  progEjemplo
                              musica = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patronEjemplo traduccion
 
-
-
-
-{-IMPORTANTE!!! ES EL NUMERO DE VOCES DEL PATRON EL PARÁMETRO  ALTURAPATRON DE deAcordesOrdenadosAMusica ??????-}
-
-{-  DESCOMENTAR ESTO CUANDO EL PARSER leePatronesRitmicosC este bien hecho
 main3 :: String -> IO()
 main3 dirTrabajo = do putStr mensajeCambiaDir
                       setCurrentDirectory dirTrabajo
                       --putStr "\n Empezando a generar midi a partir de Prolog\n"
                       putStr "\n Procesando el archivo de patron ritmico de C\n"
-                      (FPRC voces cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
-                      haskoreAMidi (hazMusica patronRitmico voces) rutaDestinoMidi
+                      (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC rutaPatronRitmico
+                      putStr "\n Generando el archivo midi\n"
+                      haskoreAMidi (hazMusica patronRitmico) rutaDestinoMidi
                       where  mensajeCambiaDir = "\n El directorio de trabajo es: " ++ dirTrabajo ++ "\n"
                              traduccion = traduceProgresion paramEjemplo  progEjemplo
-                             hazMusica = \patRit -> \voces -> (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit voces traduccion)
+                             hazMusica = \patRit -> (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit traduccion)
 
--}

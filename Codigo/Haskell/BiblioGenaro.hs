@@ -56,3 +56,16 @@ Calcula todas las permutaciones de una lista de elementos
 perms :: [a] -> [[a]]
 perms [] = [[]]
 perms (x:xs) = concat (map (intercala x) (perms xs))
+
+
+{-
+	Primer elemento, segundo y tercero de una tupla
+-}
+primero :: (a,b,c) -> a
+primero (a1,b1,c1) = a1
+
+segundo :: (a,b,c) -> b
+segundo (a,b,c) = b
+
+tercero :: (a,b,c) -> c
+tercero (a,b,c) = c

@@ -10,6 +10,8 @@ import Progresiones
 import PrologAHaskell -- de aqui solo necesito el tipo AcordeOrdenado
 import Ratio
 import Random
+import BiblioGenaro
+--import Ritmo
 
 -----------------------------------------------------------
 
@@ -97,7 +99,9 @@ coincidencias :: [PitchClass] -> [PitchClass] -> Int
 coincidencias lp1 lp2 = foldr1 (+) (map fromEnum [(lp1 !! i) == (lp2 !! i) | i <- [0..(longMen - 1 )]])
 	where longMen = min (length lp1) (length lp2)
 
-
+{-
+	esta funcion creo que ya no la uso
+-}
 inversion :: Inversion -> [a] -> [a]
 inversion n lista = (drop n lista) ++ (take n lista)
 
@@ -109,6 +113,7 @@ distancia lp1 lp2 = foldr1 (+) [abs ( ((map pitchClass lp1) !! i) - ((map pitchC
 
 -- NOTA: SI NUNCA HAY COINCIDENCIAS USAR LA INVERSION CON MENOS DISTANCIA
 -- CREO QUE LA NOTA YA ESTA SUBSANADA
+{-
 masCoincidente :: [PitchClass] -> [PitchClass] -> [PitchClass]
 masCoincidente referencia aInvertir 
 	| coincidenciasMayor > 0	= elegido
@@ -120,7 +125,20 @@ masCoincidente referencia aInvertir
 		distanciaMayor = maximum (map (distancia referencia) listaInv) ;
 		listaFiltrada2 = filter ((distanciaMayor==).(distancia referencia)) listaInv ;
 		elegido2 = listaFiltrada2 !! 0 ;    --TODO: HACER UN RANDOM CON EL NUMERO DE ELEMENTOS
+-}
 				
+masCoincidente :: [PitchClass] -> [PitchClass] -> [PitchClass]
+masCoincidente referencia aInvertir = elegido
+	where	listaPerm = perms aInvertir ;
+		coincidenciasMayor = maximum (map (coincidencias referencia) listaPerm) ;
+		listaFiltrada = filter ((coincidenciasMayor==).(coincidencias referencia)) listaPerm ;
+		distanciaMenor = minimum (map (distancia referencia) listaPerm) ;
+		listaFiltrada2 = filter ((distanciaMenor==).(distancia referencia)) listaFiltrada ;
+		elegido = elementoAleatorio listaFiltrada2
+
+--NOTA: HACERLO BIEN Y PASARLO A BIBLIOGENARO.HS
+elementoAleatorio :: [a] -> a
+elementoAleatorio l = l !! 0
 
 
 traduceProgresionSistemaContinuo :: NumNotasTotal -> Progresion -> [AcordeOrdenado]
@@ -141,16 +159,6 @@ arreglaTodosRec :: [Pitch] -> [[PitchClass]] -> [[Pitch]]
 arreglaTodosRec _ [] = []
 arreglaTodosRec ant (pc : resto) = cabeza : arreglaTodosRec cabeza resto
 	where cabeza = arreglaUno ant pc
-
-
-primero :: (a,b,c) -> a
-primero (a1,b1,c1) = a1
-
-segundo :: (a,b,c) -> b
-segundo (a,b,c) = b
-
-tercero :: (a,b,c) -> c
-tercero (a,b,c) = c
 
 
 -- Pone la octava en [PitchClass] de tal forma que las notas coincidentes tengan la misma octava
@@ -255,18 +263,17 @@ musica2 = deAcordesOrdenadosAMusica acordes patronV2 patronH2
 -}
 
 {-
-
 numNotas :: Int
-numNotas = 4
+numNotas = 5
 
 progresion :: Progresion
-progresion = [((I,Mayor),1%2),((V,Mayor),1%2),((I,Mayor),1%1)]
+progresion = [((I,Maj7),1%1),((V7 IV,Sept),1%1),((IV, Maj7),1%1),((V, Sept),1%1),((I,Mayor),1%1)]
 
 patronH :: PatronHorizontal
-patronH = [(100,1%4)]
+patronH = [(100,1%6)]
 
 patronV1 :: PatronVertical
-patronV1 = [[(i,False) | i<-[1..numNotas]] , [(1,False)]]
+patronV1 = [ [(1,True),(2,True),(3, False)], [(1,True),(2,True),(4, False)], [(1,False),(2,False),(5, False)] ]
 
 patronV2 :: PatronVertical
 patronV2 = [[(i,False)] | i<-[1..numNotas]]
@@ -275,6 +282,6 @@ traduccion1 :: [AcordeOrdenado]
 traduccion1 = traduceProgresionSistemaContinuo numNotas progresion
 
 musica1 :: Music
-musica1 = deAcordesOrdenadosAMusica traduccion1 patronV2 patronH 
+musica1 = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronV1 patronH numNotas traduccion1 
 
 -}

@@ -1,0 +1,41 @@
+
+REPRESENTACION DE BAJO NIVEL PARA UNA CANCION
+
+1 REPRESENTACION DE LISTA DE MENSAJES O DE NOTA-SEPARACION
+
+esduracion(duracion(Num, Den))   %Es una duracion, representamos las duraciones como una fracion en relacion con la redonda
+esduracion(duracion(1, 1)).  % es la duracion de una redonda
+esduracion(duracion(1, 2)).  % es la duracion de una blanca, que es la mitad de una redonda
+esduracion(duracion(1, 4)).  % es la duracion de una negra, un cuarto de la redonda
+esduracion(duracion(1, 12)). % es una corchea de un tresillo, que es la tercera parte de una negra, es decir, 1/12
+esduracion(duracion(2, 1)).  % dura el doble que una redonda, es decir, dos redondas ligadas
+esduracion(duracion(0, 1)).  % seria una nota que no dura nada, tiene sentido solo en la separacion de las notas que se vera despues
+.
+.
+.
+
+
+esintensidad(I).	 % I es un valor entero entre 0 y 100 que representa la fuerza con que se ataca a la nota
+esintensidad(I):- 0<=I, I<=100.
+
+
+essonido(S).  % S es uno de los 12 sonidos de una octava. 0 es LA, 1 es LA#, etc.
+essonido(S):- 0<=S, S<12.
+
+
+esoctava(O). %No se cuantas octavas vamos a tener pero O representa la octava
+
+
+esaltura(altura(S,O)).  % la altura de una nota (su frecuencia) esta definida por el sonido y la octava
+esaltura(altura(S,O)):- essonido(S), esoctava(O).
+
+
+esnota(nota(A,D,I)). %una nota esta caracterizada por su altura, su duracion y su intensidad
+esnota(nota(A,D,I)):- esaltura(A), esduracion(D), es intensidad(I).
+
+
+escancion(C). %una cancion es una lista de notas entre las cuales tenemos una separacion, que es el tiempo que hay que esperar hasta ejecutar la siguiente nota
+             % si dos notas estan separadas por una duracion 0 es que se ejecutan a la vez.
+
+escancion([]).
+escancion([N, D | Resto]):- esnota(N), esduracion(D), escancion(C).

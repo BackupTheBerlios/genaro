@@ -45,7 +45,7 @@ type Progresion = [(Cifrado, Dur)]
 gradoAInt :: Grado -> Int
 gradoAInt (V7 grado) = mod (gradoAInt grado + 7) 12
 gradoAInt (IIM7 grado) = mod (gradoAInt grado + 2) 12
-gradoAInt grado = case grado of 
+gradoAInt grado = case grado of
 	I -> 0
 	II -> 2
 	III -> 4
@@ -96,20 +96,20 @@ matriculaAVector m = case m of
 	Dis -> [0,3,6]
 	Sexta -> [0,4,7,9]
 	Men6 -> [0,3,7,9]
-	Men7B5 -> [0,3,6,10]			-- mirarme este
+	Men7B5 -> [0,3,6,10]
 	Maj7 -> [0,4,7,11]
 	Sept -> [0,4,7,10]
 	Men7 -> [0,3,7,10]
 	MenMaj7 -> [0,3,7,11]
 	Au7 -> [0,4,8,10]
-	Dis7 -> [0,3,6,9]			--no se si este esta bien
-	
+	Dis7 -> [0,3,6,9]
+
 
 -- Dice cuantas notas diferentes tiene el acorde en funcion de su matricula
 matriculaAInt :: Matricula -> Int
-matriculaAInt m 
+matriculaAInt m
 	| elem m [Mayor, Menor] = 3
-	| elem m [Au, Dis, Sexta, Men6, Men7B5, Maj7, Sept, Men7, MenMaj7, Au7, Dis7] = 4 
+	| elem m [Au, Dis, Sexta, Men6, Men7B5, Maj7, Sept, Men7, MenMaj7, Au7, Dis7] = 4
 
 
 

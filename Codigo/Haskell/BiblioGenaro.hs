@@ -1,6 +1,7 @@
 module BiblioGenaro where
 import Random
 import Parser_library
+import List
 
 import Parsers
 
@@ -331,6 +332,20 @@ formateaOpciones :: [Mensaje] -> Mensaje
 formateaOpciones mensajes = formateaOpcionesAcu 1 mensajes
                             where formateaOpcionesAcu _ [] = []
                                   formateaOpcionesAcu n (m:ms) = (show n) ++ "."++ m ++ "\n" ++ formateaOpcionesAcu (n+1) ms
+
+{-
+cambiaExtension nuevaExtension ruta
+devuelve una ruta igual a la de entrada salvo que la extension se ha cambiado para que sea la indicada.
+-La extensión se deberá indicar sin el punto, por ejemplo "mid", NO ".mid" (que pondría dos puntos, lo que
+esta bien si es lo que se quiere)
+-Si la ruta de entrada no tiene extension se añadirá la extensión con un punto sin quitar nada, por ejemplo
+cambiaExtension "txt" "pepe" = pepe.txt
+-}
+cambiaExtension :: String -> String -> String
+cambiaExtension nuevaExtension ruta
+  |pos == Nothing = ruta ++ "." ++ nuevaExtension
+  |otherwise      = (invertir  (dropWhile (/='.') (invertir ruta))) ++ nuevaExtension
+               where pos = elemIndex '.' ruta
 
 main = do putStrLn "me mola la coca-cola"
 lola =  do x <- getStdGen

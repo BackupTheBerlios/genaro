@@ -1,4 +1,4 @@
-module JavaAHaskell where
+module CAHaskell where
 import PatronesRitmicos
 import Haskore
 import Ratio

@@ -71,12 +71,20 @@ segundo (a,b,c) = b
 tercero :: (a,b,c) -> c
 tercero (a,b,c) = c
 
+
 {-
 Generacion de numeros aleatorios
 -}
+{-
+CORREGIR COMENTARIOS PARA Q HABLEN DE PROCESOS
+-}
+
 rollDice :: IO Int
 rollDice = getStdRandom (randomR (1,6))
 
+{-
+genera un numero aleatorio en el intervalo [min, max]
+-}
 numAleatorioIO :: Int -> Int -> IO Int
 numAleatorioIO min max
 	|min <= max = getStdRandom (randomR (min,max))
@@ -84,3 +92,27 @@ numAleatorioIO min max
 pruNumAleatorioIO :: Int -> Int -> IO()
 pruNumAleatorioIO min max = do num <- numAleatorioIO min max
                                putStr (show num)
+
+{-
+genera una lista de 'cuantos' numeros aleatorios en el intervalo [min, max]
+-}
+listaNumsAleatoriosIO :: Int -> Int -> Int -> IO [Int]
+listaNumsAleatoriosIO min max cuantos  = do semilla <-  numAleatorioIO min max
+                                            return (take cuantos (numsAleatoriosSemilla semilla min max))
+
+pruListaNumsAleatoriosIO :: Int -> Int -> Int -> IO()
+pruListaNumsAleatoriosIO min max cuantos = do lista <- listaNumsAleatoriosIO min max cuantos
+                                              print lista
+
+{-
+genera una lista infinita de enteros generados a partir de un entero semilla por medio de una
+funcion determinista que ditribuye los numeros del intervalo [min, max] de forma homogenea y
+les asigna posiciones en la lista resultado en funcion de semilla. La cosa es generar la semilla
+de forma aleatoria (con numAleatorioIO) luego usar esta funcion para obtener los numeros aleatorios 
+que queramos
+-}
+numsAleatoriosSemilla :: Int -> Int -> Int -> [Int]
+numsAleatoriosSemilla semilla min max 
+	|min <= max = itera (mkStdGen semilla)
+		      where itera g = x:itera g1
+				      where (x,g1) = randomR (min,max) g

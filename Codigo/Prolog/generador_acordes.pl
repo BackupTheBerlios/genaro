@@ -29,23 +29,39 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 %CIFRADOS
 es_cifrado(cifrado(G,M)) :- es_grado(G), es_matricula(M).
 es_matricula(matricula(M)) :- member(M, [mayor,m,au,dis,6,m6,m7b5, maj7,7,m7,mMaj7,au7,dis7]).
-
-/*hazCuatriada(G,C) 
-in: G de tipo grado
-out: C cifrado con la matrícula de cuatríada correspondiente al grado G en la escala de C Jónico
-por ahora 
-*/
-hazCuatriada(grado(G),cifrado(grado(G), matricula(maj7))) :- 	member(G,[i,iv,bvii]).
-hazCuatriada(grado(G),cifrado(grado(G), matricula(m7))) :- member(G,[ii,iii,vi]).
-hazCuatriada(grado(G),cifrado(grado(G), matricula(7))) :- member(G,[v]).
-hazCuatriada(grado(G),cifrado(grado(G), matricula(m7b5))) :- member(G,[vii]).
-
+%%MUY TEMPORAL, DECISIONES ARBITRARIAS POR AHORA
+cifrado_a_Haskore(cifrado(Grado,Matricula), Musica) :- gradoANota(Grado,Nota)
+	,hazAcorde(Nota, Matricula, ListaNotas), hazArpegio(ListaNotas, Musica).
+%FALTAN GRADOS NO USUALES!!!!!!!!!!!!!!!! es así pq Do Jonico, octava arbitraria
+gradoANota(i, nota(altura(numNota(3),octava(1)),figura(1,4))).
+gradoANota(bii, nota(altura(numNota(4),octava(1)),figura(1,4))).
+gradoANota(ii, nota(altura(numNota(5),octava(1)),figura(1,4))).
+gradoANota(biii, nota(altura(numNota(6),octava(1)),figura(1,4))).
+gradoANota(iii, nota(altura(numNota(7),octava(1)),figura(1,4))).
+gradoANota(iv, nota(altura(numNota(8),octava(1)),figura(1,4))).
+gradoANota(bv, nota(altura(numNota(9),octava(1)),figura(1,4))).
+gradoANota(v, nota(altura(numNota(10),octava(1)),figura(1,4))).
+gradoANota(auv, nota(altura(numNota(11),octava(1)),figura(1,4))).
+gradoANota(vi, nota(altura(numNota(0),octava(2)),figura(1,4))).
+gradoANota(bvii, nota(altura(numNota(1),octava(3)),figura(1,4))).
+gradoANota(vii, nota(altura(numNota(2),octava(4)),figura(1,4))).
 %PROGRESION DE ACORDES
 /*es una lista de cifrados*/
 es_progresion(progresion(P)) :- es_listaDeCifrados(P).
 es_listaDeCifrados([]).
 es_listaDeCifrados([(C, F)|Cs]) :- es_cifrado(C), es_figura(F)
        ,es_listaDeCifrados(Cs).
+
+/*progresion_a_Haskore(Prog, Musica)
+convierte la presion de acordes a la representacion de musica de estilo haskore. Provisionalmente
+se intentara pasar a arpegios ascendentes Fu-3-5-7
+in: Prog cumple es_progresion(Prog)
+out: Musica cumple es_musica(Musica)
+*/
+progresion_a_Haskore(progresion(LisCif), Musica) :- prog_a_HaskoreLista(LisCif, Musica).
+prog_a_HaskoreLista([],silencio(figura(0,1))).
+prog_a_HaskoreLista([Cif|Lcif], MusCif :+: MusLis) :- cifrado_a_Haskore(Cif, MusCif)
+	, prog_a_HaskoreLista(Lcif, MusLis).
 
 /*numAcordes(P,N) indica el numero de acordes que hay en una progresión. Podemos definir que una progresión 
 está en forma normal cuando no existen dos acordes adyacentes en el tiempo/ lista que tengan el mismo cifrado.
@@ -99,7 +115,7 @@ out: Progresion hace cierto el predicado es_progresion
 listaGradosAProgresion([G|Gs],progresion([(C, figura(1,1))|Ps])) :-
 		hazCuatriada(G,C) ,listaGradosAProgresion(Gs,Ps).*/
 
-listaGradosAProgresion(LG, progresion(Prog)) :- 			listaGradosAProgresionRec(LG,Prog).
+listaGradosAProgresion(LG, progresion(Prog)) :- listaGradosAProgresionRec(LG,Prog).
 listaGradosAProgresionRec([],[]).
 listaGradosAProgresionRec([G|Gs],[(C, figura(1,1))|Ps]) :-
 		hazCuatriada(G,C) ,listaGradosAProgresionRec(Gs,Ps).
@@ -113,10 +129,10 @@ out: La resultado de las transformaciones, Cumple es_progresion(La)
 %modifica_prog(S,N,La) :- natural(N), numCompases(S,Ls), Ls <= N, ¿?? 
 
 %CAMBIA ACORDES
-/* cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es idéntica a Po excepto
-poruqe se ha realizado 1 cambio de un acorde por otro de la misma función tonal (elegido al azar y distinto) y que dura lo mismo 
-(misma figura en la progresión). El acorde que será sustituido se elige al azar, teniendo todos los acordes de Po la misma probabilidad 
-de ser elegidos
+/* cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
+idéntica a Po excepto porque se ha realizado 1 cambio de un acorde por otro de la misma función tonal 
+(elegido al azar y distinto) y que dura lo mismo (misma figura en la progresión). El acorde que será 
+sustituido se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser elegidos
 in: Po progresión origen cumple es_progresion(Po)
 out:Pd progresión destino cumple es_progresion(Po)
 Pre!!! Po en forma normal sería recomendable
@@ -131,9 +147,12 @@ cambia_acordesLista(Lo, Ld) :-
       ,append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, Ld).
 
 %AÑADE ACORDES
-/* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es idéntica a  Po salvo porque se
-ha sustituido uno de sus acordes por dos acordes, el primero del mismo cifrado del original pero durando la mitad y el segundo de la misma 
-función tonal que el original (elegido al azar y distinto) y durando también la mitad. El primero aparecerá siempre delante del segundo en la progresión. El acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser elegidos
+/* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es 
+idéntica a  Po salvo porque se ha sustituido uno de sus acordes por dos acordes, el primero del mismo cifrado
+del original pero durando la mitad y el segundo de la misma función tonal que el original (elegido al azar
+y distinto) y durando también la mitad. El primero aparecerá siempre delante del segundo en la progresión. El
+acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
+elegidos
 in: Po progresión origen cumple es_progresion(Po)
 out:Pd progresión destino cumple es_progresion(Po)
 Pre!!! Lo en forma normal sería recomendable
@@ -145,16 +164,17 @@ aniade_acordesLista(Lo, Ld) :-
        dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
       ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)
       ,divideFigura(F, 2, Fmed)
-	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+      ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
       ,sublista_suf(Lo, PosElegMas, LdB)
       ,append(LdA, [(AcordElegido, Fmed),(AcordAniadir, Fmed)], Laux), append(Laux, LdB, Ld).
 
 %QUITA ACORDES
-/* quita_acordes(Po,Pd) busca todas las parejas de acordes adyacentes que tengan la misma función tonal, elige una de éstas al azar asignando
-la misma probabilidad a cada pareja y sustituye a la pareja por otro acorde que dure mismo que la suma de las duraciones de las parejas y que
-tenga la misma función tonal (elegido al azar y no necesariamente distinto)(!!!!!!estudiar si no conviene más simplemente dejar el fuerte de la 
-función tonal, es decir, I, IV o V). Si no es posible hacer esto pq no hay parejas adyacentes de misma función tonal entonces devuelve en Pd la
-misma progresion Po
+/* quita_acordes(Po,Pd) busca todas las parejas de acordes adyacentes que tengan la misma función tonal,
+elige una de éstas al azar asignando la misma probabilidad a cada pareja y sustituye a la pareja por otro
+acorde que dure mismo que la suma de las duraciones de las parejas y que tenga la misma función tonal 
+(elegido al azar y no necesariamente distinto)(!!!!!!estudiar si no conviene más simplemente dejar el 
+fuerte de la función tonal, es decir, I, IV o V). Si no es posible hacer esto pq no hay parejas adyacentes
+de misma función tonal entonces devuelve en Pd la misma progresion Po
 in: Po progresión origen cumple es_progresion(Po)
 out:Pd progresión destino cumple es_progresion(Po)
 Pre!!! Lo en forma normal sería recomendable
@@ -162,23 +182,85 @@ Post Ld está en forma normal
 */
 quita_acordes(progresion(Lo), progresion(Ld)) :- quita_acordesLista(Lo, Ld).
 quita_acordesLista([], []).
-%quita_acordesLista(Lo, Ld) :- setof( Pos, (  nth( Pos,Lo,(A1,_) ), PosS is Pos + 1, nth( PosS,Lo,(A2,_) ), mismaFuncionTonal(A1, A2)  ), Ld).
+quita_acordesLista(Lo, Ld) :- busca_acordes_afines(Lo,LPos),dame_elemento_aleatorio(LPos, PosElegida)
+      ,nth(PosElegida, Lo, (Acord1, F1)), P2 is PosElegida + 1,nth(P2, Lo, (_, F2))
+      ,dame_cuat_funcTonal_equiv2(Acord1, AcordSustituto), sumaFiguras(F1, F2, FigSustit)
+      ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 2 ,sublista_suf(Lo, PosElegMas, LdB)
+      ,append(LdA, [(AcordSustituto, FigSustit)], Laux), append(Laux, LdB, Ld).
+
+/*busca_acordes_afines(Lacords, Lpos) busca en la lista de cifrados Lacords parejas de acordes tales que 
+tengan la misma función tonal y sean adyacentes en la lista, y devuelve en Lpos la lista de posisiones dentro
+de Lacords (nunerando empezando por 1) de los primeros elementos de dichas parejas, es decir que se cumple
+setof( Pos, (  nth( Pos,Lacords,(A1,_) ), PosS is Pos + 1, nth( PosS,Lacords,(A2,_) ), 
+mismaFuncionTonalCifrado(A1, A2)  ), Lpos). 
+in: Lacords cumple es_listaDeCifrados(Lacords)
+out: Lpos es una lista de enteros que pertenecen al intervalo [1,longitud de Lacords)
+*/
+busca_acordes_afines(Lacords, Lpos):-busca_acordes_afines_acu(Lacords, 1, ninguno, Lpos).
+/*busca_acordes_afines_acu(Lacords, PosActual, AcordeAnterior, Lpos)
+*/
+busca_acordes_afines_acu([], _, _, []).
+busca_acordes_afines_acu([(AcAct,_)|La], PosAct, AcAnterior, [PosAniadir|Lp]):- 
+	mismaFuncionTonalCifrado(AcAct, AcAnterior),!, PosAniadir is PosAct - 1, PosSig is PosAct + 1
+	,busca_acordes_afines_acu(La, PosSig, AcAct, Lp).
+
+busca_acordes_afines_acu([(AcAct,_)|La], PosAct, _, Lp):- 
+	 PosSig is PosAct + 1,busca_acordes_afines_acu(La, PosSig, AcAct, Lp).
+
 
 %FUNCIONES TONALES
-/*funciona para grados y cifrados*/
+/*funciona para grados*/
 mismaFuncionTonal(G1,G2) :- dameFuncionTonal(G1, F), dameFuncionTonal(G2, F).
+mismaFuncionTonalCifrado(G1,G2) :- dameFuncionTonalCifrado(G1, F), dameFuncionTonalCifrado(G2, F).
 
-/*funciona para grados y cifrados*/
+/*dameFuncionTonal(G, Ft): Ft es la función tonal del grado G
+in: G cumple es_grado(G)
+out: Ft pertenece a {tonica, subdominante, dominante}
+*/
 dameFuncionTonal(grado(G), tonica) :- member(G, [i, iii, vi]).
 dameFuncionTonal(grado(G), subdominante) :- member(G, [ii, iv]).
 dameFuncionTonal(grado(G), dominante) :- member(G, [v, vii]).
-%dameFuncionTonal(cifrado(G,_), Ft) :- dameFuncionTonal(G, Ft). con esto se cuelga prolog al hacer aniade acordes
 
-/*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)*/
-dame_grado_funcTonal_equiv(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc),dame_elemento_aleatorio(Lc, Gd).
+/*dameFuncionTonalCifrado(C, Ft): Ft es la función tonal del cifrado C
+in: C cumple es_cifrado(C)
+out: Ft pertenece a {tonica, subdominante, dominante}
+*/
+dameFuncionTonalCifrado(cifrado(G,_), Ft) :- dameFuncionTonal(G, Ft).
 
-/*dame_cuat_funcTonal_equiv(CuatOri,CuatDest)*/
+/*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)
+devuelve en GradoDestino un grado que tiene la misma función tonal que GradoOrigen y que además es distinto 
+a este
+in: GradoOrigen hace cierto es_grado(GradoOrigen)
+out: GradoDestino hace cierto es_grado(GradoDestino)
+*/
+dame_grado_funcTonal_equiv(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc)
+                                    ,dame_elemento_aleatorio(Lc, Gd).
+
+/*dame_grado_funcTonal_equiv2(GradoOrigen, GradoDestino)
+devuelve en GradoDestino un grado que tiene la misma función tonal que GradoOrigen y que no tiene 
+por que ser distinto a GradoOrigen a este
+in: GradoOrigen hace cierto es_grado(GradoOrigen)
+out: GradoDestino hace cierto es_grado(GradoDestino)
+*/
+dame_grado_funcTonal_equiv2(Go, Gd) :- setof(Gc,mismaFuncionTonal(Go,Gc), Lc)
+                                    ,dame_elemento_aleatorio(Lc, Gd).
+
+/*dame_cuat_funcTonal_equiv(CifOri,CuatDest) 
+devuelve en CuatDestino la cuatriada de un grado que tiene la misma función tonal que el correspondiente a 
+CifOrigen y que además es distinto a este
+in: CifOrigen hace cierto es_cifrado(CifOrigen)
+out: CuatDestino hace cierto es_cifrado(CuatDestino)
+*/
 dame_cuat_funcTonal_equiv(cifrado(GradoElegido,_),CuatDest) :- dame_grado_funcTonal_equiv(GradoElegido, GradoSustituto)
+			,hazCuatriada(GradoSustituto, CuatDest).
+
+/*dame_cuat_funcTonal_equiv2(CifOri,CuatDest)
+devuelve en CuatDestino la cuatriada de un grado que tiene la misma función tonal que el correspondiente a 
+CifOrigen y que no tiene por que ser distinto a este
+in: CifOrigen hace cierto es_cifrado(CifOrigen)
+out: CuatDestino hace cierto es_cifrado(CuatDestino)
+*/
+dame_cuat_funcTonal_equiv2(cifrado(GradoElegido,_),CuatDest) :- dame_grado_funcTonal_equiv2(GradoElegido, GradoSustituto)
 			,hazCuatriada(GradoSustituto, CuatDest).
 
 
@@ -212,5 +294,14 @@ cadencia([grado(ii),grado(v),grado(vi)],14).
 num_cadencias(15). Asumibles por intercambio de acordes*/
 num_cadencias(4).
 
+/*hazCuatriada(G,C) 
+in: G de tipo grado
+out: C cifrado con la matrícula de cuatríada correspondiente al grado G en la escala de C Jónico
+por ahora 
+*/
+hazCuatriada(grado(G),cifrado(grado(G), matricula(maj7))) :- 	member(G,[i,iv,bvii]).
+hazCuatriada(grado(G),cifrado(grado(G), matricula(m7))) :- member(G,[ii,iii,vi]).
+hazCuatriada(grado(G),cifrado(grado(G), matricula(7))) :- member(G,[v]).
+hazCuatriada(grado(G),cifrado(grado(G), matricula(m7b5))) :- member(G,[vii]).
 
 					

@@ -1,5 +1,13 @@
 %DECLARACION DEL MODULO
-:- module(representacion_prolog_haskore,[es_musica/1]).
+:- module(representacion_prolog_haskore,[
+	es_musica/1,
+	es_nota/1,
+	es_silencio/1,
+	es_altura/1,
+	es_numNota/1,
+	es_octava/1,
+	es_figura/1
+]).
 
 %BIBLIOTECAS
 :- use_module(library(lists)).

@@ -114,7 +114,9 @@ out: La resultado de las transformaciones, Cumple es_progresion(La)
 
 %CAMBIA ACORDES
 /* cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es idéntica a Po excepto
-poruqe se ha realizado 1 cambio de un acorde por otro de la misma función tonal y que dura lo mismo (misma figura en la progresión)
+poruqe se ha realizado 1 cambio de un acorde por otro de la misma función tonal (elegido al azar y distinto) y que dura lo mismo 
+(misma figura en la progresión). El acorde que será sustituido se elige al azar, teniendo todos los acordes de Po la misma probabilidad 
+de ser elegidos
 in: Po progresión origen cumple es_progresion(Po)
 out:Pd progresión destino cumple es_progresion(Po)
 Pre!!! Po en forma normal sería recomendable
@@ -124,33 +126,53 @@ cambia_acordesLista([], []) .
 cambia_acordesLista(Lo, Ld) :- 
 	dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
       ,dame_cuat_funcTonal_equiv(AcordElegido, AcordSustituto)
- 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1, 
-      sublista_suf(Lo, PosElegMas, LdB), 
-      append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, Ld).
+ 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+      ,sublista_suf(Lo, PosElegMas, LdB)
+      ,append(LdA, [(AcordSustituto, F)], Laux), append(Laux, LdB, Ld).
 
 %AÑADE ACORDES
 /* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es idéntica a  Po salvo porque se
-ha sustituido una de sus acordes por dos acordes, el primero del mismo cifrado del original pero durando la mitad y el segundo de la misma 
-función tonal que el original y durando también la mitad. El primero aparecerá siempre delante del segundo en la progresión
+ha sustituido uno de sus acordes por dos acordes, el primero del mismo cifrado del original pero durando la mitad y el segundo de la misma 
+función tonal que el original (elegido al azar y distinto) y durando también la mitad. El primero aparecerá siempre delante del segundo en la progresión. El acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser elegidos
 in: Po progresión origen cumple es_progresion(Po)
 out:Pd progresión destino cumple es_progresion(Po)
 Pre!!! Lo en forma normal sería recomendable
 Post Ld está en forma normal
 */
-/*aniade_acordes(progresion(Lo), progresion(Pd)) :- aniade_acordesLista(Lo, Ld).
+aniade_acordes(progresion(Lo), progresion(Ld)) :- aniade_acordesLista(Lo, Ld).
 aniade_acordesLista([], []).
 aniade_acordesLista(Lo, Ld) :-
        dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
-      ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)*/
+      ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)
+      ,divideFigura(F, 2, Fmed)
+	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+      ,sublista_suf(Lo, PosElegMas, LdB)
+      ,append(LdA, [(AcordElegido, Fmed),(AcordAniadir, Fmed)], Laux), append(Laux, LdB, Ld).
 
-
+%QUITA ACORDES
+/* quita_acordes(Po,Pd) busca todas las parejas de acordes adyacentes que tengan la misma función tonal, elige una de éstas al azar asignando
+la misma probabilidad a cada pareja y sustituye a la pareja por otro acorde que dure mismo que la suma de las duraciones de las parejas y que
+tenga la misma función tonal (elegido al azar y no necesariamente distinto)(!!!!!!estudiar si no conviene más simplemente dejar el fuerte de la 
+función tonal, es decir, I, IV o V). Si no es posible hacer esto pq no hay parejas adyacentes de misma función tonal entonces devuelve en Pd la
+misma progresion Po
+in: Po progresión origen cumple es_progresion(Po)
+out:Pd progresión destino cumple es_progresion(Po)
+Pre!!! Lo en forma normal sería recomendable
+Post Ld está en forma normal
+*/
+quita_acordes(progresion(Lo), progresion(Ld)) :- quita_acordesLista(Lo, Ld).
+quita_acordesLista([], []).
+%quita_acordesLista(Lo, Ld) :- setof( Pos, (  nth( Pos,Lo,(A1,_) ), PosS is Pos + 1, nth( PosS,Lo,(A2,_) ), mismaFuncionTonal(A1, A2)  ), Ld).
 
 %FUNCIONES TONALES
+/*funciona para grados y cifrados*/
 mismaFuncionTonal(G1,G2) :- dameFuncionTonal(G1, F), dameFuncionTonal(G2, F).
 
+/*funciona para grados y cifrados*/
 dameFuncionTonal(grado(G), tonica) :- member(G, [i, iii, vi]).
 dameFuncionTonal(grado(G), subdominante) :- member(G, [ii, iv]).
 dameFuncionTonal(grado(G), dominante) :- member(G, [v, vii]).
+%dameFuncionTonal(cifrado(G,_), Ft) :- dameFuncionTonal(G, Ft). con esto se cuelga prolog al hacer aniade acordes
 
 /*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)*/
 dame_grado_funcTonal_equiv(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc),dame_elemento_aleatorio(Lc, Gd).

@@ -149,14 +149,14 @@ dame_permutacion_aleatoria(ListaEntrada, [ElemElegido| RestoPermutado]) :-
 	dame_elemento_aleatorio(ListaEntrada, ElemElegido, _ ,RestoParcial),
 	dame_permutacion_aleatoria(RestoParcial, RestoPermutado).
 /**
-* escribeLista(+Lista, +Ruta)
+* escribeLista(+Ruta, +Lista)
 * escribe la lista de entrada en el fichero indicado por la ruta, sobreescribiendo el fichero
 * o creándolo si este no existía. Al escribir la lista pone un salto de linea dentro del fichero
 * entre cada elemento de la lista.
-* @param +Lista lista a escribir, cumple que es una lista
 * @param +Ruta es una lista de caracteres entre ' '
+* @param +Lista lista a escribir, cumple que es una lista
 */
-escribeLista(Lista, Ruta) :-
+escribeLista(Ruta, Lista) :-
 	listaAListaConSaltos(Lista, ListaSaltos),
 	escribeTermino(Ruta, ListaSaltos).
 

@@ -18,8 +18,8 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 %ARCHIVOS PROPIOS CONSULTADOS
 :- use_module(generador_acordes).
 :- use_module(generador_acordes_semillas).
-:- use_module(biblio_genaro_fracciones).
 :- use_module(biblio_genaro_listas).
+:- use_module(biblio_genaro_fracciones).
 :- use_module(figuras_y_ritmo).
 :- use_module(biblio_genaro_ES).
 :- use_module(generador_notas_del_acorde_con_sistema_paralelo).
@@ -37,7 +37,7 @@ genera_acordes :- genera_acordes(6,3, continuidad,1).
 * resultado final de la generacion
 * - En un fichero de texto cuya ruta es especificada en generador_acordes:fichero_destinoGenAc_prog/1
 * se escribe un termino que cumple biblio_genaro_acordes:es_progresion/1 y que es el resultado final de la generacion
-* @param +N natural que indica el numero de compases que durará la progresion
+* @param +N natural que indica el numero exacto de compases que durará la progresion
 * @param +M natural que indica el numero de transformaciones que se aplicarán a la progresion
 * @param +EnlaceVoces pertenece al conjunto {paralelo, continuidad} e indica cual de los dos sistemas se empleará
 * para enlazar las voces para generar el termino que cumple es_progresion_ordenada que luego se escribirá en el
@@ -58,39 +58,36 @@ genera_acordes(N,M, continuidad, TipoSemilla) :- haz_progresion(N, M, TipoSemill
 
 	%PREDICADOS DE GENERACION
 
-/**haz_progresion(+N, +M, +Tipo, -La)
-* @param +N natural que indica el numero aproximado de compases que dura de la progresión. Me temo que tendrá que ser mayor o igual
-*    que 3 (longitud de la cadencia más larga)
+/**
+* haz_progresion(+N, +M, +TipoSemilla, -Progresion)
+* Genera una progresion de acordes en modo Jonico sin especificar la tonalidad (como lista de grados asociados a un
+* cifrado americano), que empleando tecnicas de armonia moderna y de forma pseudoaleatoria
+* @param +N natural que indica el numero exacto de compases que durará de la progresión
 * @param +M natural que indica el numero de mutaciones que se realizaran para conseguir la progresion
-* @param +Tipo indica si se utilizará haz_prog_semilla 1 o 2
-* @param -La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
-*     Hace cierto es_progresion(La)
+* @param +TipoSemilla si vale n entonces se utilizará haz_prog_semillan/2 para la generacion de la semilla, debe pertenecer al conjunto
+* {1, 3} por ahora
+* @param -Progresion termino que hace cierto el predicado es_progresion con el que se expresa la progresion de
+* acordes generada
 */
-/*haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, progresion(S))
-                ,escribeLista(S, 'C:/hlocal/cifradosSemilla.txt')
-		,fija_compases_aprox(progresion(S), N, Laux1), modifica_prog(Laux1, M, Laux2)
-                ,asegura_ritmo_armonico(Laux2, progresion(Laux3))
-                ,escribeLista(Laux3, 'C:/hlocal/cifradospreFin.txt')
-                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux3, Pfin, Laux4)
-                ,quita_grados_relativos(progresion(Laux4), progresion(La))
-                ,escribeLista(La, 'C:/hlocal/cifrados.txt').*/
-haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, progresion(S))
+haz_progresion(N, _, _, progresion([])) :- N =< 0, !.
+haz_progresion(N, M, 1, Progresion) :- N>0,! , N =< 4, haz_prog_semilla(N, 1, PAux1),
+	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
+haz_progresion(N, M, 3, Progresion) :- N>0,! , N =< 3, haz_prog_semilla(N, 3, PAux1),
+	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
+haz_progresion(N, M, Tipo, progresion(La)) :- haz_prog_semilla(Tipo, progresion(S))
                 ,escribeLista(S, 'C:/hlocal/cifradosSemilla.txt')
 		,fija_compases_aprox(progresion(S), N, Laux1), modifica_prog(Laux1, M, progresion(Laux2))
                 ,escribeLista(Laux2, 'C:/hlocal/cifradospreFin.txt')
                 ,haz_prog_semilla(1,progresion(Pfin)), append(Laux2, Pfin, Laux4)
                 ,quita_grados_relativos(progresion(Laux4), progresion(La))
-                ,escribeLista(La, 'C:/hlocal/cifrados.txt')
+                ,escribeLista('C:/hlocal/cifrados.txt', La)
                 ,fichero_destinoGenAc_prog(FDC)
                 ,escribeTermino(FDC,progresion(La)).
 
-
-/*haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
- 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux3))
-                ,escribeLista(Laux3, 'C:/hlocal/cifrados.txt')
-                ,quita_grados_relativos(progresion(Laux3), progresion(Laux4))
-                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).*/
-
+termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
+		fichero_destinoGenAc_prog(FichNoRel), fichero_destinoGenAc_prog_con_rel(FichRel),
+                escribeLista(FichRel, ProgRel), quita_grados_relativos(progresion(ProgRel), ProgNoRel),
+                escribeTermino(FichNoRel, ProgNoRel).
 
 		%PREDICADOS QUE AÑADEN MAS COMPASES A LA PROGRESION
 /*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
@@ -329,9 +326,6 @@ accion_modif(Pin, Pout) :- num_acciones_modif(N), random(0, N, NumAccion), accio
 accion_modif(Pin, Pout, 0) :- aniade_acordes(Pin, Pout).
 accion_modif(Pin, Pout, 1) :- quita_acordes(Pin, Pout).
 accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).
-
-aplica_cambia_acordes(Ori, N, Dest) :- N>0, !, N1 is N -1, cambia_acordes(Ori, Aux1), aplica_cambia_acordes(Aux1, N1, Dest).
-aplica_cambia_acordes(Ori, _, Ori).
 
 			%CAMBIA ACORDES
 /**

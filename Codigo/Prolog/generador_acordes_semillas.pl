@@ -2,32 +2,66 @@
 /*
 * Modulo que se encarga de generar semillas varias para la generacion de acordes, es decir, terminos S
 * que cumplen es_progresion(S) y que expresan progresiones de acordes de longitud reducida
+* POR AHORA TODO PARA BINARIO IMPLICITO
 * */
 
 %DECLARACION DEL MODULO
 %:- module(generador_acordes_semillas).
-:- module(generador_acordes_semillas,[haz_prog_semilla/2]).
+:- module(generador_acordes_semillas,[haz_prog_semilla/3]).
 
 %BIBLIOTECAS
 :- use_module(library(lists)).
 
 %ARCHIVOS PROPIOS CONSULTADOS
+:- use_module(generador_acordes_binario).
+:- use_module(generador_acordes).
 :- use_module(biblio_genaro_acordes).
 :- use_module(biblio_genaro_listas).
+:- use_module(biblio_genaro_fracciones).
 
 		%PREDICADOS PARA CONSTRUIR SEMILLAS
+
+/*!!!NO USA haz_prog_semilla2 PQ NO SE SI MANTIENE COMO INVARIANTE QUE EL RITMO ARMONICO SEA CORRECTO*/
 /**
-* haz_prog_semilla(Tipo,S) devuelve en S una progresion pequeña usada en el principio de la generación.
-* @param +Tipo si vale n entonces se utilizará haz_prog_semillan/2 para la generacion de la semilla
+* haz_prog_semilla(+NumCompases, +Tipo,-S) devuelve en S una progresion pequeña usada en el principio de la generación.
+* Esta progresion respetará el ritmo armonico
+* @param +NumCompases natural que indica el numero exacto de compases que se quiere que dure la progresion semilla.
+* !!!IMPORTANTE!!!: NumCompasese debe pertener al conjunto {0, 1, 2, 3, 4} si Tipo = 1 , o al conjunto {0, 1, 2, 3} si
+* Tipo = 3 o fallará
+* la evaluacion
+* @param +Tipo si vale n entonces se utilizará haz_prog_semillan/2 para la generacion de la semilla, debe pertenecer al conjunto
+* {1, 3} por ahora
+* @param -S cumple generador_acordes:es_progresion(S)
+* */
+haz_prog_semilla(N,_ ,progresion([])) :- N =< 0, !, termina_haz_prog_semilla([]).
+haz_prog_semilla(1,_ ,progresion([(C, figura(1,1))])) :-
+	!, dame_grado_funcTonal_equiv2(grado(i), G), hazCuatriada(G,C),
+        termina_haz_prog_semilla(progresion([(C, figura(1,1))])).
+
+haz_prog_semilla(N, Tipo, S) :-
+	haz_prog_semilla(Tipo, S),  numCompases(S, NumCompFloat),
+        NumComp is ceiling(NumCompFloat), N >= NumComp, N =< NumComp, /*pq en Sicstus el ceiling da un float*/
+        termina_haz_prog_semilla(S).
+
+termina_haz_prog_semilla(progresion(S)) :-
+        fichero_destinoGenAc_prog_semilla(FDest), escribeLista(FDest, S).
+
+/**
+* haz_prog_semilla(+Tipo,-S) devuelve en S una progresion pequeña usada en el principio de la generación.
+* Esta progresion respetará el ritmo armonico y durara un numero de compases no determinado en un intervalos que
+* depende de Tipo, entre 2 y 4 compases si este vale 1 y entre 2 y 3 compases si vale 3
+* @param +Tipo si vale n entonces se utilizará haz_prog_semillan/2 para la generacion de la semilla, debe pertenecer al conjunto
+* {1, 3} por ahora
 * @param -S cumple generador_acordes:es_progresion(S)
 * */
 haz_prog_semilla(1,S) :- haz_prog_semilla1(S).
-haz_prog_semilla(2,S) :- haz_prog_semilla2(S).
+/*haz_prog_semilla(2,S) :- haz_prog_semilla2(S). garantiza el ritmo armonico correcto?? */
 haz_prog_semilla(3,S) :- haz_prog_semilla3(S).
 
 /**
-* haz_prog_semilla1(S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
-* de salida es una cadencia o un patrón de acordes (ver es_patron_acordes/1 y es_cadencia/1)
+* haz_prog_semilla1(-S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
+* de salida es una cadencia o un patrón de acordes (ver es_patron_acordes/1 y es_cadencia/1) elegida al azar. Por tanto durará
+* dos compases como minimo y cuatro como maximo. Esta progresion respetará el ritmo armonico
 * @param -S cumple generador_acordes:es_progresion(S)
 * */
 haz_prog_semilla1(S) :- setof(Lg1, cadenciaValida(cadencia(Lg1,_)), Lc1)
@@ -35,14 +69,18 @@ haz_prog_semilla1(S) :- setof(Lg1, cadenciaValida(cadencia(Lg1,_)), Lc1)
 	,dame_elemento_aleatorio(Lc, ListaGrados),listaGradosAProgresion(ListaGrados,S).
 
 /**
-* haz_prog_semilla3(S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
-* de salida es una cadencia (ver es_cadencia/1) a la que se le ha aplicado 10 veces el predicado cambia_acordes
+* haz_prog_semilla3(-S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
+* de salida es una cadencia (ver es_cadencia/1) a la que se le ha aplicado 10 veces el predicado cambia_acordes. Por tanto durará
+* dos compases como minimo y tres como maximo. Esta progresion respetará el ritmo armonico
 * @param -S cumple es_progresion(S)
 * */
 haz_prog_semilla3(S) :- setof(Lg, cadenciaValida(cadencia(Lg,_)), Lc)
 				,dame_elemento_aleatorio(Lc, ListaGrados)
 				,listaGradosAProgresion(ListaGrados, A)
 				,aplica_cambia_acordes(A, 10, S).
+
+aplica_cambia_acordes(Ori, N, Dest) :- N>0, !, N1 is N -1, cambia_acordes(Ori, Aux1), aplica_cambia_acordes(Aux1, N1, Dest).
+aplica_cambia_acordes(Ori, _, Ori).
 
 %CADENCIAS
 /**
@@ -70,26 +108,46 @@ es_listaDeGrados([G|Gs]) :- es_grado(G), es_listaDeGrados(Gs).
 %lista de cadencias
 	%conclusivas
 		%autentica
-cadenciaValida(cadencia([grado(v),grado(i)],0)).%autentica basica
+%cadenciaValida(cadencia([grado(v),grado(i)],0)).%autentica basica
 cadenciaValida(cadencia([grado(iv),grado(v),grado(i)],1)).	%autentica
 cadenciaValida(cadencia([grado(ii),grado(v),grado(i)],2)).	%autentica moderna
-		%plagal
+/*		%plagal
 cadenciaValida(cadencia([grado(iv),grado(i)],3)).			%plagal basica
 cadenciaValida(cadencia([grado(iv),grado(iii)],4)).			%plagal
 cadenciaValida(cadencia([grado(iv),grado(vi)],5)).			%plagal
 cadenciaValida(cadencia([grado(ii),grado(i)],6)).			%plagal
 cadenciaValida(cadencia([grado(ii),grado(iii)],7)).			%plagal
-cadenciaValida(cadencia([grado(ii),grado(vi)],8)).			%plagal
+cadenciaValida(cadencia([grado(ii),grado(vi)],8)).			%plagal*/
 	%suspensivas
-		%semicadencia: reposo en dominante??
 		%rota
-cadenciaValida(cadencia([grado(v),grado(iii)],9)).
-cadenciaValida(cadencia([grado(v),grado(vi)],10)).
+/*cadenciaValida(cadencia([grado(v),grado(iii)],9)).
+cadenciaValida(cadencia([grado(v),grado(vi)],10)).*/
 cadenciaValida(cadencia([grado(iv),grado(v),grado(iii)],11)).
 cadenciaValida(cadencia([grado(iv),grado(v),grado(vi)],12)).
 cadenciaValida(cadencia([grado(ii),grado(v),grado(iii)],13)).
 cadenciaValida(cadencia([grado(ii),grado(v),grado(vi)],14)).
-num_cadencias(15).
+/*cadencias modificadas para ajustarse al ritmo armonico*/
+cadenciaValida(cadencia([grado(i),grado(v),grado(i)],0)).%autentica basica
+		%plagal
+cadenciaValida(cadencia([grado(i),grado(iv),grado(i)],3)).			%plagal basica
+cadenciaValida(cadencia([grado(iii),grado(iv),grado(iii)],4)).			%plagal
+cadenciaValida(cadencia([grado(vi),grado(iv),grado(vi)],5)).			%plagal
+cadenciaValida(cadencia([grado(i),grado(ii),grado(i)],6)).			%plagal
+cadenciaValida(cadencia([grado(iii),grado(ii),grado(iii)],7)).			%plagal
+cadenciaValida(cadencia([grado(vi),grado(ii),grado(vi)],8)).			%plagal
+cadenciaValida(cadencia([grado(iii),grado(v),grado(iii)],9)).
+cadenciaValida(cadencia([grado(vi),grado(v),grado(vi)],10)).
+		/*cadencias de dos acordes : todas semicadencias*/
+cadenciaValida(cadencia([grado(iv),grado(v)],15)).
+cadenciaValida(cadencia([grado(ii),grado(v)],16)).
+cadenciaValida(cadencia([grado(i),grado(iv)],17)).
+cadenciaValida(cadencia([grado(iii),grado(iv)],18)).
+cadenciaValida(cadencia([grado(vi),grado(iv)],19)).
+cadenciaValida(cadencia([grado(i),grado(ii)],20)).
+cadenciaValida(cadencia([grado(iii),grado(ii)],21)).
+cadenciaValida(cadencia([grado(vi),grado(ii)],22)).
+num_cadencias(23).
+
 /*No asumo las cadencias como cambios de las cadencias básicas pq entonces no estoy
 contando bien el numero de mutaciones q hago a la progresion*/
 
@@ -114,9 +172,13 @@ es_patron_acordes(patAcord(C,I)) :- es_listaDeGrados(C), natural(I),num_patrones
 * @param +-P si cumple es_patron_acordes y corresponde a un patron de acordes de la armonia moderna ,
 * que ademas haya sido almacenado en este sistema el predicado se cumple
 * */
+/*mantiene el ritmo armonico pq es fuerte - debil y el debil es subdom - dom que cumple + fuerte a debil*/
 patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).
+/*mantiene el ritmo armonico*/
 patAcordesVal(patAcord([grado(i),grado(v7 / v),grado(ii),grado(v)],1)).
+/*mantiene el ritmo armonico*/
 patAcordesVal(patAcord([grado(i),grado(v7 / ii),grado(ii),grado(v)],2)).
+/*mantiene el ritmo armonico*/
 patAcordesVal(patAcord([grado(i),grado(v7 / iv),grado(iv),grado(ivm6)],3)).
 num_patrones_acordes(4).
 

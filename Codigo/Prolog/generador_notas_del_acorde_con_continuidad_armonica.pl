@@ -138,7 +138,7 @@ elegir_aleatoriamente( L, A ) :-
 * @param	Progresion es una progresion de cifrados
 * @param	ListaAcrodes lista de acorde resultante de la traduccion a notas de la lista de cifrados Progresion
 */
-traduce_lista_cifrados( progresion([(Cifrado, Figura) | Resto]), [ (Acorde_ref,Figura) | Salida] ) :-
+traduce_lista_cifrados( progresion([(Cifrado, Figura) | Resto]), progOrdenada([ (Acorde_ref,Figura) | Salida]) ) :-
 	findall(A , traduce_cifrado(Cifrado, _, _, A), Lista),
 	elegir_aleatoriamente( Lista, Acorde_ref ),
 	traduce_lista_cifrados_recursiva( Resto, Acorde_ref, Salida ).

@@ -1,6 +1,4 @@
 
-% TODO: RELLENAR ESTO
-% TODO: PONER BIEN LOS COMENTARIOS
 
 :- module(biblio_genaro_acordes,[
 	inversion_y_disposicion/4,
@@ -14,7 +12,8 @@
 	normaliza_altura/2,
 	mostrar_acorde/1,
 	es_acorde/1,
-	es_lista_orden_acordes/1
+	es_lista_orden_acordes/1,
+	es_progresion_ordenada/1
 ]).
 
 
@@ -22,6 +21,12 @@
 :- use_module(library(random)).
 :- use_module(library(lists)).
 
+
+
+es_progresion_ordenada(progOrdenada(Loa)) :- es_lista_orden_acordes(Loa).
+
+es_lista_orden_acordes([]).
+es_lista_orden_acordes([(Ac,F)|Loa]) :- es_acorde(Ac),es_figura(F), es_lista_orden_acordes(Loa).
 
 es_acorde( acorde(Lista) ) :-
 	es_acorde_recursivo(Lista).
@@ -31,6 +36,12 @@ es_acorde_recursivo([Altura | RestoAlturas]) :-
 	es_altura(Altura),
 	es_acorde_recursivo(RestoAlturas).
 
+
+/**
+* mostrar_acorde( +Acorde )
+* Escribe por pantalla el Acorde de una forma mas legible que la que mostraria Prolog
+* @param +Acorde acorde que se escribe por pantalla
+*/
 mostrar_acorde( acorde(L) ) :-
 	write('Acorde:'),
 	nl,
@@ -43,24 +54,26 @@ mostrar_acorde_recursivo([A | Resto]) :-
 	mostrar_acorde_recursivo(Resto).
 
 
+
 es_vector(V) :- es_vector3(V).
 es_vector(V) :- es_vector4(V).
+
 
 es_vector3(vector(A,B,C)) :- integer(A), integer(B), integer(C).
 es_vector4(vector(A,B,C,D)) :- integer(A), integer(B), integer(C), integer(D).
 
 
-/*
-USO: inversion_y_disposicion(+Inv, +Disp, +Acorde1, -Acorde2 )
-PARAMETROS:
-	Inv: 	es la inversion del acorde. El estado funcamental se representa con un 0. Las triadas solo 
-		tienen las inversiones 0, 1 y 2 mientras que las triadas tienen las tres.
-	Disp: es la disposicion del acorde. Las disposiciones posibles para una triada son 1, 2 y 3 mientras que
-		para una cuatriada son las cuatro.
-	Acorde1: el acorde en posicion fundamental
-	Acorde2: el acorde con la inversion y disposicion indicada en Inv y Disp.
-DESCRIPCION: este predicado representa una base de datos sobre los acordes y la forma de colocar sus
-	inversiones y disposiciones de la forma mas usual y en posicion cerrada.
+/**
+* inversion_y_disposicion(+Inv, +Disp, +Acorde1, -Acorde2 )
+* este predicado representa una base de datos sobre los acordes y la forma de colocar sus
+* inversiones y disposiciones de la forma mas usual y en posicion cerrada.
+* @param +Inv 	es la inversion del acorde. El estado funcamental se representa con un 0. Las triadas solo 
+* 	tienen las inversiones 0, 1 y 2 mientras que las triadas tienen las tres.
+* @param +Disp es la disposicion del acorde. Las disposiciones posibles para una triada son 1, 2 y 3 mientras que
+* 	para una cuatriada son las cuatro.
+* @param +Acorde1 el acorde en posicion fundamental
+* @param -Acorde2 el acorde con la inversion y disposicion indicada en Inv y Disp.
+
 */
 inversion_y_disposicion( 0, 1, acorde([A,B,C,D]), acorde([A,B,C,D,A1]) ) :-
 	trasponer(A,12,A1).
@@ -113,7 +126,7 @@ inversion_y_disposicion( 2, 4, acorde([A,B,C,D]), acorde([C,A1,B1,C1,D1]) ) :-
 inversion_y_disposicion( 3, 1, acorde([A,B,C,D]), acorde([D1,B,C,D,A1]) ) :-   
 	trasponer(A,12,A1),
 	trasponer(D,-12,D1).
-inversion_y_disposicion( 3, 2, acorde([A,B,C,D]), acorde([D1,C,D,A1,B1]) ) :- %%%%%%%%%%%%%%%%
+inversion_y_disposicion( 3, 2, acorde([A,B,C,D]), acorde([D1,C,D,A1,B1]) ) :- 
 	trasponer(A,12,A1),
 	trasponer(B,12,B1),        
 	trasponer(D,-12,D1).
@@ -164,14 +177,13 @@ inversion_y_disposicion( 2, 3, acorde([A,B,C]), acorde([C,A1,B1,C1]) ) :-
 
 
 % FALTAN ALGUNAS MATRICULAS
-/*
-USO: vector_suma(+-M, +-V).
-PARAMETROS:
-	M: 	matricula del cifrado.
-	V: 	vector de tres o cuatro componentes (segun sea triada o cuatriada) que representa el vector
-		que hay que sumar a la fundamental para dar las notas del acorde.
-DESCRIPCION: es una base de datos relacional con la matricula de un cifrado y su estructura expresada
-	en forma de vector de suma de semitonos.
+/**
+* vector_suma(+-M, +-V).
+* es una base de datos relacional con la matricula de un cifrado y su estructura expresada
+* en forma de vector de suma de semitonos.
+* @param M matricula del cifrado.
+* @param V vector de tres o cuatro componentes (segun sea triada o cuatriada) que representa el vector
+* 	que hay que sumar a la fundamental para dar las notas del acorde.
 */
 vector_suma( matricula(mayor), vector3(0,4,7) ).
 vector_suma( matricula(m), vector3(0,3,7) ).
@@ -188,14 +200,12 @@ vector_suma( matricula(au7), vector4(0,4,8,10) ).
 vector_suma( matricula(dis7), vector4(0,3,6,9) ).
 
 
-% no se muy bien donde poner esto
-/*
-USO: gradoANumNota(+-Grado, +-NumNota).
-PARAMETROS:
-	Grado: grado sobre el que se forma el acorde
-	NumNota: numero de nota que representa el grado en la escala de do mayor
-DESCRIPCION:
-	Base de hechos que relaciona los grados con su nota en la escala de do mayor
+% ESTO CREO QUE HAY QUE CAMBIARLO
+/**
+* gradoANumNota(+-Grado, +-NumNota).
+* Base de hechos que relaciona los grados con su nota en la escala de do mayor
+* @param +-Grado grado sobre el que se forma el acorde
+* @param +-NumNota numero de nota que representa el grado en la escala de do mayor
 */
 gradoANumNota(grado(i), numNota(3)).
 gradoANumNota(grado(bii), numNota(4)).
@@ -210,8 +220,13 @@ gradoANumNota(grado(vi), numNota(0)).
 gradoANumNota(grado(bvii), numNota(1)).
 gradoANumNota(grado(vii), numNota(2)).
 
-/*
-	
+/**
+* suma_vector( +Altura, +Vector, -Acorde )
+* A la altura Altura le suma los semitonos que se encuentran en Vector para procudir un acorde en estado fundamental
+* y en primera disposicion
+* @param +Altura altura base del acorde
+* @param +Vector vector suma que representa la estructura del acorde
+* @param -Acorde acorde de salida es estado fundamental y primera disposicion
 */
 suma_vector( Altura, vector3(A,B,C), acorde([
 		Altura1,
@@ -237,6 +252,13 @@ suma_vector( Altura, vector4(A,B,C,D), acorde([
 
 
 %% ESTO DEBE IR EN OTRO FICHERO
+/**
+* normaliza_altura( +Altura1, -Altura2 )
+* Devuelve Altura1, que es equivalente en sonido a Altura2, pero en forma normal. Entendemos por forma normal aquella
+* que tiene el mismo sonido pero numNota esta comprendida entre 0 y 11
+* @param +Altura1 altura para normalizar
+* @param -Altura2 altura normalizada
+*/
 normaliza_altura( altura(numNota(N), octava(O)) , altura(numNota(N), octava(O)) ) :-	
 	N =< 11,
 	N >= 0,
@@ -255,6 +277,14 @@ normaliza_altura( altura(numNota(N1), octava(O1)) , altura(numNota(N2), octava(O
 	normaliza_altura( altura(numNota(Aux1), octava(Aux2)) , altura(numNota(N2), octava(O2)) ).
 
 
+/**
+* trasponer( +Altura1, +NumSemitonos, -Altura2 )
+* Traspone Altura1 el numero de semintonos indicados en NumSemitonos. Entendemos por trasponer la accion de sumar a 
+* una altura un numero de semitonos especificados.
+* @param +Altura1 altura a trasponer
+* @param +NumSemitonos semitonos que se traspone Altura1
+* @param -Altura2 altura traspuesta y normalizada
+*/
 trasponer( altura(numNota(N), octava(O)), NumSemitonos, altura(numNota(N2), octava(O2)) ) :-
 	N_aux is (12 + (N - 3)) mod 12,
 	N_aux2 is N_aux + NumSemitonos,
@@ -272,7 +302,16 @@ traduce_cifrado( Cifrado, Inv, Disp, Acorde ) :-
 	inversion_y_disposicion( Inv, Disp, L, Acorde).
 	
 
-	
+/**
+* eleccion_aleatoria( +NumAleatorio, +P0, +P1, +P2, -Salida )
+* Elige un numero entre 0 y 3 en funcion del numero aleatorio NumAleatorio y de las probabilidades (en tanto por ciento)
+* de que suceda cada numero. Entendemos que la probabilidad de que suceda P3 es 100-P0-P1-P2
+* @param +NumAleatorio numero aleatorio entre 0 y 99 que determina univocamente Salida
+* @param +P0 probabilidad de que suceda el valor 0
+* @param +P1 probabilidad de que suceda el valor 1
+* @param +P2 probabilidad de que suceda el valor 2
+* @param -Salida Numero elegido, entre 0 y 3
+*/	
 eleccion_aleatoria( NumAleatorio, P0, _, _, 0 ) :-
 	NumAleatorio =< P0,
 	!.
@@ -288,7 +327,8 @@ eleccion_aleatoria( _, _, _, _, 3 ).
 
 
 
-es_progresion_ordenada(progOrdenada(Loa)) :- es_lista_orden_acordes(Loa).
-es_lista_orden_acordes([]).
-es_lista_orden_acordes([(Ac,F)|Loa]) :- es_acorde(Ac),es_figura(F), es_lista_orden_acordes(Loa).
+
+
+
+
 

@@ -1,0 +1,22 @@
+progresion usada en los ejemplos:
+[ (cifrado(grado(i), matricula(maj7)), figura(2, 1)), 
+, (cifrado(grado(vi), matricula(m7)), figura(1, 2)), 
+, (cifrado(grado(v7/vi), matricula(7)), figura(1, 2)), 
+, (cifrado(grado(vi), matricula(m7)), figura(1, 1)), 
+, (cifrado(grado(ii), matricula(m7)), figura(1, 4)), 
+, (cifrado(grado(iv), matricula(maj7)), figura(1, 4)), 
+, (cifrado(grado(v7/ii), matricula(7)), figura(1, 2)), 
+, (cifrado(grado(ii), matricula(m7)), figura(1, 1)), 
+, (cifrado(grado(vii), matricula(m7b5)), figura(2, 1)), 
+]
+patron ritmico de 13_3_2005genaro_ritmico.mid:
+sin_nombre_6_voces_corcheas.txt
+VOCES 6
+COLUMNAS 6
+RESOLUCION 8
+SILENCIO SILENCIO SILENCIO SILENCIO SILENCIO SIMPLE 50 FIN
+SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO FIN
+SILENCIO SILENCIO SILENCIO SILENCIO SIMPLE 50 SILENCIO FIN
+SILENCIO SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO FIN
+SILENCIO SILENCIO SILENCIO SIMPLE 50 SILENCIO SILENCIO FIN
+SIMPLE 50 SILENCIO SILENCIO SILENCIO SILENCIO SILENCIO FIN

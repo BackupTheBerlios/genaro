@@ -36,6 +36,8 @@ public class Ventana_principal extends JFrame implements Runnable{
   TitledBorder titledBorder1;
   JButton jButton1 = new JButton();
   JButton jButton2 = new JButton();
+  JTextField jTextField1 = new JTextField();
+  JTextField jTextField2 = new JTextField();
 
   //Construir el marco
   public Ventana_principal() {
@@ -83,25 +85,36 @@ public class Ventana_principal extends JFrame implements Runnable{
     this.setTitle("Genaro");
     statusBar.setBorder(BorderFactory.createLoweredBevelBorder());
     statusBar.setText(" ");
+    stopButton.setBounds(new Rectangle(166, 5, 57, 25));
     stopButton.setText("Stop");
     stopButton.addMouseListener(new Ventana_principal_stopButton_mouseAdapter(this));
+    playButton.setBounds(new Rectangle(88, 4, 55, 25));
     playButton.setText("Play");
     playButton.addMouseListener(new Ventana_principal_playButton_mouseAdapter(this));
     cargarButton.setText("Cargar");
     cargarButton.addActionListener(new Ventana_principal_cargarButton_actionAdapter(this));
     cargarButton.addMouseListener(new Ventana_principal_cargarButton_mouseAdapter(this));
+    jButton1.setBounds(new Rectangle(243, 5, 73, 25));
     jButton1.setOpaque(true);
     jButton1.setText("jButton1");
     jButton1.addMouseListener(new Ventana_principal_jButton1_mouseAdapter(this));
-    jButton2.setText("jButton2");
+    jButton2.setBounds(new Rectangle(118, 96, 133, 25));
+    jButton2.setText("A COMPONER");
     jButton2.addActionListener(new Ventana_principal_jButton2_actionAdapter(this));
-    contentPane.add(statusBar, BorderLayout.SOUTH);
-    contentPane.add(jPanel1,  BorderLayout.CENTER);
-    jPanel1.add(playButton, null);
-    jPanel1.add(stopButton, null);
+    jPanel1.setLayout(null);
+    jTextField1.setText("generador_acordes.pl");
+    jTextField1.setBounds(new Rectangle(28, 129, 141, 27));
+    jTextField2.setText("genera_acordes(10,10,paralelo)");
+    jTextField2.setBounds(new Rectangle(192, 128, 169, 28));
+    contentPane.add(statusBar, BorderLayout.WEST);
     jPanel1.add(jButton1, null);
+    jPanel1.add(stopButton, null);
+    jPanel1.add(playButton, null);
+    jPanel1.add(jTextField1, null);
+    jPanel1.add(jTextField2, null);
     jPanel1.add(jButton2, null);
     contentPane.add(cargarButton, BorderLayout.NORTH);
+    contentPane.add(jPanel1, BorderLayout.CENTER);
   }
   //Modificado para poder salir cuando se cierra la ventana
   protected void processWindowEvent(WindowEvent e) {
@@ -193,21 +206,26 @@ public class Ventana_principal extends JFrame implements Runnable{
       fichero_conf.read(buffer1,0,tamano_string);
       Ruta_prolog=new String(buffer1);
 
-      tamano_string=fichero_conf.read();
+Ruta_codigo_prolog="..\\Prolog";
+/*      tamano_string=fichero_conf.read();
       buffer2=new char[tamano_string];
       fichero_conf.read(buffer2,0,tamano_string);
       Ruta_codigo_prolog=new String(buffer2);
-
+*/
+      Ruta_haskell="runhugs.exe";
+      /*
       tamano_string=fichero_conf.read();
       buffer3=new char[tamano_string];
       fichero_conf.read(buffer3,0,tamano_string);
       Ruta_haskell=new String(buffer3);
-
-      tamano_string=fichero_conf.read();
+*/
+Ruta_codigo_haskell = "..\\Haskell";
+/*
+     tamano_      tamano_string=fichero_conf.read();
       buffer4=new char[tamano_string];
       fichero_conf.read(buffer4,0,tamano_string);
       Ruta_codigo_haskell=new String(buffer4);
-
+*/
   /*    write public void write(String str,
                   int off,
                   int len)
@@ -237,6 +255,7 @@ public class Ventana_principal extends JFrame implements Runnable{
           fichero_escritura.write(Ruta_prolog,0,Ruta_prolog.length());
         }
         //2- elegir el directorio del código prolog
+        /*
         JFileChooser jFileChooser2 = new JFileChooser(".");
         jFileChooser2.setDialogTitle(
             "Escoge la localización del código que vais a emplear para prolog");
@@ -246,19 +265,22 @@ public class Ventana_principal extends JFrame implements Runnable{
           Ruta_codigo_prolog = jFileChooser2.getCurrentDirectory().getAbsolutePath();
           fichero_escritura.write(Ruta_codigo_prolog.length());
           fichero_escritura.write(Ruta_codigo_prolog,0,Ruta_codigo_prolog.length());
-        }
+        }*/
+  Ruta_codigo_prolog="..\\Prolog";
         //3- localizacion runhugs.exe
         JFileChooser jFileChooser3 = new JFileChooser(".");
         jFileChooser3.setDialogTitle(
             "Escoge la localización del programa \"runhugs.exe\"");
-        valorDevuelto = jFileChooser3.showOpenDialog(this);
+        /*valorDevuelto = jFileChooser3.showOpenDialog(this);
         if (valorDevuelto == JFileChooser.APPROVE_OPTION)
         {
           Ruta_haskell = jFileChooser3.getSelectedFile().getAbsolutePath();
           fichero_escritura.write(Ruta_haskell.length());
           fichero_escritura.write(Ruta_haskell,0,Ruta_haskell.length());
-        }
+        }*/
+        Ruta_haskell = "runhugs.exe";
         //4- elegir el directorio del código haskell
+        Ruta_codigo_haskell="..\\Haskell";/*
         JFileChooser jFileChooser4 = new JFileChooser(".");
         jFileChooser4.setDialogTitle(
             "Escoge la localización del código que vais a emplear para haskell");
@@ -268,14 +290,14 @@ public class Ventana_principal extends JFrame implements Runnable{
           Ruta_codigo_haskell = jFileChooser4.getCurrentDirectory().getAbsolutePath();
           fichero_escritura.write(Ruta_codigo_haskell.length());
           fichero_escritura.write(Ruta_codigo_haskell,0,Ruta_codigo_haskell.length());
-        }
+        }*/
         fichero_escritura.close();
       }
       catch (IOException excp)
       {System.out.println("error escribiendo fichero configuración");}
     }
     Interfaz_Prolog nuevo_int_prolog=new Interfaz_Prolog(Ruta_prolog,Ruta_codigo_prolog);
-    nuevo_int_prolog.Ejecuta_Objetivo("generador_acordes.pl","genera_acordes(10,10,paralelo)");
+    nuevo_int_prolog.Ejecuta_Objetivo(jTextField1.getText()/*"generador_acordes.pl"*/,jTextField2.getText()/*"genera_acordes(10,10,paralelo)"*/);
     Interfaz_Haskell nuevo_int_haskell=new Interfaz_Haskell(Ruta_haskell,Ruta_codigo_haskell);
     nuevo_int_haskell.Ejecuta_Funcion("main.hsx");
   }

@@ -34,21 +34,26 @@ public Interfaz_Prolog(String interprete, String cod_fuente)
 
 public void Ejecuta_Objetivo(String nombre_archivo, String objetivo)
   {//no olvidarse de añadir el main al fichero, es decir, copiar el archivo original a otro, y luego añadir el main, yluego usar eso como nombre_archivo.
+  String importar_modulo="";
+  for (int i=0;i<(nombre_archivo.length()-3);i++){importar_modulo+=nombre_archivo.charAt(i);}
+  importar_modulo=":- use_module("+importar_modulo+").\n";
+//   :-use_module(nombre_archivo-sin.pl).
     String main_del_fichero="main:-"+objetivo+",halt.\n:- initialization main.";
     try
     {
       FileWriter salida_temporal=new FileWriter(Ruta_Codigo+"\\temporal.pl");
-      FileReader archivo_original=new FileReader(Ruta_Codigo+"\\"+nombre_archivo);
+      main_del_fichero=importar_modulo+main_del_fichero;//
+     /* FileReader archivo_original=new FileReader(Ruta_Codigo+"\\"+nombre_archivo);//*
       int c;
       c=archivo_original.read();
       while (c!=-1)
       {
         salida_temporal.write(c);
         c=archivo_original.read();
-      }
+      }//*/
       salida_temporal.write(main_del_fichero,0,main_del_fichero.length());
       salida_temporal.close();
-      archivo_original.close();
+    //  archivo_original.close();//
     }
     catch (IOException excepcion_molona)
     {}

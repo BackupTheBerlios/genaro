@@ -14,6 +14,7 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 %%:- module(generador_acordes_binario).
 :- module(generador_acordes_binario
     ,[genera_acordes/0
+      ,genera_acordes/4
       ,cambia_acordes/2]).
 
 %BIBLIOTECAS
@@ -104,10 +105,10 @@ termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
 
 		%PREDICADOS QUE AÑADEN MAS COMPASES A LA PROGRESION
 /*fija_compases(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
-progresion de longitud N (N compases)
+progresion de longitud N (N compases) alragando la de entrada. Por tanto si la progresión de entrada
+dura N o más compases entonces no hace nada.
 in: ProgSemilla progresión de partida (semilla). Cumple es_progresion(ProgSemilla)
-    N numero de compases que tendra la progresion. Es un natural MAYOR O IGUAL que el numero de
-    acordes de ProgSemilla
+    N numero de compases que tendra la progresion.
 out: ProgResul resultado de las transformaciones, Cumple es_progresion(ProgResul)
 */
 fija_compases(ProgSemilla, N, ProgSemilla) :- numCompases(ProgSemilla, NumComp), NumComp >= N,!.
@@ -134,7 +135,7 @@ num_acciones_alarga(2).
 * El dominante secundario se añadirá sin asegurarse de respetar las reglas de ritmo armónico y durará lo mismo
 * q el acorde sobre el que ejerce de dominante secundario
 * @param +Po cumple es_progresion(Po)
-* @param -Po cumple es_progresion(Pd)
+* @param -Pd cumple es_progresion(Pd)
 */
 aniade_dominante_sec(progresion(Lo), progresion(Ld)) :- aniade_dom_sec_lista(Lo, Ld).
 aniade_dom_sec_lista([], []) :- !.
@@ -149,25 +150,54 @@ aniade_dom_sec_lista(Lo, Ld):-
 
 aniade_dom_sec_lista(Lo, Lo).
 
+monta_dominante_sec(grado(i),grado(v)).
+monta_dominante_sec(grado(G),grado(v7 / G)).
+
+/**
+* inserta_dominante_sec(Posicion, Lo, Ld). Devuelve en ListaResul el resultado de insertar en lista origen el cifrado correspondiente
+* al dominante del acorde situado en la posicion indicada
+* Se aumenta la duración de la progresión en una fracción de un compás potencia de dos compás.
+* Respeta la continuidad armónica, debido a ello puede duplicar algunos acordes
+* @param +Dominante: cumple es_grado(GDominante) y sigue el patrón grado(v7 / G) o grado(v)
+* @param +Posicion es un natural
+* @param +Lo cumple es_progresion(progresion(Lo))
+* @param +Ld cumple es_progresion(progresion(Ld))
+*/
+inserta_dominante_sec(_, [], [(cifrado(grado(v),matricula(7)), figura(1,1))]) :-!.
+/*Cómo mantener el ritmo armónico: si el acorde al que le añado el dominante dura (N/D) tomo N/D como unidad. Como estamos
+en binario supongo invariante que N es 1 y D es potencia de 2 (demostrar!!!)."Lo" sólo tiene un acorde, entonces la posicion 0
+es fuerte y la posicion 0 + N/D es débil respecto a ella. Y tb ocurre que el segmento [0,2*N/D] se divide así
+  F              D
+F    D       F      D
+0    N/2*D   N/D    3*N/2*D , cada fragmento de los 4 dura N/2*D
+
+se alarga la progresion en N/D
+*/
+inserta_dominante_sec(_, [(cifrado(grado(G),matricula(M)), F)]
+      , [(cifrado(grado(G),matricula(M)), Fmed),(cifrado(GDominante,matricula(7)), Fmed), (cifrado(grado(G),matricula(M)), F)])
+              :- !, monta_dominante_sec(grado(G), GDominante), divideFigura(F,2,Fmed).
+/*inserta_dominante_sec(_, [(cifrado(grado(G),matricula(M)), F)]
+      , [(cifrado(GDominante,matricula(7)), figura(1,1)), (cifrado(grado(G),matricula(M)), F)])
+              :- !, monta_dominante_sec(grado(G), GDominante).*/
 /**
 * buscaCandidatosADominanteSec(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
-* les puede añadir un dominante secundario por delante de ellos, esto es, aquellos que no son acordes del primer grado y a los que
-* no se les ha añadido ya un dominante secundario
+* les puede añadir un dominante secundario por delante de ellos, esto es, aquellos a los que no se les ha añadido ya un dominante
+* secundario. Al primer grado se considera que se le puede añadir un dominante secundario, por tanto el primer acorde de una progresión
+* siempre será candidato
 * @param +Li cumple es_progresion(progresion(Li))
 * @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
 * intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
 */
-buscaCandidatosADominanteSec([(cifrado(grado(i), M), F)|Li], Lo)
-	:- !,buscaCandidatosADominanteSecAcu([(cifrado(grado(i), M), F)|Li], 2, Lo).
+/*buscaCandidatosADominanteSec([(cifrado(grado(i), M), F)|Li], Lo)
+	:- !,buscaCandidatosADominanteSecAcu([(cifrado(grado(i), M), F)|Li], 2, Lo).*/
 buscaCandidatosADominanteSec([(cifrado(grado(G),M), F)|Li], [(cifrado(grado(G),M), F, 1)|Lo])
 	:- buscaCandidatosADominanteSecAcu([(cifrado(grado(G),M), F)|Li], 2, Lo).
 /**
 * % buscaCandidatosADominanteSecAcu(Li, PosActual, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
-* les puede añadir un dominante secundario por delante de ellos, esto es, aquellos que no son acordes del primer grado y a los que
-* no se les ha añadido ya un dominante secundario. !no implementado!: tampoco se debería poder añadir un dominante por extension entre un
-* dominante secundario y su iim7 relativo correspondiente!!!!o si???? Al final lo dejo pq tiene su gracia
+* les puede añadir un dominante secundario por delante de ellos, esto es, aquellos a los que no se les ha añadido ya un dominante
+* secundario (se permite añadir dom secundario al primer grado).
 * PosActual indica la posicion del acorde que se considera, dentro de la lista
 * total sobre la que se ha llamado a buscaCandidatosADominanteSec, que a su vez habrá llamado a este predicado
 * @param +Li cumple es_progresion(progresion(Li))
@@ -177,11 +207,16 @@ buscaCandidatosADominanteSec([(cifrado(grado(G),M), F)|Li], [(cifrado(grado(G),M
 */
 buscaCandidatosADominanteSecAcu([], _, []).
 buscaCandidatosADominanteSecAcu([_],_,[]).%pq _ ya se habría examinado
-%hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso empieza en dos
+/*hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso se llama desde buscaCandidatosADominanteSec
+dos con PosActual valiendo 2*/
 buscaCandidatosADominanteSecAcu([(cifrado(grado(v7 / G2),matricula(_)), _),(cifrado(grado(G2),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
                        ,buscaCandidatosADominanteSecAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
-buscaCandidatosADominanteSecAcu([_,(cifrado(grado(i),matricula(M2)), F2)|Li]
+/*buscaCandidatosADominanteSecAcu([_,(cifrado(grado(i),matricula(M2)), F2)|Li]
+    , PosActual, Lo) :- !,PosSig is PosActual + 1
+                       ,buscaCandidatosADominanteSecAcu([(cifrado(grado(i),matricula(M2)), F2)|Li], PosSig, Lo).*/
+/*evita añadir otra vez el v grado delante de un i grado precedido de v grado*/
+buscaCandidatosADominanteSecAcu([(cifrado(grado(v),matricula(_)), _),(cifrado(grado(i),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
                        ,buscaCandidatosADominanteSecAcu([(cifrado(grado(i),matricula(M2)), F2)|Li], PosSig, Lo).
 buscaCandidatosADominanteSecAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]

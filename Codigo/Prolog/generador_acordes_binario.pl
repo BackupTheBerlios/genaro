@@ -83,7 +83,7 @@ haz_progresion(N, M, 1, Progresion) :- N>=0, N =< 4,!, haz_prog_semilla(N, 1, PA
 	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
 haz_progresion(N, M, 3, Progresion) :- N>=0, N =< 3,!, haz_prog_semilla(N, 3, PAux1),
 	modifica_prog(PAux1, M, PAux2), termina_haz_progresion(PAux2, Progresion).
-haz_progresion(N, M, Tipo, progresion(La)) :- haz_prog_semilla(Tipo, progresion(S))
+/*haz_progresion(N, M, Tipo, progresion(La)) :- haz_prog_semilla(Tipo, progresion(S))
                 ,escribeLista('C:/hlocal/cifradosSemilla.txt',S)
 		,fija_compases_aprox(progresion(S), N, Laux1), modifica_prog(Laux1, M, progresion(Laux2))
                 ,escribeLista('C:/hlocal/cifradospreFin.txt',Laux2)
@@ -91,7 +91,11 @@ haz_progresion(N, M, Tipo, progresion(La)) :- haz_prog_semilla(Tipo, progresion(
                 ,quita_grados_relativos(progresion(Laux4), progresion(La))
                 ,escribeLista('C:/hlocal/cifrados.txt', La)
                 ,fichero_destinoGenAc_prog(FDC)
-                ,escribeTermino(FDC,progresion(La)).
+                ,escribeTermino(FDC,progresion(La)).*/
+
+haz_progresion(N, M, Tipo, ProgNoRel) :- haz_prog_semilla(Tipo, ProgSem)
+		,fija_compases(ProgSem, N, Paux1), modifica_prog(Paux1, M, Paux2)
+                ,termina_haz_progresion(Paux2, ProgNoRel).
 
 termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
 		fichero_destinoGenAc_prog(FichNoRel), fichero_destinoGenAc_prog_con_rel(FichRel),
@@ -99,16 +103,16 @@ termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
                 escribeTermino(FichNoRel, ProgNoRel).
 
 		%PREDICADOS QUE AÑADEN MAS COMPASES A LA PROGRESION
-/*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
-progresion de longitud N (N compases) APROXIMADAMENTE
+/*fija_compases(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
+progresion de longitud N (N compases)
 in: ProgSemilla progresión de partida (semilla). Cumple es_progresion(ProgSemilla)
-    N numero de compases que tendra la progresion como minimo. Es un natural mayor o igual que el numero de
+    N numero de compases que tendra la progresion. Es un natural MAYOR O IGUAL que el numero de
     acordes de ProgSemilla
 out: ProgResul resultado de las transformaciones, Cumple es_progresion(ProgResul)
 */
-fija_compases_aprox(ProgSemilla, N, ProgSemilla) :- numCompases(ProgSemilla, NumComp), NumComp >= N,!.
-fija_compases_aprox(ProgSemilla, N, ProgResul) :- alarga_progresion(ProgSemilla, ProgAux)
-		,fija_compases_aprox(ProgAux, N, ProgResul).
+fija_compases(ProgSemilla, N, ProgSemilla) :- numCompases(ProgSemilla, NumComp), NumComp >= N,!.
+fija_compases(ProgSemilla, N, ProgResul) :- alarga_progresion(ProgSemilla, ProgAux)
+		,fija_compases(ProgAux, N, ProgResul).
 
 /**
 * alarga_progresion(Po, Pd) devuelve en Pd una progresion igual a Po salvo por que se le ha añadido un acorde

@@ -13,9 +13,7 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 %DECLARACION DEL MODULO
 %%:- module(generador_acordes_binario).
 :- module(generador_acordes_binario
-    ,[genera_acordes/0
-      ,genera_acordes/4
-     ,haz_progresion/4]).
+    ,[haz_progresion/4]).
 
 %BIBLIOTECAS
 :- ensure_loaded(library(lists)).
@@ -33,38 +31,6 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 :- use_module(generador_notas_del_acorde_con_sistema_paralelo).
 :- use_module(generador_notas_del_acorde_con_continuidad_armonica).
 
-%PREDICADOS
-genera_acordes :- genera_acordes(6,3, continuidad,1).
-/**
-* genera_acordes(+N, +M, +EnlaceVoces, +TipoSemilla)
-* Construye una progresion que dura exactamente N compases y en la que se han aplicado M
-* transformaciones durante su generacion. Esta progresion y otros terminos intermedios se
-* escriben en los siguientes ficheros de texto:
-* - En un fichero de texto cuya ruta es especificada en generador_acordes:fichero_destinoGenAc_prog_ord/1
-* se escribe un termino que cumple biblio_genaro_acordes:es_progresion_ordenada/1 y que es el
-* resultado final de la generacion
-* - En un fichero de texto cuya ruta es especificada en generador_acordes:fichero_destinoGenAc_prog/1
-* se escribe un termino que cumple biblio_genaro_acordes:es_progresion/1 y que es el resultado final de la generacion
-* @param +N natural que indica el numero exacto de compases que durará la progresion
-* @param +M natural que indica el numero de transformaciones que se aplicarán a la progresion
-* @param +EnlaceVoces pertenece al conjunto {paralelo, continuidad} e indica cual de los dos sistemas se empleará
-* para enlazar las voces para generar el termino que cumple es_progresion_ordenada que luego se escribirá en el
-* fichero
-* @param +TipoSemilla indica cual de los predicados disponibles se utilizará para la generación de la semilla desde la que
-* se parte para hacer la generacion de acordes
-*
-* FALTA ELEGIR LA DISPISICION SI CORRESPONDE
-* */
-genera_acordes(N,M, paralelo, TipoSemilla) :- haz_progresion(N, M, TipoSemilla, Prog)
-        ,generador_notas_del_acorde_con_sistema_paralelo:traduce_lista_cifrados(Prog,100,0,100,0,0,ListaAcordes)
-        ,termina_genera_acordes(ListaAcordes).
-
-genera_acordes(N,M, continuidad, TipoSemilla) :- haz_progresion(N, M, TipoSemilla, Prog)
-        ,generador_notas_del_acorde_con_continuidad_armonica:traduce_lista_cifrados(Prog,ListaAcordes)
-        ,termina_genera_acordes(ListaAcordes).
-
-termina_genera_acordes(ListaAcordes) :-
-        fichero_destinoGenAc_prog_ord(Dd), escribeTermino(Dd, ListaAcordes).
 
 	%PREDICADOS DE GENERACION
 
@@ -93,7 +59,9 @@ haz_progresion(N, M, Tipo, Progresion) :- rango_prog_semilla(Tipo,MinComp, MaxCo
 
 termina_haz_progresion(progresion(ProgRel), ProgNoRel) :-
 		fichero_destinoGenAc_prog(FichNoRel), fichero_destinoGenAc_prog_con_rel(FichRel),
-                escribeLista(FichRel, ProgRel), quita_grados_relativos(progresion(ProgRel), ProgNoRel),
+                fichero_destinoGenAc_prog_con_rel_depura(FichRelDepura),
+                escribeTermino(FichRel, progresion(ProgRel)),
+                escribeLista(FichRelDepura, ProgRel), quita_grados_relativos(progresion(ProgRel), ProgNoRel),
                 escribeTermino(FichNoRel, ProgNoRel).
 
 

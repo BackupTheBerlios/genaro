@@ -33,7 +33,7 @@
 * @param +DirTrabajo: formato como 'c:/hlocal'
 * */
 main(DirTrabajo) :- working_directory(_, DirTrabajo)
-	,generador_acordes_binario:genera_acordes(8, 0, paralelo, 1).
+	,generador_acordes_binario:haz_progresion(8, 0, 1, _).
 
 /**
 * mainArgumentos: este predicado esta pensado para ser compilado en un exe siguiendo este
@@ -52,11 +52,11 @@ main(DirTrabajo) :- working_directory(_, DirTrabajo)
 /*mainArgumentos :- current_prolog_flag(argv, [_,DirTrabajo,NumCompases, NumMutaciones])
        ,atom_number(NumCompases,NC),atom_number(NumMutaciones,NM)
        ,working_directory(_, DirTrabajo)
-       ,generador_acordes_binario:genera_acordes(NC, NM, paralelo, 1)
+       ,generador_acordes_binario:haz_progresion(NC, NM, 1, _)
        ,halt(0).*/
 mainArgumentos :- current_prolog_flag(argv, [_,NumCompases, NumMutaciones])
        ,atom_number(NumCompases,NC),atom_number(NumMutaciones,NM)
-       ,generador_acordes_binario:genera_acordes(NC, NM, paralelo, 1)
+       ,generador_acordes_binario:haz_progresion(NC, NM, 1, _)
        ,halt(0).
 
 

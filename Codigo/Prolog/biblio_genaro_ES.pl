@@ -1,35 +1,11 @@
 %DECLARACION DEL MODULO
-:- module(biblio_genaro_ES,[escribeTermino/3,escribeTermino/2]).
+:- module(biblio_genaro_ES,[escribeTermino/2]).
 
 %BIBLIOTECAS
 :- ensure_loaded(library(system)).
 %:- use_module(library(system)).
 
 
-% use_module(library(system),[]),system:working_directory(_,'C:/hlocal').
-%?- open('lala.txt', read,Str, [type(text)]), close(Str).
-%open('lala.txt', write,Str, [type(text)]),write(Str, [4,5,6]), close(Str).
-%directorioTrabajo('C:/hlocal').
-
-/**
-* escribeTermino(+NombreArchivo, +Directorio, +Termino)
-* escribe Termino en el archivo de nombre NombreArchivo (q debe ser string), dentro
-* del directorio especificado
-* @param +NombreArchivo Es el nombre del archivo en que queremos que se guarde el termino Termino. El nombre
-*  				debe ser un string, es decir, debe ir delimitado por comillas simples
-* @param +Directorio 	Directorio en que queremos que se guarde el archivo. Tambien es un strin y debe ir
-*				deliminato por comillas simeples. Tambien valen rutas relativas
-* @param +Termino		Termido que se desea escribir
-*/
-escribeTermino(NombreArchivo, Directorio, Termino) :-
-	system:working_directory(_,Directorio),
-	open(NombreArchivo, write,Str, [type(text)]),
-	write(Str, Termino),
-	close(Str).
-
-
-%tb va bien si ruta con////!!!!!!!!!!
-%ampliar luego a crear tb el dir
 
 /**
 * escribeTermino(+NombreArchivo, +Termino)
@@ -40,11 +16,9 @@ escribeTermino(NombreArchivo, Directorio, Termino) :-
 * @param +Termino		Termido que se desea escribir
 */
 escribeTermino(NombreArchivo, Termino) :-
-	open(NombreArchivo, write,Str, [type(text)]),
-	write(Str, Termino),
-	close(Str).
-
-
+	open(NombreArchivo, write,Stream, [type(text)]),
+	write(Stream, Termino),
+	close(Stream).
 
 /*
 DIRECTORIO DE TRABAJO:

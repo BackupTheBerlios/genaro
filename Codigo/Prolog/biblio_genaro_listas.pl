@@ -5,6 +5,7 @@
                         ,sublista_suf/3
                         ,escribeLista/2
                         ,listaAListaConSaltos/2
+                        ,listaAStringConSaltos/2
                         ,dame_elemento_aleatorio/2
 			,dame_elemento_aleatorio/3
                         ,dame_elemento_aleatorio/4
@@ -205,4 +206,18 @@ listaAListaConSaltos([], []).
 listaAListaConSaltos([X|Xs], [X, '\n'|Ys]) :-
 	listaAListaConSaltos(Xs, Ys).
 
+listaAStringConSaltos(L, Str) :-
+	listaAStringConSaltosAcu(L,StrContenido),
+        string_to_atom(StrCorcheteAbre,'['),
+        string_to_atom(StrCorcheteCierra,']'),
+        string_concat(StrCorcheteAbre, StrContenido, StrAux),
+        string_concat(StrAux, StrCorcheteCierra, Str).
 
+
+listaAStringConSaltosAcu([],Str) :- string_to_list(Str,[]).
+listaAStringConSaltosAcu([X|Xs], Str) :-
+                term_to_atom(X,AtX),
+		string_to_atom(StrX,AtX), string_to_atom(StrSalto, ',\n'),
+                string_concat(StrX, StrSalto, StrXSalto),
+                listaAStringConSaltosAcu(Xs, StrXs),
+                string_concat(StrXSalto,StrXs, Str).

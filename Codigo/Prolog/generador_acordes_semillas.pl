@@ -58,9 +58,9 @@ termina_haz_prog_semilla(progresion(S)) :-
 * {1, 3} por ahora
 * @param -S cumple generador_acordes:es_progresion(S)
 * */
-haz_prog_semilla(1,S) :- haz_prog_semilla1(S), termina_haz_prog_semilla(S).
-/*haz_prog_semilla(2,S) :- haz_prog_semilla2(S), termina_haz_prog_semilla(S). garantiza el ritmo armonico correcto?? */
-haz_prog_semilla(3,S) :- haz_prog_semilla3(S), termina_haz_prog_semilla(S).
+haz_prog_semilla(1,S) :- haz_prog_semilla1(S).
+/*haz_prog_semilla(2,S) :- haz_prog_semilla2(S). garantiza el ritmo armonico correcto?? */
+haz_prog_semilla(3,S) :- haz_prog_semilla3(S).
 
 /**
 * rango_prog_semilla(+Tipo,-NumMin, -NumMax).

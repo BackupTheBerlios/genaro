@@ -30,9 +30,6 @@ Hay q revisar pq importa módulos de más
 > rutaProgresion :: String
 > rutaProgresion = "../../progresion.txt"
 
-> rutaPatronRitmico :: String
-> rutaPatronRitmico = "../../PatronesRitmicos/patron_ritmico.txt"
-
 > rutaDestinoMidi :: String
 > rutaDestinoMidi = "../../musica_genara.mid"
 

@@ -198,18 +198,24 @@ numsAleatoriosSemilla semilla min max
 				      where (x,g1) = randomR (min,max) g
 
 {-
+resolucionRandom valor que se tomara de resolucion de los cálculos aleatorios. Por ejemplo
+, si resolucionRandom vale 100 los random de harán de 1 a 100
+-}
+resolucionRandom :: Int
+resolucionRandom = 1000
+{-
 Dada una lista de parejas (termino, peso), donde los pesos son naturales, devuelve en Elem un elemento
 (es decir, primer componente de una de las parejas que forman la lista de entrada) elegido al azar entre
 de los de la lista asignando a cada elemento/pareja una probabilidad de ser elegida igual a (peso/sumaPesos)*100
 , donde suma pesos es la suma de los pesos de todos los elementos de la lista. Para ello se le debe suministrar un
-numero aleatorio entre 1 y 100. Se devuelve el elemento elegido y su posicion
+numero aleatorio entre 1 y resolucionRandom. Se devuelve el elemento elegido y su posicion
 -dameElemAleatListaPesos aleat listaParejas
 -}
 dameElemAleatListaPesos :: Int -> [(a, Int)] -> (a, Int)
 dameElemAleatListaPesos aleat listaParejas = aplicaAleat aleatNorm listaParejas 1 1
         where listaPesos = map snd listaParejas
               sumaPesos = foldl1' (+) listaPesos
-              aleatNorm = round ( fromIntegral (aleat * sumaPesos) / 100)
+              aleatNorm = round ( fromIntegral (aleat * sumaPesos) / fromIntegral resolucionRandom)
               aplicaAleat porcentaje ((term,peso):xs) posEnRecta posEnLista
                   | porcentaje <= extDcho  = (term, posEnLista)
                   | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)

@@ -3,6 +3,7 @@ import Basics
 import Progresiones
 import Escalas
 import PrologAHaskell --para pruebas
+import Ratio          --para pruebas
 import List
 
 
@@ -43,8 +44,15 @@ este punto
 type PuntoMelodico = (SaltoMelodico, Dur)
 type CurvaMelodica = [PuntoMelodico]
 
--- aplicaCurvaMelodica :: e
-
+{-
+aplicaCurvaMelodica escala tonica curva pitchPartida
+-}
+aplicaCurvaMelodica :: Escala -> PitchClass -> CurvaMelodica -> Pitch -> [Music]
+aplicaCurvaMelodica escala tonica [] pitchPartida = []
+aplicaCurvaMelodica escala tonica ((salto,dur):pms) pitchPartida = nuevaNota:restoMelodia
+                    where nuevoPitch   = saltaIntervaloPitch escala tonica salto pitchPartida
+                          nuevaNota    = Note nuevoPitch dur []
+                          restoMelodia = aplicaCurvaMelodica escala tonica pms nuevoPitch
 
 hazMelodiaParaAcorde :: Cifrado -> Music
 hazMelodiaParaAcorde = line . hazMelodiaParaAcordeLista
@@ -57,7 +65,7 @@ Dado un acorde devuelve una lista de alturas de notas que se usarán para formar
 ese acorde. El ritmo todavia no interviene
 daListaNotasDeMelodiaSobreAcorde listaAleat cifrado:
 - listaAleat es una lista infinita de numeros enteros
-aleatorios entre 1 y 100
+aleatorios entre 1 y resolucionRandom
 - cifrado es el acorde sobre el que se hace la melodia
 -devuelve (Notas, listaAleat2):
   -Notas: lista de pitch que forman la melodia
@@ -69,7 +77,7 @@ aleatorios entre 1 y 100
 daListaNotasDeMelodiaSobreAcorde :: [Int] -> Cifrado -> ([Pitch], [Int])
 daListaNotasDeMelodiaSobreAcorde (n1:n2:ns) acorde =
                                          where numMaxNotas = 8 --luego será parametro, o saldrá con la duración del cifrado?
-                                               numNotas = round (fromIntegral n1*numMaxNotas/100)
+                                               numNotas = round (fromIntegral n1*numMaxNotas/resolucionRandom)
                                                escala = escalaDelAcorde acorde
                                                notasYPesos = dameNotasYPesosDeEscala escala
                                                (gradoIni,_) = dameElemAleatListaPesos n2 notasYPesos

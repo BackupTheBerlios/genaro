@@ -1,5 +1,5 @@
-
-:- module(biblio_genaro_listas,
+:- module(biblio_genaro_listas).
+/*:- module(biblio_genaro_listas,
 			[sublista/4
                         ,sublista_pref/3
                         ,sublista_suf/3
@@ -7,7 +7,8 @@
                         ,dame_elemento_aleatorio/2
 			,dame_elemento_aleatorio/3
                         ,dame_elemento_aleatorio/4
-                        ,dame_permutacion_aleatoria/2]).
+                        ,dame_permutacion_aleatoria/2
+                        ,dame_elemento_aleat_lista_pesos/4]).*/
 
 /* Modulos de Prolog */
 :- use_module(library(lists)).
@@ -137,6 +138,37 @@ dame_elemento_aleatorio(Lista, E, PosAux, Resto) :-
         sublista_pref(Lista, PosAux, Laux1),
         PosAux2 is Pos + 2, sublista_suf(Lista, PosAux2, Laux2),
         append(Laux1, Laux2, Resto).
+/**
+* dame_elemento_aleat_lista_pesos(+ListaPesos, -Elem, -Pos, -Resto)
+* Dada una lista de parejas (termino, peso), donde los pesos son naturales, devuelve en Elem un elemento (es decir, primer
+* componente de una de las parejas que forman la lista de entrada) elegido al azar entre de los de la lista asignando a cada
+* elemento/pareja una probabilidad de ser elegida igual a (peso/sumaPesos)*100, donde suma pesos es la suma de los pesos de
+* todos los elementos de la lista
+* */
+dame_elemento_aleat_lista_pesos(ListaPesos, Elem, Pos, Resto) :-
+	calculaSumaPesos(ListaPesos, SumaPesos), SumaPesosMas is SumaPesos + 1,
+        random(1, SumaPesosMas, Porcentaje), aplicaPorcentajeSumaPesos(Porcentaje, ListaPesos, Elem, Pos, Resto).
+
+calculaSumaPesos([], 0).
+calculaSumaPesos([(_, N)|Ls], Suma) :- calculaSumaPesos(Ls, SumaParc), Suma is N + SumaParc.
+
+/*aplicaPorcentajeSumaPesos(Porcentaje, ListaPesos, Elem, Pos, Resto) :-
+	aplicaPorcentajeSumaPesosAcu(Porcentaje, ListaPesos, PosicionEnRecta, Elem, Pos, Resto).*/
+
+aplicaPorcentajeSumaPesos(Porcentaje, ListaPesos, Elem, Pos, Resto) :-
+	aplicaPorcentajeSumaPesosAcu(Porcentaje, ListaPesos, 1, 1, Elem, Pos),
+        sublista_pref(ListaPesos, Pos, Laux1),
+        PosAux is Pos + 1, sublista_suf(ListaPesos, PosAux, Laux2),
+        append(Laux1, Laux2, Resto).
+
+aplicaPorcentajeSumaPesosAcu(_, [], _, _, ninguno, -1) :- !.
+aplicaPorcentajeSumaPesosAcu(Porcentaje, [(Termino, Peso)|_], PosEnRecta, PosEnLista, Termino, PosEnLista) :-
+	Porcentaje >= PosEnRecta,
+        ExtremoDcho is (PosEnRecta + Peso - 1), Porcentaje =< ExtremoDcho,!.
+
+aplicaPorcentajeSumaPesosAcu(Porcentaje, [(_, Peso)|Ls], PosEnRecta, PosEnLista, Elem, Pos) :-
+	SigPosEnRecta is (PosEnRecta + Peso), SigPosEnLista is PosEnLista + 1,
+	aplicaPorcentajeSumaPesosAcu(Porcentaje, Ls, SigPosEnRecta, SigPosEnLista, Elem, Pos).
 
 /**
 * dame_permutacion_aleatoria(+ListaEntrada, -ListaPermutada) dada una lista de elementos devuelve otra lista formada por los elementos

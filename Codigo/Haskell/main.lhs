@@ -31,7 +31,7 @@ Hay q revisar pq importa módulos de más
 > rutaProgresionOrdenada = "./progresion_ordenada.txt"
 
 > rutaProgresion :: String
-> rutaProgresion = "./progresion.txt"
+> rutaProgresion = "../../progresion.txt"
 
 > rutaPatronRitmico :: String
 > rutaPatronRitmico = "./PatronesRitmicos/patron_ritmico.txt"

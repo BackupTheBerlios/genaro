@@ -111,4 +111,5 @@ listaSeparadaString separador parser = listOf parser (token separador)
 devuelve el string correspondiente a quitar los espacios del string de entrada
 -}
 quitaEspacios :: String -> String
-quitaEspacios =  filter (' '/=)
+quitaEspacios =  filter noEsEspacio
+              where noEsEspacio c = (c/= ' ') && (c/= '\t') && (c/= '\n')

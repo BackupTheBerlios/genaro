@@ -27,20 +27,25 @@ jonica = [I,II,III,IV,V,VI,VII]
 dorica :: Escala
 dorica = [I,II,BIII,IV,V,VI,BVII]
 frigia :: Escala
-frigia = [I,]
+frigia = [I,BII,BIII,IV,V,BVI,BVII]
+lidia :: Escala
+lidia = [I,II,III,AUIV,V,VI,VII]
+mixolidia :: Escala
+mixolidia = [I,II,III,IV,V,VI,BVII]
+eolia :: Escala
+eolia = [I,II,BIII,IV,V,BVI,BVII]
+locria :: Escala
+locria = [I,BII,BIII,IV,BV,BVI,BVII]
 {-
-infoDelAcorde cifrado = (tensiones, escala_del_momento, notas_a_evitar)
+Para un acorde especificado con un elemento de tipo cifrado da esa informacion,
+en el contexto del modo mayor
+infoAcordeMayor cifrado = (tensiones, escala_del_momento, notas_a_evitar)
 -}
-infoDelAcorde :: Cifrado -> (Escala ,Escala, Grado)
-infoDelAcorde (I, Maj7) = ([IX,XIII],jonica,[IV])
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
-infoDelAcorde (II, Men7) = ([],,)
+infoAcordeMayor :: Cifrado -> ([Grado] ,Escala, [Grado])
+infoAcordeMayor (I, Maj7) = ([IX,XIII],jonica,[IV])
+infoAcordeMayor (II, Men7) = ([IX,XI],dorica,[VI])
+infoAcordeMayor (III, Men7) = ([XI],frigia,[BII,BVI])
+infoAcordeMayor (IV, Maj7) = ([IX,AUXI,XIII],lidia,[])
+infoAcordeMayor (V, Sept) = ([IX,XIII],mixolidia,[IV])
+infoAcordeMayor (VI, Men7) = ([IX,XI],eolia,[BVI])
+infoAcordeMayor (VII, Men7B5) = ([XI,BXIII],locria,[BII])

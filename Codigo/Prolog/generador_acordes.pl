@@ -159,13 +159,22 @@ numCompases(progresion(L),N,D) :- numCompasesLista(L, fraccion_nat(N,D)).
 * @param -La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
 *     Hace cierto es_progresion(La)
 */
-haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S)
-		,fija_compases_aprox(S, N, Laux1), modifica_prog(Laux1, M, Laux2)
+/*haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, progresion(S))
+                ,escribeLista(S, 'C:/hlocal/cifradosSemilla.txt')
+		,fija_compases_aprox(progresion(S), N, Laux1), modifica_prog(Laux1, M, Laux2)
                 ,asegura_ritmo_armonico(Laux2, progresion(Laux3))
                 ,escribeLista(Laux3, 'C:/hlocal/cifradospreFin.txt')
                 ,haz_prog_semilla(1,progresion(Pfin)), append(Laux3, Pfin, Laux4)
                 ,quita_grados_relativos(progresion(Laux4), progresion(La))
+                ,escribeLista(La, 'C:/hlocal/cifrados.txt').*/
+haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, progresion(S))
+                ,escribeLista(S, 'C:/hlocal/cifradosSemilla.txt')
+		,fija_compases_aprox(progresion(S), N, Laux1), modifica_prog(Laux1, M, progresion(Laux2))
+                ,escribeLista(Laux2, 'C:/hlocal/cifradospreFin.txt')
+                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux2, Pfin, Laux4)
+                ,quita_grados_relativos(progresion(Laux4), progresion(La))
                 ,escribeLista(La, 'C:/hlocal/cifrados.txt').
+
 
 /*haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
  		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux3))

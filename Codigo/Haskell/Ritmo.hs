@@ -134,14 +134,14 @@ fusionaPatrones2 (urv : restoPV) ((ac, dur) : restoPH) = (urv, (ac, dur)) : fusi
 -- Encaja un patron vertical con una [Pitch] segun algun modo
 encajaModo :: ModoPatronVertical -> Int -> [Pitch] -> URV -> [(Pitch, Bool)]
 encajaModo (m1, m2) alturaPatron lp urv 
-	| alturaPatron == longitud 				= encajaA_Mayor_P_Truncar lp urv
-	| alturaPatron > longitud && m1 == Truncar1 	= encajaA_Mayor_P_Truncar lp urv
-	| alturaPatron > longitud && m1 == Saturar1 	= encajaA_Mayor_P_Saturar alturaPatron lp urv
-	| alturaPatron < longitud && m2 == Truncar2 	= encajaA_Menor_P_Truncar lp urv
-	| alturaPatron < longitud && m2 == Saturar2 	= encajaA_Menor_P_Saturar lp urv
-	| alturaPatron < longitud && m2 == Ciclico2 	= encajaA_Menor_P_Ciclico lp urv
-	| alturaPatron < longitud && m2 == Modulo2 	= encajaA_Menor_P_Modulo lp urv
-		where longitud = length lp
+	| alturaPatron == longitudA 				= encajaA_Mayor_P_Truncar lp urv    -- Parece que va bien
+	| longitudA > alturaPatron && m1 == Truncar1 	= encajaA_Mayor_P_Truncar lp urv    -- Parece que va bien
+	| longitudA > alturaPatron && m1 == Saturar1 	= encajaA_Mayor_P_Saturar alturaPatron lp urv  -- Parece que va bien
+	| longitudA < alturaPatron && m2 == Truncar2 	= encajaA_Menor_P_Truncar lp urv 	-- Parece que va bien
+	| longitudA < alturaPatron && m2 == Saturar2 	= encajaA_Menor_P_Saturar lp urv	-- Parece que va bien
+	| longitudA < alturaPatron && m2 == Ciclico2 	= encajaA_Menor_P_Ciclico lp urv
+	| longitudA < alturaPatron && m2 == Modulo2 	= encajaA_Menor_P_Modulo lp urv	-- Parece que va bien
+		where longitudA = length lp -- numero de notas del acorde, es decir, de A
 
 
 encajaA_Mayor_P_Truncar :: [Pitch] -> URV -> [(Pitch, Bool)]
@@ -186,15 +186,18 @@ encajaA_Menor_P_Ciclico :: [Pitch] -> URV -> [(Pitch, Bool)]
 encajaA_Menor_P_Ciclico lp urv = encaja (repetirCiclico lp) urv
 
 
--- NOTA: VA MAL, IDEA: HACER ALGO PARECIDO A LO DE ARREGLA_OCTAVA
--- Repite infinitamente el acorde, puesto como [Pitch], aumentado la octava cada vez
+-- NOTA: YA PARECE QUE VA BIEN. HAY QUE PROBARLA UN POCO MAS
+-- Repite infinitamente el acorde, puesto como [Pitch], aumentado la octava cada vez, de tal forma que la lista sigue
+-- ordenada en altura 
 repetirCiclico :: [Pitch] -> [Pitch]
 repetirCiclico lp@((pc, oc) : resto)
-	| pc <= pcu	= lp ++ repetirCiclico (aumentaOctava (oc +1) lp)
-	| pc > pcu	= lp ++ repetirCiclico (aumentaOctava oc lp)
+	| absPitch (pc, oc + octavaAum) <= absPitch (pcu, ocu) = lp ++ repetirCiclico (aumentaOctava (octavaAum + 1) lp)
+	| otherwise								 = lp ++ repetirCiclico (aumentaOctava octavaAum lp)
 	where ultimo = last lp ;
 		pcu = fst ultimo ;
-		ocu = snd ultimo 
+		ocu = snd ultimo ;
+		octavaAum = ocu - oc 
+
 
 aumentaOctava :: Octave -> [Pitch] -> [Pitch]
 aumentaOctava _ [] = []
@@ -427,26 +430,30 @@ consumeVerticalCiclico mV ((lp,durA) : restoA) ( (urv, (acento, durH)) : restoH)
 -----------BORRAME YA---------------
 
 {-
+
 numNotas :: Int
 numNotas = 4
 
+alturaP :: Int
+alturaP = 6
+
 progresion :: Progresion
-progresion = [((I,Mayor),1%2),((V,Mayor),1%2),((I,Mayor),1%1)]
+progresion = [((I,Mayor),1%1),((IV,Mayor),1%1),((V,Mayor),1%1),((I,Mayor),1%1)]
 
 patronH :: PatronHorizontal
-patronH = [(100,1%4)]
+patronH = [(100,1%6)]
 
 patronV1 :: PatronVertical
-patronV1 = [[(i,False) | i<-[1..numNotas]] , [(1,False)]]
+patronV1 = [ [(i,False) | i<-[1..numNotas]] ]
 
 patronV2 :: PatronVertical
-patronV2 = [[(i,False)] | i<-[1..numNotas]]
+patronV2 = [ [(i,False)] | i<-[1..alturaP] ]
 
 traduccion1 :: [AcordeOrdenado]
 traduccion1 = traduceProgresionSistemaContinuo numNotas progresion
 
 musica1 :: Music
-musica1 = deAcordesOrdenadosAMusica Ciclico (Truncar1, Truncar2) patronV2 patronH numNotas traduccion1 
+musica1 = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Ciclico2) patronV2 patronH alturaP traduccion1 
 
 -}
 

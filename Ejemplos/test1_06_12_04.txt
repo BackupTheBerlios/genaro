@@ -1,0 +1,1 @@
+Un breve ejemplo hecho directamente desde Haskell, es decir, sin Prolog ni nada de generacion aleatoria, que muestra el uso de algunos patrones ritmicos.

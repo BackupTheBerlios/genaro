@@ -1,61 +1,36 @@
 
 
--- Codigo super cutre y sin terminar, a espera de mejora y de organizacion
--- Lo unico que sirve son los ejemplos del final
-
 module Ritmo 
 where
 
 import Haskore
 import Ratio
-import PrologAHaskell
+--import PrologAHaskell
 
-type Acento = Int  -- de 0 a 100
 
-type Golpe = (Acento, Dur)
+---------------------------------------------------------
+
+-- como me gustaria que fuese AcordeOrdenado
+type AcordeOrdenado2 = ([Pitch],Dur)
+
+---------------------------------------------------------
+
+
+-- CAMBIAR: CAMBIAR A INT QUE PARECE MAS ADECUADO
+-- de 0 a 100
+type Acento = Float
 
 -- Unidad de Ritmo Horizontal
-data URH = 	Binario URH URH
-		| Ternario URH URH URH
-		| Duracion Dur
-	deriving (Eq, Show)
+type URH = (Acento, Dur)
 
+-- El patron ritmico horizontal se compone de una lista infinita de URH
+type PatronHorizontal = [URH]
 
-escalar :: Dur -> URH -> URH
-escalar dur1 (Duracion dur2) = Duracion (dur1*dur2)
-escalar dur (Binario urh1 urh2) = Binario (escalar dur urh1) (escalar dur urh2)
-escalar dur (Ternario urh1 urh2 urh3) = Ternario (escalar dur urh1) (escalar dur urh2) (escalar dur urh3)
-
-
--- es como perfonmance
-serializarRitmo :: URH -> [Golpe]
-serializarRitmo = serializarRitmoRec fuerte
-
-serializarRitmoRec :: Acento -> URH -> [Golpe]
-serializarRitmoRec a (Binario urh1 urh2) = serializarRitmoRec fuerte urh1 ++ serializarRitmoRec debil urh2
-serializarRitmoRec a (Ternario urh1 urh2 urh3) = 
-		serializarRitmoRec fuerte urh1 ++ serializarRitmoRec debil urh2 ++ serializarRitmoRec debil urh3
-serializarRitmoRec a (Duracion dur) = [(a,dur)]
-
-
---Constantes
-
--- ritmo 2/2
-dos_dos :: URH
-dos_dos = Binario (Duracion (1%2)) (Duracion (1%2))
-
--- ritmo 3/2
-tres_dos :: URH
-tres_dos = Ternario (Duracion (1%2)) (Duracion (1%2)) (Duracion (1%2))
-
--- ritmo 4/4
-cuatro_cuatro :: URH
-cuatro_cuatro = Binario (Binario (Duracion (1%4)) (Duracion (1%4))) (Binario (Duracion (1%4)) (Duracion (1%4)))
-
+-- Constantes del ritmo horizontal
 
 -- parte fuerte del compas
 fuerte :: Acento
-fuerte = 80
+fuerte = 100
 
 -- parte debil del compas
 debil :: Acento
@@ -66,46 +41,74 @@ semifuerte :: Acento
 semifuerte = 70
 
 
+-- Voz indica la voz de acorde empezando desde abajo (no es exactamente el mismo conceto de voz).
+type Voz = Int -- de 1 a 5
 
----------------------------------------------------------
+-- Unidad de Ritmo Vertical: la lista de voces que se ejecutan a la vez y si esta ligada con otra nota consecutiva
+type URV = [(Voz, Bool)]
 
--- como me gustaria que fuese AcordeOrdenado
-type AcordeOrdenado2 = ([Pitch],Dur)
+-- Patron ritmico vertical es una lista infinita de unidades verticales
+type PatronVertical = [URV]
+
+-- El patron ritmico completo se compone de una lista con informacion vertical y horizontal
+type PatronRitmico = [ ( URV, Acento, Dur )]
 
 
+-- Funciones que operan con patrones
+fusionaPatrones :: PatronVertical -> PatronHorizontal -> PatronRitmico
+fusionaPatrones pv ph = fusionaPatrones2 (repetirInfinito pv) (repetirInfinito ph)
 
--- Voz del acorde: entre 1 y 5
-type Voz = Int
+fusionaPatrones2 :: PatronVertical -> PatronHorizontal -> PatronRitmico
+fusionaPatrones2 (urv : restoPV) ((ac, dur) : restoPH) = (urv, ac, dur) : fusionaPatrones2 restoPV restoPH
 
--- pareja de Voz y Bool, que indica si esta ligada con la siguiente nota (este parametro todavia no se usa)
-type ElementoPatronRitmo = (Voz, Bool)
-type PatronRitmo = [[ElementoPatronRitmo]]
 
-arpegio :: PatronRitmo
-arpegio = [ [(1,False)] , [(2,False)] , [(3,False)] , [(4,False)]]
+-- Algunas constantes ritmicas
 
-acorde :: PatronRitmo
-acorde = [ [(1,False),(2,False),(3,False),(4,False)] ]
+arpegio :: PatronVertical  -- pensada solo para cuatro voces
+arpegio = [[(1,False)],[(2,False)],[(3,False)],[(4,False)]]
 
-patronRitmo1 :: PatronRitmo
+acorde :: PatronVertical  -- pensada solo para cuatro voces
+acorde = [[ (1,False) , (2,False) , (3,False) , (4,False) ]]
+
+patronRitmo1 :: PatronVertical
 patronRitmo1 = [ [(1,True)] , [(1,False),(2,False),(3,False),(4,False)] ]
 
-patronRitmo2 :: PatronRitmo
+patronRitmo2 :: PatronVertical
 patronRitmo2 = [ [(1,False)] , [(3,False)] , [(2,False)] , [(4,False)]]
 
-patronRitmo3 :: PatronRitmo
+patronRitmo3 :: PatronVertical
 patronRitmo3 = [ [(1,False)] , [(2,False)] , [(1,False)] , [(3,False)] , [(1,False)] ,[(4,False)]]
 
-aplicaPatronRitmo :: [AcordeOrdenado2] -> PatronRitmo -> [Golpe] -> Music
-aplicaPatronRitmo ao pr lg = aplicaPatronRitmo2 ao (repetirInfinito pr ) (repetirInfinito lg)
+patronRitmo4 :: PatronVertical
+patronRitmo4 = [[(1,False),(3,False)],[],[(2,False),(4,False)],[]]
 
 
-aplicaPatronRitmo2 :: [AcordeOrdenado2] -> PatronRitmo -> [Golpe] -> Music
-aplicaPatronRitmo2 [(listaPitch,durAcorde)] pr lg = fusionar listaPitch durAcorde pr lg 
-aplicaPatronRitmo2 ((listaPitch,durAcorde):resto) pr lg = 
-	fusionar listaPitch durAcorde pr lg  :+: aplicaPatronRitmo2 (resto) pr lg
+dos_dos :: PatronHorizontal
+dos_dos = [(fuerte, 1%2),(debil, 1%2)]
+
+tres_dos :: PatronHorizontal
+tres_dos = [(fuerte, 1%2),(debil, 1%2),(debil, 1%2)]
+
+cuatro_cuatro :: PatronHorizontal
+cuatro_cuatro = [(fuerte, 1%4),(debil, 1%4),(semifuerte, 1%4),(debil, 1%4)]
+
+tres_cuatro :: PatronHorizontal
+tres_cuatro = [(fuerte, 1%4),(debil, 1%4),(debil, 1%4)]
+
+seis_cuatro :: PatronHorizontal
+seis_cuatro = [(fuerte, 1%4),(debil, 1%4),(debil, 1%4),(semifuerte, 1%4),(debil, 1%4),(debil, 1%4)]
 
 
+escala :: PatronHorizontal -> Dur -> PatronHorizontal
+escala [] _ = []
+escala ((acento, dur):resto) dur2 = (acento,dur*dur2) : escala resto dur2
+
+
+
+
+-- Funciones para la aplicacion de patrones ritmicos a acordes ordenados
+
+-- Repite la lista un numero infinito de veces
 repetirInfinito :: [a] -> [a]
 repetirInfinito lista = aplanar [ lista | x<-[1..]]
 
@@ -113,20 +116,48 @@ aplanar :: [[a]] -> [a]
 aplanar ll = foldr (++) [] ll
 
 
-fusionar :: [Pitch] -> Dur -> PatronRitmo -> [Golpe] -> Music
-fusionar listaPitch durAcorde (listaVoces:restoPatronRitmo) ((acento,dur):restoGolpes) 
-	| durAcorde <= dur = (dameNotasDeVoces listaPitch dur listaVoces)
-	| durAcorde > dur = (dameNotasDeVoces listaPitch dur listaVoces) :+: (fusionar listaPitch (durAcorde-dur) restoPatronRitmo restoGolpes)
+
+encaja :: [Pitch] -> URV -> [(Pitch, Bool)]
+encaja lp [] = []
+encaja lp ( (voz, ligado) : resto) = ( lp !! (voz-1), ligado) : encaja lp resto
 
 
-dameNotasDeVoces :: [Pitch] -> Dur -> [ElementoPatronRitmo] -> Music
-dameNotasDeVoces ao dur epr = foldr (:=:) (Rest (0%1)) (dameNotasDeVocesRec ao dur epr)
+consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> [[( Music, Bool )]]
+consumeVertical lp durAcorde _ 
+	| durAcorde <= 0 = []
+consumeVertical lp durAcorde ((urv, acento, dur) : resto) = 
+	insertaAcentoYDur acento dur (encaja lp urv) : consumeVertical lp (durAcorde - dur) resto
 
 
-dameNotasDeVocesRec :: [Pitch] -> Dur -> [ElementoPatronRitmo] -> [Music]
-dameNotasDeVocesRec _ dur [] = []
-dameNotasDeVocesRec ao dur ((voz,_):resto) = ( Note (ao!!(voz-1)) dur [] ) : dameNotasDeVocesRec ao dur resto
 
+-- IMPORTANTE: falta poner bien el acento, es decir el paso de Int a Float
+insertaAcentoYDur :: Acento -> Dur -> [(Pitch, Bool)] -> [(Music, Bool)]
+insertaAcentoYDur _ dur [] = [(Rest dur, False)]
+insertaAcentoYDur acento dur [(pitch, ligado)] = [ ( Note pitch dur [Volume acento] , False ) ]
+insertaAcentoYDur acento dur lp = insertaAcentoYDur2 acento dur lp
+
+insertaAcentoYDur2 :: Acento -> Dur -> [(Pitch, Bool)] -> [(Music, Bool)]
+insertaAcentoYDur2 acento dur [(pitch, ligado)] = [ ( Note pitch dur [Volume acento] , False ) ]
+insertaAcentoYDur2 acento dur ((pitch, ligado) : resto) = 
+	( Note pitch dur [Volume acento] , False ) : insertaAcentoYDur2 acento dur resto
+
+
+
+deAcordeOrdenadoANotasLigadas :: AcordeOrdenado2 -> PatronRitmico -> [[( Music, Bool )]]
+deAcordeOrdenadoANotasLigadas (lp, durAcorde) pr = consumeVertical lp durAcorde pr
+
+
+
+
+-- Este predicado habria que cambiarlo para realizar la ligadura correctamente
+deNotasLigadasAMusica :: [[( Music, Bool )]] -> Music
+deNotasLigadasAMusica [ listaNotasLigadas ] = paraleliza listaNotasLigadas
+deNotasLigadasAMusica ( listaNotasLigadas : resto ) = paraleliza listaNotasLigadas :+: deNotasLigadasAMusica resto
+
+
+paraleliza :: [( Music, Bool )] -> Music
+paraleliza [ ( nota, _ ) ] = nota
+paraleliza (( nota, _ ):resto) = nota :=: paraleliza resto
 
 
 ---------------------------------
@@ -142,6 +173,11 @@ cMaj7 = [(C,4),(E,4),(G,4),(B,4)]
 g7 :: [Pitch]
 g7 = [(G,4),(B,4),(D,5),(F,5)]
 
+--acorde de D-7
+dm7 :: [Pitch]
+dm7 = [(D,4),(F,4),(A,4),(C,5)]
+
+
 --progresion armonica simple
 prog1 :: [AcordeOrdenado2]
 prog1 = [(cMaj7,1%1),(g7,1%1)]
@@ -153,47 +189,27 @@ prog3 :: [AcordeOrdenado2]
 prog3 = [(cMaj7,6%4),(g7,6%2)]
 
 
---Ritmo simple
-ritmo1 :: [Golpe]
-ritmo1 = serializarRitmo cuatro_cuatro
+prog4 :: AcordeOrdenado2
+prog4 = (cMaj7,1%2)
 
---Ritmo cañero
-ritmo2 :: [Golpe]
-ritmo2 = serializarRitmo (escalar (4%32) cuatro_cuatro)
+prog5 :: AcordeOrdenado2
+prog5 = (g7,1%2)
 
-
---resultado en haskore con arpegio
 musica1 :: Music
-musica1 = aplicaPatronRitmo prog1 arpegio ritmo1
+musica1 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas (cMaj7,1%4) (fusionaPatrones arpegio (escala cuatro_cuatro (1%8) )))
 
---resultado en haskore con acorde
 musica2 :: Music
-musica2 = aplicaPatronRitmo prog1 acorde ritmo1
+musica2 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas (dm7,1%4) (fusionaPatrones arpegio (escala cuatro_cuatro (1%8) )))
 
---resultado en haskore con patronRitmo1
-musica3 :: Music
-musica3 = aplicaPatronRitmo prog1 patronRitmo1 ritmo1
-
-
---resultado en haskore con patron acorde y ritmo cañero
-musica4 :: Music
-musica4 = aplicaPatronRitmo prog1 acorde ritmo2
-
---resultado en haskore con patron acorde y ritmo cañero
 musica5 :: Music
-musica5 = aplicaPatronRitmo prog1 arpegio ritmo2
+musica5 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas prog5 (fusionaPatrones patronRitmo4 (escala cuatro_cuatro (1%4)) ))
 
-
---resultado en haskore de mezclar varios patrones ritmicos
 musica6 :: Music
-musica6 = aplicaPatronRitmo prog1 acorde ritmo1 :+: aplicaPatronRitmo prog1 arpegio ritmo1 :+: aplicaPatronRitmo prog1 patronRitmo2 ritmo1
-
-
--- Cancioncilla chachi
-ritmo3 :: [Golpe]
-ritmo3 = serializarRitmo (escalar (3%12) tres_dos)
+musica6 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas prog5 (fusionaPatrones acorde dos_dos ))
 
 musica7 :: Music
-musica7 = aplicaPatronRitmo prog3 patronRitmo3 ritmo3
+musica7 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas prog4 (fusionaPatrones acorde dos_dos ))
+
+
 
 

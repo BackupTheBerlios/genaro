@@ -1,4 +1,4 @@
--- PARSER BASADO EN EL ARTICULO: Jeroen Fokker
+-- PARSERS BASADOS EN EL ARTICULO: Jeroen Fokker
 -- 				 Functional Parsers
 --				 in: Johan Jeuring and Erik Meijer (eds.)
 --				     Advanced Functional Programming
@@ -8,12 +8,11 @@
 
 
 module PrologAHaskell where
--- import HaskoreAMidi
 import Haskore
-import Basics
 import Ratio
 import Parser_library
 import Parsers
+import Progresiones
 
 hazMusica :: String -> Music
 hazMusica = aplicaParser parserMusica
@@ -74,13 +73,6 @@ instrumento = (token "inst") *> parenthesized( ((nomInstrumento nuestrosInstrume
 nomInstrumento :: [InstPrologAHaskell] -> Parser Char IName
 nomInstrumento lista = token "instrumento" *> parenthesized (parToken)
 		where parToken = choice [token string <@ const nombre | (string, nombre) <- lista]
-
-
-lala :: (String, IName) -> Parser Char IName
-lala (s, n) = token s <@ const n
-
-lalaList :: [(String, IName)] -> Parser Char IName
-lalaList xs = choice [token s <@ const n | (s,n) <- xs]
 
 type InstPrologAHaskell = (String, IName)
 -- en realidad esta correspondencia es poco importante pq luego en Timidity asignaremos
@@ -194,3 +186,72 @@ parserListaOrdenAcs = bracketed(commaList(parserParAcordeFigura))
 -- las notas
 parserAcordeOrd :: Parser Char [Pitch]
 parserAcordeOrd = (token "acorde") *> parenthesized(bracketed(commaList(altura)))
+
+
+--
+--
+--	PARSER DE PROGRESIONES DE ACORDES EN PROLOG
+--
+--
+{--
+lo de Prolog
+
+es_progresion(progresion(P)) :- es_listaDeCifrados(P).
+
+es_listaDeCifrados([]).
+es_listaDeCifrados([(C, F)|Cs]) :- es_cifrado(C), es_figura(F)
+       ,es_listaDeCifrados(Cs).
+
+es_cifrado(cifrado(G,M)) :- es_grado(G), es_matricula(M).
+es_matricula(matricula(M)) :- member(M, [mayor,m,au,dis,6,m6,m7b5, maj7,7,m7,mMaj7,au7,dis7]).
+
+es_interSimple(interSimple(G)) :- member(G, [i, bii, ii, biii, iii, iv, bv, v, auv, vi, bvii, vii]).
+%raros
+es_interSimple(interSimple(G)) :- member(G, [bbii, bbiii, auii, biv, auiii, auiv, bbvi, bvi, auvi, bviii, auviii ]).
+
+%GRADOS
+es_grado(grado(G)) :- es_interSimple(interSimple(G)).
+es_grado(grado(v7 / G)) :- es_grado(grado(G)).
+es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
+
+-}
+parserProgresion :: Parser Char Progresion
+parserProgresion = bracketed(commaList(parCifDur))
+		where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)
+--parserProgresion = (token "progresion") *> parenthesized(bracketed(commaList(parCifDur)))
+--		where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)
+
+--parserAcordeOrd = (token "acorde") *> parenthesized(bracketed(commaList(altura)))
+
+parserCifrado :: Parser Char Cifrado
+parserCifrado = token "cifrado" *> parenthesized ((parserGrado <* coma) <*> parserMatricula)
+
+parserGrado :: Parser Char Grado
+parserGrado = token "grado" *> parserGradoAux
+
+parserGradoAux :: Parser Char Grado
+parserGradoAux = parserGradoSimpleAux
+                 <|> (token "v7/" *> parserGradoAux) <@ V7
+                 <|> (token "iim7/" *> parserGradoAux) <@ IIM7
+                 <|> parenthesized parserGradoAux
+
+{-
+Parsea cosas del estilo "v", "vi"
+-}
+parserGradoSimpleAux :: Parser Char Grado
+-- parserGradoSimpleAux = choice [token string <@ const grado | (string, grado) <- listaTokenGrado]
+parserGradoSimpleAux = listaParesTokenDatoAParser listaTokenGrado
+
+listaTokenGrado :: [(String, Grado)]
+listaTokenGrado = [("i",I),("bii",BII),("ii",II),("biii",BIII),("iii",III),("iv",IV),("bv",BV),("v",V),
+                   ("auv",AUV),("vi",VI),("bvii",BVII),("vii",VII),("bbii",BBII),("bbiii",BBIII),("auii",AUII),
+                   ("biv",BIV),("auiii",AUIII),("auiv",AUIV),("bbvi",BBVI),("bvi",BVI),("auvi",AUVI),
+                   ("bviii",BVIII),("auviii",AUVIII)]
+
+parserMatricula :: Parser Char Matricula
+parserMatricula = token "matricula" *> parenthesized(listaParesTokenDatoAParser listaTokenMatricula)
+
+listaTokenMatricula :: [(String, Matricula)]
+listaTokenMatricula = [("mayor",Mayor),("m",Menor),("au",Au),("dis",Dis),("6",Sexta),("m6",Men6),
+                       ("m7b5",Men7B5),("maj7",Maj7),("7",Sept),("m7",Men7),("mMaj7",MenMaj7),("au7",Au7),
+                       ("dis7",Dis7)]

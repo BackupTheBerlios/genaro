@@ -1,3 +1,11 @@
+-- PARSERS BASADOS EN EL ARTICULO: Jeroen Fokker
+-- 				 Functional Parsers
+--				 in: Johan Jeuring and Erik Meijer (eds.)
+--				     Advanced Functional Programming
+--				     Fst. Int. School on Advanced Functional Programming Techniques
+--				     Tutorial Text
+--				     Springer LNCS 925, pp. 1-23, 1995
+
 module Parsers where
 import Parser_library
 import Ratio
@@ -53,4 +61,9 @@ parseo o error si falla el análisis
 leeYParsea :: Parser Char a -> String -> IO a
 leeYParsea parser rutaOrigen = do texto <- readFile rutaOrigen
                                   return ((aplicaParser parser) texto)
-
+{-
+Dada un lista de pares (token, dato) esta funcion devuelve un parser tal que para cada pareja token es el lexema
+cuyo análisis devuelve dato
+-}
+listaParesTokenDatoAParser :: [(String, a)] -> Parser Char a
+listaParesTokenDatoAParser lista = choice [token string <@ const dato | (string, dato) <- lista]

@@ -13,7 +13,7 @@ Shift bitwise to the left and right.
 
 > bshiftl,bshiftr :: Int -> Int -> Int
 > bshiftl b n = n*2^b
-> bshiftr b n = truncate ((fromInt n)/2^b)
+> bshiftr b n = truncate ((fromIntegral n)/2^b)
 
 Function {\tt toBase n x} takes a given number x and "chops it up,"
 returning its digits in base b.  Its output is in the form of a

@@ -356,3 +356,14 @@ lola =  do x <- getStdGen
 	   newStdGen
 	   x <- getStdGen
 	   print (next x)
+
+
+{-
+'elementoAleatorio' dada un generador de numeros aleatorios y una lista devuelve un elemento 
+aleatorio de la lista y el siguiente generador que hay que usar
+-}
+elementoAleatorio :: RandomGen b => b -> [a] -> (a,b)
+elementoAleatorio g l = (l !! pos, sigg)
+	where longitud = length l;
+		(pos, sigg) = randomR (0, longitud - 1) g
+

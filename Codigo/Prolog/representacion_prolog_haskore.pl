@@ -29,9 +29,9 @@ es_musica(X :+: Y) :- es_musica(X), es_musica(Y).
 %composicion paralela
 es_musica(X :=: Y) :- es_musica(X), es_musica(Y).
 %musica cuyo tempo se multiplica por F
-es_musica(tempo((N, D), M)) :- es_fraccionNat(N,D), es_musica(M). 
+es_musica(tempo((N, D),M)) :- es_fraccionNat(N,D), es_musica(M).
 %musica que se subida (traspuesta) el numero de semitonos E
-es_musica(tras(E, M)) :- integer(E), es_musica(M).
+es_musica(tras(E,M)) :- integer(E), es_musica(M).
 %musica tocada con un instrumento determinado
 es_musica(inst(I,M)) :- es_instrumento(I), es_musica(M).
 	%CASOS BASE
@@ -39,7 +39,7 @@ es_nota(nota(A,F)):- es_altura(A), es_figura(F).
 es_silencio(silencio(F)) :- es_figura(F).
 
 %ALTURA TONAL
-% la altura de una nota es su nombre y su octava 
+% la altura de una nota es su nombre y su octava
 es_altura(altura(N,O)) :- es_numNota(N), es_octava(O).
 %la correspondencia es la=0, la#/sib=1, si=2, ...
 es_numNota(numNota(N)) :- member(N,[0,1,2,3,4,5,6,7,8,9,10,11]).

@@ -1,0 +1,1 @@
+progresion([ (cifrado(grado(i), matricula(maj7)), figura(9, 8)), (cifrado(grado(iii), matricula(7)), figura(9, 8)), (cifrado(grado(vi), matricula(m7)), figura(27, 8)), (cifrado(grado(vii), matricula(7)), figura(9, 32)), (cifrado(grado(bv), matricula(7)), figura(9, 32)), (cifrado(grado(vii), matricula(7)), figura(9, 16)), (cifrado(grado(iii), matricula(m7)), figura(9, 4))])

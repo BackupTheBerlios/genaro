@@ -1,0 +1,2 @@
+[ (cifrado(grado(vi), matricula(m7)), figura(1, 1)), 
+]

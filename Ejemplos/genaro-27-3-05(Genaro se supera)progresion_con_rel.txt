@@ -1,0 +1,8 @@
+[ (cifrado(grado(i), matricula(maj7)), figura(9, 8)), 
+, (cifrado(grado(v7/vi), matricula(7)), figura(9, 8)), 
+, (cifrado(grado(vi), matricula(m7)), figura(27, 8)), 
+, (cifrado(grado(v7/iii), matricula(7)), figura(9, 32)), 
+, (cifrado(grado(v7/ (v7/iii)), matricula(7)), figura(9, 32)), 
+, (cifrado(grado(v7/iii), matricula(7)), figura(9, 16)), 
+, (cifrado(grado(iii), matricula(m7)), figura(9, 4)), 
+]

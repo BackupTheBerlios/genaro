@@ -41,6 +41,33 @@ dameInfoEscala MixolidiaB13 = ([BIX,IX,BXIII],[I,II,III,IV,V,BVI,BVII],[IV])
 dameInfoEscala MixolidiaB9B13AU9 = ([BIX,BXIII],[I,BII,AUII,III,IV,V,BVI,BVII],[IV])
 
 
+{-
+Dada una escala devuelve una lista de parejas cuya primer componente es cada uno de los grados que
+conforman la escala y cuya segunda componente es un peso asociado a cada grado que indica la probabilidad
+que sea la nota con la que se empiece una melodía para un acorde.
+-}
+dameNotasYPesosDeEscala :: Escala -> [(Grado, Int)]
+dameNotasYPesosDeEscala escala
+  | elem escala escalas7Notas   = map (filtraNotasAEvitar notasAEvitar) (zip listaGrados (map peso7Notas [1..numGrados]))
+  | escala == MixolidiaB9B13AU9 = map (filtraNotasAEvitar notasAEvitar) (zip listaGrados (map pesoMixB9B13AU9 [1..numGrados]))
+                where escalas7Notas = [Jonica,Dorica, Frigia, Lidia, Mixolidia, Eolia, Locria, MixolidiaB13]
+                      (_,listaGrados,notasAEvitar) = dameInfoEscala escala
+                      numGrados = length listaGrados
+                      peso7Notas 1 = 100  --peso que se le dará al primer grado de una escala de 7 notas
+                      peso7Notas 4 = 90
+                      peso7Notas 5 = 100
+                      peso7Notas 3 = 80
+                      peso7Notas 6 = 65
+                      peso7Notas 2 = 30
+                      peso7Notas 7 = 30
+                      pesoMixB9B13AU9 num
+                        | num == 1             = peso7Notas 1
+                        | (num==2) || (num==3) = peso7Notas 2
+                        | num > 3              = peso7Notas (num-1)
+                      filtraNotasAEvitar notasAEvitar (grado, peso)
+                        | elem grado notasAEvitar = (grado, 10)
+                        | otherwise = (grado, peso)
+
 
 {-
 Para un acorde especificado con un elemento de tipo cifrado devuelve su escala,
@@ -73,30 +100,3 @@ infoAcordeMayor cifrado = (tensiones, grados_de_su_escala, notas_a_evitar)
 infoAcordeMayor :: Cifrado -> InfoEscala
 infoAcordeMayor = dameInfoEscala . escalaDelAcorde
 
-
-{-
-{-
-Para un acorde especificado con un elemento de tipo cifrado da esa informacion,
-en el contexto del modo mayor
-infoAcordeMayor cifrado = (tensiones, escala_del_momento, notas_a_evitar)
--}
-infoAcordeMayor :: Cifrado -> ([Grado] ,Escala, [Grado])
-infoAcordeMayor (I, Maj7) = ([IX,XIII],jonica,[IV])
-infoAcordeMayor (II, Men7) = ([IX,XI],dorica,[VI])
-infoAcordeMayor (III, Men7) = ([XI],frigia,[BII,BVI])
-infoAcordeMayor (IV, Maj7) = ([IX,AUXI,XIII],lidia,[])
-infoAcordeMayor (V, Sept) = ([IX,XIII],mixolidia,[IV])
-infoAcordeMayor (VI, Men7) = ([IX,XI],eolia,[BVI])
-infoAcordeMayor (VII, Men7B5) = ([XI,BXIII],locria,[BII])
-infoAcordeMayor (V7 II, Sept) = ([BIX,IX,BXIII],mixolidiaB13,[IV])
-infoAcordeMayor (V7 III, Sept) = ([BIX,BXIII],mixolidiaB9B13AU9,[IV])
-infoAcordeMayor (V7 IV, Sept) = ([IX,XIII],mixolidia,[IV])
-infoAcordeMayor (V7 V, Sept) = ([IX,XIII],mixolidia,[IV])
-infoAcordeMayor (V7 VI, Sept) = ([BIX,BXIII],mixolidiaB9B13AU9,[IV])
---el septimo grado no tendra nunca dominante secundario
---dominantes por extension
-infoAcordeMayor (V7 (V7 _)) = ([IX,XIII],mixolidia,[IV])
-infoAcordeMayor (V7 (IIM7 _)) = ([IX,XIII],mixolidia,[IV])
-infoAcordeMayor (IIM7 _, Men7) = ([IX,XI],dorica,[VI])
-
--}

@@ -181,6 +181,7 @@ Dada una lista de parejas (termino, peso), donde los pesos son naturales, devuel
 de los de la lista asignando a cada elemento/pareja una probabilidad de ser elegida igual a (peso/sumaPesos)*100
 , donde suma pesos es la suma de los pesos de todos los elementos de la lista. Para ello se le debe suministrar un
 numero aleatorio entre 1 y 100. Se devuelve el elemento elegido y su posicion
+-dameElemAleatListaPesos aleat listaParejas
 -}
 dameElemAleatListaPesos :: Int -> [(a, Int)] -> (a, Int)
 dameElemAleatListaPesos aleat listaParejas = aplicaAleat aleatNorm listaParejas 1 1
@@ -192,23 +193,6 @@ dameElemAleatListaPesos aleat listaParejas = aplicaAleat aleatNorm listaParejas 
                   | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)
                                              where extDcho = posEnRecta + peso - 1
 
-{-
-aplicaPorcentajeSumaPesos(Porcentaje, ListaPesos, Elem, Pos, Resto) :-
-	aplicaPorcentajeSumaPesosAcu(Porcentaje, ListaPesos, 1, 1, Elem, Pos),
-        sublista_pref(ListaPesos, Pos, Laux1),
-        PosAux is Pos + 1, sublista_suf(ListaPesos, PosAux, Laux2),
-        append(Laux1, Laux2, Resto).
-
-aplicaPorcentajeSumaPesosAcu(_, [], _, _, ninguno, -1) :- !.
-aplicaPorcentajeSumaPesosAcu(Porcentaje, [(Termino, Peso)|_], PosEnRecta, PosEnLista, Termino, PosEnLista) :-
-	Porcentaje >= PosEnRecta,
-        ExtremoDcho is (PosEnRecta + Peso - 1), Porcentaje =< ExtremoDcho,!.
-
-aplicaPorcentajeSumaPesosAcu(Porcentaje, [(_, Peso)|Ls], PosEnRecta, PosEnLista, Elem, Pos) :-
-	SigPosEnRecta is (PosEnRecta + Peso), SigPosEnLista is PosEnLista + 1,
-	aplicaPorcentajeSumaPesosAcu(Porcentaje, Ls, SigPosEnRecta, SigPosEnLista, Elem, Pos).
-
--}
 {-
 
 Devuelve True si el string de entrada representa a un entero.

@@ -38,6 +38,29 @@ hazMelodiaParaAcordeLista :: Cifrado -> [Music]
 hazMelodiaParaAcordeLista _ = [Rest 0]
 
 {-
+Dado un acorde devuelve una lista de alturas de notas que se usarán para formar una melodia sobre
+ese acorde. El ritmo todavia no interviene
+daListaNotasDeMelodiaSobreAcorde listaAleat cifrado:
+- listaAleat es una lista infinita de numeros enteros
+aleatorios entre 1 y 100
+- cifrado es el acorde sobre el que se hace la melodia
+-devuelve (Notas, listaAleat2):
+  -Notas: lista de pitch que forman la melodia
+  -listaAleat2: lista de entrada al quitarle los numeros aleatorios empleados
+
+-}
+{-
+--daListaNotasDeMelodiaSobreAcorde :: Cifrado -> [Pitch]
+daListaNotasDeMelodiaSobreAcorde :: [Int] -> Cifrado -> ([Pitch], [Int])
+daListaNotasDeMelodiaSobreAcorde (n1:n2) acorde =
+                                         where numMaxNotas = 8 --luego será parametro, o saldrá con la duración del cifrado?
+                                               numNotas = round (fromIntegral n1*numMaxNotas/100)
+                                               escala = escalaDelAcorde acorde
+                                               notasYPesos = dameNotasYPesosDeEscala escala
+                                               (gradoIni,_) = dameElemAleatListaPesos n2 notasYPesos
+
+-}
+{-
 saltaIntervaloGrado escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
 tantos grados como num, contando desde gradoPartida. Por ejemplo saltaIntervalo jonica 2 I devuelve II
 -}
@@ -48,7 +71,19 @@ saltaIntervaloGrado escala num gradoPartida = gradoSalida
                                                     numGrados = length gradosEscala
                                                     posGradoSalida = (posGradoPartida + num -1) `mod` numGrados
                                                     gradoSalida = gradosEscala !! posGradoSalida
-
+{-
+{-
+saltaIntervaloPitch escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
+tantos grados como num, contando desde gradoPartida. Por ejemplo saltaIntervalo jonica 2 I devuelve II
+-}
+saltaIntervaloPitch :: Escala -> Int -> Grado -> Grado
+saltaIntervaloPitch escala num gradoPartida = gradoSalida
+                                              where (_,gradosEscala,_)  = dameInfoEscala escala
+                                                    Just posGradoPartida = elemIndex gradoPartida gradosEscala
+                                                    numGrados = length gradosEscala
+                                                    posGradoSalida = (posGradoPartida + num -1) `mod` numGrados
+                                                    gradoSalida = gradosEscala !! posGradoSalida
+-}
 
 
 pruProg1 :: String -> IO()

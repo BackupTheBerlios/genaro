@@ -110,6 +110,7 @@ pruebaParserMatrizHorizontal :: String -> IO()
 pruebaParserMatrizHorizontal rutaOrigen = do texto <- readFile rutaOrigen
                                              putStr ( show (matrizJavaAPatHorizontal qn (snd(head ( parserJavaPatsMatriz texto)))))
 
+pruebaParserFichPatronRitJava :: String -> IO()
 pruebaParserFichPatronRitJava rutaOrigen = do texto <- readFile rutaOrigen
                                               putStr ( show ( head (parserFichPatronRitmicoJava texto)))
 

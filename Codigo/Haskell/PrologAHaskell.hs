@@ -13,15 +13,7 @@ import Haskore
 import Basics
 import Ratio
 import Parser_library
-
-aplicaParser :: (Parser Char a) -> (String -> a)
-aplicaParser parser cadena = if null resultados
-                                then error "el parser no reconoció ningún símbolo de la entrada"
-                                else if null (fst resul1)
-                                        then snd resul1
-                                        else error "el parser no reconoció la entrada completamente"
-		              where resultados = parser cadena
-                                    resul1     = head resultados
+import Parsers
 
 hazMusica :: String -> Music
 hazMusica = aplicaParser parserMusica
@@ -128,19 +120,6 @@ octava = (token "octava") *> parenthesized(natural)
 
 figura :: Parser Char Dur
 figura = (token "figura") *> parserParejaARatio
-
-
--- además solo funciona con parejas de naturales
-parserParejaARatio :: Parser Char (Ratio Int)
-parserParejaARatio = parenthesized( (natural <* coma) <*> natural ) <@ f
-                     where f = \(a,b) -> a%b
-
-open = symbol '('
-close = symbol ')'
-coma = symbol ','
-parentesisONO :: Parser Char a -> Parser Char a
-parentesisONO p = parenthesized p
-                  <|> p
 
 -- auxiliar para pruebas
 cancioncilla :: Music

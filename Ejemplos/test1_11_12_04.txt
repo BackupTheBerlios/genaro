@@ -1,0 +1,1 @@
+Ahora ya tenemos los patrones ritmicos bien hechos. Como se ve en este ejemplo, que se supone es un ritmo ternario 3/4, la nota mas grave dura tres negras, que es la duracion del acorde

@@ -264,13 +264,13 @@ musica2 = deAcordesOrdenadosAMusica acordes patronV2 patronH2
 
 {-
 numNotas :: Int
-numNotas = 5
+numNotas = 10
 
 progresion :: Progresion
 progresion = [((I,Maj7),1%1),((V7 IV,Sept),1%1),((IV, Maj7),1%1),((V, Sept),1%1),((I,Mayor),1%1)]
 
 patronH :: PatronHorizontal
-patronH = [(100,1%6)]
+patronH = [(100,1%(4*numNotas))]
 
 patronV1 :: PatronVertical
 patronV1 = [ [(1,True),(2,True),(3, False)], [(1,True),(2,True),(4, False)], [(1,False),(2,False),(5, False)] ]
@@ -282,6 +282,7 @@ traduccion1 :: [AcordeOrdenado]
 traduccion1 = traduceProgresionSistemaContinuo numNotas progresion
 
 musica1 :: Music
-musica1 = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronV1 patronH numNotas traduccion1 
+musica1 = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronV2 patronH numNotas traduccion1 
+
 
 -}

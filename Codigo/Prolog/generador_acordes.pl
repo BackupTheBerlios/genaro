@@ -233,6 +233,16 @@ haz_prog_semilla1(S) :- setof(Lg1, cadenciaValida(cadencia(Lg1,_)), Lc1)
         ,setof(Lg2, patAcordesVal(patAcord(Lg2,_)), Lc2), append(Lc1,Lc2,Lc)
 	,dame_elemento_aleatorio(Lc, ListaGrados),listaGradosAProgresion(ListaGrados,S).
 
+/**
+* haz_prog_semilla3(S). Devuelve en S una progresion que se usa para empezar la generación de la progresión entera. Esta progresion
+* de salida es una cadencia o un patrón de acordes (ver es_patron_acordes/1 y es_cadencia/1) a la que se le ha aplicado 10 veces el
+* predicado cambia_acordes
+* @param -S cumple es_progresion(S)
+* */
+haz_prog_semilla3(S) :- haz_prog_semilla1(A), aplica_cambia_acordes(A, 10, S).
+aplica_cambia_acordes(Ori, N, Dest) :- N>0, !, N1 is N -1, cambia_acordes(Ori, Aux1), aplica_cambia_acordes(Aux1, N1, Dest).
+aplica_cambia_acordes(Ori, _, Ori).
+
 /*listaGradosAProgresion(ListaGrados,Progresion).
 convierte una lista de grados en una progresión de acordes en la que cada acorde dura una redonda. A cada grado le hace
 corresponder su cuatríada por ahora!!!
@@ -323,7 +333,9 @@ buscaCandidatosADominanteSec([(cifrado(grado(G),M), F)|Li], [(cifrado(grado(G),M
 * % buscaCandidatosADominanteSecAcu(Li, PosActual, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
 * les puede añadir un dominante secundario por delante de ellos, esto es, aquellos que no son acordes del primer grado y a los que
-* no se les ha añadido ya un dominante secundario. PosActual indica la posicion del acorde que se considera, dentro de la lista
+* no se les ha añadido ya un dominante secundario. !no implementado!: tampoco se debería poder añadir un dominante por extension entre un
+* dominante secundario y su iim7 relativo correspondiente!!!!o si???? Al final lo dejo pq tiene su gracia
+* PosActual indica la posicion del acorde que se considera, dentro de la lista
 * total sobre la que se ha llamado a buscaCandidatosADominanteSec, que a su vez habrá llamado a este predicado
 * @param +Li cumple es_progresion(progresion(Li))
 * @param +PosActual es un natural

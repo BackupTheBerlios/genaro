@@ -10,7 +10,6 @@ import Progresiones
 import PrologAHaskell -- de aqui solo necesito el tipo AcordeOrdenado
 import Ratio
 import Random
-import Ritmo
 
 -----------------------------------------------------------
 
@@ -222,6 +221,7 @@ dado2 = dado
 
 -- BORRAME: EJEMPLOS DE PRUEBA
 
+{-
 progresion1 :: Progresion
 progresion1 = [((I, Maj7),1%1),((VI, Men7),1%1),((II, Men7),1%1),((V7 I, Sept),1%1)]
 
@@ -252,7 +252,7 @@ musica1 = deAcordesOrdenadosAMusica acordes patronV1 patronH1
 
 musica2 :: Music
 musica2 = deAcordesOrdenadosAMusica acordes patronV2 patronH2
-
+-}
 
 {-
 

@@ -1,9 +1,9 @@
 object Form1: TForm1
-  Left = 138
-  Top = 105
+  Left = 75
+  Top = 64
   Width = 800
   Height = 600
-  Caption = 'Form1'
+  Caption = 'Interfaz Genaro'
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -144,6 +144,7 @@ object Form1: TForm1
     Height = 25
     Caption = '|>'
     TabOrder = 4
+    OnClick = Button3Click
   end
   object Button5: TButton
     Left = 80
@@ -160,6 +161,7 @@ object Form1: TForm1
     Height = 25
     Caption = 'Exportar Midi'
     TabOrder = 6
+    OnClick = Button1Click
   end
   object Button4: TButton
     Left = 16
@@ -168,6 +170,7 @@ object Form1: TForm1
     Height = 25
     Caption = 'Exportar Wav'
     TabOrder = 7
+    OnClick = Button4Click
   end
   object Button6: TButton
     Left = 16
@@ -184,7 +187,6 @@ object Form1: TForm1
     Height = 25
     Caption = 'Dámelo Todo, Genaro'
     TabOrder = 9
-    OnClick = Boton_ComponerClick
   end
   object Barra_Numero_Acordes: TTrackBar
     Left = 96
@@ -262,7 +264,11 @@ object Form1: TForm1
       end
     end
     object Insertar1: TMenuItem
-      Caption = '&Insertar'
+      Caption = '&Opciones'
+      object Reproduccin1: TMenuItem
+        Caption = '&Reproducción'
+        OnClick = Reproduccin1Click
+      end
     end
   end
   object OpenDialog: TOpenDialog

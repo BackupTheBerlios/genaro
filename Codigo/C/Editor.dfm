@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 72
-  Top = 142
+  Left = 33
+  Top = 118
   BorderStyle = bsSingle
   Caption = 'Form1'
   ClientHeight = 456
@@ -20,12 +20,12 @@ object Form1: TForm1
   object Etiqueta_Duracion_Nota: TLabel
     Left = 576
     Top = 56
-    Width = 28
-    Height = 23
+    Width = 26
+    Height = 21
     Caption = '1/1'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
@@ -33,12 +33,12 @@ object Form1: TForm1
   object Label2: TLabel
     Left = 264
     Top = 56
-    Width = 56
-    Height = 23
+    Width = 54
+    Height = 21
     Caption = 'Zoom -'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
@@ -46,12 +46,12 @@ object Form1: TForm1
   object Label3: TLabel
     Left = 0
     Top = 56
-    Width = 56
-    Height = 23
+    Width = 54
+    Height = 21
     Caption = 'Zoom +'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
@@ -59,12 +59,12 @@ object Form1: TForm1
   object Resolucion_Grid: TLabel
     Left = 856
     Top = 56
-    Width = 28
-    Height = 23
+    Width = 26
+    Height = 21
     Caption = '1/1'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
@@ -72,12 +72,12 @@ object Form1: TForm1
   object Label1: TLabel
     Left = 368
     Top = 32
-    Width = 155
-    Height = 23
+    Width = 147
+    Height = 21
     Caption = 'Duración de la Nota'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False
@@ -125,7 +125,7 @@ object Form1: TForm1
     OnChange = Barra_NotaChange
   end
   object BarraVoces: TScrollBar
-    Left = 1
+    Left = 9
     Top = 88
     Width = 16
     Height = 353
@@ -143,7 +143,7 @@ object Form1: TForm1
     Checked = True
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
-    Font.Height = -16
+    Font.Height = -15
     Font.Name = 'Comic Sans MS'
     Font.Style = [fsBold]
     ParentFont = False

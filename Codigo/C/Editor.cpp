@@ -445,9 +445,12 @@ for (int fila=0;fila<Numero_Filas_Pantalla;fila++)
     if (total_duracion_nota!=0)
     {
       this->Canvas->Pen->Color=clWhite;
-      this->Canvas->Brush->Color=clRed;
+      TColor color_nota=0x00000000;
+      color_nota+=velocity_nota*2;
+      this->Canvas->Brush->Color=color_nota;
+//      this->Canvas->Brush->Color=clRed;
       this->Canvas->Rectangle(X_Inicial,Y_Inicial,X_Final,Y_Final);
-      if (Fila_Seleccionada==fila)
+      if ((Fila_Seleccionada==fila)||(Estado_Trabajo==2))
       {//Dibujamos el velocity, que va desde X_inicial a X_Final, pero va desde client_Height a eso+velocity
         int ajuste_cuadro_velocity=velocity_nota*73/125;
         this->Canvas->Rectangle(X_Inicial,this->ClientHeight-25 ,X_Final,this->ClientHeight-25-ajuste_cuadro_velocity);
@@ -508,19 +511,34 @@ Dibuja_Notas();
 
 void __fastcall TForm1::ToolButton1Click(TObject *Sender)
 {
-Estado_Trabajo=0;  
+Estado_Trabajo=0;
+if (Inicializado)
+{
+  Dibuja_Esqueleto();
+  Dibuja_Notas();
+}
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::ToolButton2Click(TObject *Sender)
 {
-Estado_Trabajo=1;  
+Estado_Trabajo=1;
+if (Inicializado)
+{
+  Dibuja_Esqueleto();
+  Dibuja_Notas();
+}
 }
 //---------------------------------------------------------------------------
 
 void __fastcall TForm1::ToolButton3Click(TObject *Sender)
 {
-Estado_Trabajo=2;  
+Estado_Trabajo=2;
+if (Inicializado)
+{
+  Dibuja_Esqueleto();
+  Dibuja_Notas();
+}
 }
 //---------------------------------------------------------------------------
 void TForm1::Actualiza_Fila_Seleccionada(int Y)

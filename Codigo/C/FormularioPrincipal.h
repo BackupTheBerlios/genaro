@@ -44,13 +44,17 @@ __published:	// IDE-managed Components
   TLabel *Etiqueta_Numero_Repeticiones;
   TLabel *Label4;
   TMenuItem *EditordePianola1;
-  void __fastcall Boton_ComponerClick(TObject *Sender);
+  TMenuItem *Reproduccin1;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
   void __fastcall Barra_Numero_RepeticionesChange(TObject *Sender);
   void __fastcall Salir1Click(TObject *Sender);
   void __fastcall EditordePianola1Click(TObject *Sender);
+  void __fastcall Reproduccin1Click(TObject *Sender);
+  void __fastcall Button3Click(TObject *Sender);
+  void __fastcall Button1Click(TObject *Sender);
+  void __fastcall Button4Click(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
 public:		// User declarations

@@ -5,12 +5,13 @@
     <VERSION value="BCB.05.03"/>
     <PROJECT value="Interfaz_Genaro.exe"/>
     <OBJFILES value="Interfaz_Genaro.obj FormularioPrincipal.obj Interfaz_Prolog.obj 
-      Unidad_Nexo.obj Interfaz_Haskell.obj"/>
+      Unidad_Nexo.obj Interfaz_Haskell.obj FormParametrosTimidity.obj 
+      Interfaz_Timidity.obj"/>
     <RESFILES value="Interfaz_Genaro.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
-    <RESDEPEN value="$(RESFILES) FormularioPrincipal.dfm"/>
+    <RESDEPEN value="$(RESFILES) FormularioPrincipal.dfm FormParametrosTimidity.dfm"/>
     <LIBFILES value=""/>
     <LIBRARIES value=""/>
     <SPARELIBS value="Vcl50.lib"/>

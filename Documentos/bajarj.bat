@@ -1,0 +1,1 @@
+Cvs -z3 -d:ssh:%1@cvs.genaro.berlios.de:/cvsroot/genaro checkout %2

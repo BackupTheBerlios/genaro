@@ -58,7 +58,7 @@ arreglaOctavasDesRec :: Octave -> PitchClass -> [PitchClass] -> [Pitch]
 arreglaOctavasDesRec _ _ [] = []
 arreglaOctavasDesRec octava pitchAnt (cabeza : resto) 
 	|pitchClass pitchAnt <= pitchClass cabeza = (cabeza, octava - 1) : arreglaOctavasDesRec (octava - 1) cabeza resto
-	|otherwise				 		= (cabeza, octava) : arreglaOctavasDesRec octava cabeza resto
+	|otherwise				  = (cabeza, octava) : arreglaOctavasDesRec octava cabeza resto
 
 
 
@@ -127,23 +127,30 @@ masCoincidente referencia aInvertir
 		elegido2 = listaFiltrada2 !! 0 ;    --TODO: HACER UN RANDOM CON EL NUMERO DE ELEMENTOS
 -}
 				
-masCoincidente :: [PitchClass] -> [PitchClass] -> [PitchClass]
-masCoincidente referencia aInvertir = elegido
+masCoincidente :: RandomGen a => a -> [PitchClass] -> [PitchClass] -> ( [PitchClass], a )
+masCoincidente gen referencia aInvertir = (elegido, sigGen)
 	where	listaPerm = perms aInvertir ;
 		coincidenciasMayor = maximum (map (coincidencias referencia) listaPerm) ;
 		listaFiltrada = filter ((coincidenciasMayor==).(coincidencias referencia)) listaPerm ;
 		distanciaMenor = minimum (map (distancia referencia) listaPerm) ;
 		listaFiltrada2 = filter ((distanciaMenor==).(distancia referencia)) listaFiltrada ;
-		elegido = elementoAleatorio listaFiltrada2
+		(elegido, sigGen) = elementoAleatorio gen listaFiltrada2
 
 --NOTA: HACERLO BIEN Y PASARLO A BIBLIOGENARO.HS
-elementoAleatorio :: [a] -> a
-elementoAleatorio l = l !! 0
+elementoAleatorio :: RandomGen b => b -> [a] -> (a,b)
+elementoAleatorio g l = (l !! pos, sigg)
+	where 	longitud = length l;
+		(pos, sigg) = randomR (0, longitud - 1) g
 
 
-traduceProgresionSistemaContinuo :: NumNotasTotal -> Progresion -> [AcordeOrdenado]
-traduceProgresionSistemaContinuo numNotasTotal progresion 
-	= zip (arreglaTodos (map2 encajaAcordeSimple (organizar (map traduceCifrado cifrados)) listaAcordesSimples)) duraciones
+-- Igual que traduceSistemaContinuo pero esta vez la semilla se pasa como un numero entero.
+traduceProgresionSistemaContinuo2 :: Int -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
+traduceProgresionSistemaContinuo2 semillaInt = traduceProgresionSistemaContinuo (mkStdGen semillaInt)
+
+
+traduceProgresionSistemaContinuo :: RandomGen a => a -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
+traduceProgresionSistemaContinuo gen numNotasTotal progresion 
+	= zip (arreglaTodos (map2 encajaAcordeSimple (organizar gen (map traduceCifrado cifrados)) listaAcordesSimples)) duraciones
 		where desabrochar = unzip progresion ;
 			cifrados = fst desabrochar ;
 			duraciones = snd desabrochar ;
@@ -152,13 +159,25 @@ traduceProgresionSistemaContinuo numNotasTotal progresion
 -- pone la octava en todos los acordes que son [PitchClass]. El primero le empieza en la octava 4
 -- y los siguientes se las arregla para que las notas coincidentes tengan la misma octava que la [Pitch] anterior
 arreglaTodos :: [[PitchClass]] -> [[Pitch]]
-arreglaTodos (pc : resto) = cabeza : arreglaTodosRec cabeza resto
-	where cabeza = arreglaOctavasAsc 4 pc
+arreglaTodos (pc : resto) = cabezaTratada : arreglaTodosRec cabeza resto
+	where 	cabeza = arreglaOctavasAsc 4 pc;
+		cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
+									-- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
+
+eliminaOctavasErroneas :: [Pitch] -> [Pitch]
+eliminaOctavasErroneas [] = []
+eliminaOctavasErroneas ((pitchClass, octave) : resto)
+	| octave < 0	= (pitchClass, 0) : eliminaOctavasErroneas resto
+	| octave > 21	= (pitchClass, 21) : eliminaOctavasErroneas resto   -- EL LIMITE POR ARRIBA ES 21
+	| otherwise	= (pitchClass, octave) : eliminaOctavasErroneas resto
+
 
 arreglaTodosRec :: [Pitch] -> [[PitchClass]] -> [[Pitch]]
 arreglaTodosRec _ [] = []
-arreglaTodosRec ant (pc : resto) = cabeza : arreglaTodosRec cabeza resto
-	where cabeza = arreglaUno ant pc
+arreglaTodosRec ant (pc : resto) = cabezaTratada : arreglaTodosRec cabeza resto
+	where 	cabeza = arreglaUno ant pc;
+		cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
+									-- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
 
 
 -- Pone la octava en [PitchClass] de tal forma que las notas coincidentes tengan la misma octava
@@ -191,14 +210,16 @@ map2 f la lb = map (uncurry f) (zip la lb)
 
 -- Modifica la lista de [PitchClass] para que el numero de coicidencias entre acordes consecutivos
 -- sea la maxima (solo en la misma posicion). El primero le elige al azar y el resto en funcion de ellos
-organizar :: [[PitchClass]] -> [[PitchClass]]
-organizar (x:xs) = elegido : organizarRec elegido xs
-	where elegido = [inversion i x | i <- [0..(length x - 1 )]] !! 0 --TODO: PONER AQUI UN RANDOM
+organizar :: RandomGen a => a -> [[PitchClass]] -> [[PitchClass]]
+organizar gen (x:xs) = elegido : organizarRec sigGen elegido xs
+	where 	lista = [inversion i x | i <- [0..(length x - 1 )]];      --TODO: PONER AQUI UN RANDOM
+		(elegido, sigGen) = elementoAleatorio gen lista
+		
 
-organizarRec :: [PitchClass] -> [[PitchClass]] -> [[PitchClass]]
-organizarRec _ [] = []
-organizarRec referencia (x:xs) = nuevaRef : organizarRec nuevaRef xs
-	where nuevaRef = masCoincidente referencia x
+organizarRec :: RandomGen a => a -> [PitchClass] -> [[PitchClass]] -> [[PitchClass]]
+organizarRec _ _ [] = []
+organizarRec gen referencia (x:xs) = nuevaRef : organizarRec sigGen nuevaRef xs
+	where 	(nuevaRef, sigGen) = masCoincidente gen referencia x
 
 
 

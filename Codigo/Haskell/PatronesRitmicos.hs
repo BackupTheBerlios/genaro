@@ -6,8 +6,8 @@ import Ratio
 import PrologAHaskell
 import Haskore
 
---import TraduceCifrados
---import Progresiones
+import TraduceCifrados
+import Progresiones
 
 --
 -- PATRON RITMICO
@@ -340,16 +340,14 @@ paraleliza (( nota, _ ):resto) = nota :=: paraleliza resto
 
 
 
-{-
-
-
-
 
 numNotas :: Int
-numNotas = 10
+numNotas = 4
 
 progresion :: Progresion
-progresion = [((I,Maj7),1%1),((V7 IV,Sept),1%1),((IV, Maj7),1%1),((V, Sept),1%1),((I,Mayor),1%1)]
+progresion = concat [progresionAux | i<-[0..9]] ++ progresionAux2
+	where 	progresionAux = [((I,Maj7),1%8),((V7 IV,Sept),1%8),((IV, Maj7),1%8),((V, Sept),1%8),((III,Mayor),1%8)];
+		progresionAux2 = [((I,Maj7),1%8),((V7 IV,Sept),1%8),((IV, Maj7),1%8),((V, Sept),1%8),((I,Mayor),1%8)]
 
 patronH :: URH
 patronH = 1%(4*numNotas)
@@ -363,12 +361,33 @@ patronV1 = [ 	([(1, 100, True),(2, 100, True),(3, 100, False)] , 1%12 ),
 patronV2 :: PatronRitmico
 patronV2 = [ ( [(i, 100, False)], patronH ) | i<-[1..numNotas]]
 
+patronR :: PatronRitmico
+patronR = [ ([(1,100,False),(2,100,False),(3,100,False),(4,100,False)],1%8 ) ]
+
 traduccion1 :: [AcordeOrdenado]
-traduccion1 = traduceProgresionSistemaContinuo numNotas progresion
+traduccion1 = traduceProgresionSistemaContinuo2 0 4 progresion
+
+traduccion2 :: [AcordeOrdenado]
+traduccion2 = traduceProgresionSistemaContinuo2 0 4 progresion
 
 musica1 :: Music
-musica1 = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronV1 numNotas traduccion1 
+musica1 = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronR 4 traduccion1 
+
+musica2 :: Music
+musica2 = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronV1 numNotas traduccion2 
+
+
+traduccion :: [[AcordeOrdenado]]
+traduccion = [traduceProgresionSistemaContinuo2 i 4 progresion | i<-[0..10]]
+
+musica :: Music
+musica = foldl1 (:+:) musicaAux
+	where	musicaAux = map (deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronR 4) traduccion
 
 
 
--}
+
+
+
+
+

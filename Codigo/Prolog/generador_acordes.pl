@@ -138,7 +138,7 @@ in: N natural que indica el numero aproximado de compases que dura de la progres
 out: La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
      Hace cierto es_progresion(La)
 */
-haz_progresion(N, M, La) :- natural(N), natural(M), haz_prog_semilla(S), fija_compases_aprox(S, N, Laux1),
+haz_progresion(N, M, La) :- natural(N), natural(M), haz_prog_semilla2(S), fija_compases_aprox(S, N, Laux1),
  		modifica_prog(Laux1, M, La).
 
 /*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra 
@@ -390,3 +390,98 @@ hazCuatriada(grado(G),cifrado(grado(G), matricula(7))) :- member(G,[v]).
 hazCuatriada(grado(G),cifrado(grado(G), matricula(m7b5))) :- member(G,[vii]).
 
 					
+
+/*****************************************************************************************
+	CODIGO DE ROBERTO PARA UNA PRUEBA DE HAZ_PROG_SEMILLA2
+*****************************************************************************************/
+
+% No tengo el numero de acordes que tengo que generar, supongo 4
+
+haz_prog_semilla2(S) :- 
+	genera_grados_aleatoriamente(LG1),
+	arregla_lista_grados(LG1,LG2),
+	listaGradosAProgresion(LG2, S).
+
+
+% genera 4 grados totalmente aleatorios
+
+genera_grados_aleatoriamente([A,B,C,D]) :-
+	random(0,7,NA), entero_a_grado(NA, A),
+	random(0,7,NB), entero_a_grado(NB, B),
+	random(0,7,NC), entero_a_grado(NC, C),
+	random(0,7,ND), entero_a_grado(ND, D).
+
+
+% de numero a grado
+
+entero_a_grado(0,grado(i)).
+entero_a_grado(1,grado(ii)).
+entero_a_grado(2,grado(iii)).
+entero_a_grado(3,grado(iv)).
+entero_a_grado(4,grado(v)).
+entero_a_grado(5,grado(vi)).
+entero_a_grado(6,grado(vii)).
+
+% Añade un grado con funcion de tonica despues del de dominante
+
+arregla_lista_grados([],[]) :-
+	!.
+arregla_lista_grados([G1],[G1,G2]) :-
+	dameFuncionTonal(G1, dominante),
+	!,
+	dame_grado_de_tonica(G2).
+arregla_lista_grados([G],[G]) :-
+	!.
+arregla_lista_grados([ G1, G2 | Resto ], [ G1 | RestoArreglao] ) :-
+	dameFuncionTonal( G1, dominante ),
+	dameFuncionTonal( G2, tonica ),
+	!,
+	arregla_lista_grados( [G2 | Resto], RestoArreglao ).
+arregla_lista_grados([ G1, G2 | Resto ], [ G1, GT | RestoArreglao] ) :-
+	dameFuncionTonal( G1, dominante ),
+	!,
+	dame_grado_de_tonica(GT),
+	arregla_lista_grados( [ G2 | Resto], RestoArreglao ).
+arregla_lista_grados([ G1, G2 | Resto ], [ G1 | RestoArreglao] ) :-
+	arregla_lista_grados( [ G2 | Resto], RestoArreglao ).
+
+
+
+% devuelve un grado que es de tonica
+
+entero_a_tonica(0,grado(i)).
+entero_a_tonica(1,grado(iii)).
+entero_a_tonica(2,grado(vi)).
+
+dame_grado_de_tonica(GT) :-
+	random(0,3,Num),
+	entero_a_tonica(Num,GT).
+
+
+
+/*
+
+ejemplo1 :- 
+	arregla_lista_grados([grado(vii),grado(vii),grado(v),grado(v)], L),
+	write(L).
+ejemplo2 :- 
+	arregla_lista_grados([grado(v)], L),
+	write(L).
+ejemplo3 :- 
+	arregla_lista_grados([grado(v),grado(i)], L),
+	write(L).
+ejemplo4 :- 
+	arregla_lista_grados([grado(v),grado(i),grado(vi),grado(vii)], L),
+	write(L).
+
+*/
+
+
+
+
+
+
+
+
+
+

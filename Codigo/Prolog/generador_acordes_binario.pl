@@ -2,9 +2,9 @@
 /*
 GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 
--en compas de 2 por 4 y posición de tónica en primera disposicion
--pag 61: añadir, cambiar y quitar acordes
--pag 64: colocacion de los acordes en la frase armónica
+-en compas de 2 por 4 y posiciï¿½n de tï¿½nica en primera disposicion
+-pag 61: aï¿½adir, cambiar y quitar acordes
+-pag 64: colocacion de los acordes en la frase armï¿½nica
 -poner lo del movimineto entre fundamentales pg 66
 -pg 81 : bVII
 -todo de cadenas
@@ -35,9 +35,9 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 * haz_progresion(+N, +M, +TipoSemilla, -Progresion)
 * Genera una progresion de acordes en modo Jonico sin especificar la tonalidad (como lista de grados asociados a un
 * cifrado americano), que empleando tecnicas de armonia moderna y de forma pseudoaleatoria
-* @param +N natural que indica el numero exacto de compases que durará de la progresión
+* @param +N natural que indica el numero exacto de compases que durarï¿½ de la progresiï¿½n
 * @param +M natural que indica el numero de mutaciones que se realizaran para conseguir la progresion
-* @param +TipoSemilla si vale n entonces se utilizará haz_prog_semillan/2 para la generacion de la semilla, debe pertenecer al conjunto
+* @param +TipoSemilla si vale n entonces se utilizarï¿½ haz_prog_semillan/2 para la generacion de la semilla, debe pertenecer al conjunto
 * {1, 3} por ahora
 * @param -Progresion termino que hace cierto el predicado es_progresion con el que se expresa la progresion de
 * acordes generada
@@ -79,21 +79,21 @@ accion_modif(Pin, Pout, 1) :- quita_acordes(Pin, Pout).
 accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).*/
 
 
-		%PREDICADOS QUE CAMBIAN LA PROGRESION SIN AÑADIR COMPASES
+		%PREDICADOS QUE CAMBIAN LA PROGRESION SIN Aï¿½ADIR COMPASES
 
 			%DOMINANTES SECUNDARIOS
 /**
-* aniade_dominante_sec(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un dominante
+* aniade_dominante_sec(Po,Pd): Pd es una progresion igual a Po pero en la que se ha aï¿½adido un dominante
 * secundario de un acorde elegido al azar, dando mayor probabilidad de recibir dominante a los acordes que
-* duran más
-* El dominante secundario se añadirá según generador_acordes_binario:inserta_dominante_sec/2, por lo que no
-* añadirá más acordes a la progresión
+* duran mï¿½s
+* El dominante secundario se aï¿½adirï¿½ segï¿½n generador_acordes_binario:inserta_dominante_sec/2, por lo que no
+* aï¿½adirï¿½ mï¿½s acordes a la progresiï¿½n
 * @param +Po cumple es_progresion(Po)
 * @param -Pd cumple es_progresion(Pd)
 */
 aniade_dominante_sec(progresion(Lo), progresion(Ld)) :- aniade_dom_sec_lista(Lo, Ld).
 aniade_dom_sec_lista([], []) :- !.
-/*FIXME:lo del 1024 es una guarrería muy chunga que hay que arreglar*/
+/*FIXME:lo del 1024 es una guarrerï¿½a muy chunga que hay que arreglar*/
 aniade_dom_sec_lista(Lo, Ld):-
     buscaCandidatosADominanteSec(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
@@ -113,9 +113,9 @@ monta_dominante_sec(grado(G),grado(v7 / G)).
 
 /**
 * inserta_dominante_sec((+Cif,+Figura), -Ld). Devuelve en Ld una lista de parejas (cifrado,acorde) correspondientes a una progresion
-* formada por el acorde correspondiente a Cif durando un cuarto de lo que duraba éste, seguido del dominate correspondiente a Cif
-* durando un cuarto de lo que duraba Cif, seguido del acorde correspondiente a Cif durando un medio de lo que duraba éste. De esta
-* forma se obtiene una progresión que dura lo mismo que el acorde correspondiente a Cif y que respeta el ritmo armónico
+* formada por el acorde correspondiente a Cif durando un cuarto de lo que duraba ï¿½ste, seguido del dominate correspondiente a Cif
+* durando un cuarto de lo que duraba Cif, seguido del acorde correspondiente a Cif durando un medio de lo que duraba ï¿½ste. De esta
+* forma se obtiene una progresiï¿½n que dura lo mismo que el acorde correspondiente a Cif y que respeta el ritmo armï¿½nico
 *   F              D
 * F    D       F      D
 *
@@ -133,39 +133,47 @@ inserta_dominante_sec((cifrado(G,Mat), F)
 /**
 * buscaCandidatosADominanteSec(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
-* les puede añadir un dominante secundario por delante de ellos, esto es, aquellos a los que no se les ha añadido ya un dominante
-* secundario. Al primer grado se considera que se le puede añadir un dominante secundario, por tanto el primer acorde de una progresión
-* siempre será candidato
+* les puede aï¿½adir un dominante secundario por delante de ellos, esto es, aquellos a los que no se les ha aï¿½adido ya un dominante
+* secundario. Al primer grado se considera que se le puede aï¿½adir un dominante secundario, por tanto el primer acorde de una progresiï¿½n
+* siempre serï¿½ candidato, a menos que sea el septimo grado
 * @param +Li cumple es_progresion(progresion(Li))
 * @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
 * intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
 */
+buscaCandidatosADominanteSec([(cifrado(grado(vii),M), F)|Li], Lo)
+	:- !, buscaCandidatosADominanteSecAcu([(cifrado(grado(vii),M), F)|Li], 2, Lo).
 buscaCandidatosADominanteSec([(cifrado(grado(G),M), F)|Li], [(cifrado(grado(G),M), F, 1)|Lo])
 	:- buscaCandidatosADominanteSecAcu([(cifrado(grado(G),M), F)|Li], 2, Lo).
 /**
 * buscaCandidatosADominanteSecAcu(Li, PosActual, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
-* les puede añadir un dominante secundario por delante de ellos, esto es, aquellos a los que no se les ha añadido ya un dominante
-* secundario (se permite añadir dom secundario al primer grado).
+* les puede aï¿½adir un dominante secundario por delante de ellos, esto es, aquellos a los que no se les ha aï¿½adido ya un dominante
+* secundario (se permite aï¿½adir dom secundario al primer grado).
 * PosActual indica la posicion del acorde que se considera, dentro de la lista
-* total sobre la que se ha llamado a buscaCandidatosADominanteSec, que a su vez habrá llamado a este predicado
+* total sobre la que se ha llamado a buscaCandidatosADominanteSec, que a su vez habrï¿½ llamado a este predicado
 * @param +Li cumple es_progresion(progresion(Li))
 * @param +PosActual es un natural
 * @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
 * intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
 */
 buscaCandidatosADominanteSecAcu([], _, []).
-buscaCandidatosADominanteSecAcu([_],_,[]).%pq _ ya se habría examinado
-/*hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso se llama desde buscaCandidatosADominanteSec
+buscaCandidatosADominanteSecAcu([_],_,[]).%pq _ ya se habrï¿½a examinado
+/*hay q darse cuenta de q el primer acorde de la progresion nunca serï¿½ candidato entonces, por eso se llama desde buscaCandidatosADominanteSec
 dos con PosActual valiendo 2*/
+/*evita aÃ±adir dos veces un dominante secundario*/
 buscaCandidatosADominanteSecAcu([(cifrado(grado(v7 / G2),matricula(_)), _),(cifrado(grado(G2),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
                        ,buscaCandidatosADominanteSecAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
 
-/*evita añadir otra vez el v grado delante de un i grado precedido de v grado*/
+/*evita aï¿½adir otra vez el v grado delante de un i grado precedido de v grado*/
 buscaCandidatosADominanteSecAcu([(cifrado(grado(v),matricula(_)), _),(cifrado(grado(i),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
                        ,buscaCandidatosADominanteSecAcu([(cifrado(grado(i),matricula(M2)), F2)|Li], PosSig, Lo).
+
+/*evita aÃ±adir un dominante secundario a un vii grado*/
+buscaCandidatosADominanteSecAcu([_,(cifrado(grado(vii),matricula(M2)), F2)|Li]
+    , PosActual, Lo) :- !,PosSig is PosActual + 1
+                       ,buscaCandidatosADominanteSecAcu([(cifrado(grado(vii),matricula(M2)), F2)|Li], PosSig, Lo).
 
 buscaCandidatosADominanteSecAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
     , PosActual, [(cifrado(grado(G2),matricula(M2)), F2, PosActual)|Lo]) :-
@@ -175,17 +183,17 @@ buscaCandidatosADominanteSecAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
 
 			%II-7 RELATIVO
 /**
-* aniade_iim7_rel(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un ii-7 de un
+* aniade_iim7_rel(Po,Pd): Pd es una progresion igual a Po pero en la que se ha aï¿½adido un ii-7 de un
 * dominante elegido al azar, dando mayor probabilidad de recibir ii-7 a los dominantes que
-* duran más
-* El dominante secundario se añadirá según
+* duran mï¿½s
+* El dominante secundario se aï¿½adirï¿½ segï¿½n
 * @param +Po cumple es_progresion(Po)
 * @param -Pd cumple es_progresion(Pd)
 */
 
 aniade_iim7_rel(progresion(Lo), progresion(Ld)) :- aniade_iim7_rel_lista(Lo, Ld).
 aniade_iim7_rel_lista([],[]) :- !.
-/*FIXME:lo del 1024 es una guarrería muy chunga que hay que arreglar*/
+/*FIXME:lo del 1024 es una guarrerï¿½a muy chunga que hay que arreglar*/
 aniade_iim7_rel_lista(Lo, Ld):-
     buscaCandidatosAiimRel(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
@@ -206,12 +214,12 @@ monta_iim(grado(v7 / G),grado(iim7 / G)).
 
 /**
 * inserta_iim7_rel((+CifDom,+Figura), -Ld). Devuelve en Ld una lista de parejas (cifrado,acorde) correspondientes a una progresion
-* formada por el acorde correspondiente al iim7 relativo de CifDom durando la mitad de lo que duraba éste, seguido del acorde
-* correspondiente a CifDom durando un medio de lo que duraba éste. De esta forma se obtiene una progresión que dura lo mismo que el
-* acorde correspondiente a CifDom y que respeta el ritmo armónico
+* formada por el acorde correspondiente al iim7 relativo de CifDom durando la mitad de lo que duraba ï¿½ste, seguido del acorde
+* correspondiente a CifDom durando un medio de lo que duraba ï¿½ste. De esta forma se obtiene una progresiï¿½n que dura lo mismo que el
+* acorde correspondiente a CifDom y que respeta el ritmo armï¿½nico
 *   F              D
 *
-* @param +CifDom cumple es_cifrado(Cif) y corresponde a un acorde de dominante, si no fallará
+* @param +CifDom cumple es_cifrado(Cif) y corresponde a un acorde de dominante, si no fallarï¿½
 * @param +Figura cumple es_figura(Figura)
 * @param +Ld cumple es_progresion(progresion(Ld))
 */
@@ -222,7 +230,7 @@ inserta_iim7_rel((cifrado(GD,matricula(7)), F)
 /**
 * buscaCandidatosAiimRel(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los dominantes a los que se
-* les puede añadir un iim7 relativo por delante de ellos, esto es, aquellos a los que no se les ha añadido ya un iim7 relativo
+* les puede aï¿½adir un iim7 relativo por delante de ellos, esto es, aquellos a los que no se les ha aï¿½adido ya un iim7 relativo
 * @param +Li cumple es_progresion(progresion(Li))
 * @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
 * intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
@@ -238,17 +246,17 @@ buscaCandidatosAiimRel([(cifrado(grado(G), M), F)|Li], Lo)
 /**
 * buscaCandidatosAIImRelAcu(Li, PosActual, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los dominantes a los que se
-* les puede añadir un iim7 relativo por delante de ellos, esto es, aquellos a los que no se les ha añadido ya un iim7 relativo
+* les puede aï¿½adir un iim7 relativo por delante de ellos, esto es, aquellos a los que no se les ha aï¿½adido ya un iim7 relativo
 * PosActual indica la posicion del acorde que se considera, dentro de la lista
-* total sobre la que se ha llamado a buscaCandidatosAiimRelAcu, que a su vez habrá llamado a este predicado
+* total sobre la que se ha llamado a buscaCandidatosAiimRelAcu, que a su vez habrï¿½ llamado a este predicado
 * @param +Li cumple es_progresion(progresion(Li))
 * @param +PosActual es un natural
 * @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
 * intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
 */
 buscaCandidatosAiimRelAcu([], _, []).
-buscaCandidatosAiimRelAcu([_],_,[]).%pq _ ya se habría examinado
-%hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso empieza en dos
+buscaCandidatosAiimRelAcu([_],_,[]).%pq _ ya se habrï¿½a examinado
+%hay q darse cuenta de q el primer acorde de la progresion nunca serï¿½ candidato entonces, por eso empieza en dos
 buscaCandidatosAiimRelAcu([(cifrado(grado(iim7 / G2),matricula(_)), _),(cifrado(grado(v7 / G2),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
                        ,buscaCandidatosAiimRelAcu([(cifrado(grado(v7 / G2),matricula(M2)), F2)|Li], PosSig, Lo).
@@ -275,12 +283,12 @@ buscaCandidatosAiimRelAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
 
 			%CAMBIA ACORDES
 /**
-* cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
-* idéntica a Po excepto porque se ha realizado 1 cambio de un acorde diatónico!!! por otro de la misma función tonal
-* (elegido al azar y distinto) y que dura lo mismo (misma figura en la progresión). El acorde que será
+* cambia_acordes(Po, Pd) a partir de la progresiï¿½n origen Po se crea otra progresiï¿½n destino Pd que es
+* idï¿½ntica a Po excepto porque se ha realizado 1 cambio de un acorde diatï¿½nico!!! por otro de la misma funciï¿½n tonal
+* (elegido al azar y distinto) y que dura lo mismo (misma figura en la progresiï¿½n). El acorde que serï¿½
 * sustituido se elige al azar, teniendo todos los acordes comsiderados la misma probabilidad de ser elegidos
-* @param +Po progresión origen cumple es_progresion(Po)
-* @param -Pd progresión destino cumple es_progresion(Po)
+* @param +Po progresiï¿½n origen cumple es_progresion(Po)
+* @param -Pd progresiï¿½n destino cumple es_progresion(Po)
 */
 cambia_acordes(progresion(Lo), progresion(Ld)) :- cambia_acordesLista(Lo, Ld).
 cambia_acordesLista([], []) :- !.
@@ -301,19 +309,19 @@ cambia_acordesLista(Lo, Ld) :-
 
 cambia_acordesLista(Lo, Lo).
 
-			%AÑADE ACORDES
+			%Aï¿½ADE ACORDES
 /**
-* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
-* idéntica a  Po salvo porque se ha sustituido uno de sus acordes diatónicos!!! por dos acordes, el primero
-* del mismo cifrado del original pero durando la mitad y el segundo de la misma función tonal que el original
-* (elegido al azar y distinto) y durando también la mitad. El primero aparecerá siempre delante del segundo en
-* la progresión. El acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
+* aniade_acordes(Po, Pd) a partir de la progresiï¿½n origen Po se crea otra progresiï¿½n destino Pd que es
+* idï¿½ntica a  Po salvo porque se ha sustituido uno de sus acordes diatï¿½nicos!!! por dos acordes, el primero
+* del mismo cifrado del original pero durando la mitad y el segundo de la misma funciï¿½n tonal que el original
+* (elegido al azar y distinto) y durando tambiï¿½n la mitad. El primero aparecerï¿½ siempre delante del segundo en
+* la progresiï¿½n. El acorde que serï¿½ desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
 * elegidos
-* PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
-* Pre!!! Po en forma normal sería recomendable
-* Post: Pd está en forma normal
-* @param +Po progresión origen cumple es_progresion(Po)
-* @param -Pd progresión destino cumple es_progresion(Po)
+* PENDIENTE MANTENER EL RITMO ARMï¿½NICO COMO INVARIANTE TB AQUI
+* Pre!!! Po en forma normal serï¿½a recomendable
+* Post: Pd estï¿½ en forma normal
+* @param +Po progresiï¿½n origen cumple es_progresion(Po)
+* @param -Pd progresiï¿½n destino cumple es_progresion(Po)
 */
 aniade_acordes(progresion(Lo), progresion(Ld)) :- aniade_acordesLista(Lo, Ld).
 aniade_acordesLista([], []) :- !.
@@ -338,16 +346,16 @@ aniade_acordesLista(Lo, Lo).
 
 			%QUITA ACORDES
 /**
-* quita_acordes(Po,Pd) busca todas las parejas de acordes diatónicos !!!adyacentes que tengan la misma función tonal,
-* elige una de éstas al azar asignando la misma probabilidad a cada pareja y sustituye a la pareja por otro
-* acorde que dure mismo que la suma de las duraciones de las parejas y que tenga la misma función tonal
+* quita_acordes(Po,Pd) busca todas las parejas de acordes diatï¿½nicos !!!adyacentes que tengan la misma funciï¿½n tonal,
+* elige una de ï¿½stas al azar asignando la misma probabilidad a cada pareja y sustituye a la pareja por otro
+* acorde que dure mismo que la suma de las duraciones de las parejas y que tenga la misma funciï¿½n tonal
 * (elegido al azar y no necesariamente distinto). Si no es posible hacer esto pq no hay parejas adyacentes
-* de misma función tonal entonces devuelve en Pd la misma progresion Po
-* PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
-* Pre!!! Lo en forma normal sería recomendable
-* Post Ld está en forma normal
-* @param +Po progresión origen cumple es_progresion(Po)
-* @param -Pd progresión destino cumple es_progresion(Po)
+* de misma funciï¿½n tonal entonces devuelve en Pd la misma progresion Po
+* PENDIENTE MANTENER EL RITMO ARMï¿½NICO COMO INVARIANTE TB AQUI
+* Pre!!! Lo en forma normal serï¿½a recomendable
+* Post Ld estï¿½ en forma normal
+* @param +Po progresiï¿½n origen cumple es_progresion(Po)
+* @param -Pd progresiï¿½n destino cumple es_progresion(Po)
 **/
 quita_acordes(progresion(Lo), progresion(Ld)) :- quita_acordesLista(Lo, Ld).
 quita_acordesLista([], []) :- !.

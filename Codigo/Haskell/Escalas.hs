@@ -19,7 +19,7 @@ type Progresion = [(Cifrado, Dur)]
 -}
 {-
 Una escala es una lista de grados. Todo el rato se supone implicito que el grado I corresponde a
-Do, luego ya se puede trasponer el tono fácilmente con la constructora Trans del tipo Music
+Do, luego ya se puede trasponer el tono fï¿½cilmente con la constructora Trans del tipo Music
 -}
 type Escala = [Grado]
 jonica :: Escala
@@ -36,6 +36,10 @@ eolia :: Escala
 eolia = [I,II,BIII,IV,V,BVI,BVII]
 locria :: Escala
 locria = [I,BII,BIII,IV,BV,BVI,BVII]
+mixolidiaB13 :: Escala
+mixolidiaB13 = [I,II,III,IV,V,BVI,BVII]
+mixolidiaB9B13AU9 :: Escala
+mixolidiaB9B13AU9 = [I,BII,AUII,III,IV,V,BVI,BVII]
 {-
 Para un acorde especificado con un elemento de tipo cifrado da esa informacion,
 en el contexto del modo mayor
@@ -49,3 +53,10 @@ infoAcordeMayor (IV, Maj7) = ([IX,AUXI,XIII],lidia,[])
 infoAcordeMayor (V, Sept) = ([IX,XIII],mixolidia,[IV])
 infoAcordeMayor (VI, Men7) = ([IX,XI],eolia,[BVI])
 infoAcordeMayor (VII, Men7B5) = ([XI,BXIII],locria,[BII])
+infoAcordeMayor (V7 II, Sept) = ([BIX,IX,BXIII],mixolidiaB13,[IV])
+infoAcordeMayor (V7 III, Sept) = ([BIX,BXIII],mixolidiaB9B13AU9,[IV])
+infoAcordeMayor (V7 IV, Sept) = ([IX,XIII],mixolidia,[IV])
+infoAcordeMayor (V7 V, Sept) = ([IX,XIII],mixolidia,[IV])
+infoAcordeMayor (V7 VI, Sept) = ([BIX,BXIII],mixolidiaB9B13AU9,[IV])
+--el septimo grado no tendra nunca dominante secundario
+--faltan iim7rel y muchos mas

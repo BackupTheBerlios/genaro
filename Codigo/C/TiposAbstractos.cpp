@@ -114,11 +114,12 @@ void MatrizNotas::CreaFicheroTexto()
 ofstream archivo;
 AnsiString fichero="prueba.txt";
 archivo.open(fichero.c_str());
-archivo<<"VOCES "<<Voces<<" \n";
-archivo<<"COLUMNAS "<<Columnas<<" \n";
-archivo<<"RESOLUCION "<<Resolucion<<" \n";
+archivo<<"VOCES "<<Voces<<"\n";
+archivo<<"COLUMNAS "<<Columnas<<"\n";
+archivo<<"RESOLUCION "<<Resolucion;
 for (int voz=0;voz<Voces;voz++)
 {
+archivo<<"\n";
   for (int col=0;col<Columnas;col++)
   {
     TipoNota temporal=Dame(col,voz);
@@ -128,8 +129,10 @@ for (int voz=0;voz<Voces;voz++)
       case SILENCIO:{archivo<<"SILENCIO ";break;}
       case LIGADO:{archivo<<"LIGADO ";break;}
     }
+    //Ahora tendríamos que añadir el velocity
+    if (temporal!=SILENCIO){archivo<<"50 ";}
   }
-  archivo<<"FIN \n";
+  archivo<<"FIN";
 }
 
 archivo.close();

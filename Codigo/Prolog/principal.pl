@@ -44,7 +44,7 @@ main(DirTrabajo) :- working_directory(_, DirTrabajo)
 * Una vez construido el ejecutable mainArgs.exe su directorio de trabajo al ejecutarlo será el directorio
 * desde donde se le llame, asi que sería recomendable situarlo en C:/hlocal o el directorio que se use para
 * la comunicacion de archivos que corresponda. para que luego Haskell pueda encontrar los archivos
-* Por consola esto se debe llamar sin poner "-" delante de los argumentos, por ejemplo con ./mainArgs.exe 8 0
+* Por consola esto se debe llamar sin poner "-" delante de los argumentos, por ejemplo con ./mainArgs.exe c:/hlocal 8 0
 * En windows hay que poner todos los archivos .dll que hay en la carpeta bin del directorio donde
 * este instalado SWI pq si no funcionan los exes
 * En windows no cargar el guitracer antes de hacer el exe o no funcionara

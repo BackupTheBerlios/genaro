@@ -28,7 +28,7 @@ progresionPrologAMidi rutaOrigen rutaDestino = do texto <- readFile rutaOrigen
 
 stringProgresionAMusic :: String -> Music
 stringProgresionAMusic texto = line (map chord listaAcordes)
-                               where listaAcordes = hazProgresionOrdenada texto
+                               where listaAcordes = hazProgresionOrdenadaMusic texto
 
 -- solo para pruebas, no hay patrones ritmicos aun
 progresionPrologAMidi2 :: String -> String -> IO ()
@@ -37,4 +37,5 @@ progresionPrologAMidi2 rutaOrigen rutaDestino = do texto <- readFile rutaOrigen
 
 stringProgresionAMusic2 :: String -> Music
 stringProgresionAMusic2 texto = Tempo 4 (line (map line listaAcordes))
-                               where listaAcordes = hazProgresionOrdenada texto
+                               where listaAcordes = hazProgresionOrdenadaMusic texto
+

@@ -24,15 +24,6 @@ aplicaParser parser cadena = if null resultados
                                     resul1     = head resultados
 
 hazMusica :: String -> Music
-{-
-hazMusica cadena = if null resultados
-		      then error "esto no es una música"
-		      else if null (fst resul1)
-			      then snd resul1
-			      else error "esto no es una música"
-		   where resultados = parserMusica cadena
-			 resul1     = head resultados
-                         -}
 hazMusica = aplicaParser parserMusica
 
 -- parserMusica :: String -> [(String, Music)]
@@ -160,7 +151,46 @@ cancioncilla = Instr "piano" (Tempo (3%1) (
 	:=: (qnr :+: qnr :+: qnr :+: (b 4 wn []))
 	))
 
-type AcordeOrdenado = [Music]
+--
+-- PARSER VIEJO PARA EL RITMO
+--
+
+-- version vieja
+type AcordeOrdenadoMusic = [Music]
+
+hazProgresionOrdenadaMusic :: String -> [AcordeOrdenadoMusic]
+hazProgresionOrdenadaMusic = aplicaParser parserProgresionOrdenadaMusic
+
+-- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
+-- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
+-- ya elegidas
+parserProgresionOrdenadaMusic :: Parser Char [AcordeOrdenadoMusic]
+parserProgresionOrdenadaMusic = (token "progOrdenada") *> parenthesized(parserListaOrdenAcsMusic)
+
+-- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
+-- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
+-- ya elegidas
+parserListaOrdenAcsMusic :: Parser Char [AcordeOrdenadoMusic]
+parserListaOrdenAcsMusic = bracketed(commaList(parserParAcordeFigura)) <@ daFiguraAListaAcordes
+		      where parserParAcordeFigura = parenthesized( (parserAcordeOrdMusic <* coma) <*> figura)
+                            daFiguraAListaAcordes = map daFiguraAAcorde
+                            daFiguraAAcorde (acorde, figura) = map (\(Note a _ l) -> (Note a figura l)) acorde
+
+
+-- lee un String q corresponde a un termino Prolog T que cumple biblio_genaro_acorde:es_acorde(T)
+-- y devuelve  un valor de tipo AcordeOrdenado asignando por defecto la duracion de redonda a todas
+-- las notas
+parserAcordeOrdMusic :: Parser Char AcordeOrdenadoMusic
+parserAcordeOrdMusic = (token "acorde") *> parenthesized(bracketed(commaList(altura))) <@f
+                where f = map (\altura -> Note altura wn [])
+
+--
+--
+-- PARSER DEFINITIVO PARA EL RITMO
+--
+
+-- version definitiva empleada en Ritmo.hs, lo suyo sería terminar importándolo
+type AcordeOrdenado = ([Pitch],Dur)
 
 hazProgresionOrdenada :: String -> [AcordeOrdenado]
 hazProgresionOrdenada = aplicaParser parserProgresionOrdenada
@@ -169,23 +199,19 @@ hazProgresionOrdenada = aplicaParser parserProgresionOrdenada
 -- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
 -- ya elegidas
 parserProgresionOrdenada :: Parser Char [AcordeOrdenado]
--- parserProgresionOrdenada = (token "(progOrdenada") *> parListaOrdenAcs
-parserProgresionOrdenada = parserListaOrdenAcs
+parserProgresionOrdenada = (token "progOrdenada") *> parenthesized(parserListaOrdenAcs)
 
 
 -- coge un String en el formato especificado en biblio_genaro_acordes:es_lista_orden_acordes
 -- y devuelve la lista de acordes ordenados correspondiente, es decir, de acordes con sus voces
 -- ya elegidas
 parserListaOrdenAcs :: Parser Char [AcordeOrdenado]
-parserListaOrdenAcs = bracketed(commaList(parserParAcordeFigura)) <@ daFiguraAListaAcordes
-		      where parserParAcordeFigura = parenthesized( (parserAcordeOrd <* coma) <*> figura)
-                            daFiguraAListaAcordes = map daFiguraAAcorde
-                            daFiguraAAcorde (acorde, figura) = map (\(Note a _ l) -> (Note a figura l)) acorde
+parserListaOrdenAcs = bracketed(commaList(parserParAcordeFigura))
+		      where parserParAcordeFigura = parenthesized( (parserAcordeOrd <* coma) <*> figura )
 
 
 -- lee un String q corresponde a un termino Prolog T que cumple biblio_genaro_acorde:es_acorde(T)
 -- y devuelve  un valor de tipo AcordeOrdenado asignando por defecto la duracion de redonda a todas
 -- las notas
-parserAcordeOrd :: Parser Char AcordeOrdenado
-parserAcordeOrd = (token "acorde") *> parenthesized(bracketed(commaList(altura))) <@f
-                where f = map (\altura -> Note altura wn [])
+parserAcordeOrd :: Parser Char [Pitch]
+parserAcordeOrd = (token "acorde") *> parenthesized(bracketed(commaList(altura)))

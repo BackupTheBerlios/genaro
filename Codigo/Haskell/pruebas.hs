@@ -1,0 +1,1 @@
+ :load Z:/Haskore/Src/Haskore.hs

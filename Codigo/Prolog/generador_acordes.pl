@@ -36,6 +36,7 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 -todo de cadenas
 */
 fichero_destinoGenAc('C:/hlocal/acordes.txt').
+fichero_destinoGenAc_cifrados('C:/hlocal/cifrados_termino.txt').
 %Muy provisional
 genera_acordes :- genera_acordes(6,3).
 /*genera_acordes(N, M) hace una progresion de N compases aprox y con M transformaciones
@@ -60,6 +61,7 @@ genera_acordes(N,M, continuidad, Tipo) :- haz_progresion(N, M, Tipo, Prog)
 
 %CIFRADOS
 es_cifrado(cifrado(G,M)) :- es_grado(G), es_matricula(M).
+/*dis7 es la matricula del disminuido,ed, de º7*/
 es_matricula(matricula(M)) :- member(M, [mayor,m,au,dis,6,m6,m7b5, maj7,7,m7,mMaj7,au7,dis7]).
 %%MUY TEMPORAL, DECISIONES ARBITRARIAS POR AHORA en futuro argumento en cifrado_a_haskore podria
 %decir inversion y disposicion
@@ -173,7 +175,9 @@ haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_s
                 ,escribeLista(Laux2, 'C:/hlocal/cifradospreFin.txt')
                 ,haz_prog_semilla(1,progresion(Pfin)), append(Laux2, Pfin, Laux4)
                 ,quita_grados_relativos(progresion(Laux4), progresion(La))
-                ,escribeLista(La, 'C:/hlocal/cifrados.txt').
+                ,escribeLista(La, 'C:/hlocal/cifrados.txt')
+                ,fichero_destinoGenAc_cifrados(FDC)
+                ,escribeTermino(FDC,progresion(La)).
 
 
 /*haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
@@ -258,7 +262,7 @@ listaGradosAProgresionRec([G|Gs],[(C, figura(1,1))|Ps]) :-
 		hazCuatriada(G,C) ,listaGradosAProgresionRec(Gs,Ps).
 
 %CAMBIA ACORDES
-/** 
+/**
 * cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
 * idéntica a Po excepto porque se ha realizado 1 cambio de un acorde diatónico!!! por otro de la misma función tonal
 * (elegido al azar y distinto) y que dura lo mismo (misma figura en la progresión). El acorde que será
@@ -291,9 +295,9 @@ cambia_acordesLista(Lo, Lo).
 %AÑADE ACORDES
 /**
 * aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
-* idéntica a  Po salvo porque se ha sustituido uno de sus acordes diatónicos!!! por dos acordes, el primero 
-* del mismo cifrado del original pero durando la mitad y el segundo de la misma función tonal que el original 
-* (elegido al azar y distinto) y durando también la mitad. El primero aparecerá siempre delante del segundo en 
+* idéntica a  Po salvo porque se ha sustituido uno de sus acordes diatónicos!!! por dos acordes, el primero
+* del mismo cifrado del original pero durando la mitad y el segundo de la misma función tonal que el original
+* (elegido al azar y distinto) y durando también la mitad. El primero aparecerá siempre delante del segundo en
 * la progresión. El acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
 * elegidos
 * PENDIENTE MANTENER EL RITMO ARMÓNICO COMO INVARIANTE TB AQUI
@@ -503,7 +507,7 @@ quita_grados_relativos_lista([(cifrado(Gi,M), F)|Li], [(cifrado(Go,M), F)|Lo]):-
                gradoRelativoAAbsoluto(Gi, Go),quita_grados_relativos_lista(Li, Lo).
 
 %AÑADE ACORDES2
-/** 
+/**
 * aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
 * idéntica a  Po salvo porque se ha sustituido uno de sus acordes diatónicos!! por dos acordes, el primero del mismo cifrado
 * del original y durando lo mismo y, el segundo de la misma función tonal que el original (elegido al azar
@@ -532,7 +536,7 @@ aniade_acordesLista2(Lo, Ld) :-
       ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
       ,sublista_suf(Lo, PosElegMas, LdB)
       ,append(LdA, [(AcordElegido, F),(AcordAniadir, F)], Laux), append(Laux, LdB, Ld).
-      
+
 aniade_acordesLista2(Lo, Lo).
 
 %QUITA ACORDES

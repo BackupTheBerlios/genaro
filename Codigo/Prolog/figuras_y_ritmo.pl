@@ -1,5 +1,8 @@
 %DECLARACION DEL MODULO
-:- module(figuras_y_ritmo,[divideFigura/3, sumaFiguras/3]).
+:- module(figuras_y_ritmo,
+			[divideFigura/3
+			, fuerzaEnElCompas/4
+			, sumaFiguras/3]).
 
 %ARCHIVOS PROPIOS CONSULTADOS
 :- use_module(biblio_genaro_fracciones).
@@ -19,17 +22,14 @@ sumaFiguras(figura(N1,D1), figura(N2,D2), figura(Nr, Dr)):-
 	sumarFracciones(fraccion_nat(N1,D1), fraccion_nat(N2,D2), fraccion_nat(Nr, Dr)).
 
 /**
-* fuerzaEnElCompas(Num, Tipo, Fuerza) devuelve en Fuerza, para el tipo de compás especificado 
-* en Tipo, si la posición Num que indica un numero de redondas, si esta posición es débil
-* ,fuerte o semifuerte dentro de las divisiones del compás
+* fuerzaEnElCompas(Nn,Nd, Tipo, Fuerza) en un compas del tipo especificado en Tipo tenemos un acorde al
+* que le precede una sucesión de acordes en el cual la suma de las figuras de los acordes que lo forman 
+* es Nn/Nd. Fuerza indica si el acorde que sigue está en tiempo fuerte, débil o semifuerte. Por ahora
+* sóli implementado para compases binarios
 * @param +Num de tipo float
 * @param +Tipo del compás, pertenece a {binario, ternario, cuaternario}. Por ahora sólo
-* implementado para binario
+* implementado para binario!!!!
 * @param -Fuerza pertenece a {fuerte, debil, semifuerte}
 */
-fuerzaEnElCompas(Num, Tipo, Fuerza)
-/**
-* floatSubeAInt(F, I): auxiliar, devuelve en I un entero generado a partir de F 
-* quitándole los decimales a base de multiplicarlo por 10
-*
-*/
+fuerzaEnElCompas(Nn, _, binario, fuerte) :- 0 is Nn mod 2,!.
+fuerzaEnElCompas(_, _, binario, debil).

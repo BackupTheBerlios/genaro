@@ -5,10 +5,11 @@ Upper are integers. Otherwise Number is bound to a random oat between
 Lower and Upper. Upper will never be generated.
 */
 %DECLARACION DEL MODULO
-/*:- module(generador_acordes,[genera_acordes/2
-			   , genera_acordes/3
-                           , genera_acordes/0
-                           , haz_progresion/3]).*/
+/*:- module(generador_acordes,[
+			               	, genera_acordes/2
+			   				, genera_acordes/3
+                            , genera_acordes/0
+                            , haz_progresion/3]).*/
 :- module(generador_acordes).
 
 %BIBLIOTECAS
@@ -127,6 +128,14 @@ numCompases(progresion(L),M) :- numCompasesLista(L, fraccion_nat(N,D)), M is N/D
 numCompasesLista([], fraccion_nat(0,1)).
 numCompasesLista([(_,figura(N,D))|Cs], F) :- numCompasesLista(Cs, Fl), 	sumarFracciones(fraccion_nat(N,D), Fl, F).
 
+/**
+* numCompases(P,SN,SD) indica en SN/SD el numero de compases que dura la progresión P
+* @param +P que cumple es_progresion(P)
+* @param -SN natural que es el numerador de la fraccion que indica numero de compases que ocupa la progresión P
+* @param -SD float que es el denominador de la fraccion que indica el numero de compases que ocupa la progresión P
+*/
+numCompases(progresion(L),N,D) :- numCompasesLista(L, fraccion_nat(N,D)).
+
 
 %GENERA UN PROGRESION DE ACORDES
 /*haz_progresion(N, M, La)
@@ -222,14 +231,64 @@ aniade_acordesLista(Lo, Ld) :-
       ,append(LdA, [(AcordElegido, Fmed),(AcordAniadir, Fmed)], Laux), append(Laux, LdB, Ld).
 
 %DOMINANTES SECUNDARIOS
-/*aniade_dominante_sec(progresion(Lo), progresion(Ld)) :- aniade_dom_sec_lista(Lo, Ld).
-aniade_dom_sec_lista([], []).
+/**
+* aniade_dominante_sec(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un dominante 
+* secundario de un acorde elegido al azar, dando la misma probabilidad de ser elegidos a todos los acordes
+* El dominante secundario se añadirá sin asegurarse de respetar las reglas de ritmo armónico y durará lo mismo
+* q el acorde del que ejerce de dominante secundario
+* @param +Po cumple es_progresion(Po)
+* @param -Po cumple es_progresion(Pd)
+*/
+aniade_dominante_sec(progresion(Lo), progresion(Ld)) :- aniade_dom_sec_lista(Lo, Ld).
+aniade_dom_sec_lista([], []) :- !.
 aniade_dom_sec_lista(Lo, Ld):-
-	dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
-	,sublista_pref(Lo, PosElegida, ProgAnt)
-        ,numCompases(progresion(ProgAnt), NumCompAnt)*/
+	setof((cifrado(grado(Gaux),matricula(M)), Faux, Pos)
+	  ,(member((cifrado(grado(Gaux),matricula(M)), Faux), Lo)
+	    ,nth(Pos, Lo, (cifrado(grado(Gaux),matricula(M)), Faux))
+	    ,\+(Gaux = i) )
+	  , Lc)
+	,length(Lc,Long), Long >0 ,!,	
+	dame_elemento_aleatorio(Lc, (cifrado(grado(G),matricula(M)), F, PosElegida), _)
+	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+    ,sublista_suf(Lo, PosElegMas, LdB)
+    ,append(LdA, [(cifrado(grado(v7 / G),matricula(7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
+    ,append(Laux, LdB, Ld).
+    
+aniade_dom_sec_lista(Lo, Lo).
 
 
+%II-7 RELATIVO
+/**
+* aniade_iim7_rel(Po,Pd): Pd es una progresion igual a Po pero en la que se ha añadido un ii-7 de un 
+* dominante elegido al azar, dando la misma probabilidad de ser elegidos a todos los acordes
+* El ii-7 se añadirá sin asegurarse de respetar las reglas de ritmo armónico y durará lo mismo
+* q el dominante sobre el q se coloca
+* @param +Po cumple es_progresion(Po)
+* @param -Po cumple es_progresion(Pd)
+*/
+aniade_iim7_rel(progresion(Lo), progresion(Ld)) :- aniade_iim7_rel_lista(Lo, Ld).
+aniade_iim7_rel_lista([],[]) :- !.
+aniade_iim7_rel_lista(Lo, Ld) :- 
+	setof((cifrado(grado(Gaux),matricula(M)), Faux, Pos)
+	  ,(member((cifrado(grado(Gaux),matricula(M)), Faux), Lo)
+	    ,nth(Pos, Lo, (cifrado(grado(Gaux),matricula(M)), Faux))
+	    ,member(Gaux,[v, v7 /_])), Lc)
+	,length(Lc,Long), Long >0 ,!
+   	,dame_elemento_aleatorio(Lc, (cifrado(grado(G),matricula(M)), F, PosElegida), _)
+   	,monta_iim(grado(G),Seg)
+	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+    ,sublista_suf(Lo, PosElegMas, LdB)
+    ,append(LdA, [(cifrado(Seg,matricula(m7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
+    ,append(Laux, LdB, Ld).
+  
+    
+aniade_iim7_rel_lista(Lo, Lo).
+
+monta_iim(grado(v),grado(ii)).
+monta_iim(grado(v7 / G),grado(iim7 / G)).
+
+
+%RITMO ARMONICO
 /**
 * asegura_ritmo_armonico(Po, Pd) dada la progresion Po devuelve en Pd el resultado de modificar Po para que
 * se respeten las normas de ritmo armónico, es decir, que los acordes más inestables estén en compases más débiles
@@ -237,12 +296,43 @@ aniade_dom_sec_lista(Lo, Ld):-
 * @param +Po cumple es_progresion(Po)
 * @param -Pd cumple es_progresion(Pd)
 * */
-/*
+asegura_ritmo_armonico(progresion(Lo), progresion(Ld)) 
+	:- aseg_ritmo_arm_acu(Lo,(0,1),Ld).
+	
+aseg_ritmo_arm_acu([],_,[]).
+aseg_ritmo_arm_acu([X],_,[X]).
+aseg_ritmo_arm_acu([X,Y],_,[X,Y]).
 
-asegura_ritmo_armonico(progresion(Lo), progresion(Ld)) :- aseg_ritmo_arm_acu(Lo,
-%%aseg_ritmo_arm_acu([(C3,F3)|Lco],(C2,F2),(C1,F1) )
-aseg_ritmo_arm_acu([(Cact,Fact)|Lcin],(Cant,Fant),  NumCompasAct, [|Lcout]) :-
-*/
+aseg_ritmo_arm_acu([(C1,figura(N1,D1)),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, NumCompPre2Den)
+	, [(C1,figura(N1,D1)),(C1,figura(N1,D1)),(C2,figura(N2,D2))|Lcout]) :-
+		dameFuncionTonalCifrado(C2, FuncTonal2)
+		,dameFuncionTonalCifrado(C3, FuncTonal3)
+		,menosEstable(FuncTonal2, FuncTonal3)
+    	,fuerzaEnElCompas(NumCompPre2Nom,NumCompPre2Den,binario, fuerte),!
+    	%el acorde 2 está en parte fuerte y el 1 y el 3 en débil al ser binario el compás, no mola pq el acorde 2
+    	%es menos estable que el 3 => repito el acorde 1 para desplazar F2 a parte debil
+    	,sumarFracciones(fraccion_nat(NumCompPre2Nom,NumCompPre2Den), fraccion_nat(N1,D1), fraccion_nat(Na1, Da1))
+    	,sumarFracciones(fraccion_nat(Na1, Da1), fraccion_nat(N2,D2), fraccion_nat(Na2, Da2))
+		,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na2, Da2), Lcout).
+		
+aseg_ritmo_arm_acu([(C1,figura(N1,D1)),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, NumCompPre2Den)
+	, [(C1,figura(N1,D1)),(C1,figura(N1,D1)),(C2,figura(N2,D2))|Lcout]) :-
+		dameFuncionTonalCifrado(C2, FuncTonal2)
+		,dameFuncionTonalCifrado(C3, FuncTonal3)
+		,menosEstable(FuncTonal3, FuncTonal2)
+    	,fuerzaEnElCompas(NumCompPre2Nom,NumCompPre2Den,binario, debil),!
+    	%el acorde 2 está en parte débil y el 1 y el 3 en fuerte al ser binario el compás, no mola pq el acorde 2
+    	%es mas estable que el 3 => repito el acorde 1 para desplazar F2 a parte fuerte
+    	,sumarFracciones(fraccion_nat(NumCompPre2Nom,NumCompPre2Den), fraccion_nat(N1,D1), fraccion_nat(Na1, Da1))
+    	,sumarFracciones(fraccion_nat(Na1, Da1), fraccion_nat(N2,D2), fraccion_nat(Na2, Da2))
+		,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na2, Da2), Lcout).
+		
+aseg_ritmo_arm_acu([(C1,F1),(C2,figura(N2,D2)),(C3,F3)|Lcin], (NumCompPre2Nom, NumCompPre2Den)
+	, [(C1,F1),(C2,figura(N2,D2))|Lcout]) :-
+		%ninguno de los anteriores => OK
+    	sumarFracciones(fraccion_nat(NumCompPre2Nom,NumCompPre2Den), fraccion_nat(N2,D2), fraccion_nat(Na1, Da1))
+    	,aseg_ritmo_arm_acu([(C2,figura(N2,D2)),(C3,F3)|Lcin],(Na1, Da1), Lcout).
+
 
 
 %AÑADE ACORDES2
@@ -308,6 +398,16 @@ busca_acordes_afines_acu([(AcAct,_)|La], PosAct, _, Lp):-
 
 
 %FUNCIONES TONALES
+
+/**
+* menosEstable(F1,F2) se cumple si la función tonal F1 es menos estable que la funcion tonal F2
+* @param +F1 pertenece a {tonica, subdominante, dominante}
+* @param +F2 pertenece a {tonica, subdominante, dominante} 
+*/
+menosEstable(dominante,tonica).
+menosEstable(dominante,subdominante).
+menosEstable(subdominante,tonica).
+
 /*funciona para grados*/
 mismaFuncionTonal(G1,G2) :- dameFuncionTonal(G1, F), dameFuncionTonal(G2, F).
 mismaFuncionTonalCifrado(G1,G2) :- dameFuncionTonalCifrado(G1, F), dameFuncionTonalCifrado(G2, F).
@@ -318,7 +418,9 @@ out: Ft pertenece a {tonica, subdominante, dominante}
 */
 dameFuncionTonal(grado(G), tonica) :- member(G, [i, iii, vi]).
 dameFuncionTonal(grado(G), subdominante) :- member(G, [ii, iv]).
+dameFuncionTonal(grado(iim7 / _), subdominante).
 dameFuncionTonal(grado(G), dominante) :- member(G, [v, vii]).
+dameFuncionTonal(grado(v7 / _), dominante).
 
 /*dameFuncionTonalCifrado(C, Ft): Ft es la función tonal del cifrado C
 in: C cumple es_cifrado(C)
@@ -327,21 +429,27 @@ out: Ft pertenece a {tonica, subdominante, dominante}
 dameFuncionTonalCifrado(cifrado(G,_), Ft) :- dameFuncionTonal(G, Ft).
 
 /*dame_grado_funcTonal_equiv(GradoOrigen, GradoDestino)
-devuelve en GradoDestino un grado que tiene la misma función tonal que GradoOrigen y que además es distinto
+devuelve en GradoDestino un grado diatónico!!! que tiene la misma función tonal que GradoOrigen y que además es distinto
 a este
 in: GradoOrigen hace cierto es_grado(GradoOrigen)
 out: GradoDestino hace cierto es_grado(GradoDestino)
 */
-dame_grado_funcTonal_equiv(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)), Lc)
+dame_grado_funcTonal_equiv(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc), \+(Gc = Go)
+											, \+(Gc = grado(v7 / _))
+											, \+(Gc = grado(iim7 / _))
+											), Lc)
                                     ,dame_elemento_aleatorio(Lc, Gd).
 
 /*dame_grado_funcTonal_equiv2(GradoOrigen, GradoDestino)
-devuelve en GradoDestino un grado que tiene la misma función tonal que GradoOrigen y que no tiene
+devuelve en GradoDestino un grado diatónico!!! que tiene la misma función tonal que GradoOrigen y que no tiene
 por que ser distinto a GradoOrigen a este
 in: GradoOrigen hace cierto es_grado(GradoOrigen)
 out: GradoDestino hace cierto es_grado(GradoDestino)
 */
-dame_grado_funcTonal_equiv2(Go, Gd) :- setof(Gc,mismaFuncionTonal(Go,Gc), Lc)
+dame_grado_funcTonal_equiv2(Go, Gd) :- setof(Gc,(mismaFuncionTonal(Go,Gc)
+											, \+(Gc = grado(v7 / _))
+											, \+(Gc = grado(iim7 / _))
+											), Lc)
                                     ,dame_elemento_aleatorio(Lc, Gd).
 
 /*dame_cuat_funcTonal_equiv(CifOri,CuatDest)

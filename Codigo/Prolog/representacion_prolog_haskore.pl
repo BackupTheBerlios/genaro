@@ -103,12 +103,39 @@ es_numNota(numNota(N)) :-
 */
 es_octava(octava(O)) :- member(O,[0,1,2,3,4,5,6]).
 
-%FIGURAS
-%una figura es una fracción, N es el numerador y D el denominador
-es_figura(figura(N,D)) :- es_fraccionNat(N, D).
+/**
+* es_figura(+Figura)
+* Definicion de la estructura figura. Basicamente consisten en el functor figura/2 con dos naturales.
+* @param +Figura una figura
+*/
+es_figura(figura(N,D)) :- 
+	es_fraccionNat(N, D).
 
-es_fraccionNat(N, D) :- natural(N), natural(D).
-%natural(N) :- integer(N), N>=0.
+/**
+* es_fraccionNat(+Num, +Den)
+* Definicion de la estructura fraccionNat. Basicamente consisten en dos naturales que representan el numerador y el 
+* denominador de la fraccion.
+* @param +Num un natura
+* @param +Den otro natura
+*/
+es_fraccionNat(N, D) :- 
+	natural(N), 
+	natural(D).
 
-%INSTRUMENTOS
-es_instrumento(instrumento(N)) :- member(N, [mano_izquierda, bateria, mano_derecha, bajo]).
+/**
+* es_instrumento(+Instrumento)
+* Definicion de la estructura instrumento. Basicamente consisten en el functor instrumento/1 cuyo termino puede
+* ser un elemento del conjunto { mano_izquierda, bateria, mano_derecha, bajo }. Estos son los unicos intrumentos
+* que vamos a considerar
+* @param +Instrumento un instrumento que puede ser mano_izquierda, bateria, mano_derecha o bajo
+*/
+es_instrumento(instrumento(N)) :- 
+	member(N, [mano_izquierda, bateria, mano_derecha, bajo]).
+
+
+
+
+
+
+
+

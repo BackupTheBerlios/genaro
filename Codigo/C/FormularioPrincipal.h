@@ -30,7 +30,6 @@ __published:	// IDE-managed Components
   TMenuItem *Edicin1;
   TMenuItem *Insertar1;
   TMenuItem *Salir1;
-  TButton *Boton_Componer;
   TOpenDialog *OpenDialog;
   TLabel *Label1;
   TLabel *Label2;

@@ -180,14 +180,6 @@ object Form1: TForm1
     Caption = 'Exportar PDF'
     TabOrder = 8
   end
-  object Boton_Componer: TButton
-    Left = 296
-    Top = 128
-    Width = 121
-    Height = 25
-    Caption = 'Dámelo Todo, Genaro'
-    TabOrder = 9
-  end
   object Barra_Numero_Acordes: TTrackBar
     Left = 96
     Top = 40
@@ -199,7 +191,7 @@ object Form1: TForm1
     Position = 0
     SelEnd = 0
     SelStart = 0
-    TabOrder = 10
+    TabOrder = 9
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = Barra_Numero_AcordesChange
@@ -215,7 +207,7 @@ object Form1: TForm1
     Position = 0
     SelEnd = 0
     SelStart = 0
-    TabOrder = 11
+    TabOrder = 10
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = Barra_Numero_MutacionesChange
@@ -232,7 +224,7 @@ object Form1: TForm1
     Position = 1
     SelEnd = 0
     SelStart = 0
-    TabOrder = 12
+    TabOrder = 11
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = Barra_Numero_RepeticionesChange
@@ -243,7 +235,7 @@ object Form1: TForm1
     Width = 209
     Height = 21
     ItemHeight = 13
-    TabOrder = 13
+    TabOrder = 12
     Text = 'Elige el patrón rítmico'
   end
   object MainMenu1: TMainMenu

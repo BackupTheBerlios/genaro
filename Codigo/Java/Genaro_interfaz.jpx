@@ -5,10 +5,10 @@
   <property category="debug.0" name="SmartStepSkipStaticInitializers" value="0"/>
   <property category="debug.0" name="SmartStepSkipSynthetics" value="0"/>
   <property category="javaFormatting" name="packageThreshold" value="0"/>
-  <property category="runtime" name="DefaultConfiguration" value="-1"/>
+  <property category="runtime.0" name="BuildTargetOnRun" value="com.borland.jbuilder.build.ProjectBuilder$ProjectBuildAction;make"/>
   <property category="runtime.0" name="ConfigurationName" value="Aplicacion_principal"/>
   <property category="runtime.0" name="RunnableType" value="com.borland.jbuilder.runtime.ApplicationRunner"/>
-  <property category="runtime.0" name="application.class" value="prueba_de_sonido1.Aplicacion_principal"/>
+  <property category="runtime.0" name="application.class" value="Genaro_interfaz.Aplicacion_principal"/>
   <property category="serverservices" name="single.server.name" value="Tomcat 4.0"/>
   <property category="sys" name="AuthorLabel" value="@author"/>
   <property category="sys" name="BackupPath" value="bak"/>
@@ -37,6 +37,4 @@
   <property category="sys" name="Version" value="1.0"/>
   <property category="sys" name="VersionLabel" value="@version"/>
   <property category="sys" name="WorkingDirectory" value="."/>
-  <file path="src/prueba_de_sonido1/Aplicacion_principal.java"/>
-  <file path="src/prueba_de_sonido1/Ventana_principal.java"/>
 </project>

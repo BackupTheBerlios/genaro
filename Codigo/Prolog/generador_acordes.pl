@@ -158,9 +158,12 @@ numCompases(progresion(L),N,D) :- numCompasesLista(L, fraccion_nat(N,D)).
 * @param -La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
 *     Hace cierto es_progresion(La)
 */
-haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
+/*haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
  		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux3)), quita_grados_relativos(Laux3, Laux4)
-                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).
+                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).*/
+haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
+ 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux4))
+                 ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).
 
 
 /*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra

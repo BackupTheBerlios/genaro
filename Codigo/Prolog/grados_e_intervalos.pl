@@ -22,8 +22,8 @@ es_interSimple(interSimple(G)) :- member(G, [bbii, bbiii, auii, biv, auiii, auiv
 
 %GRADOS
 es_grado(grado(G)) :- es_interSimple(interSimple(G)).
-es_grado(grado(v7 / G)) :- es_interSimple(interSimple(G)).
-es_grado(grado(iim7 / G)) :- es_interSimple(interSimple(G)).
+es_grado(grado(v7 / G)) :- es_grado(grado(G)).
+es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
 
 /*intervalo: como par formado por un intervalo simple y un natural
 que indica cuantas veces se ha salido de la octava: ej: 5º justa = intervalo(interSimple (v),0), 9ºmenor = intervalo(interSimple (bii),1)
@@ -77,9 +77,9 @@ sumaIntervaloAGrado(Gi, Ii, Gs) :- gradoAAltura(Gi, Ai), intervaloASemitonos(Ii,
 * @param +Go cumple es_grado(Go)
 */
 gradoRelativoAAbsoluto(grado(v7 / G), Go) :-
-            !,sumaIntervaloAGrado(G, intervalo(interSimple(v),0), Gaux), gradoRelativoAAbsoluto(Gaux, Go).
+            !,gradoRelativoAAbsoluto(grado(G), Gaux),sumaIntervaloAGrado(Gaux, intervalo(interSimple(v),0), Go).
 gradoRelativoAAbsoluto(grado(iim7 / G), Go) :-
-            !,sumaIntervaloAGrado(G, intervalo(interSimple(ii),0), Gaux), gradoRelativoAAbsoluto(Gaux, Go).
+            !,gradoRelativoAAbsoluto(grado(G), Gaux),sumaIntervaloAGrado(Gaux, intervalo(interSimple(ii),0), Go).
 gradoRelativoAAbsoluto(Gi, Gi).
 
 /**

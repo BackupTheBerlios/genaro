@@ -10,35 +10,35 @@
 :- op(101, xfy, [:=:]).
 
 %MUSICA
-musica(X) :- nota(X).
-musica(X) :- silencio(X).
+es_musica(X) :- es_nota(X).
+es_musica(X) :- es_silencio(X).
 %composicion secuencial
-musica(X :+: Y) :- musica(X), musica(Y).
+es_musica(X :+: Y) :- es_musica(X), es_musica(Y).
 %composicion paralela
-musica(X :=: Y) :- musica(X), musica(Y).
+es_musica(X :=: Y) :- es_musica(X), es_musica(Y).
 %musica cuyo tempo se multiplica por F
-musica(tempo(F, M)) :- fraccionNat(F), musica(M). 
+es_musica(tempo(F, M)) :- es_fraccionNat(F), es_musica(M). 
 %musica que se subida (traspuesta) el numero de semitonos E
-musica(tras(E, M)) :- integer(E), musica(M).
+es_musica(tras(E, M)) :- integer(E), es_musica(M).
 %musica tocada con un instrumento determinado
-musica(inst(I,M)) :- instrumento(I), musica(M).
+es_musica(inst(I,M)) :- es_instrumento(I), es_musica(M).
 	%CASOS BASE
-nota(nota(A,F)):- altura(A), figura(F).
-silencio(silencio(F)) :-figura(F).
+es_nota(nota(A,F)):- es_altura(A), es_figura(F).
+es_silencio(silencio(F)) :- es_figura(F).
 
 %ALTURA TONAL
 % la altura de una nota es su nombre y su octava 
-altura(altura(N,O)) :- numNota(N), octava(O).
+es_altura(altura(N,O)) :- es_numNota(N), es_octava(O).
 %la correspondencia es la=0, la#/sib=1, si=2, ...
-numNota(numNota(N)) :- member(N,[0,1,2,3,4,5,6,7,8,9,10,11]).
+es_numNota(numNota(N)) :- member(N,[0,1,2,3,4,5,6,7,8,9,10,11]).
 %el numero de octavas que consideremos, este esta puesto al azar aqui
-octava(octava(O)) :- member(O,[0,1,2,3,4,5,6]).
+es_octava(octava(O)) :- member(O,[0,1,2,3,4,5,6]).
 
 %FIGURAS
 %una figura es una fracción, N es el numerador y D el denominador
-figura(figura(N,D)) :- fraccionNat(N, D).
-fraccionNat(N, D) :- natural(N), natural(D).
+es_figura(figura(N,D)) :- es_fraccionNat(N, D).
+es_fraccionNat(N, D) :- natural(N), natural(D).
 natural(N) :- integer(N), N>0.
 
 %INSTRUMENTOS
-instrumento(instrumento(N)) :- member(N, [mano_izquierda, bateria, mano_derecha, bajo]).
+es_instrumento(instrumento(N)) :- member(N, [mano_izquierda, bateria, mano_derecha, bajo]).

@@ -36,7 +36,6 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 -todo de cadenas
 */
 fichero_destinoGenAc('C:/hlocal/acordes.txt').
-fichero_destinoCifrados('C:/hlocal/cifrados.txt').
 %Muy provisional
 genera_acordes :- genera_acordes(6,3).
 /*genera_acordes(N, M) hace una progresion de N compases aprox y con M transformaciones
@@ -47,14 +46,14 @@ genera_acordes(N, M) :- random(1, 3, E), genera_acordes(N, M, E).
 genera_acordes(N,M, paralelo) :- random(1, 3, E), genera_acordes(N, M, paralelo, E).
 genera_acordes(N,M, continuidad) :- random(1, 3, E), genera_acordes(N, M, continuidad, E).
 
-genera_acordes(N, M, Tipo) :- haz_progresion(N, M, Tipo, Prog), fichero_destinoCifrados(Df), escribeTermino(Df, Prog)
+genera_acordes(N, M, Tipo) :- haz_progresion(N, M, Tipo, Prog)
         , progresion_a_Haskore(Prog, Musica), fichero_destinoGenAc(Dd), escribeTermino(Dd, Musica).
 
-genera_acordes(N,M, paralelo, Tipo) :- haz_progresion(N, M, Tipo, Prog), fichero_destinoCifrados(Df), escribeTermino(Df, Prog)
+genera_acordes(N,M, paralelo, Tipo) :- haz_progresion(N, M, Tipo, Prog)
         ,generador_notas_del_acorde_con_sistema_paralelo:traduce_lista_cifrados(Prog,100,0,100,0,0,Lista)
         ,fichero_destinoGenAc(Dd), escribeTermino(Dd, Lista).
 
-genera_acordes(N,M, continuidad, Tipo) :- haz_progresion(N, M, Tipo, Prog), fichero_destinoCifrados(Df), escribeTermino(Df, Prog)
+genera_acordes(N,M, continuidad, Tipo) :- haz_progresion(N, M, Tipo, Prog)
         ,generador_notas_del_acorde_con_continuidad_armonica:traduce_lista_cifrados(Prog,Lista)
         ,fichero_destinoGenAc(Dd), escribeTermino(Dd, Lista).
 
@@ -160,9 +159,20 @@ numCompases(progresion(L),N,D) :- numCompasesLista(L, fraccion_nat(N,D)).
 * @param -La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
 *     Hace cierto es_progresion(La)
 */
-haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
- 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, Laux3), quita_grados_relativos(Laux3, progresion(Laux4))
-                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).
+haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S)
+		,fija_compases_aprox(S, N, Laux1), modifica_prog(Laux1, M, Laux2)
+                ,asegura_ritmo_armonico(Laux2, progresion(Laux3))
+                ,escribeLista(Laux3, 'C:/hlocal/cifradospreFin.txt')
+                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux3, Pfin, Laux4)
+                ,quita_grados_relativos(progresion(Laux4), progresion(La))
+                ,escribeLista(La, 'C:/hlocal/cifrados.txt').
+
+/*haz_progresion(N, M, Tipo, progresion(La)) :- natural(N), natural(M), haz_prog_semilla(Tipo, S), fija_compases_aprox(S, N, Laux1)
+ 		,modifica_prog(Laux1, M, Laux2), asegura_ritmo_armonico(Laux2, progresion(Laux3))
+                ,escribeLista(Laux3, 'C:/hlocal/cifrados.txt')
+                ,quita_grados_relativos(progresion(Laux3), progresion(Laux4))
+                ,haz_prog_semilla(1,progresion(Pfin)), append(Laux4, Pfin, La).*/
+
 
 /*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra
 progresion de longitud N (N compases) APROXIMADAMENTE
@@ -296,21 +306,23 @@ aniade_dom_sec_lista(Lo, Lo).
 * @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
 * intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
 */
-buscaCandidatosADominanteSec([(cifrado(grado(i),_), _)|Li], Lo) :- !,buscaCandidatosADominanteSecAcu(Li, 2, Lo).
+buscaCandidatosADominanteSec([(cifrado(grado(i), M), F)|Li], Lo)
+	:- !,buscaCandidatosADominanteSecAcu([(cifrado(grado(i), M), F)|Li], 2, Lo).
 buscaCandidatosADominanteSec([(cifrado(grado(G),M), F)|Li], [(cifrado(grado(G),M), F, 1)|Lo])
-	:-!,buscaCandidatosADominanteSecAcu(Li, 2, Lo).
+	:- buscaCandidatosADominanteSecAcu([(cifrado(grado(G),M), F)|Li], 2, Lo).
 /**
-* buscaCandidatosADominanteSec(Li, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
+* % buscaCandidatosADominanteSecAcu(Li, PosActual, Lo): Procesa la procesion especificada en Li para devolver en Lo una lista de trios (C, F, Pos)
 * en la que C es un cifrado, F una figura y Pos es una posicion dentro de Li. Estos trios corresponden a los acordes a los que se
 * les puede añadir un dominante secundario por delante de ellos, esto es, aquellos que no son acordes del primer grado y a los que
-* no se les ha añadido ya un dominante secundario
+* no se les ha añadido ya un dominante secundario. PosActual indica la posicion del acorde que se considera, dentro de la lista
+* total sobre la que se ha llamado a buscaCandidatosADominanteSec, que a su vez habrá llamado a este predicado
 * @param +Li cumple es_progresion(progresion(Li))
+* @param +PosActual es un natural
 * @param -Lo es una lista de trios (C, F, Pos) que cumplen es_cifrado(C), es_figura(F) y donde Pos es un natural que pertenece al
 * intervalo [1, length(Li)] que indica la posicion de (C, F) dentro de Li
 */
 buscaCandidatosADominanteSecAcu([], _, []).
 buscaCandidatosADominanteSecAcu([_],_,[]).%pq _ ya se habría examinado
-% buscaCandidatosADominanteSecAcu(Li, PosActual, Lo)
 %hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso empieza en dos
 buscaCandidatosADominanteSecAcu([(cifrado(grado(v7 / G2),matricula(_)), _),(cifrado(grado(G2),matricula(M2)), F2)|Li]
     , PosActual, Lo) :- !,PosSig is PosActual + 1
@@ -336,10 +348,7 @@ buscaCandidatosADominanteSecAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
 aniade_iim7_rel(progresion(Lo), progresion(Ld)) :- aniade_iim7_rel_lista(Lo, Ld).
 aniade_iim7_rel_lista([],[]) :- !.
 aniade_iim7_rel_lista(Lo, Ld) :-
-	setof((cifrado(grado(Gaux),matricula(M)), Faux, Pos)
-	  ,(member((cifrado(grado(Gaux),matricula(M)), Faux), Lo)
-	    ,nth(Pos, Lo, (cifrado(grado(Gaux),matricula(M)), Faux))
-	    ,member(Gaux,[v, v7 /_])), Lc)
+	 buscaCandidatosAiimRel(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
    	,dame_elemento_aleatorio(Lc, (cifrado(grado(G),matricula(M)), F, PosElegida), _)
    	,monta_iim(grado(G),Seg)
@@ -348,12 +357,43 @@ aniade_iim7_rel_lista(Lo, Ld) :-
     ,append(LdA, [(cifrado(Seg,matricula(m7)), F),(cifrado(grado(G),matricula(M)), F)], Laux)
     ,append(Laux, LdB, Ld).
 
-
 aniade_iim7_rel_lista(Lo, Lo).
 
 monta_iim(grado(v),grado(ii)).
 monta_iim(grado(v7 / G),grado(iim7 / G)).
 
+buscaCandidatosAiimRel([(cifrado(grado(v),M), F)|Li], [(cifrado(grado(v),M), F, 1)|Lo])
+	:- !,buscaCandidatosAiimRelAcu([(cifrado(grado(v),M), F)|Li], 2, Lo).
+buscaCandidatosAiimRel([(cifrado(grado(v7 / G),M), F)|Li], [(cifrado(grado(v7 / G),M), F, 1)|Lo])
+	:- !,buscaCandidatosAiimRelAcu([(cifrado(grado(v7 / G),M), F)|Li], 2, Lo).
+buscaCandidatosAiimRel([(cifrado(grado(G), M), F)|Li], Lo)
+	:- buscaCandidatosAiimRelAcu([(cifrado(grado(G), M), F)|Li], 2, Lo).
+
+buscaCandidatosAiimRelAcu([], _, []).
+buscaCandidatosAiimRelAcu([_],_,[]).%pq _ ya se habría examinado
+%hay q darse cuenta de q el primer acorde de la progresion nunca será candidato entonces, por eso empieza en dos
+buscaCandidatosAiimRelAcu([(cifrado(grado(iim7 / G2),matricula(_)), _),(cifrado(grado(v7 / G2),matricula(M2)), F2)|Li]
+    , PosActual, Lo) :- !,PosSig is PosActual + 1
+                       ,buscaCandidatosAiimRelAcu([(cifrado(grado(v7 / G2),matricula(M2)), F2)|Li], PosSig, Lo).
+
+buscaCandidatosAiimRelAcu([(cifrado(grado(ii),matricula(_)), _),(cifrado(grado(v),matricula(M2)), F2)|Li]
+    , PosActual, Lo) :- !,PosSig is PosActual + 1
+                       ,buscaCandidatosAiimRelAcu([(cifrado(grado(v),matricula(M2)), F2)|Li], PosSig, Lo).
+
+buscaCandidatosAiimRelAcu([_,(cifrado(grado(v),matricula(M2)), F2)|Li]
+    , PosActual, [(cifrado(grado(v),matricula(M2)), F2, PosActual)|Lo]) :-
+                       !, PosSig is PosActual + 1
+                       ,buscaCandidatosAiimRelAcu([(cifrado(grado(v),matricula(M2)), F2)|Li], PosSig, Lo).
+
+buscaCandidatosAiimRelAcu([_,(cifrado(grado(v7 / G2),matricula(M2)), F2)|Li]
+    , PosActual, [(cifrado(grado(v7 / G2),matricula(M2)), F2, PosActual)|Lo]) :-
+                       !, PosSig is PosActual + 1
+                       ,buscaCandidatosAiimRelAcu([(cifrado(grado(v7 / G2),matricula(M2)), F2)|Li], PosSig, Lo).
+
+buscaCandidatosAiimRelAcu([_,(cifrado(grado(G2),matricula(M2)), F2)|Li]
+    , PosActual, Lo) :-
+                       PosSig is PosActual + 1
+                       ,buscaCandidatosAiimRelAcu([(cifrado(grado(G2),matricula(M2)), F2)|Li], PosSig, Lo).
 
 %RITMO ARMONICO
 /**

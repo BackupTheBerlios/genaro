@@ -9,9 +9,6 @@
 
 % TODO: MIRAR LO DEL RANDOM(0,100,N)
 
-anade_figura( [], _, [] ).
-anade_figura( [ A | RestoAlturas ], F, [nota(A,F) | RestoNotas] ) :-
-	anade_figura( RestoAlturas, F, RestoNotas ).
 
 es_triada(cifrado(_,matricula(mayor))).
 es_triada(cifrado(_,matricula(m))).
@@ -28,22 +25,22 @@ traduce_lista_cifrados( progresion(ListaCifrados), PDisp1, PDisp2, PInv0, PInv1,
 
 traduce_lista_cifrados_recursivo( [], _, _, _, _, [] ):-
 	!.
-traduce_lista_cifrados_recursivo( [(Cifrado,Figura) | RestoCifrados], Disp, PInv0, PInv1, PInv2, [Acorde | RestoAcrodes]):-
+traduce_lista_cifrados_recursivo( [(Cifrado,Figura) | RestoCifrados], Disp, PInv0, PInv1, PInv2, [(Acorde,Figura) | RestoAcrodes]):-
 	es_triada(Cifrado),
 	!,
-	random( 1,100,NumAleatorio ),
+	random( 1,101,NumAleatorio ),
 	PInv2_aux is 100-PInv0-PInv1,
 	eleccion_aleatoria( NumAleatorio, PInv0, PInv1, PInv2_aux, Inversion ),    % esto nos asegura que cuando es triada no elige la cuarta inversion
 	write('Es triada '),write(Inversion),nl,
-	traduce_cifrado( Cifrado, Inversion, Disp, Acorde_aux ),
-	anade_figura(Acorde_aux, Figura, Acorde),
+	traduce_cifrado( Cifrado, Inversion, Disp, Acorde ),
+	mostrar_acorde(Acorde),
 	traduce_lista_cifrados_recursivo( RestoCifrados, Disp, PInv0, PInv1, PInv2, RestoAcrodes ).
-traduce_lista_cifrados_recursivo( [(Cifrado,Figura) | RestoCifrados], Disp, PInv0, PInv1, PInv2, [Acorde | RestoAcrodes]):-
+traduce_lista_cifrados_recursivo( [(Cifrado,Figura) | RestoCifrados], Disp, PInv0, PInv1, PInv2, [(Acorde,Figura) | RestoAcrodes]):-
 	random( 1,100,NumAleatorio ),
 	eleccion_aleatoria( NumAleatorio, PInv0, PInv1, PInv2, Inversion ),
-	write('No es triada '),write(Inversion),
-	traduce_cifrado( Cifrado, Inversion, Disp, Acorde_aux ),
-	anade_figura(Acorde_aux, Figura, Acorde),
+	write('No es triada '),write(Inversion),nl,
+	traduce_cifrado( Cifrado, Inversion, Disp, Acorde ),
+	mostrar_acorde(Acorde),
 	traduce_lista_cifrados_recursivo( RestoCifrados, Disp, PInv0, PInv1, PInv2, RestoAcrodes ).
 
 	
@@ -56,10 +53,9 @@ traduce_lista_cifrados_recursivo( [(Cifrado,Figura) | RestoCifrados], Disp, PInv
 
 :- consult(['generador_acordes.pl']).
 ejemplo1 :- 
-	haz_progresion(40, 3, P),
+	haz_progresion(10, 10, P),
 	nl,
-	traduce_lista_cifrados(P, 30,20, 0,0,0, L),
-	write(P).
+	traduce_lista_cifrados(P, 33,33, 25,25,25, L).
 
 ejemplo2 :- 
 	traduce_lista_cifrados(

@@ -11,6 +11,7 @@ Lower and Upper. Upper will never be generated.
 :- consult(['representacion_prolog_haskore.pl']).
 :- consult(['biblio_genaro_listas.pl']).
 :- consult(['biblio_genaro_fracciones.pl']).
+:- consult(['biblio_genaro_ES.pl']).
 :- consult(['grados_e_intervalos.pl']).
 :- consult(['figuras_y_ritmo.pl']).
 
@@ -24,27 +25,53 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 -pg 81 : bVII
 -todo de cadenas
 */
+fichero_destinoGenAc('C:/hlocal/acordes.txt').
+/*genera_acordes(N, M) hace una progresion de N compases aprox y con M transformaciones
+guarda el resultado en C:/hlocal/acordes.txt. Solo funciona si C:/hlocal existe 
+*/
+genera_acordes(N, M) :- haz_progresion(N, M, Prog), progresion_a_Haskore(Prog, Musica)
+	,fichero_destinoGenAc(Dd), escribeTermino(Dd, Musica).
 
 
 %CIFRADOS
 es_cifrado(cifrado(G,M)) :- es_grado(G), es_matricula(M).
 es_matricula(matricula(M)) :- member(M, [mayor,m,au,dis,6,m6,m7b5, maj7,7,m7,mMaj7,au7,dis7]).
-%%MUY TEMPORAL, DECISIONES ARBITRARIAS POR AHORA
-cifrado_a_Haskore(cifrado(Grado,Matricula), Musica) :- gradoANota(Grado,Nota)
-	,hazAcorde(Nota, Matricula, ListaNotas), hazArpegio(ListaNotas, Musica).
+%%MUY TEMPORAL, DECISIONES ARBITRARIAS POR AHORA en futuro argumento en cifrado_a_haskore podria
+%decir inversion y disposicion
+cifrado_a_Haskore((cifrado(Grado,Matricula), Figura), Musica) :- gradoAAltura(Grado,Altura)
+	,hazAcordePosTonica(nota(Altura,Figura), Matricula, ListaNotas)
+	,hazCompSecuencial(ListaNotas, Musica).
 %FALTAN GRADOS NO USUALES!!!!!!!!!!!!!!!! es así pq Do Jonico, octava arbitraria
-gradoANota(i, nota(altura(numNota(3),octava(1)),figura(1,4))).
-gradoANota(bii, nota(altura(numNota(4),octava(1)),figura(1,4))).
-gradoANota(ii, nota(altura(numNota(5),octava(1)),figura(1,4))).
-gradoANota(biii, nota(altura(numNota(6),octava(1)),figura(1,4))).
-gradoANota(iii, nota(altura(numNota(7),octava(1)),figura(1,4))).
-gradoANota(iv, nota(altura(numNota(8),octava(1)),figura(1,4))).
-gradoANota(bv, nota(altura(numNota(9),octava(1)),figura(1,4))).
-gradoANota(v, nota(altura(numNota(10),octava(1)),figura(1,4))).
-gradoANota(auv, nota(altura(numNota(11),octava(1)),figura(1,4))).
-gradoANota(vi, nota(altura(numNota(0),octava(2)),figura(1,4))).
-gradoANota(bvii, nota(altura(numNota(1),octava(3)),figura(1,4))).
-gradoANota(vii, nota(altura(numNota(2),octava(4)),figura(1,4))).
+gradoAAltura(grado(i), altura(numNota(3),octava(1))).
+gradoAAltura(grado(bii), altura(numNota(4),octava(1))).
+gradoAAltura(grado(ii), altura(numNota(5),octava(1))).
+gradoAAltura(grado(biii), altura(numNota(6),octava(1))).
+gradoAAltura(grado(iii), altura(numNota(7),octava(1))).
+gradoAAltura(grado(iv), altura(numNota(8),octava(1))).
+gradoAAltura(grado(bv), altura(numNota(9),octava(1))).
+gradoAAltura(grado(v), altura(numNota(10),octava(1))).
+gradoAAltura(grado(auv), altura(numNota(11),octava(1))).
+gradoAAltura(grado(vi), altura(numNota(0),octava(2))).
+gradoAAltura(grado(bvii), altura(numNota(1),octava(3))).
+gradoAAltura(grado(vii), altura(numNota(2),octava(4))).
+
+/*hazAcordePosTonica(Fundamental, Matricula, ListaNotas)
+sólo metidas las cuatriadas basicas, falta picar mas datos
+la duracion de las notas es la de la fundamental entre el numero de notas del acorde
+*/
+hazAcordePosTonica(nota(A, F), matricula(maj7), [nota(A,F4), nota(Ter,F4), nota(Qui,F4), nota(Sept,F4)]):-
+	divideFigura(F,4,F4) ,sumaSemitonos(A, 4, Ter),sumaSemitonos(A, 7, Qui),sumaSemitonos(A, 11, Sept).
+hazAcordePosTonica(nota(A, F), matricula(m7), [nota(A,F4), nota(Ter,F4), nota(Qui,F4), nota(Sept,F4)]):-
+	divideFigura(F,4,F4) ,sumaSemitonos(A, 3, Ter),sumaSemitonos(A, 7, Qui),sumaSemitonos(A, 10, Sept).
+hazAcordePosTonica(nota(A, F), matricula(7), [nota(A,F4), nota(Ter,F4), nota(Qui,F4), nota(Sept,F4)]):-
+	divideFigura(F,4,F4) ,sumaSemitonos(A, 4, Ter),sumaSemitonos(A, 7, Qui),sumaSemitonos(A, 10, Sept).
+hazAcordePosTonica(nota(A, F), matricula(m7b5), [nota(A,F4), nota(Ter,F4), nota(Qui,F4), nota(Sept,F4)]):-
+	divideFigura(F,4,F4) ,sumaSemitonos(A, 3, Ter),sumaSemitonos(A, 6, Qui),sumaSemitonos(A, 10, Sept).
+
+
+/*hazCompSecuencial(ListaNotas, Musica)*/
+hazCompSecuencial([],silencio(figura(0,1))).
+hazCompSecuencial([Mus|Ms], Mus :+: MusLis) :- hazCompSecuencial(Ms, MusLis).
 %PROGRESION DE ACORDES
 /*es una lista de cifrados*/
 es_progresion(progresion(P)) :- es_listaDeCifrados(P).
@@ -89,13 +116,34 @@ numCompasesLista([(_,figura(N,D))|Cs], F) :- numCompasesLista(Cs, Fl), 	sumaFrac
   
 
 %GENERA UN PROGRESION DE ACORDES
-/*haz_progresion(N,La)
-in: N natural que indica el numero de compases que dura de la progresión. Me temo que tendrá que ser mayor o igual
+/*haz_progresion(N, M, La)
+in: N natural que indica el numero aproximado de compases que dura de la progresión. Me temo que tendrá que ser mayor o igual
     que 3 (longitud de la cadencia más larga)
+    M natural que indica el numero de mutaciones que se realizaran para conseguir la progresion
 out: La lista de acordes que ocupan N compases que se espera q se interpreten uno tras otro empezando por la cabeza.
      Hace cierto es_progresion(La)
 */
-haz_progresion(N,La) :- haz_prog_semilla(S), modifica_prog(S,N,La).
+haz_progresion(N, M, La) :- natural(N), natural(M), haz_prog_semilla(S), fija_compases_aprox(S, N, Laux1),
+ 		modifica_prog(Laux1, M, La).
+
+/*fija_compases_aprox(ProgSemilla, N, ProgResul). Partiendo de la progresion ProgSemilla construye otra 
+progresion de longitud N (N compases) APROXIMADAMENTE
+in: ProgSemilla progresión de partida (semilla). Cumple es_progresion(ProgSemilla)
+    N numero de compases que tendra la progresion como minimo. Es un natural mayor o igual que el numero de
+    acordes de ProgSemilla
+out: ProgResul resultado de las transformaciones, Cumple es_progresion(ProgResul)
+*/
+fija_compases_aprox(ProgSemilla, N, ProgSemilla) :- numCompases(ProgSemilla, NumComp), NumComp >= N,!. 
+fija_compases_aprox(ProgSemilla, N, ProgResul) :- aniade_acordes2(ProgSemilla, ProgAux)
+		,fija_compases_aprox(ProgAux, N, ProgResul).
+
+modifica_prog(Pin, M, Pin) :- M =< 0.
+modifica_prog(Pin, M, Pout) :- accion_modif(Pin, Paux), M1 is M - 1, modifica_prog(Paux, M1, Pout).
+num_acciones_modif(3).
+accion_modif(Pin, Pout) :- num_acciones_modif(N), random(0, N, NumAccion), accion_modif(Pin, Pout, NumAccion).
+accion_modif(Pin, Pout, 0) :- aniade_acordes(Pin, Pout).
+accion_modif(Pin, Pout, 1) :- quita_acordes(Pin, Pout).
+accion_modif(Pin, Pout, 2) :- cambia_acordes(Pin, Pout).
 
 /* haz_prog_semilla(S)
 crea una progresión que será de la que parta el resto de la generación.En un principio me basaré en las cadencias así 
@@ -119,14 +167,6 @@ listaGradosAProgresion(LG, progresion(Prog)) :- listaGradosAProgresionRec(LG,Pro
 listaGradosAProgresionRec([],[]).
 listaGradosAProgresionRec([G|Gs],[(C, figura(1,1))|Ps]) :-
 		hazCuatriada(G,C) ,listaGradosAProgresionRec(Gs,Ps).
-
-
-/*modifica_prog(S,N,La). Partiendo de la progresión S construye otra progresión de longitud N (N compases)
-in: S progresión de partida (semilla). Cumple es_progresion(S)
-    N numero de compases que tendrá la progresión. Es un natural mayor o igual que el numero de acordes de S
-out: La resultado de las transformaciones, Cumple es_progresion(La)
-*/
-%modifica_prog(S,N,La) :- natural(N), numCompases(S,Ls), Ls <= N, ¿?? 
 
 %CAMBIA ACORDES
 /* cambia_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es
@@ -168,6 +208,27 @@ aniade_acordesLista(Lo, Ld) :-
       ,sublista_suf(Lo, PosElegMas, LdB)
       ,append(LdA, [(AcordElegido, Fmed),(AcordAniadir, Fmed)], Laux), append(Laux, LdB, Ld).
 
+%AÑADE ACORDES2
+/* aniade_acordes(Po, Pd) a partir de la progresión origen Po se crea otra progresión destino Pd que es 
+idéntica a  Po salvo porque se ha sustituido uno de sus acordes por dos acordes, el primero del mismo cifrado
+del original y durando lo mismo y, el segundo de la misma función tonal que el original (elegido al azar
+y distinto) y durando lo mismo. El primero aparecerá siempre delante del segundo en la progresión. El
+acorde que será desdoblado se elige al azar, teniendo todos los acordes de Po la misma probabilidad de ser
+elegidos
+in: Po progresión origen cumple es_progresion(Po)
+out:Pd progresión destino cumple es_progresion(Po)
+Pre!!! Lo en forma normal sería recomendable
+Post Ld está en forma normal
+*/
+aniade_acordes2(progresion(Lo), progresion(Ld)) :- aniade_acordesLista2(Lo, Ld).
+aniade_acordesLista2([], []).
+aniade_acordesLista2(Lo, Ld) :-
+       dame_elemento_aleatorio(Lo, (AcordElegido, F), PosElegida)
+      ,dame_cuat_funcTonal_equiv(AcordElegido, AcordAniadir)
+      ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
+      ,sublista_suf(Lo, PosElegMas, LdB)
+      ,append(LdA, [(AcordElegido, F),(AcordAniadir, F)], Laux), append(Laux, LdB, Ld).
+
 %QUITA ACORDES
 /* quita_acordes(Po,Pd) busca todas las parejas de acordes adyacentes que tengan la misma función tonal,
 elige una de éstas al azar asignando la misma probabilidad a cada pareja y sustituye a la pareja por otro
@@ -181,12 +242,13 @@ Pre!!! Lo en forma normal sería recomendable
 Post Ld está en forma normal
 */
 quita_acordes(progresion(Lo), progresion(Ld)) :- quita_acordesLista(Lo, Ld).
-quita_acordesLista([], []).
-quita_acordesLista(Lo, Ld) :- busca_acordes_afines(Lo,LPos),dame_elemento_aleatorio(LPos, PosElegida)
+quita_acordesLista([], []) :- !.
+quita_acordesLista(Lo, Ld) :- busca_acordes_afines(Lo,LPos),dame_elemento_aleatorio(LPos, PosElegida),!
       ,nth(PosElegida, Lo, (Acord1, F1)), P2 is PosElegida + 1,nth(P2, Lo, (_, F2))
       ,dame_cuat_funcTonal_equiv2(Acord1, AcordSustituto), sumaFiguras(F1, F2, FigSustit)
       ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 2 ,sublista_suf(Lo, PosElegMas, LdB)
       ,append(LdA, [(AcordSustituto, FigSustit)], Laux), append(Laux, LdB, Ld).
+quita_acordesLista(Lo, Lo).
 
 /*busca_acordes_afines(Lacords, Lpos) busca en la lista de cifrados Lacords parejas de acordes tales que 
 tengan la misma función tonal y sean adyacentes en la lista, y devuelve en Lpos la lista de posisiones dentro

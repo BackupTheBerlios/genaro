@@ -13,12 +13,35 @@ que indica cuantas veces se ha salido de la octava: ej: 5º justa = intervalo(int
 8ª = intervalo(interSimple (i),1)*/
 es_intervalo(intervalo(G,O)) :- es_interSimple(G), natural(O).
 
-/*convierte una altura a una escala absoluta que empieza a contar desde el la de la octava 0, que es el cero. Sólo funciona bien si alturaAbsoluta(A,N) tiene in=A tipo altura
-out=N natural
+/*convierte una altura a una escala absoluta que empieza a contar desde el la de la octava 0, que es el cero.
+ Sólo funciona bien si alturaAbsoluta(A,N) tiene
+ in=A tipo altura
+ out=N entero
 */
 alturaAbsoluta(altura(numNota(N),octava(0)),N).
 alturaAbsoluta(altura(numNota(N),octava(O)),A) :- O>0, O1 is O - 1, alturaAbsoluta(altura(numNota(N),octava(O1)),A2)
 						,A is A2 + 12.
+alturaAbsoluta(altura(numNota(N),octava(O)),A) :- O<0, O1 is O + 1, alturaAbsoluta(altura(numNota(N),octava(O1)),A2)
+						,A is A2 - 12.
+
+/*alturaAbsAAltura(N,A)
+  Realiza la conversion opuesta a alturaAbsoluta(A,N)
+  in: N entero
+  out: A de tipo altura
+*/
+alturaAbsAAltura(N, altura(numNota(N),octava(0))) :- N>=0, N<12.
+alturaAbsAAltura(N, altura(numNota(M),octava(O1))):- N>=12, N1 is N - 12 
+	,alturaAbsAAltura(N1, altura(numNota(M),octava(O))), O1 is O + 1.
+alturaAbsAAltura(N, altura(numNota(M),octava(O1))):- N<0, N1 is N + 12 
+	,alturaAbsAAltura(N1, altura(numNota(M),octava(O))), O1 is O - 1.
+
+/*sumaSemitonos(Ae, N, As)
+  Calcula en As la altura resultado de sumar N semitonos a la altura Ae
+ in: Ae cumple es_altura(Ae)
+     N es un entero
+ out:As cumple es_altura(As)
+*/
+sumaSemitonos(Ae, N, As) :- alturaAbsoluta(Ae, Ne), Ns is N + Ne, alturaAbsAAltura(Ns, As). 
 
 /*semitonosAIntervalo(S,I) : S es el numero (natural!!!!) de semitonos del intervalo I
 -es biyectiva? pq sólo tiene en cuenta los intervalos simples usuales

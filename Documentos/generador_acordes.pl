@@ -47,7 +47,7 @@ alturaAbsoluta(altura(numNota(N),octava(0)),N).
 alturaAbsoluta(altura(numNota(N),octava(O)),A) :- O>0, O1 is O - 1, alturaAbsoluta(altura(numNota(N),octava(01)),A2)
 						,A is A2 + 12.
 
-%semitonosAIntervalo(S,I) : S es el numero de semitonos del intervalo I
+%semitonosAIntervalo(S,I) : S es el numero (natural!!!!) de semitonos del intervalo I
 %es biyectiva? pq sólo tiene en cuenta los grados usuales
 semitonosAIntervalo(0, intervalo(grado(i),0)).
 semitonosAIntervalo(1, intervalo(grado(bii),0)).

@@ -5,13 +5,16 @@ Upper are integers. Otherwise Number is bound to a random oat between
 Lower and Upper. Upper will never be generated.
 */
 %DECLARACION DEL MODULO
-:- module(generador_acordes,[genera_acordes/2
+/*:- module(generador_acordes,[genera_acordes/2
+			   , genera_acordes/3
                            , genera_acordes/0
-                           , haz_progresion/3]).
+                           , haz_progresion/3]).*/
+:- module(generador_acordes).
 
 %BIBLIOTECAS
 :- use_module(library(lists)).
 :- use_module(library(random)).
+:- use_module(generador_notas_del_acorde_con_sistema_paralelo).
 
 %ARCHIVOS PROPIOS CONSULTADOS
 :- use_module(representacion_prolog_haskore).
@@ -39,6 +42,9 @@ guarda el resultado en C:/hlocal/acordes.txt. Solo funciona si C:/hlocal existe
 genera_acordes(N, M) :- haz_progresion(N, M, Prog), progresion_a_Haskore(Prog, Musica)
 	,fichero_destinoGenAc(Dd), escribeTermino(Dd, Musica).
 
+genera_acordes(N,M, paralelo) :- haz_progresion(N, M, Prog)
+        ,traduce_lista_cifrados(Prog,100,0,100,0,0,Lista)
+        ,fichero_destinoGenAc(Dd), escribeTermino(Dd, Lista).
 
 %CIFRADOS
 es_cifrado(cifrado(G,M)) :- es_grado(G), es_matricula(M).
@@ -336,7 +342,7 @@ dame_cuat_funcTonal_equiv2(cifrado(GradoElegido,_),CuatDest) :- dame_grado_funcT
 
 
 %CADENCIAS
-/*es_cadencia(cadencia(C,I)) :- es_listaDeGrados(C), natural(I),num_cadencias(N),I<N.*/
+es_cadencia(cadencia(C,I)) :- es_listaDeGrados(C), natural(I),num_cadencias(N),I<N.
 
 es_listaDeGrados([]).
 es_listaDeGrados([G|Gs]) :- es_grado(G), es_listaDeGrados(Gs).
@@ -364,6 +370,14 @@ cadencia([grado(ii),grado(v),grado(iii)],13).
 cadencia([grado(ii),grado(v),grado(vi)],14).
 num_cadencias(15). Asumibles por intercambio de acordes*/
 num_cadencias(4).
+
+%PATRONES DE ACORDES
+/*es_patron_acordes(patAcord(C,I)) :- es_listaDeGrados(C), natural(I),num_patrones_acordes(N),I<N.
+patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).
+patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).
+patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).
+patAcordesVal(patAcord([grado(i),grado(vi),grado(ii),grado(v)],0)).*/
+
 
 /*hazCuatriada(G,C) 
 in: G de tipo grado

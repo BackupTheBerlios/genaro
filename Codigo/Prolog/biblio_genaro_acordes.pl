@@ -12,7 +12,9 @@
 	traduce_a_estado_fundamental/2,
 	trasponer/3,
 	normaliza_altura/2,
-	mostrar_acorde/1
+	mostrar_acorde/1,
+	es_acorde/1,
+	es_lista_orden_acordes/1
 ]).
 
 
@@ -286,5 +288,7 @@ eleccion_aleatoria( _, _, _, _, 3 ).
 
 
 
-
+es_progresion_ordenada(progOrdenada(Loa)) :- es_lista_orden_acordes(Loa).
+es_lista_orden_acordes([]).
+es_lista_orden_acordes([(Ac,F)|Loa]) :- es_acorde(Ac),es_figura(F), es_lista_orden_acordes(Loa).
 

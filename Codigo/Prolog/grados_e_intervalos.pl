@@ -1,6 +1,12 @@
 %DECLARACION DEL MODULO
-:- module(grados_e_intervalos,[alturaAbsoluta/2,sumaSemitonos/3,semitonosAIntervalo/2, dameIntervalo/3]).
+:- module(grados_e_intervalos,[alturaAbsoluta/2
+                              ,sumaSemitonos/3
+                              ,semitonosAIntervalo/2
+                              , dameIntervalo/3
+                              , es_grado/1]).
 
+%BIBLIOTECAS
+:- use_module(library(lists)).
 
 %INTERVALOS SIMPLES
 %usuales

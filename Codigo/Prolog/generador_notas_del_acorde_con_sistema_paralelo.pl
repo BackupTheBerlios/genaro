@@ -1,6 +1,7 @@
 
 
-:- module(generador_notas_del_acorde_con_sistema_paralelo,[traduce_lista_cifrados/7]).
+:- module(generador_notas_del_acorde_con_sistema_paralelo,
+	[traduce_lista_cifrados/7]).
 
 :-use_module(library(random)).
 :-use_module(library(lists)).
@@ -13,7 +14,7 @@ es_triada(cifrado(_,matricula(m))).
 
 /*
 USO:
-	traduce_lista_cifrados(+Progresion,+PDisp1,+PDisp2,+PInv0,+PInv1,+PInv2,-ListaAcrodes )
+	traduce_lista_cifrados(+Progresion,+PDisp1,+PDisp2,+PInv0,+PInv1,+PInv2,-ListaAcordes )
 PARAMETROS:
 	Progresion: es una progresion de cifrados
 	PDisp1: Probabilidad de que la lista de acordes de salida esten en primera disposicion
@@ -21,7 +22,8 @@ PARAMETROS:
 	PInv0: Probabilidad de que un acorde este en estado fundamental o, tambien llamado, inversion 0
 	PInv1: Probabilidad de que un acorde este en primera inversion
 	PInv2: Probabilidad de que un acorde este en segunda inversion
-	ListaAcrodes: Lista de acorde resultante de la traduccion a notas de la lista de cifrados Progresion
+	ListaAcordes: Lista de acorde resultante de la traduccion a notas de la lista de cifrados Progresion
+		      Hace cierto biblio_genaro_acordes:es_lista_orden_acordes(ListaAcordes)
 DESCRIPCION:
 	Este predicado traduce una lista de cifrados a una lista de acordes, en donde ya estan representadas las
 	alturas de las notas, por el metodo del sistema paralelo. El metodo consiste en colocar todos los acordes 
@@ -41,7 +43,7 @@ traduce_lista_cifrados( progresion(ListaCifrados), PDisp1, PDisp2, PInv0, PInv1,
 	random( 0,100,NumAleatorio ),
 	PDisp3 is 100 - PDisp1 - PDisp2,
 	eleccion_aleatoria( NumAleatorio, PDisp1, PDisp2, PDisp3, Disp_aux ),  
-	% Hacemos esto porque Disp_aux esta entre 0 y 3, pero las disposiciones estan entre 1 y 4
+	% Hacemos esto porque Disp_aux esta entre 0 y 3, <pero las disposiciones estan entre 1 y 4
 	Disposicion is Disp_aux + 1,  
 	traduce_lista_cifrados_recursivo( ListaCifrados, Disposicion, PInv0, PInv1, PInv2, ListaAcrodes).
 
@@ -63,7 +65,4 @@ traduce_lista_cifrados_recursivo( [(Cifrado,Figura) | RestoCifrados], Disp, PInv
 	eleccion_aleatoria( NumAleatorio, PInv0, PInv1, PInv2, Inversion ),
 	traduce_cifrado( Cifrado, Inversion, Disp, Acorde ),
 	traduce_lista_cifrados_recursivo( RestoCifrados, Disp, PInv0, PInv1, PInv2, RestoAcrodes ).
-
-
-
 

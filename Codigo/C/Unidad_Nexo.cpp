@@ -25,7 +25,8 @@ void Unidad_Nexo::Inicializacion(String Ruta_prolog, String Ruta_haskell, String
 
 void Unidad_Nexo::Componer(String Num_Acordes, String Num_Mutaciones,String Patron_Ritmico, String Repeticiones)
 {
-  String pseudo_ruta_patrones="../../PatronesRitmicos/";
+  //la antigua ruta del patrón rítmico era "../../PatronesRitmicos/"
+  String pseudo_ruta_patrones="./PatronesRitmicos/";
   pseudo_ruta_patrones+=Patron_Ritmico;
   interfaz_prolog->Ejecuta_Objetivo(Num_Acordes,Num_Mutaciones);
   interfaz_haskell->Ejecuta_Funcion(pseudo_ruta_patrones,Repeticiones);

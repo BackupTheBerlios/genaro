@@ -85,7 +85,7 @@ object Form1: TForm1
     Top = 96
     Width = 12
     Height = 27
-    Caption = '0'
+    Caption = '1'
     Font.Charset = ANSI_CHARSET
     Font.Color = clRed
     Font.Height = -19
@@ -224,9 +224,10 @@ object Form1: TForm1
     Width = 225
     Height = 25
     Max = 30
+    Min = 1
     Orientation = trHorizontal
     Frequency = 1
-    Position = 0
+    Position = 1
     SelEnd = 0
     SelStart = 0
     TabOrder = 12

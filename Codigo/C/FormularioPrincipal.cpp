@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <fstream.h>
+#include <dir.h>
 #pragma hdrstop
 
 #include "FormularioPrincipal.h"
@@ -25,9 +26,9 @@ void __fastcall TForm1::Boton_ComponerClick(TObject *Sender)
   String Ruta_prolog;
 
 // FIXME FIXME esto está si no se usa fichero de configuración
-    Ruta_prolog="..\\Prolog\\mainArgs.exe";
-    Ruta_haskell="..\\Haskell\\runhugs.exe";
-    Ruta_codigo_haskell = "..\\Haskell\\main.lhs";
+    Ruta_prolog=".\\Codigo\\Prolog\\mainArgs.exe";  //"..\\Prolog\\mainArgs.exe";
+    Ruta_haskell=".\\Codigo\\Haskell\\runhugs.exe";  //"..\\Haskell\\runhugs.exe";
+    Ruta_codigo_haskell=".\\Codigo\\Haskell\\main.lhs";  //"..\\Haskell\\main.lhs";
 // FIXME FIXME fin del  fixme
 
   /*ifstream fichero_conf;
@@ -88,6 +89,11 @@ void __fastcall TForm1::FormCreate(TObject *Sender)
 {
 unidad_de_union=new Unidad_Nexo();
 Inicializa_Patrones_Ritmicos();
+//FIXME DIR de trabajo
+    String directorio_de_trabajo="..\\..\\";
+    if (chdir(directorio_de_trabajo.c_str())==-1)
+    {ShowMessage("Error cambiando el directorio de trabajo");};
+//FIXME DIR DE TRABAJO
 }
 //---------------------------------------------------------------------------
 void TForm1::Inicializa_Patrones_Ritmicos()

@@ -1,6 +1,6 @@
 
 -- Este modulo contiene las funciones necesarias para convertir una lista de acordes en su representacion
--- de cifrados, es decir, como [( (Grado,Matricula), Dur )], a una lista de alturas como [Pitch]
+-- de cifrados, es decir, como [( (Grado,Matricula), Dur )], a una lista de alturas como ([Pitch],Dur)
 
 module TraduceCifrados
 where
@@ -13,15 +13,24 @@ import BiblioGenaro
 
 
 type AcordeOrdenado = ([Pitch],Dur)
+
+
 -----------------------------------------------------------
 -- FUNCION QUE EXPORTA
 -----------------------------------------------------------
 
+{-
+Existe dos tipos de traduccion de los cifrados a notas: sistema paralelo y continuo. Cada
+uno tiene diferentes parametros. Este tipo construido junto con la funcion 'traduceProgresion'
+engloba los parametros de ambas traducciones
+-}
 data ParametrosTraduceCifrados =
 	  Paralelo OctaveIni Inversion Disposicion NumNotasTotal
 	| Continuo SemillaInt OctaveIni NumNotasTotal
 
-
+{-
+Traduce una progresion de cifrados a una lista de acordes ordenados
+-}
 traduceProgresion :: ParametrosTraduceCifrados -> Progresion -> [AcordeOrdenado]
 traduceProgresion (Paralelo ocIni inv disp numNotasT ) = traduceProgresionSistemaParalelo ocIni inv disp numNotasT 
 traduceProgresion (Continuo semilla ocIni numNotasT )  = traduceProgresionSistemaContinuo2 semilla ocIni numNotasT
@@ -30,11 +39,13 @@ traduceProgresion (Continuo semilla ocIni numNotasT )  = traduceProgresionSistem
 -----------------------------------------------------------
 
 type AcordeSimple = [Int] -- Indica el orden de las voces en el acorde sin centrarse en que notas son
+                          -- Dicho de otra forma, cada numero de la lista es un indice sobre las notas
+                          -- del cifrado
 
-type Inversion = Int -- 0 es el estado fundamental
-type Disposicion = Int
-type NumNotasFund = Int -- notas del acorde pero sin repetir ninguna (ej: cuatriadas tienen cuatro notas)
-type NumNotasTotal = Int -- notas total del acorde. Puede ser un numero mayor o igual a 2
+type Inversion = Int    -- Inversion del acorde. 0 es el estado fundamental
+type Disposicion = Int  -- Disposicion del acorde
+type NumNotasFund = Int -- Notas del acorde pero sin repetir ninguna (ej: cuatriadas tienen cuatro notas)
+type NumNotasTotal = Int -- Notas total del acorde. Puede ser un numero mayor o igual a 2
 
 type OctaveIni = Octave -- octava inicial: a partir de este numero se empieza a dar valor a las octavas
 				-- dicho de otra forma, la nota mas baja de cada acorde tiene esta octava y las
@@ -43,9 +54,11 @@ type OctaveIni = Octave -- octava inicial: a partir de este numero se empieza a 
 type SemillaInt = Int	-- valor entero que sera usado para crear un generador de numeros aleatorios
 
 
--- Forma un acorde simple
+-- Forma un acorde simple en funcion del numero de notas del acorde, el numero de notas que se desea que tenga,
+-- una inversion y una disposicion
 formarAcordeSimple :: NumNotasFund -> NumNotasTotal -> Inversion -> Disposicion -> AcordeSimple
 formarAcordeSimple numNotasFund numNotasTotal inv disp = reverse (disp : anadeAcordeSimple numNotasFund (numNotasTotal - 2) [inv + 1])
+
 
 -- Añade notas (modulo NumNotasFund)+1, es decir, si numNotasFund = 4 y comenzamos con 2 entonces añade 3, 4, 1, 2, ...
 anadeAcordeSimple :: NumNotasFund -> Int -> [Int] -> [Int]
@@ -57,15 +70,17 @@ anadeAcordeSimple numNotasFund notasResto (nota : lista)
 
 ---------------------------------------------------
 
+-- 'encajaAcordeSimple' transforma un acorde simple en una lista de PitchClass teniendo en cuenta
+-- que los numeros del acorde simple son indices sobre la lista pasada como primer parametros
 encajaAcordeSimple :: [PitchClass] -> AcordeSimple -> [PitchClass]
 encajaAcordeSimple lpc [] = []
 encajaAcordeSimple lpc (num : resto) = (lpc !! (num - 1)) : encajaAcordeSimple lpc resto
 
 
-arreglaOctavasAsc :: Octave -> [PitchClass] -> [Pitch]
+arreglaOctavasAsc :: OctaveIni -> [PitchClass] -> [Pitch]
 arreglaOctavasAsc octavaIni (cabeza : resto) = (cabeza, octavaIni) : arreglaOctavasAscRec octavaIni cabeza resto
 
-arreglaOctavasAscRec :: Octave -> PitchClass -> [PitchClass] -> [Pitch]
+arreglaOctavasAscRec :: OctaveIni -> PitchClass -> [PitchClass] -> [Pitch]
 arreglaOctavasAscRec _ _ [] = []
 arreglaOctavasAscRec octava pitchAnt (cabeza : resto) 
 	|pitchClass pitchAnt >= pitchClass cabeza = (cabeza, octava + 1) : arreglaOctavasAscRec (octava + 1) cabeza resto
@@ -92,18 +107,20 @@ traduceCifrado (grado, matricula) = map  absPitchAPitchClass (sumaVector (matric
 ---------------------------------------------------------------------------
 
 
--- Suponemos la octava 4 como octava inicial pero se podria cambiar
--- El int es el numero de notas deseadas
-traduceInvDisp :: Octave -> Inversion -> Disposicion -> NumNotasTotal -> Cifrado -> [Pitch]
+-- 'traduceInvDisp' traduce un unico cifrado a una lista de 'Pitch' en una disposicion e inversion dada
+traduceInvDisp :: OctaveIni -> Inversion -> Disposicion -> NumNotasTotal -> Cifrado -> [Pitch]
 traduceInvDisp octavaIni inv disp numNotasTotal cifrado =
 	arreglaOctavasAsc octavaIni (encajaAcordeSimple cifradoTraducido (formarAcordeSimple (length cifradoTraducido) numNotasTotal inv disp))
 		where cifradoTraducido = traduceCifrado cifrado
 
-traduceInvDisp2 :: Octave -> Inversion -> Disposicion -> NumNotasTotal -> (Cifrado, Dur) -> AcordeOrdenado
+-- 'traduceInvDisp2' hace algo parecido a 'traduceInvDisp' pero teniendo en cuenta la duracion
+traduceInvDisp2 :: OctaveIni -> Inversion -> Disposicion -> NumNotasTotal -> (Cifrado, Dur) -> AcordeOrdenado
 traduceInvDisp2 octavaIni inv disp numNotasTotal (cifrado, dur) = 
 	(traduceInvDisp octavaIni inv disp numNotasTotal cifrado , dur)
 
-
+{-
+Traduce toda una progresion a una lista de acordes ordenados usando el sistema paralelo
+-}
 traduceProgresionSistemaParalelo :: OctaveIni -> Inversion -> Disposicion -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
 traduceProgresionSistemaParalelo octaveIni inv disp numNotasTotal progresion 
 	= map (traduceInvDisp2 octaveIni inv disp numNotasTotal) progresion
@@ -125,7 +142,9 @@ coincidencias lp1 lp2 = foldr1 (+) (map fromEnum [(lp1 !! i) == (lp2 !! i) | i <
 inversion :: Inversion -> [a] -> [a]
 inversion n lista = (drop n lista) ++ (take n lista)
 
-
+{-
+	Distancia entre dos listas de PitchClass
+-}
 distancia :: [PitchClass] -> [PitchClass] -> Int
 distancia lp1 lp2 = foldr1 (+) [abs ( ((map pitchClass lp1) !! i) - ((map pitchClass lp2) !! i) ) | i <- [0..(longMen - 1 )] ]
 	where longMen = min (length lp1) (length lp2)
@@ -167,7 +186,9 @@ elementoAleatorio g l = (l !! pos, sigg)
 traduceProgresionSistemaContinuo2 :: SemillaInt -> OctaveIni -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
 traduceProgresionSistemaContinuo2 semillaInt octaveIni = traduceProgresionSistemaContinuo (mkStdGen semillaInt) octaveIni
 
-
+{-
+traduce una progresion a una lista de acordes ordenados usando el sistema paralelo
+-}
 traduceProgresionSistemaContinuo :: RandomGen a => a -> OctaveIni -> NumNotasTotal -> Progresion -> [AcordeOrdenado]
 traduceProgresionSistemaContinuo gen octaveIni numNotasTotal progresion 
 	= zip (arreglaTodos octaveIni (map2 encajaAcordeSimple (organizar gen (map traduceCifrado cifrados)) listaAcordesSimples)) duraciones
@@ -176,7 +197,7 @@ traduceProgresionSistemaContinuo gen octaveIni numNotasTotal progresion
 			duraciones = snd desabrochar ;
 			listaAcordesSimples = map reverse [anadeAcordeSimple (matriculaAInt ((map snd cifrados)!!i)) (numNotasTotal-1) [1] | i <- [0..(length cifrados-1)] ]
 
--- pone la octava en todos los acordes que son [PitchClass]. El primero le empieza en la octava 4
+-- pone la octava en todos los acordes que son [PitchClass]. El primero le empieza en la octavaIni
 -- y los siguientes se las arregla para que las notas coincidentes tengan la misma octava que la [Pitch] anterior
 arreglaTodos :: OctaveIni -> [[PitchClass]] -> [[Pitch]]
 arreglaTodos octaveIni (pc : resto) = cabezaTratada : arreglaTodosRec cabeza resto
@@ -184,7 +205,11 @@ arreglaTodos octaveIni (pc : resto) = cabezaTratada : arreglaTodosRec cabeza res
 			cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
 												-- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
 
--- las elimina por saturacion
+{-
+Elimina las octavas erroneas que hayan podido aparecer en la traduccion continua
+Se consideran octavas erroneas aquellas menores de 0 y mayores que 21. Se arreglan
+poniendo las menores que 0 a 0 y las mayores que 21 a 21
+-} 
 eliminaOctavasErroneas :: [Pitch] -> [Pitch]
 eliminaOctavasErroneas [] = []
 eliminaOctavasErroneas ((pitchClass, octave) : resto)
@@ -193,12 +218,16 @@ eliminaOctavasErroneas ((pitchClass, octave) : resto)
 	| otherwise	= (pitchClass, octave) : eliminaOctavasErroneas resto
 
 
+{-
+Inserta la octava en todas las lista de PitchClass teniendo en cuenta la lista de Pitch anterior
+para que, de esa forma, dos notas con el mismo nombre en la misma posicion tenga la misma octava
+-}
 arreglaTodosRec :: [Pitch] -> [[PitchClass]] -> [[Pitch]]
 arreglaTodosRec _ [] = []
 arreglaTodosRec ant (pc : resto) = cabezaTratada : arreglaTodosRec cabeza resto
 	where 	cabeza = arreglaUno ant pc;
-		cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
-									-- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
+		      cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
+									            -- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
 
 
 -- Pone la octava en [PitchClass] de tal forma que las notas coincidentes tengan la misma octava

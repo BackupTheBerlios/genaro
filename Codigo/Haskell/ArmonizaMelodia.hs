@@ -21,6 +21,7 @@ type DurMin = Dur   -- Todas las notas mayores o iguales a esa duracion se consi
 {-
 Funcion principal de este modulo.
 Dada un tipo Music secuencia devuelve una progresion que es una armonizacion de ese Music
+CUIDADO: si la melodia no contiene notas principales devuelve lista vacia
 -}
 armonizaMelodia :: RandomGen g => g -> DurMin -> Music -> Progresion
 armonizaMelodia gen durMin m = progresion

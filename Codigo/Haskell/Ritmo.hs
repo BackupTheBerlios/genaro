@@ -5,28 +5,26 @@ where
 
 import Haskore
 import Ratio
---import PrologAHaskell
+import PrologAHaskell
 
 
----------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------
+------------- PATRON HORIZONTAL
+------------------------------------------------------------------------------------------------------------------
 
--- como me gustaria que fuese AcordeOrdenado
-type AcordeOrdenado2 = ([Pitch],Dur)
+-- TIPOS
 
----------------------------------------------------------
-
-
--- CAMBIAR: CAMBIAR A INT QUE PARECE MAS ADECUADO
--- de 0 a 100
+-- Acento: intensidad con que se ejecuta ese tiempo. Valor de 0 a 100
 type Acento = Float
 
--- Unidad de Ritmo Horizontal
+-- Unidad de Ritmo Horizontal: division que hacemos de la linea temporal o linea horizontal
 type URH = (Acento, Dur)
 
 -- El patron ritmico horizontal se compone de una lista infinita de URH
 type PatronHorizontal = [URH]
 
--- Constantes del ritmo horizontal
+
+-- CONSTANTES
 
 -- parte fuerte del compas
 fuerte :: Acento
@@ -39,48 +37,6 @@ debil = 50
 -- parte semifuerte del compas
 semifuerte :: Acento
 semifuerte = 70
-
-
--- Voz indica la voz de acorde empezando desde abajo (no es exactamente el mismo conceto de voz).
-type Voz = Int -- de 1 a 5
-
--- Unidad de Ritmo Vertical: la lista de voces que se ejecutan a la vez y si esta ligada con otra nota consecutiva
-type URV = [(Voz, Bool)]
-
--- Patron ritmico vertical es una lista infinita de unidades verticales
-type PatronVertical = [URV]
-
--- El patron ritmico completo se compone de una lista con informacion vertical y horizontal
-type PatronRitmico = [ ( URV, Acento, Dur )]
-
-
--- Funciones que operan con patrones
-fusionaPatrones :: PatronVertical -> PatronHorizontal -> PatronRitmico
-fusionaPatrones pv ph = fusionaPatrones2 (repetirInfinito pv) (repetirInfinito ph)
-
-fusionaPatrones2 :: PatronVertical -> PatronHorizontal -> PatronRitmico
-fusionaPatrones2 (urv : restoPV) ((ac, dur) : restoPH) = (urv, ac, dur) : fusionaPatrones2 restoPV restoPH
-
-
--- Algunas constantes ritmicas
-
-arpegio :: PatronVertical  -- pensada solo para cuatro voces
-arpegio = [[(1,False)],[(2,False)],[(3,False)],[(4,False)]]
-
-acorde :: PatronVertical  -- pensada solo para cuatro voces
-acorde = [[ (1,False) , (2,False) , (3,False) , (4,False) ]]
-
-patronRitmo1 :: PatronVertical
-patronRitmo1 = [ [(1,True)] , [(1,False),(2,False),(3,False),(4,False)] ]
-
-patronRitmo2 :: PatronVertical
-patronRitmo2 = [ [(1,False)] , [(3,False)] , [(2,False)] , [(4,False)]]
-
-patronRitmo3 :: PatronVertical
-patronRitmo3 = [ [(1,False)] , [(2,False)] , [(1,False)] , [(3,False)] , [(1,False)] ,[(4,False)]]
-
-patronRitmo4 :: PatronVertical
-patronRitmo4 = [[(1,False),(3,False)],[],[(2,False),(4,False)],[]]
 
 
 dos_dos :: PatronHorizontal
@@ -99,65 +55,227 @@ seis_cuatro :: PatronHorizontal
 seis_cuatro = [(fuerte, 1%4),(debil, 1%4),(debil, 1%4),(semifuerte, 1%4),(debil, 1%4),(debil, 1%4)]
 
 
+-- FUNCIONES
+
 escala :: PatronHorizontal -> Dur -> PatronHorizontal
 escala [] _ = []
 escala ((acento, dur):resto) dur2 = (acento,dur*dur2) : escala resto dur2
 
 
+------------------------------------------------------------------------------------------------------------------
+------------- PATRON VERTICAL
+------------------------------------------------------------------------------------------------------------------
+
+-- TIPOS
+
+-- Voz: indica la voz de acorde empezando desde abajo (no es exactamente el mismo conceto de voz de musica).
+type Voz = Int  -- de 1 a 5
+
+-- Unidad de Ritmo Vertical: la lista de voces que se ejecutan a la vez y si esta ligada con otra nota consecutiva
+type URV = [(Voz, Bool)]
+
+-- Patron ritmico vertical es una lista infinita de unidades verticales
+type PatronVertical = [URV]
 
 
--- Funciones para la aplicacion de patrones ritmicos a acordes ordenados
 
--- Repite la lista un numero infinito de veces
-repetirInfinito :: [a] -> [a]
-repetirInfinito lista = aplanar [ lista | x<-[1..]]
+------------------------------------------------------------------------------------------------------------------
+------------- PATRON RITMICO
+------------------------------------------------------------------------------------------------------------------
 
-aplanar :: [[a]] -> [a]
-aplanar ll = foldr (++) [] ll
+--TIPOS
+
+-- El patron ritmico completo se compone de una lista con informacion vertical y horizontal
+-- Para que sea coherente con el resto del programa un PatronRitmico es una lista infinita que encaja
+-- con la informacion de los acordes ordenados para formar las notas. Cuando se encaja con los acordes
+-- ordenados (que es una lista finita) el patron ritmico se trunca.
+type PatronRitmico = [ ( URV, Acento, Dur )]
 
 
+-- FUNCIONES
 
+-- fusionaPatrones: dado un patron vertical y uno horizontal los fusiona en un patron ritmico.
+fusionaPatrones :: PatronVertical -> PatronHorizontal -> PatronRitmico
+fusionaPatrones pv ph = fusionaPatrones2 (repetirInfinito pv) (repetirInfinito ph)
+
+fusionaPatrones2 :: PatronVertical -> PatronHorizontal -> PatronRitmico
+fusionaPatrones2 (urv : restoPV) ((ac, dur) : restoPH) = (urv, ac, dur) : fusionaPatrones2 restoPV restoPH
+
+
+-- encaja: encaja una lista de alturas con una unidad de ritmo vertical.
+-- El resultado es una lista en el que se ha filtrado las alturas en funcion de URV y el valor booleano
+-- que indica la ligadura con una nota posterior
 encaja :: [Pitch] -> URV -> [(Pitch, Bool)]
 encaja lp [] = []
 encaja lp ( (voz, ligado) : resto) = ( lp !! (voz-1), ligado) : encaja lp resto
 
 
-consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> [[( Music, Bool )]]
+-- CONSTANTES
+
+-- Algunos patrones verticales (pensados solo para cuatro voces)
+
+arpegio :: PatronVertical
+arpegio = [[(1,False)],[(2,False)],[(3,False)],[(4,False)]]
+
+acorde :: PatronVertical
+acorde = [[ (1,False) , (2,False) , (3,False) , (4,False) ]]
+
+patronRitmo1 :: PatronVertical
+patronRitmo1 = [ [(1,True)] , [(1,False),(2,False),(3,False),(4,False)] ]
+
+patronRitmo2 :: PatronVertical
+patronRitmo2 = [ [(1,False)] , [(3,False)] , [(2,False)] , [(4,False)]]
+
+patronRitmo3 :: PatronVertical
+patronRitmo3 = [ [(1,False)] , [(2,False)] , [(1,False)] , [(3,False)] , [(1,False)] ,[(4,False)]]
+
+patronRitmo4 :: PatronVertical
+patronRitmo4 = [[(1,False),(3,False)],[],[(2,False),(4,False)],[]]
+
+patronRitmo5 :: PatronVertical
+patronRitmo5 = [[(1,True)],[(1,True),(2,True)],[(1,True),(2,True),(3,True)],[(1,False),(2,False),(3,False),(4,False)]]
+
+patronRitmo6 :: PatronVertical
+patronRitmo6 = [[(1,True)],[(1,True)],[(1,True)],[(1,False)]]
+
+patronRitmo7 :: PatronVertical
+patronRitmo7 = [[(1,True),(2, False)] , [(1,True),(3,False)] , [(1,False),(4,False)]]
+
+
+
+-- FUNCIONES AUXILIARES
+
+-- repetirInfinito: Repite la lista un numero infinito de veces. Util para repetir un patron infinitas veces
+repetirInfinito :: [a] -> [a]
+repetirInfinito lista = aplanar [ lista | x<-[1..]]
+
+-- Dada una lista de listas la deja es una lista
+aplanar :: [[a]] -> [a]
+aplanar ll = foldr (++) [] ll
+
+
+------------------------------------------------------------------------------------------------------------------
+------------- NOTAS LIGADAS
+------------------------------------------------------------------------------------------------------------------
+
+-- TIPOS
+
+-- NotasLigadasVertical: es lo mismo que AcordeOrdenado pero en el que se ha sustituido el patron ritmico en el. 
+-- La lista de Music es una lista de notas que se deben interpretar a la vez. El valor booleano que las acompaña
+-- indica si esa nota esta ligada a una nota posterior. De sa forma podemos realizar el efecto de una nota que
+-- perdura en el tiempo mientras las otras voces del acorde se mueven
+type NotasLigadasVertical = [(Music,Bool)]
+
+-- NotasLigadas: es una lista de notas que se interpretan a la vez (NotasLigadasVertical) junto a una duracion.
+-- En realidad dicha duracion indica cuanto debemos esperar hasta la ejecucion de las liguientes notasLigadasVerticales
+type NotasLigadas = [(NotasLigadasVertical,Dur)]
+
+
+-- FUNCIONES
+
+-- consumeVertical: fusiona un patron ritmico y un acorde ordenado (disgregado en alturas y duracion) en las notas ligadas
+consumeVertical :: [Pitch] -> Dur -> PatronRitmico -> NotasLigadas
 consumeVertical lp durAcorde _ 
 	| durAcorde <= 0 = []
 consumeVertical lp durAcorde ((urv, acento, dur) : resto) = 
-	insertaAcentoYDur acento dur (encaja lp urv) : consumeVertical lp (durAcorde - dur) resto
+	(insertaAcentoYDur acento dur (encaja lp urv), dur) : consumeVertical lp (durAcorde - dur) resto
 
 
-
--- IMPORTANTE: falta poner bien el acento, es decir el paso de Int a Float
+-- insertaAcentoYDur: introduce el acento (volumen) y la duracion en la lista de alturas para formar la lista de notas
 insertaAcentoYDur :: Acento -> Dur -> [(Pitch, Bool)] -> [(Music, Bool)]
 insertaAcentoYDur _ dur [] = [(Rest dur, False)]
-insertaAcentoYDur acento dur [(pitch, ligado)] = [ ( Note pitch dur [Volume acento] , False ) ]
+insertaAcentoYDur acento dur [(pitch, ligado)] = [ ( Note pitch dur [Volume acento] , ligado ) ]
 insertaAcentoYDur acento dur lp = insertaAcentoYDur2 acento dur lp
 
 insertaAcentoYDur2 :: Acento -> Dur -> [(Pitch, Bool)] -> [(Music, Bool)]
-insertaAcentoYDur2 acento dur [(pitch, ligado)] = [ ( Note pitch dur [Volume acento] , False ) ]
+insertaAcentoYDur2 acento dur [(pitch, ligado)] = [ ( Note pitch dur [Volume acento] , ligado ) ]
 insertaAcentoYDur2 acento dur ((pitch, ligado) : resto) = 
-	( Note pitch dur [Volume acento] , False ) : insertaAcentoYDur2 acento dur resto
+	( Note pitch dur [Volume acento] , ligado ) : insertaAcentoYDur2 acento dur resto
 
 
+-- deAcordeOrdenadoANotasLigadas: junta un acorde ordenado y un patron ritmico en notas ligadas
+deAcordeOrdenadoANotasLigadas :: PatronRitmico -> AcordeOrdenado -> NotasLigadas
+deAcordeOrdenadoANotasLigadas pr (lp, durAcorde) = consumeVertical lp durAcorde pr
 
-deAcordeOrdenadoANotasLigadas :: AcordeOrdenado2 -> PatronRitmico -> [[( Music, Bool )]]
-deAcordeOrdenadoANotasLigadas (lp, durAcorde) pr = consumeVertical lp durAcorde pr
+-- deAcordesOrdenadosANotasLigadas: junta una lista de acordes ordenados y un patron ritmico en notas ligadas
+deAcordesOrdenadosANotasLigadas :: PatronRitmico -> [AcordeOrdenado] -> NotasLigadas
+deAcordesOrdenadosANotasLigadas pr lao = foldr (++) [] (map (deAcordeOrdenadoANotasLigadas pr) lao)
+
+-- deAcordesOrdenadosANotasLigadas2: junta una lista de acordes ordenados y un patron ritmico
+-- en forma de patron vertical y horizontal en notas ligadas
+deAcordesOrdenadosANotasLigadas2 :: PatronVertical -> PatronHorizontal -> [AcordeOrdenado] -> NotasLigadas
+deAcordesOrdenadosANotasLigadas2 pV pH lao = foldr (++) [] (map (deAcordeOrdenadoANotasLigadas (fusionaPatrones pV pH)) lao)
+
+-- buscaNota: busca la altura en la lista de notasLigadasVertical y devuelve su duracion si la encuentra o 0%1 si no
+buscaNota :: Pitch -> NotasLigadasVertical -> Dur
+buscaNota _ [] = 0%1
+buscaNota pitch ((Note pitch2 dur _, _) : resto) 
+	| pitch == pitch2 = dur
+buscaNota pitch ( _ : resto) = buscaNota pitch resto
 
 
+-- eliminaNota: busca una nota con la misma altura que pitch y la elimina de la lista
+eliminaNota :: Pitch -> NotasLigadasVertical -> NotasLigadasVertical
+eliminaNota _ [] = []
+eliminaNota pitch ((Note pitch2 dur _, _) : resto) 
+	| pitch == pitch2 = resto
+eliminaNota pitch ( notaLigada : resto) = notaLigada : eliminaNota pitch resto
 
 
--- Este predicado habria que cambiarlo para realizar la ligadura correctamente
-deNotasLigadasAMusica :: [[( Music, Bool )]] -> Music
-deNotasLigadasAMusica [ listaNotasLigadas ] = paraleliza listaNotasLigadas
-deNotasLigadasAMusica ( listaNotasLigadas : resto ) = paraleliza listaNotasLigadas :+: deNotasLigadasAMusica resto
+-- NOTA: CAMBIAR EL NOMBRE DE ESTE PREDICADO POR ARREGLA_CABEZA YA QUE ES MAS CONSECUENTE CON LO QUE HACE
+-- buscaTodasNotas: a este predicado se le pasa la cabeza de la lista ya arreglada (sin ligaduras) y la lista anterior
+-- de notas verticales. Lo que hace esta funcion es buscar cada nota con ligadura de la primera lista en la segunda. 
+-- En caso de que la encuentre (que deberia si el patron esta bien hecho aunque no pasa nada si no lo hace) elimina la 
+-- nota de la segunda lista y añade su duracion a la nota de la primera (una ligadura de las de siempre).
+-- De esa forma las notas bien ligadas se van acumulando en la cabeza de la lista (en este caso el primer parametro)
+buscaTodasNotas :: NotasLigadasVertical -> NotasLigadasVertical -> ( NotasLigadasVertical , NotasLigadasVertical )
+buscaTodasNotas notas1 notas2 = buscaTodasNotas2 notas1 [] notas2
+
+buscaTodasNotas2 :: NotasLigadasVertical -> NotasLigadasVertical -> NotasLigadasVertical -> (NotasLigadasVertical, NotasLigadasVertical)
+buscaTodasNotas2 [] notas1 notas2 = ( notas1, notas2 )
+buscaTodasNotas2 (( nota, False ) : restoPitch ) notas1 notas2  = buscaTodasNotas2 restoPitch ((nota,False):notas1) notas2
+buscaTodasNotas2 (( Note pitch dur lA, True ) : restoPitch ) notas1 notas2 = 
+	buscaTodasNotas2 restoPitch ((Note pitch (dur + buscaNota pitch notas2) lA, False):notas1) (eliminaNota pitch notas2)
 
 
+-- notnull: devuelve falso si la lista es vacia y cierto en caso contrario
+notnull :: [a] -> Bool
+notnull [] = False
+notnull _ = True
+
+
+-- Elimina las notas ligadas de la lista notasLigadas
+eliminaLigaduras :: NotasLigadas -> NotasLigadas
+eliminaLigaduras [n] = [n]
+eliminaLigaduras ((notasVerticales, dur) : resto) = let { 	eliminadas = eliminaLigaduras resto ;
+										cabeza = head eliminadas ;
+										arregladoCabeza = buscaTodasNotas notasVerticales (fst cabeza)
+						}  in  (fst arregladoCabeza, dur) : (snd arregladoCabeza, snd cabeza) : tail eliminadas
+
+
+-- deNotasLigadasAMusica: dada la lista de notas ligadas (ya sea bien arregladas o no) las pasa a musica Haskore
+deNotasLigadasAMusica :: NotasLigadas -> Music
+deNotasLigadasAMusica = deNotasLigadasAMusica2 (0%1)
+
+-- deNotasLigadasAMusica2: es la funcion recursiva de deNotasLigadasAMusica y con acumulador.
+-- El parametro dur indica la duracion que hay que dejar hasta el comiento de la cancion antes de interpretar 
+-- las notas ligadas a tratar
+deNotasLigadasAMusica2 :: Dur -> NotasLigadas -> Music
+deNotasLigadasAMusica2 dur [(nV,_)] = Rest dur :+: paraleliza nV
+deNotasLigadasAMusica2 dur ((nV,dur2):resto) = (Rest dur :+: paraleliza nV) :=: deNotasLigadasAMusica2 (dur + dur2) resto 
+
+
+-- paraleliza: ejecuta en paralelo a lista de musica sin intereserse por el parametro booleano
 paraleliza :: [( Music, Bool )] -> Music
+paraleliza [] = Rest (0%1)
 paraleliza [ ( nota, _ ) ] = nota
 paraleliza (( nota, _ ):resto) = nota :=: paraleliza resto
+
+
+
+-- Usando todas las funciones anterior pasa una lista de acordes ordenados con los patrones a Haskore
+deAcordesOrdenadosAMusica :: [AcordeOrdenado] -> PatronVertical -> PatronHorizontal -> Music
+deAcordesOrdenadosAMusica lao pV pH = deNotasLigadasAMusica (  (eliminaLigaduras (deAcordesOrdenadosANotasLigadas2 pV pH lao)))
 
 
 ---------------------------------
@@ -169,6 +287,10 @@ paraleliza (( nota, _ ):resto) = nota :=: paraleliza resto
 cMaj7 :: [Pitch]
 cMaj7 = [(C,4),(E,4),(G,4),(B,4)]
 
+--acorde de C7
+c7 :: [Pitch]
+c7 = [(C,4),(E,4),(G,4),(Bf,4)]
+
 --acorde de G7
 g7 :: [Pitch]
 g7 = [(G,4),(B,4),(D,5),(F,5)]
@@ -177,39 +299,66 @@ g7 = [(G,4),(B,4),(D,5),(F,5)]
 dm7 :: [Pitch]
 dm7 = [(D,4),(F,4),(A,4),(C,5)]
 
+--acorde de F7
+f7 :: [Pitch]
+f7 = [(F,4),(A,4),(C,5),(E,5)]
+
 
 --progresion armonica simple
-prog1 :: [AcordeOrdenado2]
-prog1 = [(cMaj7,1%1),(g7,1%1)]
+prog1 :: [AcordeOrdenado]
+prog1 = [(cMaj7,1%4),(c7,1%4),(f7,1%4),(g7,1%4),(cMaj7,1%4)]
 
-prog2 :: [AcordeOrdenado2]
-prog2 = [(cMaj7,1%2),(g7,1%2)]
+prog2 :: [AcordeOrdenado]
+prog2 = [(cMaj7,1%1),(c7,1%1),(f7,1%1),(g7,1%1),(cMaj7,1%1)]
 
-prog3 :: [AcordeOrdenado2]
-prog3 = [(cMaj7,6%4),(g7,6%2)]
+prog3 :: [AcordeOrdenado]
+prog3 = [(cMaj7,3%4),(c7,3%4),(f7,3%4),(g7,3%4),(cMaj7,3%4)]
 
-
-prog4 :: AcordeOrdenado2
-prog4 = (cMaj7,1%2)
-
-prog5 :: AcordeOrdenado2
-prog5 = (g7,1%2)
 
 musica1 :: Music
-musica1 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas (cMaj7,1%4) (fusionaPatrones arpegio (escala cuatro_cuatro (1%8) )))
+musica1 = deNotasLigadasAMusica (deAcordesOrdenadosANotasLigadas2 arpegio cuatro_cuatro prog2)
 
 musica2 :: Music
-musica2 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas (dm7,1%4) (fusionaPatrones arpegio (escala cuatro_cuatro (1%8) )))
+musica2 = deNotasLigadasAMusica (deAcordesOrdenadosANotasLigadas2 acorde cuatro_cuatro prog1)
 
-musica5 :: Music
-musica5 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas prog5 (fusionaPatrones patronRitmo4 (escala cuatro_cuatro (1%4)) ))
+musica3 :: Music
+musica3 = deAcordesOrdenadosAMusica prog2 arpegio cuatro_cuatro
 
-musica6 :: Music
-musica6 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas prog5 (fusionaPatrones acorde dos_dos ))
-
-musica7 :: Music
-musica7 = deNotasLigadasAMusica (deAcordeOrdenadoANotasLigadas prog4 (fusionaPatrones acorde dos_dos ))
+musica4 :: Music
+musica4 = deAcordesOrdenadosAMusica prog3 patronRitmo7 tres_cuatro
 
 
+
+ejemplo1 = deAcordesOrdenadosANotasLigadas2 patronRitmo6 cuatro_cuatro [(cMaj7,1%1)] 
+
+
+
+-----------------------BURRADAS-------------------------------
+
+aPercusion :: PatronHorizontal -> Music
+aPercusion pH = Instr "Drums" (aPercusion2 (repetirInfinito pH))
+
+aPercusion2 :: PatronHorizontal -> Music
+aPercusion2 ((acento, duracion) : resto)
+	|  acento <= 50 				= caja :+: restoPercusion 
+	|  50 < acento && acento < 80 	= (caja :=: platillo) :+: restoPercusion 
+	|  80 <= acento && acento <= 100 	= (bombo :=: caja :=: platillo) :+: restoPercusion 
+		where	bombo = perc BassDrum1 duracion [Volume 100] 
+			platillo = perc CrashCymbal1 duracion [Volume 60]
+			caja = perc Maracas duracion [Volume 80]
+			restoPercusion = aPercusion2 resto
+
+
+
+musicaYPerc1 :: Music
+musicaYPerc1 = cut (dur musica3) (aPercusion (escala cuatro_cuatro (1%2) )) :=: musica3
+
+
+
+ejemplo2 :: Music
+ejemplo2 = cut (1%1) ( foldr1 (:+:) (repetirInfinito [Instr "Drums" (perc AcousticBassDrum (1%4) []) ] ))
+
+ejemplo3 :: Music
+ejemplo3 = foldr1 (:+:) [cut (1%1) ( foldr1 (:+:) (repetirInfinito [Instr "Drums" (perc (toEnum i) (1%4) []) ] )) | i<-[0..46] ]
 
 

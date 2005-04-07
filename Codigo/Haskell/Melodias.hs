@@ -7,6 +7,15 @@ import Escalas
 import HaskoreAMidi
 import PrologAHaskell --para pruebas
 import Ratio          --para pruebas
+import Directory         --para pruebas
+{-
+BUGS!!!!!!!!!!!!!!
+    -De vez en cuando da un error de chr out of range: sospecho que lo que ocurre es
+que me paso de octava y me salgo del numero de octavas que permite el haskore. Depurar
+    -Hay que hacer: ritmo  y unir varios acordes
+    -Ajustar los pesos por dios!!!
+-}
+
 {-
 del modulo Progresiones:
 data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII
@@ -143,14 +152,18 @@ pruMelAc = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
               where rutaDestinoMidi = "c:/hlocal/midiMeloso.mid"
                     mensajeGenerandoMidi = "\n Generando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
                     musica aleat = fst (hazMelodiaParaAcorde aleat 4 8 ((I,Maj7), 2%1))
-{-
-pruMelAcArgs :: Int IO()
-pruMelAcArgs= do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-              putStr mensajeGenerandoMidi
-              haskoreAMidi (musica aleat) rutaDestinoMidi
-              putStr "\n Proceso terminado satisfactoriamente\n"
-              where rutaDestinoMidi = "c:/hlocal/midiMeloso.mid"
-                    mensajeGenerandoMidi = "\n Generando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
-                    musica aleat = fst (hazMelodiaParaAcorde aleat 4 8 ((I,Maj7), 2%1))
--}
+
+pruMelAcArgs :: String -> Int -> Int -> Dur -> IO()
+pruMelAcArgs dirTrabajo saltoMax numNotas duracion = do setCurrentDirectory dirTrabajo
+                                                        putStr (mensajeDirTrabajo dirTrabajo)
+                                                        aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                        putStr mensajeGenerandoMidi
+                                                        haskoreAMidi (musica aleat) rutaDestinoMidi
+                                                        putStr "\n Proceso terminado satisfactoriamente\n"
+                                                        where mensajeDirTrabajo dir = "\n El directorio de trabajo es: " ++ dir ++ "\n"
+                                                              rutaDestinoMidi = "c:/hlocal/midiMeloso.mid"
+                                                              parametros = "\n\tsaltoMaximo: " ++ (show saltoMax) ++ "\n\tnumero de notas: " ++ (show numNotas) ++ "\n\tduracion de la melodia: " ++ (show duracion) ++ "\n\tfichero destino: " ++ rutaDestinoMidi
+                                                              mensajeGenerandoMidi = "\n Generando el archivo midi de parametros: " ++ parametros ++ "\n"
+                                                              musica aleat = fst (hazMelodiaParaAcorde aleat saltoMax numNotas ((I,Maj7), duracion))
+
 --hazMelodiaParaAcorde aleat@(a1:as) saltoMax numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)

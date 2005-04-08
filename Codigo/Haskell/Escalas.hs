@@ -2,7 +2,10 @@ module Escalas where
 import Progresiones
 import Basics
 import BiblioGenaro
-
+import List
+import Ratio          --para pruebas
+import Directory      --para pruebas
+import HaskoreAMidi   --para pruebas
 {-
 del modulo Progresiones:
 data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII
@@ -126,3 +129,86 @@ infoAcordeMayor cifrado = (tensiones, grados_de_su_escala, notas_a_evitar)
 infoAcordeMayor :: Cifrado -> InfoEscala
 infoAcordeMayor = dameInfoEscala . escalaDelAcorde
 
+{-
+Indica cuales son las octavas apropiadas para cada instrumento. Serán octavas consecutivas, claro
+-}
+type Registro = [Octave]
+{-
+Registro en el que debe encuadrarse cualquier composicion para ser audible (que se escuchen todas las notas, no demasiado aguda, es decir,
+no después de la octava 10), correcta (que haskore genere el midi sin fallos, es decir, sin octavas negativas) y agradable (que no suene
+chillona ni de ultratumba, es decir, sin la octava 0 ni la 10)
+-}
+registroGeneral :: Registro
+registroGeneral = [1..9]
+{-
+Parte grave del registro general
+-}
+registroGrave :: Registro
+registroGrave = [1..3]
+{-
+Parte media del registro general
+-}
+registroMedio :: Registro
+registroMedio = [4..6]
+{-
+Parte aguda del registro general
+-}
+registroAgudo :: Registro
+registroAgudo = [7..9]
+
+{-
+Registro en al que deberá ajustarse el instrumento que haga la melodia
+-}
+registroSolista :: Registro
+registroSolista = union registroAgudo registroMedio
+
+{-
+Registro en al que deberá ajustarse el instrumento que haga de bajo
+-}
+registroDelBajo :: Registro
+registroDelBajo = registroGrave
+
+{-
+pruRegistro dirTrabajo nota octavaInferior octavaSuperior
+escribe un midi en la que se reproduce la nota especificada en los registros especificados
+-}
+pruRegistro :: String -> PitchClass-> Int -> Int -> IO()
+pruRegistro dirTrabajo nota octavaInferior octavaSuperior = do setCurrentDirectory dirTrabajo
+                                                               putStr (mensajeDirTrabajo dirTrabajo)
+                                                               putStr mensaje
+                                                               haskoreAMidi musica rutaDestinoMidi
+                                                               putStr "\n Proceso terminado satisfactoriamente\n"
+                                                               where mensajeDirTrabajo dir = "\n El directorio de trabajo es: " ++ dir ++ "\n"
+                                                                     rutaDestinoMidi = "./pruRegistro"++(show nota)++".mid"
+                                                                     prologo = "\n\tProbando el numero de octavas soportadas por haskore\n"
+                                                                     argums = "\n\tGenerando lista de "++(show nota)++"´s desde la octava "++(show octavaInferior)++" hasta la octava "++(show octavaSuperior)++"\n"
+                                                                     generandoMidi = "\n\tGenerando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
+                                                                     mensaje = prologo ++ argums ++ generandoMidi
+                                                                     musica =  line (map (\o -> Note (nota,o) (1%2) []) [octavaInferior .. octavaSuperior])
+
+
+{-
+escribe tres midis en los que se muestran los registros grave, medio y agudo de la nota especificada
+-}
+muestraRegistros :: String -> PitchClass -> IO()
+muestraRegistros dirTrabajo nota = do setCurrentDirectory dirTrabajo
+                                      putStr (mensajeDirTrabajo dirTrabajo)
+                                      putStr mensaje
+                                      haskoreAMidi musicaGrave rutaDestinoMidiGrave
+                                      haskoreAMidi musicaMedia rutaDestinoMidiMedio
+                                      haskoreAMidi musicaAguda rutaDestinoMidiAgudo
+                                      putStr "\n Proceso terminado satisfactoriamente\n"
+                                      where mensajeDirTrabajo dir = "\n El directorio de trabajo es: " ++ dir ++ "\n"
+                                            rutaDestinoMidiGrave = "./pruRegistroGrave"++(show nota)++".mid"
+                                            rutaDestinoMidiMedio = "./pruRegistroMedio"++(show nota)++".mid"
+                                            rutaDestinoMidiAgudo = "./pruRegistroAgudo"++(show nota)++".mid"
+                                            prologo = "\n\tMostrando los registros grave, medio y agudo como archivos midi\n"
+                                            argums = "\n\tNota elegida "++(show nota)++"\n"
+                                            generandoMidiGrave = "\n\t\t" ++ rutaDestinoMidiGrave ++ "\n"
+                                            generandoMidiMedio = "\n\t\t" ++ rutaDestinoMidiMedio ++ "\n"
+                                            generandoMidiAgudo = "\n\t\t" ++ rutaDestinoMidiAgudo ++ "\n"
+                                            generandoMidi = "\n\tGenerando los archivo midi: \n" ++ generandoMidiGrave ++ generandoMidiMedio ++ generandoMidiAgudo
+                                            mensaje = prologo ++ argums ++ generandoMidi
+                                            musicaGrave =  line (map (\o -> Note (nota,o) (1%2) []) registroGrave)
+                                            musicaMedia =  line (map (\o -> Note (nota,o) (1%2) []) registroMedio)
+                                            musicaAguda =  line (map (\o -> Note (nota,o) (1%2) []) registroAgudo)

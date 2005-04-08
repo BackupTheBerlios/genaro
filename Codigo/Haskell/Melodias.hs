@@ -7,13 +7,16 @@ import Escalas
 import HaskoreAMidi
 import PrologAHaskell --para pruebas
 import Ratio          --para pruebas
-import Directory         --para pruebas
+import Directory      --para pruebas
 {-
 BUGS!!!!!!!!!!!!!!
     -De vez en cuando da un error de chr out of range: sospecho que lo que ocurre es
 que me paso de octava y me salgo del numero de octavas que permite el haskore. Depurar
     -Hay que hacer: ritmo  y unir varios acordes
     -Ajustar los pesos por dios!!!
+    -reciclar para hacer el bajo con walking = salto de 3 grados como mucho
+                                               apañar ritmo para que vaya a negras o corcheas:
+                                                  .que cuadre con la dur del acorde: saltos excesivos de tempo/altura para encajar
 -}
 
 {-
@@ -75,13 +78,6 @@ hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sm n durTotal movAcumulado
                                        else dameElemAleatListaPesosFloat a2 candsNoSalto
                      nuevoPunto    = (salto, dur)
                      (restoCurva,aleatSobran)    = hazCurvaMelodicaAleatAcu as sm (n-1) durTotal (movAcumulado + salto)
-{-
-pepe :: Int -> Int -> Int -> Bool
-pepe x y z = (fromIntegral x/ fromIntegral resolucionRandom) >= (fromIntegral y / fromIntegral z)
-
-loli :: Int -> [(Int, Float)]
-loli sm = map (\x -> (x,(1/ fromIntegral x))) [1..sm]
--}
 {-
 aplicaCurvaMelodica escala tonica curva pitchPartida
 -}
@@ -161,9 +157,24 @@ pruMelAcArgs dirTrabajo saltoMax numNotas duracion = do setCurrentDirectory dirT
                                                         haskoreAMidi (musica aleat) rutaDestinoMidi
                                                         putStr "\n Proceso terminado satisfactoriamente\n"
                                                         where mensajeDirTrabajo dir = "\n El directorio de trabajo es: " ++ dir ++ "\n"
-                                                              rutaDestinoMidi = "c:/hlocal/midiMeloso.mid"
+                                                              rutaDestinoMidi = "./midiMeloso.mid"
                                                               parametros = "\n\tsaltoMaximo: " ++ (show saltoMax) ++ "\n\tnumero de notas: " ++ (show numNotas) ++ "\n\tduracion de la melodia: " ++ (show duracion) ++ "\n\tfichero destino: " ++ rutaDestinoMidi
                                                               mensajeGenerandoMidi = "\n Generando el archivo midi de parametros: " ++ parametros ++ "\n"
                                                               musica aleat = fst (hazMelodiaParaAcorde aleat saltoMax numNotas ((I,Maj7), duracion))
 
+{-
+prueba para comprobar el numero de octavas que soporta el haskore antes de ser estridente
+pruRegistro dirTrabajo nota octavaInferior octavaSuperior
+CONCLUSIONES:
+    -solo se admiten octavas mayores o iguales a 0
+    -las octavas por encima del 10 son inuadibles, y el 10 es desagradable
+    -la octava 0 es de ultratumba
+    -Por tanto: registro = [1..9]
+                registroGrave = [1..3]
+                registroMedio = [4..6]
+                registroAgudo = [7..9]
+
+-}
+
+--haskoreAMidi :: Music -> String -> IO()
 --hazMelodiaParaAcorde aleat@(a1:as) saltoMax numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)

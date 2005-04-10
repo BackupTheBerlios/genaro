@@ -223,7 +223,8 @@ dameElemAleatListaPesos aleat listaParejas = aplicaAleat aleatNorm listaParejas 
         where listaPesos = map snd listaParejas
               sumaPesos = foldl1' (+) listaPesos
               aleatNorm = round ( fromIntegral (aleat * sumaPesos) / fromIntegral resolucionRandom)
-              aplicaAleat porcentaje ((term,peso):xs) posEnRecta posEnLista
+              aplicaAleat _ ((term,peso):[]) _ posEnLista = (term, posEnLista)
+              aplicaAleat porcentaje ((term,peso):_:xs) posEnRecta posEnLista
                   | porcentaje <= extDcho  = (term, posEnLista)
                   | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)
                                              where extDcho = posEnRecta + peso - 1
@@ -236,7 +237,8 @@ dameElemAleatListaPesosFloat aleat listaParejas = aplicaAleat aleatNorm listaPar
         where listaPesos = map snd listaParejas
               sumaPesos = foldl1' (+) listaPesos
               aleatNorm = (fromIntegral aleat) * sumaPesos / (fromIntegral resolucionRandom)
-              aplicaAleat porcentaje ((term,peso):xs) posEnRecta posEnLista
+              aplicaAleat _ ((term,peso):[]) _ posEnLista = (term, posEnLista)
+              aplicaAleat porcentaje ((term,peso):_:xs) posEnRecta posEnLista
                   | porcentaje <= extDcho  = (term, posEnLista)
                   | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)
                                              where extDcho = posEnRecta + peso - 1

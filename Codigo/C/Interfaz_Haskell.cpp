@@ -37,7 +37,9 @@ void Interfaz_Haskell::Ejecuta_Funcion(String nombre_archivo, String num_repetic
 
   char work_dir[255];
   getcwd(work_dir, 255);
-  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo.c_str(),work_dir,nombre_archivo.c_str(),num_repeticiones.c_str(),NULL);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo.c_str(),directorio_trabajo.c_str(),nombre_archivo.c_str(),num_repeticiones.c_str(),NULL);
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando el runhugs de haskell.");}
 

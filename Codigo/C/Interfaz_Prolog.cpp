@@ -35,7 +35,9 @@ void Interfaz_Prolog::Ejecuta_Objetivo(String NAcordes, String NMutaciones)
 
   char work_dir[255];
   getcwd(work_dir, 255);
-  int valor_spawn=spawnl(P_WAIT,Ruta_Prolog.c_str(),Ruta_Prolog.c_str(),work_dir,NAcordes.c_str(),NMutaciones.c_str(),NULL);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  int valor_spawn=spawnl(P_WAIT,Ruta_Prolog.c_str(),Ruta_Prolog.c_str(),directorio_trabajo.c_str(),NAcordes.c_str(),NMutaciones.c_str(),NULL);
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando el MainArgs de prolog.");}
 

@@ -1,0 +1,14 @@
+Generada con:
+
+ pruMelAcArgs "c:/hlocal" 10 1 10 (1%2)
+
+ El directorio de trabajo es: c:/hlocal
+
+ Generando el archivo midi de parametros:
+        saltoMaximo: 10
+        peso de cambiar de direccion: 1
+        numero de notas: 10
+        duracion de la melodia: 1 % 2
+        fichero destino: ./midiMeloso.mid
+
+ Proceso terminado satisfactoriamente    

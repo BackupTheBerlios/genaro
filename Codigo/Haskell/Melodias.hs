@@ -10,9 +10,7 @@ import Ratio          --para pruebas
 import Directory      --para pruebas
 {-
 BUGS!!!!!!!!!!!!!!
-   -  zip [1..1000] (map (\x -> dameElemAleatListaPesosFloat x [(1,0.33333),(2,0.5),(3,1.0),(4,0.5),(5,0.333333)]) [
-1..1000])     , funciona mal lo de los elems aleatorios
-   -hazCurvaMelodicaAleatAcu:el 20 es una chunguez
+    -hazCurvaMelodicaAleatAcu:el 20 es una chunguez
     -De vez en cuando da un error de chr out of range: sospecho que lo que ocurre es
 que me paso de octava y me salgo del numero de octavas que permite el haskore. Depurar
     -Hay que hacer: ritmo  y unir varios acordes
@@ -106,11 +104,11 @@ hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n durTotal movAcumulado
                      nuevoPunto    = (salto, dur)
                      (restoCurva,aleatSobran)    = hazCurvaMelodicaAleatAcu as nuevoSube sm ps (n-1) durTotal (movAcumulado + saltoAbs)
 {-
-aplicaCurvaMelodica escala tonica curva pitchPartida
+aplicaCurvaMelodica registro escala tonica curva pitchPartida
 -}
-aplicaCurvaMelodica :: Registro -> Escala -> PitchClass -> CurvaMelodica -> Pitch -> Music
-aplicaCurvaMelodica registro escala tonica [] pitchPartida = Rest 0
-aplicaCurvaMelodica registro escala tonica ((salto,dur):pms) pitchPartida = nuevaNota :+: restoMelodia
+aplicaCurvaMelodica :: Registro -> Escala -> PitchClass -> CurvaMelodica -> Pitch -> [Music]
+aplicaCurvaMelodica registro escala tonica [] pitchPartida = [Rest 0]
+aplicaCurvaMelodica registro escala tonica ((salto,dur):pms) pitchPartida = nuevaNota : restoMelodia
                     where (p,oct)   = saltaIntervaloPitch escala tonica salto pitchPartida
                           octavaDef = if elem oct registro
                                          then oct
@@ -136,7 +134,7 @@ pitchPartida = pitch (gradoAIntAbs gradoIni + absPitch pitchDeTonicaDelAcorde)
 (tonica,_) = pitch (gradoAIntAbs grado + 0) -- 0 pq supone Do de tonica, salta desde DO a la tonica del acorde
 (pcAux, octAux) = pitch (gradoAIntAbs grado + gradoAIntAbs gradoIni + 0) --grado para saltar desde el DO (0) a la tonica del acorde, gradoIni para ir al grado que sea dentro del acorde
 -}
-hazMelodiaParaAcorde :: [Int] -> Int -> Int -> Int -> (Cifrado, Dur) -> (Music,[Int])
+hazMelodiaParaAcorde :: [Int] -> Int -> Int -> Int -> (Cifrado, Dur) -> ([Music],[Int])
 hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)
                 where escala = escalaDelAcorde acorde
                       notasYPesos = dameNotasYPesosDeEscala escala
@@ -146,7 +144,7 @@ hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado
                       (octavaDePartida,_) = dameElemAleatListaPesosFloat a2 octavasYPesos
                       (tonica,_) = pitch (gradoAIntAbs grado + 0)
                       (pcAux, octAux) = pitch (gradoAIntAbs grado + gradoAIntAbs gradoIni + 0)
-                      pitchPartida = (pcAux, octAux + octavaDePartida)
+                      pitchPartida = (pcAux, octavaDePartida)
                       (curvaAleat,restoAleat) = hazCurvaMelodicaAleat as saltoMax probSalto numNotas duracion
                       musica = aplicaCurvaMelodica registroSolista escala tonica curvaAleat pitchPartida
 
@@ -194,7 +192,7 @@ pruMelAc = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
               putStr "\n Proceso terminado satisfactoriamente\n"
               where rutaDestinoMidi = "c:/hlocal/midiMeloso.mid"
                     mensajeGenerandoMidi = "\n Generando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
-                    musica aleat = fst (hazMelodiaParaAcorde aleat 4 8 4 ((I,Maj7), 2%1))
+                    musica aleat = line (fst (hazMelodiaParaAcorde aleat 4 8 4 ((I,Maj7), 2%1)))
 
 pruMelAcArgs :: String -> Int -> Int -> Int -> Dur -> IO()
 pruMelAcArgs dirTrabajo saltoMax probSalto numNotas duracion = do setCurrentDirectory dirTrabajo
@@ -207,7 +205,7 @@ pruMelAcArgs dirTrabajo saltoMax probSalto numNotas duracion = do setCurrentDire
                                                                         rutaDestinoMidi = "./midiMeloso.mid"
                                                                         parametros = "\n\tsaltoMaximo: " ++ (show saltoMax) ++ "\n\tpeso de cambiar de direccion: " ++ (show probSalto) ++ "\n\tnumero de notas: " ++ (show numNotas) ++ "\n\tduracion de la melodia: " ++ (show duracion) ++ "\n\tfichero destino: " ++ rutaDestinoMidi
                                                                         mensajeGenerandoMidi = "\n Generando el archivo midi de parametros: " ++ parametros ++ "\n"
-                                                                        musica aleat = fst (hazMelodiaParaAcorde aleat saltoMax probSalto numNotas ((I,Maj7), duracion))
+                                                                        musica aleat = line (fst (hazMelodiaParaAcorde aleat saltoMax probSalto numNotas ((I,Maj7), duracion)))
 
 pruCurvaMelAleat :: Int -> Int -> Int -> Dur -> IO()
 pruCurvaMelAleat saltoMax probSalto numPuntos duracionTotal = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom

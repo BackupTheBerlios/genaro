@@ -219,29 +219,67 @@ numero aleatorio entre 1 y resolucionRandom. Se devuelve el elemento elegido y s
 -dameElemAleatListaPesos aleat listaParejas
 -}
 dameElemAleatListaPesos :: Int -> [(a, Int)] -> (a, Int)
-dameElemAleatListaPesos aleat listaParejas = aplicaAleat aleatNorm listaParejas 1 1
+dameElemAleatListaPesos aleat listaParejas = aplicaAleat aleatNorm listaParejas 0 1
         where listaPesos = map snd listaParejas
               sumaPesos = foldl1' (+) listaPesos
               aleatNorm = round ( fromIntegral (aleat * sumaPesos) / fromIntegral resolucionRandom)
               aplicaAleat _ ((term,peso):[]) _ posEnLista = (term, posEnLista)
-              aplicaAleat porcentaje ((term,peso):_:xs) posEnRecta posEnLista
-                  | porcentaje <= extDcho  = (term, posEnLista)
-                  | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)
-                                             where extDcho = posEnRecta + peso - 1
+              aplicaAleat porcentaje ((term,peso):y:xs) posEnRecta posEnLista
+                  | porcentaje < extDcho  && porcentaje >= posEnRecta = (term, posEnLista)
+                  | otherwise                                         = aplicaAleat porcentaje (y:xs) (posEnRecta + peso) (posEnLista + 1)
+                                                                        where extDcho = posEnRecta + peso
+
+pruDameElemAleatListaPesos :: IO ()
+pruDameElemAleatListaPesos = do putStr "Prueba de dameElemAleatListaPesos de naturales\n"
+                                putStr ("Datos de entrada " ++ (show listaParejas) ++ "\n")
+                                putStr ("Resultados obtenidos (valor, frecuencia absoluta, frecuencia relativa): \n")
+                                putStr ("\t" ++ (show estadisticasReales) ++ "\n")
+                                putStr ("Resultados esperados (valor, frecuencia relativa): \n")
+                                putStr ("\t" ++ (show estadisticasEsperadas) ++ "\n")
+                                where listaParejas = [('a',33),('b',50),('c',100),('d',50),('e',33)]
+                                      listaValores = map fst listaParejas
+                                      sumaPesos = foldl1' (+) (map snd listaParejas)
+                                      listaAleat = [1..resolucionRandom]
+                                      tamListaAleat = length listaAleat
+                                      prueba =  zip listaAleat (map (\x -> dameElemAleatListaPesos x listaParejas) listaAleat)
+                                      tamPrueba = length prueba
+                                      estadsAux = map (\valor -> (valor, length (filter (\(aleat, (valor2, pos)) -> valor2 == valor) prueba))) listaValores
+                                      estadisticasReales = map (\(val,fAbs) -> (val, fAbs, fromIntegral fAbs / fromIntegral tamPrueba)) estadsAux
+                                      estadisticasEsperadas = map (\(val,peso) -> (val,fromIntegral peso / fromIntegral sumaPesos)) listaParejas
 
 {-
 como dameElemAleatListaPesos pero con pesos de tipo Float
 -}
 dameElemAleatListaPesosFloat :: Int -> [(a, Float)] -> (a, Int)
-dameElemAleatListaPesosFloat aleat listaParejas = aplicaAleat aleatNorm listaParejas 1.0 1
+dameElemAleatListaPesosFloat aleat listaParejas = aplicaAleat aleatNorm listaParejas 0.0 1
         where listaPesos = map snd listaParejas
               sumaPesos = foldl1' (+) listaPesos
               aleatNorm = (fromIntegral aleat) * sumaPesos / (fromIntegral resolucionRandom)
               aplicaAleat _ ((term,peso):[]) _ posEnLista = (term, posEnLista)
-              aplicaAleat porcentaje ((term,peso):_:xs) posEnRecta posEnLista
-                  | porcentaje <= extDcho  = (term, posEnLista)
-                  | otherwise              = aplicaAleat porcentaje xs (posEnRecta + peso) (posEnLista + 1)
-                                             where extDcho = posEnRecta + peso - 1
+              aplicaAleat porcentaje ((term,peso):y:xs) posEnRecta posEnLista
+                  | porcentaje < extDcho && porcentaje >= posEnRecta = (term, posEnLista)
+                  | otherwise                                        = aplicaAleat porcentaje (y:xs) (posEnRecta + peso) (posEnLista + 1)
+                                                                       where extDcho = posEnRecta + peso
+
+
+pruDameElemAleatListaPesosFloat :: IO ()
+pruDameElemAleatListaPesosFloat = do putStr "Prueba de dameElemAleatListaPesosFloat\n"
+                                     putStr ("Datos de entrada " ++ (show listaParejas) ++ "\n")
+                                     putStr ("Resultados obtenidos (valor, frecuencia absoluta, frecuencia relativa): \n")
+                                     putStr ("\t" ++ (show estadisticasReales) ++ "\n")
+                                     putStr ("Resultados esperados (valor, frecuencia relativa): \n")
+                                     putStr ("\t" ++ (show estadisticasEsperadas) ++ "\n")
+                                     where listaParejas = [('a',0.33333),('b',0.5),('c',1.0),('d',0.5),('e',0.333333)]
+                                           listaValores = map fst listaParejas
+                                           sumaPesos = foldl1' (+) (map snd listaParejas)
+                                           listaAleat = [1..resolucionRandom]
+                                           tamListaAleat = length listaAleat
+                                           prueba =  zip listaAleat (map (\x -> dameElemAleatListaPesosFloat x listaParejas) listaAleat)
+                                           tamPrueba = length prueba
+                                           estadsAux = map (\valor -> (valor, length (filter (\(aleat, (valor2, pos)) -> valor2 == valor) prueba))) listaValores
+                                           estadisticasReales = map (\(val,fAbs) -> (val, fAbs, fromIntegral fAbs / fromIntegral tamPrueba)) estadsAux
+                                           estadisticasEsperadas = map (\(val,peso) -> (val, peso / sumaPesos)) listaParejas
+                                           --          estadisticas = (\(aleat, (valor, pos)) -> )
 
 {-
 

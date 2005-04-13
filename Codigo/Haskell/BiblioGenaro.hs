@@ -260,6 +260,21 @@ dameElemAleatListaPesosFloat aleat listaParejas = aplicaAleat aleatNorm listaPar
                   | otherwise                                        = aplicaAleat porcentaje (y:xs) (posEnRecta + peso) (posEnLista + 1)
                                                                        where extDcho = posEnRecta + peso
 
+{-
+como dameElemAleatListaPesos pero con pesos de tipo Float y devolviendo también la lista de entrada menos el elemento escogido
+-}
+dameElemAleatListaPesosRestoFloat :: Int -> [(a, Float)] -> (a, Int, [(a, Float)])
+dameElemAleatListaPesosRestoFloat aleat listaParejas = (elem, pos, invertir restoInv)
+        where listaPesos = map snd listaParejas
+              sumaPesos = foldl1' (+) listaPesos
+              aleatNorm = (fromIntegral aleat) * sumaPesos / (fromIntegral resolucionRandom)
+              aplicaAleat _ ((term,peso):[]) listaConsumida _ posEnLista = (term, posEnLista, listaConsumida)
+              aplicaAleat porcentaje ((term,peso):y:xs) listaConsumida posEnRecta posEnLista
+                  | porcentaje < extDcho && porcentaje >= posEnRecta = (term, posEnLista, listaConsumida ++ (y:xs))
+                  | otherwise                                        = aplicaAleat porcentaje (y:xs) ((term,peso):listaConsumida)(posEnRecta + peso) (posEnLista + 1)
+                                                                       where extDcho = posEnRecta + peso
+              (elem, pos, restoInv) = aplicaAleat aleatNorm listaParejas [] 0.0 1
+
 
 pruDameElemAleatListaPesosFloat :: IO ()
 pruDameElemAleatListaPesosFloat = do putStr "Prueba de dameElemAleatListaPesosFloat\n"
@@ -278,8 +293,23 @@ pruDameElemAleatListaPesosFloat = do putStr "Prueba de dameElemAleatListaPesosFl
                                            estadsAux = map (\valor -> (valor, length (filter (\(aleat, (valor2, pos)) -> valor2 == valor) prueba))) listaValores
                                            estadisticasReales = map (\(val,fAbs) -> (val, fAbs, fromIntegral fAbs / fromIntegral tamPrueba)) estadsAux
                                            estadisticasEsperadas = map (\(val,peso) -> (val, peso / sumaPesos)) listaParejas
-                                           --          estadisticas = (\(aleat, (valor, pos)) -> )
 
+{-
+dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
+dameSublistaAleatListaPesosFloat aleat listaPesos = (sublistaValor_Posicion, restoAleat)
+   dada una lista de elementos con un peso asociado a cada uno, devuelve una sublista de tamaño aleatorio
+   de elementos de la lista inicial elegidos segun sus pesos
+-}
+{-
+dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
+dameSublistaAleatListaPesosFloat aleat@(a1:as) listaPesos = construyeSublista as tamDestino listaPesos
+                       where tamOri = length listaPesos
+                             tamDestino = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
+                             construyeSublista a1:as n listaPesos
+                                | n > 0 =
+                                | otherwise = ([], as)
+                                               where (elem, pos, resto) = dameElemAleatListaPesosRestoFloat a1 listaPesos
+-}
 {-
 
 Devuelve True si el string de entrada representa a un entero.

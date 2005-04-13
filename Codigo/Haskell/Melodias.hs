@@ -84,9 +84,10 @@ Conceptos:
 
 -}
 hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Int -> Dur -> (CurvaMelodica, [Int])
-hazCurvaMelodicaAleat aleat@(a1:as) saltoMax probSalto numPuntos duracionTotal = hazCurvaMelodicaAleatAcu as sube saltoMax probSalto numPuntos duracionTotal 0
+hazCurvaMelodicaAleat aleat@(a1:as) saltoMax probSalto numPuntos duracionTotal = (puntoPartida:restoCurva, aleatSobran)
                                                                                  where sube = (fromIntegral a1/ fromIntegral resolucionRandom) >= 0.5
-
+                                                                                       puntoPartida = 0
+                                                                                       (restoCurva, aleatSobran) = hazCurvaMelodicaAleatAcu as sube saltoMax probSalto numPuntos duracionTotal 0
 {-
 hazCurvaMelodicaAleatAcu aleat sube saltoMax probSalto numPuntos durTotal movAcumulado = (curva, aleatSobrantes)
         .aleat         : lista infinita de numeros aleatorios entre 1 y resolucionRandom
@@ -124,7 +125,8 @@ Conceptos:
       .primero carga el ritmo en un elemento type ListaAcentos = [(Acento, Dur)]
       .rellena los huecos del ritmo con notas bastante establesESTABLES; las mas de la curva!!como?,si todo es relativo???:puedo
 pq se la tonica y la escala: !! si nos piden menos notas de las que hay en la lista de
-acentos elegir en cuales vamos a atacar y en el resto ver si las ligamos a las anteriores o si las dejamos en silencio
+acentos elegir en cuales vamos a atacar y en el resto ver si las ligamos a las anteriores o si las dejamos en silencio.ATENCION: No
+rellenar todos las huecos del ritmo con notas de la curva pq sería demasiado determinista, rellenar solamente unos cuantos (al azar)
       .si todavia nos faltan notas rellenar los espacios con notas menos estables y mas cortas
 
 -}

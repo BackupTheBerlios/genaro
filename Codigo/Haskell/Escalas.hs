@@ -186,7 +186,18 @@ pruRegistro dirTrabajo nota octavaInferior octavaSuperior = do setCurrentDirecto
                                                                      mensaje = prologo ++ argums ++ generandoMidi
                                                                      musica =  line (map (\o -> Note (nota,o) (1%2) []) [octavaInferior .. octavaSuperior])
 
-
+{-
+prueba para comprobar el numero de octavas que soporta el haskore antes de ser estridente
+pruRegistro dirTrabajo nota octavaInferior octavaSuperior
+CONCLUSIONES:
+    -solo se admiten octavas mayores o iguales a 0
+    -las octavas por encima del 10 son inaudibles, y el 10 es desagradable
+    -la octava 0 es de ultratumba
+    -Por tanto: registro = [1..9]
+                registroGrave = [1..3]
+                registroMedio = [4..6]
+                registroAgudo = [7..9]
+-}
 {-
 escribe tres midis en los que se muestran los registros grave, medio y agudo de la nota especificada
 -}

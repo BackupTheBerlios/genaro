@@ -5,59 +5,69 @@ import BiblioGenaro
 import Progresiones
 import Escalas
 import HaskoreAMidi
+import PatronesRitmicos
 import PrologAHaskell --para pruebas
 import Ratio          --para pruebas
 import Directory      --para pruebas
+import CAHaskell      --para pruebas solo??????????
 {-
 BUGS!!!!!!!!!!!!!!
-    -hazCurvaMelodicaAleatAcu:el 20 es una chunguez
-    -De vez en cuando da un error de chr out of range: sospecho que lo que ocurre es
-que me paso de octava y me salgo del numero de octavas que permite el haskore. Depurar
+    -hazCurvaMelodicaAleatAcu:el 20 es una chunguez y el 0.8 ni te cuento
+    -type PuntoMelodico = (SaltoMelodico, Dur) debería ser type PuntoMelodico = (SaltoMelodico, Dur, Acento), pq si no la melodia
+no se callará nunca. Con Acento = 0 sería callarse, lo metere con lo del ritmo
     -Hay que hacer: ritmo  y unir varios acordes
     -Ajustar los pesos por dios!!!
     -reciclar para hacer el bajo con walking = salto de 3 grados como mucho
                                                apañar ritmo para que vaya a negras o corcheas:
                                                   .que cuadre con la dur del acorde: saltos excesivos de tempo/altura para encajar
--}
-
-{-
-del modulo Progresiones:
-data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII
-             |BBII|BBIII|AUII|BIV|AUIII|AUIV|BBVI|BVI|AUVI|BVIII|AUVIII
-             |BIX|IX|BX|X|BXI|XI|AUXI|BXII|XII|AUXII|BXIII|XIII|AUXIII
-             |V7 Grado
-             |IIM7 Grado
-     deriving(Show,Eq,Ord)
-
-data Matricula = Mayor|Menor|Au|Dis|Sexta|Men6|Men7B5|Maj7|Sept|Men7|MenMaj7|Au7|Dis7
-     deriving(Enum,Read,Show,Eq,Ord,Bounded)
-
-type Cifrado = (Grado, Matricula)
-
-type Progresion = [(Cifrado, Dur)]
+   -hazMelodiaParaAcorde solo vale para curvas aleatorias. Reciclar en el futuro para que tb procese curvas escritas por el usuario,pero
+ATENCION!!!, los dur de esas curvas se suponen a un grado de abstraccion mas elevado, deberán adaptarse para el patron ritmico concreto
 -}
 {-
-del modulo Escalas:
-{-
-Una escala es una lista de grados. Todo el rato se supone implicito que el grado I corresponde a
-Do, luego ya se puede trasponer el tono fï¿½cilmente con la constructora Trans del tipo Music
--}
-type Escala = [Grado]
+--
+-- PATRON RITMICO
+--
+type Voz = Int
+type Acento = Float         -- Acento: intensidad con que se ejecuta ese tiempo. Valor de 0 a 100
+type Ligado = Bool          -- Ligado: indica si una voz de una columna esta ligada con la se la siguiente columna
+                            -- en caso de que no este dicha voz el ligado se ignora
+type URV = [(Voz, Acento, Ligado)]	-- Unidad de ritmo vertical, especifica todas las filas de una unica columna
+type URH = Dur 				-- Unidad de ritmo horizontal, especifica la duracion de una columna
+type UPR = ( URV , URH)                 -- Unidad del patron ritmico, especifica completamente toda la informacion necesaria
+                                        -- para una columna (con todas sus filas) en la matriz que representa el patron
+type AlturaPatron = Int			-- numero maximo de voces que posee el patron
+type MatrizRitmica = [UPR]              -- Una lista de columnas, vamos, como una matriz
 
+type PatronRitmico = (AlturaPatron, MatrizRitmica)
 -}
-
 {-
 Numero de grados que se mueve hacia arriba la melodia desde el punto anterior
 -}
 type SaltoMelodico = Int
 {-
-Numero de grados que se mueve hacia arriba la melodia desde el punto anterior, y duraciÃ³n de
-este punto
+Numero de grados que se mueve hacia arriba la melodia desde el punto anterior
 -}
-type PuntoMelodico = (SaltoMelodico, Dur)
+type PuntoMelodico = (SaltoMelodico)
 type CurvaMelodica = [PuntoMelodico]
+{-
+Resultado de procesar un PatronRitmico, da los acentos fuertes que se consideraran para una melodia. Para ello
+calcula la lista que tiene para cada columna de un patron ritmico la media de acentos de cada voz, y la media
+total de acento dentro de la matriz. Luego devuelve el resultado de procesar esa lista dejando con acento cero
+las columnas que tengan acento menor que la media, y dejando igual aquellas que lo tengan mayor o igual
+-}
+type ListaAcentos = [(Acento, Dur)]
+construyeListaAcentos :: PatronRitmico -> ListaAcentos
+construyeListaAcentos (numVoces, matriz) = listaAcentos
+                                    where numColumnas = length matriz
+                                          matrizVertical = map fst matriz
+                                          listaAcentoMedioCols =  [(foldl' (\suma -> \(_,ac,_) -> suma + ac ) 0 col) / fromIntegral numVoces |col <- matrizVertical]
+                                          acentoMedio = (foldl' (+) 0 listaAcentoMedioCols) / fromIntegral numColumnas
+                                          listaAcentos = zip (map (\acento -> if acento >= acentoMedio then acento else 0) listaAcentoMedioCols) (map snd matriz)
 
-
+pruListaAcentos :: String -> IO()
+pruListaAcentos ruta = do (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC ruta
+                          putStr "Lista de acentos para melodia resultado\n"
+                          print (construyeListaAcentos patronRitmico)
 {-
 dada una lista infinita de numeros enteros aleatorios entre 1 y resolucionRandom construye
 una curva melodica aleatoria segun ciertos criterios
@@ -68,6 +78,10 @@ hazCurvaMelodicaAleat aleat saltoMax probSalto numPuntos duracionTotal = (curva,
                          Debe ser del orden del numero de grados, es decir, de 1 a 12 mas o menos
         .numPuntos     : numero de puntos que tendra la curva
         .duracionTotal : duracion de la curva melodica en dur
+Conceptos:
+  -Las notas mas largas son las notas mas estables
+  -Ajustar la curva melodica al ritmo, rellenando los huecos con notas cortas de paso o de bordadura
+
 -}
 hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Int -> Dur -> (CurvaMelodica, [Int])
 hazCurvaMelodicaAleat aleat@(a1:as) saltoMax probSalto numPuntos duracionTotal = hazCurvaMelodicaAleatAcu as sube saltoMax probSalto numPuntos duracionTotal 0
@@ -88,9 +102,8 @@ hazCurvaMelodicaAleatAcu :: [Int] -> Bool -> Int -> Int -> Int -> Dur -> Int -> 
 hazCurvaMelodicaAleatAcu aleat _ _ _ 0 _ _ = ([],aleat)
 hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n durTotal movAcumulado
   | n > 0 = (nuevoPunto:restoCurva, aleatSobran)
-               where dur          = 1%4 --esta funcion solo deberia dar los pitch, el ritmo se ajusta luego
-                     salta        = (fromIntegral a1/fromIntegral resolucionRandom) <= (fromIntegral movAcumulado * fromIntegral ps/20)
-                     candsNoSalto =  map (\x -> (x,(1/ fromIntegral x))) [1..sm]
+               where salta        = (fromIntegral a1/fromIntegral resolucionRandom) <= (fromIntegral movAcumulado * fromIntegral ps/20)
+                     candsNoSalto =  map (\x -> if (x /= 0) then (x,(1/ fromIntegral x)) else (x,0.8::Float)) [0..sm]
                      candsSalto   =  map (\(val,peso)-> (val,peso + fromIntegral val* fromIntegral movAcumulado)) candsNoSalto
                      (saltoAbs,_)    = if salta
                                           then dameElemAleatListaPesosFloat a2 candsSalto
@@ -101,26 +114,57 @@ hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n durTotal movAcumulado
                      salto           = if nuevoSube
                                           then saltoAbs
                                           else (-1) * saltoAbs
-                     nuevoPunto    = (salto, dur)
+                     nuevoPunto    = salto
                      (restoCurva,aleatSobran)    = hazCurvaMelodicaAleatAcu as nuevoSube sm ps (n-1) durTotal (movAcumulado + saltoAbs)
 {-
-aplicaCurvaMelodica registro escala tonica curva pitchPartida
--}
-aplicaCurvaMelodica :: Registro -> Escala -> PitchClass -> CurvaMelodica -> Pitch -> [Music]
-aplicaCurvaMelodica registro escala tonica [] pitchPartida = [Rest 0]
-aplicaCurvaMelodica registro escala tonica ((salto,dur):pms) pitchPartida = nuevaNota : restoMelodia
-                    where (p,oct)   = saltaIntervaloPitch escala tonica salto pitchPartida
-                          octavaDef = if elem oct registro
-                                         then oct
-                                         else if oct < octavaMin
-                                                then octavaMin --caso de octava mas baja que el registro
-                                                else octavaMax --caso de octava mas alta que el registro
-                                                   where octavaMin = dameMinimizador id registro
-                                                         octavaMax = dameMinimizador (*(-1)) registro
-                          nuevoPitch = (p,octavaDef)
-                          nuevaNota    = Note nuevoPitch dur []
-                          restoMelodia = aplicaCurvaMelodica registro escala tonica pms nuevoPitch
+aplicaCurvaMelodica
+Conceptos:
+  -Las notas mas largas son las notas mas estables
+  -Ajustar la curva melodica al ritmo, rellenando los huecos con notas cortas de paso o de bordadura, para ello
+      .primero carga el ritmo en un elemento type ListaAcentos = [(Acento, Dur)]
+      .rellena los huecos del ritmo con notas bastante establesESTABLES; las mas de la curva!!como?,si todo es relativo???:puedo
+pq se la tonica y la escala: !! si nos piden menos notas de las que hay en la lista de
+acentos elegir en cuales vamos a atacar y en el resto ver si las ligamos a las anteriores o si las dejamos en silencio
+      .si todavia nos faltan notas rellenar los espacios con notas menos estables y mas cortas
 
+-}
+{-
+aplicaCurvaMelodica :: PatronRitmico -> Registro -> Escala -> PitchClass -> Pitch -> CurvaMelodica ->  [Music]
+--aplicaCurvaMelodica patronRit registro escala tonica pitchPartida [] = [Rest 0]
+aplicaCurvaMelodica patronRit registro escala tonica pitchPartida curva =
+                    where acentos = construyeListaAcentos patronRit
+-}
+--type ListaAcentos = [(Acento, Dur)]
+{-
+      .rellena los huecos del ritmo con notas bastante establesESTABLES; las mas de la curva!!como?,si todo es relativo???:puedo
+pq se la tonica y la escala: !! si nos piden menos notas de las que hay en la lista de
+acentos elegir en cuales vamos a atacar y en el resto ver si las ligamos a las anteriores o si las dejamos en silencio
+     . la curva sin consumir representada de forma que no se pierda la posicion relativa de los puntos de la curva, como la curva
+de entrada pero con menos densidad
+
+aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
+aplicaCurvaMelodicaAListaAcentos listaAleat registro escala tonica pitchPartida listaAcentos CurvaMelodica = ((musica,curvaSinConsumir), restoAleat)
+-}
+type CurvaMelodicaEspacios = [Maybe PuntoMelodico]
+curvaMelodicaAGradosPicth :: Registro -> Escala -> PitchClass -> CurvaMelodica -> Pitch -> [(Grado,Pitch)]
+curvaMelodicaAGradosPicth registro escala tonica [] pitchPartida = []
+curvaMelodicaAGradosPicth registro escala tonica (salto:pms) pitchPartida = (nuevoGrado,nuevoPitch) : restoMelodia
+                    where (p,oct)   = saltaIntervaloPitch escala tonica salto pitchPartida
+                          octavaDef = ajustaOctava registro oct
+                          nuevoPitch = (p,octavaDef)
+                          nuevoGrado = dameIntervaloPitch tonica nuevoPitch
+                          restoMelodia = curvaMelodicaAGradosPicth registro escala tonica pms nuevoPitch
+{-
+Devuelve el resultado de truncar la octava suministrada para que se ajuste al registro especificado
+-}
+ajustaOctava :: Registro -> Octave -> Octave
+ajustaOctava registro oct = if elem oct registro
+                               then oct
+                               else if oct < octavaMin
+                                    then octavaMin --caso de octava mas baja que el registro
+                                    else octavaMax --caso de octava mas alta que el registro
+                                         where octavaMin = dameMinimizador id registro
+                                               octavaMax = dameMinimizador (*(-1)) registro
 {-
 supone siempre que la tonica es Do
 -}
@@ -135,7 +179,8 @@ pitchPartida = pitch (gradoAIntAbs gradoIni + absPitch pitchDeTonicaDelAcorde)
 (pcAux, octAux) = pitch (gradoAIntAbs grado + gradoAIntAbs gradoIni + 0) --grado para saltar desde el DO (0) a la tonica del acorde, gradoIni para ir al grado que sea dentro del acorde
 -}
 hazMelodiaParaAcorde :: [Int] -> Int -> Int -> Int -> (Cifrado, Dur) -> ([Music],[Int])
-hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)
+hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado,matricula), duracion) = ([Rest 0], aleat)
+{-hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)
                 where escala = escalaDelAcorde acorde
                       notasYPesos = dameNotasYPesosDeEscala escala
                       (gradoIni,_) = dameElemAleatListaPesos a1 notasYPesos
@@ -147,7 +192,7 @@ hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado
                       pitchPartida = (pcAux, octavaDePartida)
                       (curvaAleat,restoAleat) = hazCurvaMelodicaAleat as saltoMax probSalto numNotas duracion
                       musica = aplicaCurvaMelodica registroSolista escala tonica curvaAleat pitchPartida
-
+-}
 {-
 saltaIntervaloGrado escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
 tantos grados como num, sin contar desde gradoPartida. Por ejemplo:
@@ -209,20 +254,18 @@ pruMelAcArgs dirTrabajo saltoMax probSalto numNotas duracion = do setCurrentDire
 
 pruCurvaMelAleat :: Int -> Int -> Int -> Dur -> IO()
 pruCurvaMelAleat saltoMax probSalto numPuntos duracionTotal = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                                                 print (fst (hazCurvaMelodicaAleat aleat saltoMax probSalto numPuntos duracionTotal))
-{-
-prueba para comprobar el numero de octavas que soporta el haskore antes de ser estridente
-pruRegistro dirTrabajo nota octavaInferior octavaSuperior
-CONCLUSIONES:
-    -solo se admiten octavas mayores o iguales a 0
-    -las octavas por encima del 10 son inuadibles, y el 10 es desagradable
-    -la octava 0 es de ultratumba
-    -Por tanto: registro = [1..9]
-                registroGrave = [1..3]
-                registroMedio = [4..6]
-                registroAgudo = [7..9]
+                                                                 --print (salidaFormat aleat)
+                                                                 print (zip (curvaMelodica aleat) (listaGradosPitch aleat))
+                                                                 where curvaMelodica aleat = fst (hazCurvaMelodicaAleat aleat saltoMax probSalto numPuntos duracionTotal)
+                                                                       listaGradosPitch aleat = curvaMelodicaAGradosPicth registroSolista Jonica C (curvaMelodica aleat) (C,5)
+                                                                     --  salida aleat = zip (curvaMelodica aleat) (listaGradosPitch aleat)
+                                                                     -- salidaFormat aleat = zip (salida aleat) ['\n' | x<- [1..(length (salida aleat))]]
 
--}
-
+pruFallo :: String -> Int -> IO()
+pruFallo dirTrabajo num
+  | num > 0   = do putStr ("\n\nFaltan " ++ (show num) ++" pruebas\n\n")
+                   pruMelAcArgs dirTrabajo 5 10 10 (5%1)
+                   pruFallo dirTrabajo (num - 1)
+  | otherwise = do putStr "\n\nNo ha fallado, fin\n\n"
 --haskoreAMidi :: Music -> String -> IO()
 --hazMelodiaParaAcorde aleat@(a1:as) saltoMax numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)

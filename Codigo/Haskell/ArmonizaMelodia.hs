@@ -21,8 +21,34 @@ type NotaPrincipal = (PitchClass, Dur)
 type DurMin = Dur   -- Todas las notas mayores o iguales a esa duracion se consideran como notas principales
 type DurMaxA = Dur  -- Los acordes que produce tienen como duracion maxima DUrMaxA
 
+------- OPCIONES DE ARMONIZACION ---------------
 
------------------------------- FUNCIONES COMUNES ----------------------------
+-- Todos los parametros juntos
+type TipoArmonizacion = (ModoAcordes, TipoNotasPrincipales, TipoAsignaAcordes)
+
+
+-- Los acordes que usa
+data ModoAcordes = Triadas            -- Solo usa triadas para las notas diatonicas
+                 | TriadasYCuatriadas -- Usa todos los acordes
+     deriving (Eq, Ord, Enum)
+
+-- Como encuentra las notas principales o notas del acorde
+data TipoNotasPrincipales = SoloNotasLargas DurMin  -- Usa solamente las notas largas (mayores de DurMin) como notas principales
+                          | MasRefinado DurMin      -- Es el metodo que usa Enric Herrera en la pagina 72
+     deriving (Eq, Ord)
+
+-- Como asigna los acordes a las notas principales
+data TipoAsignaAcordes = UnoPorNotaPrinc         -- A cada nota principal le asigna un acorde
+                       | MasLargoPosible DurMaxA -- Asigna acordes a series de notas tan largos como sea posible sin que exceda de DurMaxA
+
+------------- FUNCIONES GENERALES --------------------------------
+
+armonizaMusicSecuencial :: RandomGen g => g -> TipoArmonizacion -> Music -> Progresion
+armonizaMusicSecuencial gen (ma, tnp, taa) music = progresion
+         where melodia    = deHaskoreSecuencialAMelodia music;
+               notasPrinc = deMelodiaANotasPrincipales tnp melodia;
+               progresion = armonizaNotasPrincipales gen taa ma notasPrinc 
+
 
 {-
 Dado un tipo Music secuencia devuelve una lista de notas y silencios
@@ -33,17 +59,13 @@ deHaskoreSecuencialAMelodia (Rest d)     = [ Silencio d ]
 deHaskoreSecuencialAMelodia (m1:+:m2)    = deHaskoreSecuencialAMelodia m1 ++ deHaskoreSecuencialAMelodia m2
 deHaskoreSecuencialAMelodia _            = error "No es un Music solo secuencial"
 
-{-
-Acordes cuatriadas diatonicos de la escala
--}
-acordesDiatonicosCuatriadas :: [Cifrado]               
-acordesDiatonicosCuatriadas = [ (I,   Maj7),
-                                (II,  Men7), 
-                                (III, Men7), 
-                                (IV,  Maj7), 
-                                (V,   Sept), 
-                                (VI,  Men7), 
-                                (VII, Men7B5) ]
+
+
+
+
+
+------------- TODOS LOS CIFRADOS QUE VAMOS A USAR ----------------
+
 
 {-
 Acordes triadas diatonicos de la escala
@@ -56,6 +78,18 @@ acordesDiatonicosTriadas = [ (I,   Mayor),
                              (V,   Mayor), 
                              (VI,  Menor), 
                              (VII, Dis  ) ]
+
+{-
+Acordes cuatriadas diatonicos de la escala
+-}
+acordesDiatonicosCuatriadas :: [Cifrado]               
+acordesDiatonicosCuatriadas = [ (I,   Maj7),
+                                (II,  Men7), 
+                                (III, Men7), 
+                                (IV,  Maj7), 
+                                (V,   Sept), 
+                                (VI,  Men7), 
+                                (VII, Men7B5) ]
 
 {-
 Dominantes secundarios de la escala. NOTA: el quinto grado del primero es un acorde diatonico y no se si ponerlo
@@ -80,12 +114,12 @@ acordesSegundosRelativos = [ (IIM7 (V7 I),   Men7),
                              (IIM7 (V7 VI),  Men7), 
                              (IIM7 (V7 VII), Men7) ]
 
-
 {-
 Union de los acordes cuatriadas y triadas diatonicos
 -}
 acordesDiatonicos :: [Cifrado]
 acordesDiatonicos = acordesDiatonicosTriadas ++ acordesDiatonicosCuatriadas
+
 
 {-
 Todos los acordes cromaticos
@@ -93,32 +127,25 @@ Todos los acordes cromaticos
 acordesCromaticos :: [Cifrado]
 acordesCromaticos = acordesDominantesSecundarios ++ acordesDominantesSecundarios 
 
-{-
-Armoniza una lista de notas principales por separado
--}
-armonizaNotasPrincipales :: RandomGen g => g -> [NotaPrincipal] -> Progresion
-armonizaNotasPrincipales gen [] = []
-armonizaNotasPrincipales gen (notaP : resto) = cifradoYDur : armonizaNotasPrincipales sigGen resto
-           where (cifradoYDur, sigGen) = armonizaNotaPrincipal gen notaP
 
-{-
-Para cada nota principal busca todos los cifrados diatonicos que contengan a esa nota.
-Luego elije uno al azar
--}
-armonizaNotaPrincipal :: RandomGen g => g -> NotaPrincipal -> ((Cifrado, Dur), g)
-armonizaNotaPrincipal gen (notaP, dur) = ((cifradoAleatorio, dur), sigGen)
-           where cifradosCandidatos = buscaCifradosCandidatosDeCMayor notaP
-                 (cifradoAleatorio , sigGen )= elementoAleatorio gen cifradosCandidatos 
+------------ ENCONTRAR ACORDES CANDIDATOS -----------------
 
 
 {-
 Busca todos los cifrados que posean a ese PitchClass de la lista dada
 -}
-buscaCifradosCandidatosDeCMayor :: PitchClass -> [Cifrado]
-buscaCifradosCandidatosDeCMayor pc
+buscaCifradosCandidatosDeCMayor :: ModoAcordes -> PitchClass -> [Cifrado]
+buscaCifradosCandidatosDeCMayor Triadas pc
+      | elem pc [C,D,E,F,G,A,B] = buscaCifradosCandidatos pc acordesDiatonicosTriadas 
+      | otherwise               = buscaCifradosCandidatos pc acordesCromaticos
+buscaCifradosCandidatosDeCMayor TriadasYCuatriadas pc
       | elem pc [C,D,E,F,G,A,B] = buscaCifradosCandidatos pc acordesDiatonicos 
       | otherwise               = buscaCifradosCandidatos pc acordesCromaticos
 
+
+{-
+Dado una nota y una lista de acordes devuelve la lista de acordes que poseen una nota comun con dicha nota
+-}
 buscaCifradosCandidatos :: PitchClass -> [Cifrado] -> [Cifrado]
 buscaCifradosCandidatos notaP cifrados = filter (esCandidato notaP) cifrados
 
@@ -134,22 +161,13 @@ esCandidato notaP cifrado = numNotaP `elem` listaNumCifrado
                listaNumCifrado = map ((`mod` 12).pitchClass) (traduceCifrado cifrado) 
 
 
------------------------------------------------------------------------------
+---------------- ELECCION DE NOTAS PRINCIPALES -----------------------
 
 
------------------------------ PRIMERA FORMA DE HACERLO ----------------------
--- Solo armonizamos las notas de larga duracion
+deMelodiaANotasPrincipales :: TipoNotasPrincipales -> Melodia -> [NotaPrincipal]
+deMelodiaANotasPrincipales (SoloNotasLargas durMin) = deMelodiaANotasPrincipales1 durMin
+deMelodiaANotasPrincipales (MasRefinado durMin)     = deMelodiaANotasPrincipales3 durMin
 
-{-
-Funcion principal de este modulo.
-Dada un tipo Music secuencia devuelve una progresion que es una armonizacion de ese Music
-CUIDADO: si la melodia no contiene notas principales devuelve lista vacia
--}
-armonizaMelodia1 :: RandomGen g => g -> DurMin -> Music -> Progresion
-armonizaMelodia1 gen durMin m = progresion
-        where melodia = deHaskoreSecuencialAMelodia m;
-              notasPrinc = deMelodiaANotasPrincipales1 durMin melodia;
-              progresion = armonizaNotasPrincipales gen notasPrinc
 
 
 {-
@@ -177,11 +195,10 @@ deMelodiaANotasPrincipales1Rec durMin ultNotaP durAcumulada ( (Nota (pc, o) d) :
 
 
 
----------------------- OTRA FORMA DE SACAR NOTAS PRINCIPALES -----------------------------
-
 -- Bool indica si la nota es principal o no
 deMelodiaANotasPrincipales3 :: DurMin -> Melodia -> [NotaPrincipal]
 deMelodiaANotasPrincipales3 durMin melodia = reverse (drop 1 (deMelodiaANotasPrincipales3Rec durMin (C,0%1) (0%1) (reverse (catalogaNotasPrincipales3 durMin melodia)) ))
+
 
 
 -- NOTA: MIRAR EN ENCAJE DE PATRONES DE LOS CASOS
@@ -212,7 +229,6 @@ catalogaNotasPrincipales3 durMin (Silencio d : resto) = (Silencio d, False) : ca
 
 
 
-
 {-
 Se retrasaba la colocacion del elemento que sabemos que va ahi. Eso es solo para el caso en que comience con nota secundaria
 o silencio
@@ -223,6 +239,135 @@ deMelodiaANotasPrincipales3Rec durMin ultNotaP durAcumulada ( (Silencio d, _) : 
 deMelodiaANotasPrincipales3Rec durMin ultNotaP durAcumulada ( (Nota (pc, o) d, b) : resto ) 
        | b == True  =  ultNotaP : deMelodiaANotasPrincipales3Rec durMin (pc, d + durAcumulada) (0%1) resto
        | b == False =  deMelodiaANotasPrincipales3Rec durMin ultNotaP (d + durAcumulada) resto
+
+
+---------------------- ARMONIZACION -----------------------------
+
+
+{-
+-}
+armonizaNotasPrincipales :: RandomGen g => g -> TipoAsignaAcordes -> ModoAcordes -> [NotaPrincipal] -> Progresion
+armonizaNotasPrincipales gen UnoPorNotaPrinc ma lnp           = armonizaNotasPrincipales1 gen ma lnp
+armonizaNotasPrincipales gen (MasLargoPosible durMaxA) ma lnp = armonizaNotasPrincipales3 gen ma durMaxA lnp
+
+
+
+{-
+Armoniza una lista de notas principales por separado
+-}
+armonizaNotasPrincipales1 :: RandomGen g => g -> ModoAcordes -> [NotaPrincipal] -> Progresion
+armonizaNotasPrincipales1 _   _  [] = []
+armonizaNotasPrincipales1 gen ma (notaP : resto) = cifradoYDur : armonizaNotasPrincipales1 sigGen ma resto
+           where (cifradoYDur, sigGen) = armonizaNotaPrincipal1 gen ma notaP
+
+{-
+Para cada nota principal busca todos los cifrados diatonicos que contengan a esa nota.
+Luego elije uno al azar
+-}
+armonizaNotaPrincipal1 :: RandomGen g => g -> ModoAcordes -> NotaPrincipal -> ((Cifrado, Dur), g)
+armonizaNotaPrincipal1 gen ma (notaP, dur) = ((cifradoAleatorio, dur), sigGen)
+           where cifradosCandidatos = buscaCifradosCandidatosDeCMayor ma notaP
+                 (cifradoAleatorio , sigGen )= elementoAleatorio gen cifradosCandidatos 
+
+
+
+
+type CifradosCandidatos = [Cifrado]
+type DurAcordeAcumulado = Dur
+
+{-
+Armoniza una lista de notas principales por el metodo 3
+-}
+armonizaNotasPrincipales3 :: RandomGen g => g -> ModoAcordes -> DurMaxA -> [NotaPrincipal] -> Progresion
+armonizaNotasPrincipales3 _  _ durMaxA [] = []
+armonizaNotasPrincipales3 gen ma durMaxA ( (pc, d) : resto)
+        | d == durMaxA  =  (cifradoAleatorio, d ) : armonizaNotasPrincipales3 newGen ma durMaxA resto   -- Correcto
+        | d >  durMaxA  =  (cifradoAleatorio, durMaxA ) : armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d - durMaxA) : resto)   --Suponemos que la nota pertenece a varios acordes  CORRECTO
+        | d <  durMaxA  =  armonizaNotasPrincipales3' gen ma durMaxA cifradosCandidatos d resto  -- CORRECTO
+        where cifradosCandidatos = buscaCifradosCandidatosDeCMayor ma pc;
+              (cifradoAleatorio, newGen) = elementoAleatorio gen cifradosCandidatos 
+
+
+-- Igual que la funcion anterior pero llevamos anclado una lista de acordes candidatos y su duracion
+-- NOTA: EL CASO DE newCifCan /= []  ES EL MISMO PARA TODOS PERO POR SIMPLICIDAD LO ESCRIBO A PARTE
+armonizaNotasPrincipales3' :: RandomGen g => g -> ModoAcordes -> DurMaxA -> CifradosCandidatos -> DurAcordeAcumulado -> [NotaPrincipal] -> Progresion
+
+armonizaNotasPrincipales3' gen ma durMaxA cifCan durA [] = [(cifAlea, durA)]  -- CORRECTO
+        where (cifAlea, newGen) = elementoAleatorio gen cifCan 
+
+armonizaNotasPrincipales3' gen ma durMaxA cifCan durA ( (pc, d) : resto) 
+        | durA == durMaxA                        = (cifAlea , durMaxA) : armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d) : resto )  -- CORRECTO
+        | durA + d == durMaxA && newCifCan /= [] = ( newCifAlea , d + durA) : armonizaNotasPrincipales3 newGen2 ma durMaxA resto          -- CORRECTO
+        | durA + d == durMaxA && newCifCan == [] = ( cifAlea , durA) : armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d) : resto)     -- CORRECTO
+        | durA + d <  durMaxA && newCifCan /= [] = armonizaNotasPrincipales3' gen ma durMaxA newCifCan (durA + d) resto                   -- CORRECTO
+        | durA + d <  durMaxA && newCifCan == [] = ( cifAlea , durA) : armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d) : resto)     -- CORRECTO
+        | durA + d >  durMaxA && newCifCan /= [] = ( newCifAlea , durMaxA) : armonizaNotasPrincipales3 newGen2 ma durMaxA ( (pc, d - durMaxA + durA) : resto) -- CORRECTO , pasamos el cacho de la nota que no cabe al siguiente acorde
+        | durA + d >  durMaxA && newCifCan == [] = ( cifAlea , durA) : armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d) : resto)     -- CORRECTO
+        where newCifCan = eliminaCifradosNoValidos cifCan (buscaCifradosCandidatosDeCMayor ma pc);
+              (cifAlea, newGen) = elementoAleatorio gen cifCan;
+              (newCifAlea, newGen2) = elementoAleatorio gen newCifCan;
+
+
+
+eliminaCifradosNoValidos :: [Cifrado] -> [Cifrado] -> [Cifrado]
+eliminaCifradosNoValidos = intersect
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+------------------------------ FUNCIONES COMUNES ----------------------------
+
+
+
+
+
+
+
+
+
+
+-----------------------------------------------------------------------------
+
+
+----------------------------- PRIMERA FORMA DE HACERLO ----------------------
+-- Solo armonizamos las notas de larga duracion
+
+{-
+Funcion principal de este modulo.
+Dada un tipo Music secuencia devuelve una progresion que es una armonizacion de ese Music
+CUIDADO: si la melodia no contiene notas principales devuelve lista vacia
+-}
+{-
+armonizaMelodia1 :: RandomGen g => g -> DurMin -> Music -> Progresion
+armonizaMelodia1 gen durMin m = progresion
+        where melodia = deHaskoreSecuencialAMelodia m;
+              notasPrinc = deMelodiaANotasPrincipales1 durMin melodia;
+              progresion = armonizaNotasPrincipales gen notasPrinc
+-}
+
+
+
+
+
+
+---------------------- OTRA FORMA DE SACAR NOTAS PRINCIPALES -----------------------------
+
+
+
+
 
 
 type Resolucion = Int -- resolucion , es decir, duracion de la nota que consideremos (4 es negra, 2 blanca, etc.)
@@ -244,46 +389,6 @@ esTiempoFuerte du r = (newN , newD)
 
 
 
-type CifradosCandidatos = [Cifrado]
-type DurAcordeAcumulado = Dur
-
-{-
-Armoniza una lista de notas principales por el metodo 3
--}
-armonizaNotasPrincipales3 :: RandomGen g => g -> DurMaxA -> [NotaPrincipal] -> Progresion
-armonizaNotasPrincipales3 gen durMaxA [] = []
-armonizaNotasPrincipales3 gen durMaxA ( (pc, d) : resto)
-        | d == durMaxA  =  (cifradoAleatorio, d ) : armonizaNotasPrincipales3 newGen durMaxA resto   -- Correcto
-        | d >  durMaxA  =  (cifradoAleatorio, durMaxA ) : armonizaNotasPrincipales3 newGen durMaxA ( (pc, d - durMaxA) : resto)   --Suponemos que la nota pertenece a varios acordes  CORRECTO
-        | d <  durMaxA  =  armonizaNotasPrincipales3' gen durMaxA cifradosCandidatos d resto  -- CORRECTO
-        where cifradosCandidatos = buscaCifradosCandidatosDeCMayor pc;
-              (cifradoAleatorio, newGen) = elementoAleatorio gen cifradosCandidatos 
-
-
--- Igual que la funcion anterior pero llevamos anclado una lista de acordes candidatos y su duracion
--- NOTA: EL CASO DE newCifCan /= []  ES EL MISMO PARA TODOS PERO POR SIMPLICIDAD LO ESCRIBO A PARTE
-armonizaNotasPrincipales3' :: RandomGen g => g -> DurMaxA -> CifradosCandidatos -> DurAcordeAcumulado -> [NotaPrincipal] -> Progresion
-
-armonizaNotasPrincipales3' gen durMaxA cifCan durA [] = [(cifAlea, durA)]  -- CORRECTO
-        where (cifAlea, newGen) = elementoAleatorio gen cifCan 
-
-armonizaNotasPrincipales3' gen durMaxA cifCan durA ( (pc, d) : resto) 
-        | durA == durMaxA                        = (cifAlea , durMaxA) : armonizaNotasPrincipales3 newGen durMaxA ( (pc, d) : resto )  -- CORRECTO
-        | durA + d == durMaxA && newCifCan /= [] = ( newCifAlea , d + durA) : armonizaNotasPrincipales3 newGen2 durMaxA resto          -- CORRECTO
-        | durA + d == durMaxA && newCifCan == [] = ( cifAlea , durA) : armonizaNotasPrincipales3 newGen durMaxA ( (pc, d) : resto)     -- CORRECTO
-        | durA + d <  durMaxA && newCifCan /= [] = armonizaNotasPrincipales3' gen durMaxA newCifCan (durA + d) resto                   -- CORRECTO
-        | durA + d <  durMaxA && newCifCan == [] = ( cifAlea , durA) : armonizaNotasPrincipales3 newGen durMaxA ( (pc, d) : resto)     -- CORRECTO
-        | durA + d >  durMaxA && newCifCan /= [] = ( newCifAlea , durMaxA) : armonizaNotasPrincipales3 newGen2 durMaxA ( (pc, d - durMaxA + durA) : resto) -- CORRECTO , pasamos el cacho de la nota que no cabe al siguiente acorde
-        | durA + d >  durMaxA && newCifCan == [] = ( cifAlea , durA) : armonizaNotasPrincipales3 newGen durMaxA ( (pc, d) : resto)     -- CORRECTO
-        where newCifCan = eliminaCifradosNoValidos cifCan (buscaCifradosCandidatosDeCMayor pc);
-              (cifAlea, newGen) = elementoAleatorio gen cifCan;
-              (newCifAlea, newGen2) = elementoAleatorio gen newCifCan;
-
-
-
-eliminaCifradosNoValidos :: [Cifrado] -> [Cifrado] -> [Cifrado]
-eliminaCifradosNoValidos = intersect
-
 {-
 es tiempo fuerte en compas binario. El parametro Dur es el tiempo del compas que se quiere evaluar. Incluye tanto
 la duracion de las canciones anteriores como la duracion del tiempo actual
@@ -291,17 +396,17 @@ la duracion de las canciones anteriores como la duracion del tiempo actual
 --esTiempoFuerte :: (Int, Int) -> Bool
 --esTiempoFuerte (a,b) = odd a
 
-
+{-
 armonizaMelodia3 :: RandomGen g => g -> DurMin -> DurMaxA -> Music -> Progresion
 armonizaMelodia3 gen durMin durMaxA m = progresion
         where melodia = deHaskoreSecuencialAMelodia m;
               notasPrinc = deMelodiaANotasPrincipales3 durMin melodia;
               progresion = armonizaNotasPrincipales3 gen durMaxA notasPrinc
-
+-}
 
 ----- PRUEBAS ----------
 
-
+{-
 melodiaEj :: Music
 melodiaEj  = Note (C,5) (3%8) [] :+:
              Note (D,5) (1%8) [] :+:
@@ -374,11 +479,49 @@ melodiaBach = Rest (1%8) :+:
               Note (D,5) (1%8) [] :+:
               Note (E,5) (1%8) []
 
+-}
 
 
+melodiaEj1 :: Music
+melodiaEj1 =  suma (-5) (
+              Rest (3%4) :+:
+              Note (C,4) (1%4) [] :+:
+              Note (F,4) (3%8) [] :+:
+              Note (E,4) (1%8) [] :+:
+              Note (F,4) (1%4) [] :+:
+              Note (A,4) (1%4) [] :+:
+              Note (G,4) (3%8) [] :+:
+              Note (F,4) (1%8) [] :+:
+              Note (G,4) (1%4) [] :+:
+              Note (A,4) (1%4) [] :+:
+              Note (F,4) (3%8) [] :+:
+              Note (F,4) (1%8) [] :+:
+              Note (A,4) (1%4) [] :+:
+              Note (C,5) (1%4) [] :+:
+              Note (D,5) (3%4) [] :+:
+              Note (D,5) (1%4) [] :+:
+              Note (C,5) (3%8) [] :+:
+              Note (A,4) (1%8) [] :+:
+              Note (A,4) (1%4) [] :+:
+              Note (F,4) (1%4) [] :+:
+              Note (G,4) (3%8) [] :+:
+              Note (F,4) (1%8) [] :+:
+              Note (G,4) (1%4) [] :+:
+              Note (A,4) (1%4) []
+              )
 
-
-
+{-BORRAME: SOY FUNCION REPETIDA-}
+suma :: Int -> Music -> Music
+suma t (Note p dur l)  = Note pNueva dur l
+	where pNueva = pitch (absPitch p + t)
+suma t (Rest dur)      = Rest dur
+suma t (m1 :+: m2)     = (suma t m1) :+: (suma t m2)
+suma t (m1 :=: m2)     = (suma t m1) :=: (suma t m2)
+suma t (Tempo d m)     = Tempo d (suma t m)
+suma t (Trans t2 m)    = (suma (t+t2) m)
+suma t (Instr i m)     = Instr i (suma t m)
+suma t (Player pl m)   = Player pl (suma t m)
+suma t (Phrase l m)    = Phrase l (suma t m)
 
 
 

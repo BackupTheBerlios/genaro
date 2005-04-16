@@ -1,0 +1,3 @@
+Secuencia de cifrados :[((I,Mayor),2 % 1),((II,Menor),3 % 4),((I,Mayor),5 % 4),((II,Menor),1 % 1),((I,Mayor),1 % 1),((V,Mayor),3 % 4),((VI,Menor),1 % 4)]  
+
+patron ritmico: arpegio descendente de de cuatro notas

@@ -163,15 +163,36 @@ esCandidato notaP cifrado = numNotaP `elem` listaNumCifrado
 
 ---------------- ELECCION DE NOTAS PRINCIPALES -----------------------
 
-
+{-
+Para evitar que no devuelva una lista de notas principales vacia hacemos un retoque para que
+devuelva aunque solo sea una, que elegimos como la primera.
+-}
 deMelodiaANotasPrincipales :: TipoNotasPrincipales -> Melodia -> [NotaPrincipal]
-deMelodiaANotasPrincipales (SoloNotasLargas durMin) = deMelodiaANotasPrincipales1 durMin
-deMelodiaANotasPrincipales (MasRefinado durMin)     = deMelodiaANotasPrincipales3 durMin
+deMelodiaANotasPrincipales (SoloNotasLargas durMin) melodia
+       | notasP1 == []  = [primeraNota melodia]
+       | otherwise      = notasP1
+         where notasP1 = deMelodiaANotasPrincipales1 durMin melodia
+deMelodiaANotasPrincipales (MasRefinado durMin) melodia 
+       | notasP2 == []  = [primeraNota melodia]
+       | otherwise      = notasP2
+         where notasP2 = deMelodiaANotasPrincipales3 durMin melodia
 
+primeraNota :: Melodia -> NotaPrincipal
+primeraNota melodia = primeraNotaRec (0%1) melodia
+
+primeraNotaRec :: Dur -> Melodia -> NotaPrincipal
+primeraNotaRec d (Nota (pc, o) dn : resto) = (pc, d + dn + duracionMelodia resto) -- caso en que hemos encontrado la primera nota
+primeraNotaRec d [] = (C,d)                                -- Caso en que no hay ninguna nota en la melodia por ser todos silencios o ser lista vacia
+primeraNotaRec d (Silencio ds : resto) = primeraNotaRec (d + ds) resto -- caso en que nos saltamos el silencio
+
+duracionMelodia :: Melodia -> Dur
+duracionMelodia []                        = (0%1)
+duracionMelodia (Nota (_ , _) dn : resto) = dn + duracionMelodia resto
+duracionMelodia (Silencio ds : resto)     = ds + duracionMelodia resto
 
 
 {-
-pasa de una melodia a sus notas principales. Consideramos notas principales aquellas que poseen una duracion mayor
+Pasa de una melodia a sus notas principales. Consideramos notas principales aquellas que poseen una duracion mayor
 o igual a la duracion 'DurMin' pasada como parametro. La duracion de las notas secundarias y los silencios se pasa
 a la nota principal mas cercana a su izquierda. En caso de que no la hubiera (porque pueda ser el principio de la otra 
 como, por ejemplo, que empiece en silencio) pasaria a la nota de la derecha. De esa forma la duracion de la progresion
@@ -197,35 +218,60 @@ deMelodiaANotasPrincipales1Rec durMin ultNotaP durAcumulada ( (Nota (pc, o) d) :
 
 -- Bool indica si la nota es principal o no
 deMelodiaANotasPrincipales3 :: DurMin -> Melodia -> [NotaPrincipal]
-deMelodiaANotasPrincipales3 durMin melodia = reverse (drop 1 (deMelodiaANotasPrincipales3Rec durMin (C,0%1) (0%1) (reverse (catalogaNotasPrincipales3 durMin melodia)) ))
+deMelodiaANotasPrincipales3 durMin melodia = reverse (drop 1 (deMelodiaANotasPrincipales3Rec durMin (C,0%1) (0%1) (reverse (catalogaNotasPrincipales3 (0%1) durMin melodia)) ))
 
 
+type DurAnt = Dur -- duracion de todas las notas anteriores, es decir, duracion de la cancion anterior
 
 -- NOTA: MIRAR EN ENCAJE DE PATRONES DE LOS CASOS
 {-
 Dada una melodia en forma de notas y silencios pone una etiqueta a cada nota indicando si hay que considerarla 
 como principal o no
 -}
-catalogaNotasPrincipales3 :: DurMin -> Melodia -> [(HaskoreSimple, Bool)]
-catalogaNotasPrincipales3 _ [] = []
+catalogaNotasPrincipales3 :: DurAnt -> DurMin -> Melodia -> [(HaskoreSimple, Bool)]
+catalogaNotasPrincipales3 _ _ [] = []
 
-catalogaNotasPrincipales3 durMin (Nota (pc, o) d : resto )     -- Si es una nota de larga duracion
-       | d >= durMin = ( Nota (pc, o) d, True ) : catalogaNotasPrincipales3 durMin resto
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc, o) d : resto )     -- Si es una nota de larga duracion
+       | d >= durMin = ( Nota (pc, o) d, True ) : catalogaNotasPrincipales3 (durAnt+d) durMin resto
 
-catalogaNotasPrincipales3 durMin (Nota (pc, o) d1 : Silencio d2 : resto)  -- Una nota seguida de un silencio de al menos su valor
-       | d2 >= d1  = ( Nota (pc, o) d1, True ) : ( Silencio d2 , False) : catalogaNotasPrincipales3 durMin resto
---     | otherwise = ( Nota (pc, o) d1, False ) : ( Silencio d2 , False) : catalogaNotasPrincipales3 durMin resto
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc, o) d1 : Silencio d2 : resto)  -- Una nota seguida de un silencio de al menos su valor
+       | d2 >= d1  = ( Nota (pc, o) d1, True ) : ( Silencio d2 , False) : catalogaNotasPrincipales3 (durAnt+d1+d2) durMin resto
 
-catalogaNotasPrincipales3 durMin (Nota (pc1, o1) d1 : Nota (pc2, o2) d2 : resto)  -- Una nota seguida otra con un salto. Suponemos salto una distancia de mas estricto de un tono
-       | abs (pitchClass pc1 - pitchClass pc2) > 2 = ( Nota (pc1, o1) d1, True ) : catalogaNotasPrincipales3 durMin (Nota (pc2, o2) d2 : resto)
---     | otherwise = ( Nota (pc1, o1) d1, False ) : catalogaNotasPrincipales3 durMin (Nota (pc2, o2) d2 : resto)
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc1, o1) d1 : Nota (pc2, o2) d2 : resto)  -- Una nota seguida otra con un salto. Suponemos salto una distancia de mas estricto de un tono
+       | abs (pitchClass pc1 - pitchClass pc2) > 2 = ( Nota (pc1, o1) d1, True ) : catalogaNotasPrincipales3 (durAnt+d1) durMin (Nota (pc2, o2) d2 : resto)
 
--- falta poner: nota corta que resuleve en su inmediata inferior de tiempo fuerte a debil
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc1, o1) d1 : Nota (pc2, o2) d2 : resto)  -- nota corta que resuleve en su inmediata inferior de tiempo fuerte a debil
+       | esTiempoFuerte (durAnt + d1) (denominator d1) && ((dist == 1) || (dist == 2)) = ( Nota (pc1, o1) d1, True ) : catalogaNotasPrincipales3 (durAnt+d1) durMin (Nota (pc2, o2) d2 : resto)
+       where dist = (pitchClass pc1 - pitchClass pc2)
 
-catalogaNotasPrincipales3 durMin (Nota (pc, o) d : resto ) = (Nota (pc, o) d , False) : catalogaNotasPrincipales3 durMin resto   -- si es cualquier otra nota
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc, o) d : resto ) = (Nota (pc, o) d , False) : catalogaNotasPrincipales3 (durAnt+d) durMin resto   -- si es cualquier otra nota
 
-catalogaNotasPrincipales3 durMin (Silencio d : resto) = (Silencio d, False) : catalogaNotasPrincipales3 durMin resto  -- Al llegar aqui creo que no falta ningun caso
+catalogaNotasPrincipales3 durAnt durMin (Silencio d : resto) = (Silencio d, False) : catalogaNotasPrincipales3 (durAnt+d) durMin resto  -- Al llegar aqui creo que no falta ningun caso
 
+
+
+type Resolucion = Int -- resolucion , es decir, duracion de la nota que consideremos (4 es negra, 2 blanca, etc.)
+
+{-
+Dur indica la duracion de todas las notas anteriores incluida la actual.
+Si el numerador es 1 entonces es tiempo fuerte
+-}
+esTiempoFuerte :: Dur -> Resolucion -> Bool
+esTiempoFuerte du r = even num
+       where (num, den) = cambiaResolucion du r
+
+
+{-
+Solo funciona cuando 'Dur' tiene como denominador una potencia de 2 y 'Resolucion' tambien, es decir, tal y como son
+las notas en musica (ej: negra = 1/4).
+'cambiaResolucion' devuele la fraccion pasada, que posiblemente este simplificada, en forma de pareja de enteros
+de forma que el denominador es la 'Resolucion' y la fraccion devuelta es la misma que la fraccion pasada.
+-}
+cambiaResolucion :: Dur -> Resolucion -> (Int, Int)
+cambiaResolucion du r = (newN , newD)
+       where (n, d) = ( numerator du, denominator du);
+             newN = n * (div r d);
+             newD = r
 
 
 
@@ -312,216 +358,6 @@ armonizaNotasPrincipales3' gen ma durMaxA cifCan durA ( (pc, d) : resto)
 eliminaCifradosNoValidos :: [Cifrado] -> [Cifrado] -> [Cifrado]
 eliminaCifradosNoValidos = intersect
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
------------------------------- FUNCIONES COMUNES ----------------------------
-
-
-
-
-
-
-
-
-
-
------------------------------------------------------------------------------
-
-
------------------------------ PRIMERA FORMA DE HACERLO ----------------------
--- Solo armonizamos las notas de larga duracion
-
-{-
-Funcion principal de este modulo.
-Dada un tipo Music secuencia devuelve una progresion que es una armonizacion de ese Music
-CUIDADO: si la melodia no contiene notas principales devuelve lista vacia
--}
-{-
-armonizaMelodia1 :: RandomGen g => g -> DurMin -> Music -> Progresion
-armonizaMelodia1 gen durMin m = progresion
-        where melodia = deHaskoreSecuencialAMelodia m;
-              notasPrinc = deMelodiaANotasPrincipales1 durMin melodia;
-              progresion = armonizaNotasPrincipales gen notasPrinc
--}
-
-
-
-
-
-
----------------------- OTRA FORMA DE SACAR NOTAS PRINCIPALES -----------------------------
-
-
-
-
-
-
-type Resolucion = Int -- resolucion , es decir, duracion de la nota que consideremos (4 es negra, 2 blanca, etc.)
-
--- Dur indica la duracion de todas las notas anteriores incluida la actual.
--- Si el numerador es 1 entonces es tiempo fuerte
-{-
-esTiempoFuerte :: Dur -> Resolucion -> Bool
-esTiempoFuerte du r = even m
-       where (n, d) = ( numerator du, denominator du);
-             m = n * (r / d)
--}
-
-esTiempoFuerte :: Dur -> Resolucion -> (Int, Int)
-esTiempoFuerte du r = (newN , newD)
-       where (n, d) = ( numerator du, denominator du);
-             newN = n * (div r d);
-             newD = r
-
-
-
-{-
-es tiempo fuerte en compas binario. El parametro Dur es el tiempo del compas que se quiere evaluar. Incluye tanto
-la duracion de las canciones anteriores como la duracion del tiempo actual
--}
---esTiempoFuerte :: (Int, Int) -> Bool
---esTiempoFuerte (a,b) = odd a
-
-{-
-armonizaMelodia3 :: RandomGen g => g -> DurMin -> DurMaxA -> Music -> Progresion
-armonizaMelodia3 gen durMin durMaxA m = progresion
-        where melodia = deHaskoreSecuencialAMelodia m;
-              notasPrinc = deMelodiaANotasPrincipales3 durMin melodia;
-              progresion = armonizaNotasPrincipales3 gen durMaxA notasPrinc
--}
-
------ PRUEBAS ----------
-
-{-
-melodiaEj :: Music
-melodiaEj  = Note (C,5) (3%8) [] :+:
-             Note (D,5) (1%8) [] :+:
-             Note (E,5) (3%8) [] :+:
-             Note (D,5) (1%16) [] :+:
-             Note (C,5) (1%16) [] :+:
-             Note (G,5) (1%2) [] :+:
-             Note (F,5) (1%2) [] :+:
-             Note (C,5) (3%8) [] :+:
-             Note (D,5) (1%8) [] :+:
-             Note (E,5) (3%8) [] :+:
-             Note (D,5) (1%16) [] :+:
-             Note (C,5) (1%16) [] :+:
-             Note (G,5) (1%2) [] :+:
-             Note (C,5) (1%2) []
-
-
---melodiaEj2 :: Music
---melodiaEj2 = Note (C,5) (1%1) []
-
-
-notasPrinc :: [NotaPrincipal]
-notasPrinc = deMelodiaANotasPrincipales3 (1%8) (deHaskoreSecuencialAMelodia melodiaBach)
-
-notasPrinc2 :: [(HaskoreSimple, Bool)]
-notasPrinc2 = catalogaNotasPrincipales3 (1%8) (deHaskoreSecuencialAMelodia melodiaBach)
-
-
-progresionEj :: Progresion
-progresionEj = armonizaNotasPrincipales3 (mkStdGen 10) (3%8) notasPrinc
-
-
-
-melodiaBach :: Music
-melodiaBach = Rest (1%8) :+:
-              Note (C,5) (1%8) [] :+:
-              Note (D,5) (1%8) [] :+:
-              Note (E,5) (1%8) [] :+:
-              Note (G,5) (1%8) [] :+:
-              Note (F,5) (1%8) [] :+:
-              Note (F,5) (1%8) [] :+:
-              Note (A,5) (1%8) [] :+:
-              Note (G,5) (1%8) [] :+:
-              Note (G,5) (1%8) [] :+:
-              Note (C,6) (1%8) [] :+:
-              Note (B,5) (1%8) [] :+:
-              Note (C,6) (1%8) [] :+:
-              Note (G,5) (1%8) [] :+:
-              Note (E,5) (1%8) [] :+:
-              Note (C,5) (1%8) [] :+:
-              Note (D,5) (1%8) [] :+:
-              Note (E,5) (1%8) [] :+:
-              Note (F,5) (1%8) [] :+:
-              Note (G,5) (1%8) [] :+:
-              Note (A,5) (1%8) [] :+:
-              Note (G,5) (1%8) [] :+:
-              Note (F,5) (1%8) [] :+:
-              Note (E,5) (1%8) [] :+:
-              Note (D,5) (1%8) [] :+:
-              Note (E,5) (1%8) [] :+:
-              Note (D,5) (1%8) [] :+:
-              Note (C,5) (1%8) [] :+:
-              Note (D,5) (1%8) [] :+:
-              Note (E,5) (1%8) [] :+:
-              Note (G,4) (1%8) [] :+:
-              Note (B,4) (1%8) [] :+:
-              Note (D,5) (1%8) [] :+:
-              Note (F,5) (1%8) [] :+:
-              Note (E,5) (1%8) [] :+:
-              Note (D,5) (1%8) [] :+:
-              Note (E,5) (1%8) []
-
--}
-
-
-melodiaEj1 :: Music
-melodiaEj1 =  suma (-5) (
-              Rest (3%4) :+:
-              Note (C,4) (1%4) [] :+:
-              Note (F,4) (3%8) [] :+:
-              Note (E,4) (1%8) [] :+:
-              Note (F,4) (1%4) [] :+:
-              Note (A,4) (1%4) [] :+:
-              Note (G,4) (3%8) [] :+:
-              Note (F,4) (1%8) [] :+:
-              Note (G,4) (1%4) [] :+:
-              Note (A,4) (1%4) [] :+:
-              Note (F,4) (3%8) [] :+:
-              Note (F,4) (1%8) [] :+:
-              Note (A,4) (1%4) [] :+:
-              Note (C,5) (1%4) [] :+:
-              Note (D,5) (3%4) [] :+:
-              Note (D,5) (1%4) [] :+:
-              Note (C,5) (3%8) [] :+:
-              Note (A,4) (1%8) [] :+:
-              Note (A,4) (1%4) [] :+:
-              Note (F,4) (1%4) [] :+:
-              Note (G,4) (3%8) [] :+:
-              Note (F,4) (1%8) [] :+:
-              Note (G,4) (1%4) [] :+:
-              Note (A,4) (1%4) []
-              )
-
-{-BORRAME: SOY FUNCION REPETIDA-}
-suma :: Int -> Music -> Music
-suma t (Note p dur l)  = Note pNueva dur l
-	where pNueva = pitch (absPitch p + t)
-suma t (Rest dur)      = Rest dur
-suma t (m1 :+: m2)     = (suma t m1) :+: (suma t m2)
-suma t (m1 :=: m2)     = (suma t m1) :=: (suma t m2)
-suma t (Tempo d m)     = Tempo d (suma t m)
-suma t (Trans t2 m)    = (suma (t+t2) m)
-suma t (Instr i m)     = Instr i (suma t m)
-suma t (Player pl m)   = Player pl (suma t m)
-suma t (Phrase l m)    = Phrase l (suma t m)
 
 
 

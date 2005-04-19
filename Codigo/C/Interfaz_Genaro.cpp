@@ -10,6 +10,7 @@ USEUNIT("Interfaz_Haskell.cpp");
 USE("Interfaz_Genaro.todo", ToDo);
 USEFORM("FormParametrosTimidity.cpp", Form2);
 USEUNIT("Interfaz_Timidity.cpp");
+USEUNIT("Tipos_Estructura.cpp");
 //---------------------------------------------------------------------------
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {

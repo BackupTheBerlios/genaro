@@ -6,7 +6,7 @@
     <PROJECT value="Interfaz_Genaro.exe"/>
     <OBJFILES value="Interfaz_Genaro.obj FormularioPrincipal.obj Interfaz_Prolog.obj 
       Unidad_Nexo.obj Interfaz_Haskell.obj FormParametrosTimidity.obj 
-      Interfaz_Timidity.obj"/>
+      Interfaz_Timidity.obj Tipos_Estructura.obj"/>
     <RESFILES value="Interfaz_Genaro.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>

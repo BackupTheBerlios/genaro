@@ -147,6 +147,16 @@ de entrada pero con menos densidad
 aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
 aplicaCurvaMelodicaAListaAcentos listaAleat registro escala tonica pitchPartida listaAcentos CurvaMelodica = ((musica,curvaSinConsumir), restoAleat)
 -}
+aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
+aplicaCurvaMelodicaAListaAcentos aleat@(a1:as) registro escala tonica pitchPartida listaAcentos curvaMelodica = --((musica,curvaSinConsumir), restoAleat)
+            where acentosElegidos = dameSublistaAleatListaPesosFloat
+                  listaGradosPitch = curvaMelodicaAGradosPicth registro escala tonica curvaMelodica pitchPartida
+
+                  numAcentosElegidos = if (numAux>0) then numAux else 1
+                                          where numAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
+                  gradosPitchElegidos =
+
+
 type CurvaMelodicaEspacios = [Maybe PuntoMelodico]
 curvaMelodicaAGradosPicth :: Registro -> Escala -> PitchClass -> CurvaMelodica -> Pitch -> [(Grado,Pitch)]
 curvaMelodicaAGradosPicth registro escala tonica [] pitchPartida = []
@@ -256,12 +266,9 @@ pruMelAcArgs dirTrabajo saltoMax probSalto numNotas duracion = do setCurrentDire
 
 pruCurvaMelAleat :: Int -> Int -> Int -> Dur -> IO()
 pruCurvaMelAleat saltoMax probSalto numPuntos duracionTotal = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                                                 --print (salidaFormat aleat)
                                                                  print (zip (curvaMelodica aleat) (listaGradosPitch aleat))
                                                                  where curvaMelodica aleat = fst (hazCurvaMelodicaAleat aleat saltoMax probSalto numPuntos duracionTotal)
                                                                        listaGradosPitch aleat = curvaMelodicaAGradosPicth registroSolista Jonica C (curvaMelodica aleat) (C,5)
-                                                                     --  salida aleat = zip (curvaMelodica aleat) (listaGradosPitch aleat)
-                                                                     -- salidaFormat aleat = zip (salida aleat) ['\n' | x<- [1..(length (salida aleat))]]
 
 pruFallo :: String -> Int -> IO()
 pruFallo dirTrabajo num

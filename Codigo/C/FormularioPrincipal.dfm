@@ -383,7 +383,7 @@ object Form1: TForm1
     Top = 0
     Width = 513
     Height = 161
-    ActivePage = Tab_Melodia
+    ActivePage = Tab_Progresion
     TabOrder = 14
     Visible = False
     object Tab_General: TTabSheet
@@ -992,7 +992,6 @@ object Form1: TForm1
         Width = 97
         Height = 17
         Caption = 'Crea Progresión'
-        Enabled = False
         TabOrder = 5
         OnClick = Button10Click
       end

@@ -23,6 +23,7 @@ public:
   @param NMutaciones Número de mutaciones que queremos
   */
   void Ejecuta_Objetivo(String NAcordes, String NMutaciones);
+  String Dame_Ruta_Prolog(){return Ruta_Prolog;};
 };
 
 #endif

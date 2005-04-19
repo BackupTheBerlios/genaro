@@ -326,10 +326,18 @@ else
 //---------------------------------------------------------------------------
 void __fastcall TForm1::NuevoClick(TObject *Sender)
 {
+
 if (Inicializado)
 {}
 else
 {
+  String Ruta_codigo_haskell;
+  String Ruta_haskell;
+  String Ruta_prolog;
+  Ruta_prolog=".\\Codigo\\Prolog\\mainArgs.exe";  //"..\\Prolog\\mainArgs.exe";
+  Ruta_haskell=".\\Codigo\\Haskell\\runhugs.exe";  //"..\\Haskell\\runhugs.exe";
+  Ruta_codigo_haskell=".\\Codigo\\Haskell\\main.lhs";  //"..\\Haskell\\main.lhs";
+  unidad_de_union->Inicializacion(Ruta_prolog,Ruta_haskell,Ruta_codigo_haskell);
   Inicializado=true;
   Musica_Genaro=new Cancion;
   Numero_Filas_A_Dibujar=0;
@@ -715,9 +723,110 @@ switch (Barra_Tipo_Pista->Position)
 
 void __fastcall TForm1::Button10Click(TObject *Sender)
 {
-int X=3;
+//de momento creamos progresión y punto
+//Guardamos la progresión con un nombre temporal y al guardar cambios lo cambiamos y ponemos
+char work_dir[255];
+getcwd(work_dir, 255);
+String directorio_trabajo1=work_dir;
+String directorio_trabajo="\""+directorio_trabajo1+"\"";
+String Orden="Crea_Progresion";
+String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
+String MT="MT";
+String V1;
+String V2;
+String V3;
+String V4;
+String V5;
+String TB="TB";
+String TA="TA";
+String T1="T1";
+String T2="T2";
+String T3="T3";
+String T4="T4";
+String T5="T5";
+int valor=0;
+char *argv[17];
+String Ruta_Prolog=unidad_de_union->Dame_Interfaz_Prolog()->Dame_Ruta_Prolog();
+for (int i=0;i<17;i++){argv[i]=NULL;}
+argv[valor]=Ruta_Prolog.c_str();
+valor++;
+argv[valor]=directorio_trabajo.c_str();
+valor++;
+argv[valor]=Orden.c_str();
+valor++;
+argv[valor]=Ruta_Destino.c_str();
+valor++;
+argv[valor]=NAcordes.c_str();
+valor++;
+if(Radio_Mutaciones_Totales->Checked)
+{
+  argv[valor]=MT.c_str();
+  valor++;
+  V1=IntToStr(Barra_Mutaciones_Totales->Position);
+  argv[valor]=V1.c_str();
+  valor++;
+}
+else
+{
+  if (Radio_TipoA_Generales->Checked)
+  {
+    argv[valor]=TA.c_str();
+    valor++;
+    V1=IntToStr(Barra_TipoA_Generales->Position);
+    argv[valor]=V1.c_str();
+    valor++;
+  }
+  else
+  {
+    argv[valor]=T1.c_str();
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Junta_Acordes->Position);
+    argv[valor]=V1.c_str();
+    valor++;
+    argv[valor]=T2.c_str();
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
+    argv[valor]=V2.c_str();
+    valor++;
+    argv[valor]=T3.c_str();
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
+    argv[valor]=V3.c_str();
+    valor++;
+  }
+  if (Radio_TipoB_Generales->Checked)
+  {
+    argv[valor]=TB.c_str();
+    valor++;
+    V4=IntToStr(Barra_TipoB_Generales->Position);
+    argv[valor]=V4.c_str();
+    valor++;
+  }
+  else
+  {
+    argv[valor]=T4.c_str();
+    valor++;
+    V4=IntToStr(Barra_Mutaciones_Dominante_Sencundario->Position);
+    argv[valor]=V4.c_str();
+    valor++;
+    argv[valor]=T5.c_str();
+    valor++;
+    V4=IntToStr(Barra_Mutaciones_2M7->Position);
+    argv[valor]=V5.c_str();
+    valor++;
+  }
+}
+Crea_Progresion(Ruta_Prolog,argv);
+
+
 //poner un nuevo formulario en visible y modal
 //elegir entre crearla desde 0 o cogiendo la semilla de otra o partiendo de otra progresión o mutando el acorde nº n
 }
 //---------------------------------------------------------------------------
-
+void TForm1::Crea_Progresion(String Ruta_Prolog, char* argv[])
+{
+  int valor_spawn=spawnv(P_WAIT,Ruta_Prolog.c_str(),argv);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el MainArgs de prolog.");}
+}

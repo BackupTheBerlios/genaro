@@ -173,6 +173,7 @@ public:		// User declarations
   void Cuadro_Cabecera_Pista();
   void Cuadro_Bloque_Pista();  
   void Dibuja_Musica();
+  void TForm1::Crea_Progresion(String Ruta_Prolog,char* argv[]);  
   __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

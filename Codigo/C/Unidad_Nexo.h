@@ -18,6 +18,8 @@ class Unidad_Nexo
     ~Unidad_Nexo(){delete interfaz_haskell; delete interfaz_prolog;};
     void Inicializacion(String Ruta_Prolog, String Ruta_haskell, String Ruta_codigo_haskell);
     void Componer(String Num_Acordes, String Num_Mutaciones,String Patron_Ritmico, String Repeticiones);
+    Interfaz_Haskell* Dame_Interfaz_Haskell(){return interfaz_haskell;};
+    Interfaz_Prolog* Dame_Interfaz_Prolog(){return interfaz_prolog;};    
 };
 
 

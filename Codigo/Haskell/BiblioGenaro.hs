@@ -323,17 +323,50 @@ dameSublistaAleatListaPesosFloat aleat@(a1:as) listaPesos = dameSublistaAleatLis
                        where tamOri = length listaPesos
                              tamDestino = if (tamAux>0) then tamAux else 1
                                           where tamAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
-{-
+
 {-
 dameSublistaAleatListaPesosRestoFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [(a, Int)], [Int])
 dameSublistaAleatListaPesosRestoFloat aleat listaPesos = (sublistaValor_Posicion, sublista_no_elegida, restoAleat)
    -como dameSublistaAleatListaPesosFloat pero devolviendo tb la sublista no elegida, ed, la lista de entrada menos
 la sublista elegida
 -}
-dameSublistaAleatListaPesosRestoFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [(a, Int)], [Int])
-dameSublistaAleatListaPesosRestoFloat aleat listaPesos = dameSublistaAleatListaPesosTamFloat as tamDestino listaPesos
-                       where (sublistaElegida,restoAleat) = dameSublistaAleatListaPesosTamFloat aleat listaPesos
+dameSublistaAleatListaPesosRestoFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [((a,Float), Int)], [Int])
+dameSublistaAleatListaPesosRestoFloat aleat@(a1:as) listaPesos = dameSublistaAleatListaPesosTamRestoFloat as tamDestino listaPesos
+                       where tamOri = length listaPesos
+                             tamDestino = if (tamAux>0) then tamAux else 1
+                                          where tamAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
+
+{-
+dameSublistaAleatListaPesosTamRestoFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [(a, Int)], [Int])
+dameSublistaAleatListaPesosTamRestoFloat aleat cuantos listaPesos = (sublistaValor_Posicion, sublista_no_elegida, restoAleat)
+   -como dameSublistaAleatListaPesosTamFloat pero devolviendo tb la sublista no elegida, ed, la lista de entrada menos
+la sublista elegida
 -}
+dameSublistaAleatListaPesosTamRestoFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [((a,Float), Int)], [Int])
+dameSublistaAleatListaPesosTamRestoFloat aleat cuantos listaPesos = (elemsElegidos, elemsRechazados, restoAleat)
+                       where construyeSublista aleat2@(a1:as) n listaPesos
+                                | n > 0     = ((elem, pos):restoElegido, restoNoElegido, restoAleat)
+                                | otherwise = ([], listaPesos, aleat2)
+                                               where (elem, pos, restoPesos) = dameElemAleatListaPesosRestoFloat a1 listaPesos
+                                                     (restoElegido, restoNoElegido, restoAleat) = construyeSublista as (n-1) restoPesos
+                             construyeListaPos _ [] = []
+                             construyeListaPos pos ((val,peso):xs) = (pos, peso):(construyeListaPos (pos+1) xs)
+                             listaPosiciones = construyeListaPos 0 listaPesos
+                             (posElegidasAux, posRechazadasAux, restoAleat) = construyeSublista aleat cuantos listaPosiciones
+                             posElegidas = sort (map fst posElegidasAux)
+                             posRechazadas = sort (map fst posRechazadasAux)
+                             elemsElegidos = [((fst (listaPesos!!pos)),pos)| pos <- posElegidas]
+                             elemsRechazados = [((listaPesos!!pos),pos)| pos <- posRechazadas]
+
+pruDameSublistaAleatListaPesosRestoFloat :: IO()
+pruDameSublistaAleatListaPesosRestoFloat = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                              putStr ("Prueba con los valores :"++ (show listaParejas) ++ "\n")
+                                              putStr ("Lista elegida: " ++ show(sublistaElegida aleat) ++ "\n")
+                                              putStr ("Lista rechazada: " ++ show(sublistaRechazada aleat) ++ "\n")
+                                              where listaParejas   = [('a',0.33333),('b',0.5),('c',1.0),('d',0.5),('e',0.333333)]
+                                                    sublistaElegida aleat = primero (dameSublistaAleatListaPesosRestoFloat aleat listaParejas)
+                                                    sublistaRechazada aleat = segundo (dameSublistaAleatListaPesosRestoFloat aleat listaParejas)
+
 
 {-
 dameSublistaAleatListaPesosTamFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [Int])
@@ -514,16 +547,6 @@ cambiaExtension nuevaExtension ruta
   |pos == Nothing = ruta ++ "." ++ nuevaExtension
   |otherwise      = (invertir  (dropWhile (/='.') (invertir ruta))) ++ nuevaExtension
                where pos = elemIndex '.' ruta
-
-main = do putStrLn "me mola la coca-cola"
-lola =  do x <- getStdGen
-           print (next x)
-	   newStdGen
-	   x <- getStdGen
-	   print (next x)
-	   newStdGen
-	   x <- getStdGen
-	   print (next x)
 
 
 {-

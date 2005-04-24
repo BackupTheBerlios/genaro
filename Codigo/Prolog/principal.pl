@@ -58,8 +58,80 @@ mainArgumentos :- current_prolog_flag(argv, [_,DirTrabajo,NumCompases, NumMutaci
        ,halt(0).*/
 
 
+/************** CODIGO DE ROBERTO ****************************/
+
+mainArgumentos2 :- 
+        current_prolog_flag(argv, [ _ , DirTrabajo | ListaArg ] )
+       ,working_directory(_, DirTrabajo)
+       ,trataArgs(ListaArg)
+       ,halt(0).
+
+/**
+* trataArgs( +ListaArg ): en funcion de la lista de argumentos hace las acciones que se le pide
+*/
+% CREA PROGRESION
+trataArgs( [Comando | RestoArgs] ) :-
+        atom_to_term(Comando, crea_progresion, _)
+       ,trataArgsCrea( RestoArgs ).
+% MUTA PROGRESION
+trataArgs( [Comando | RestoArgs] ) :-
+        atom_to_term(Comando, muta_progresion, _)
+       ,trataArgsMuta( RestoArgs ).
+% MUTA PROGRESION EN UN ACORDE ESPECIFICADO
+trataArgs( [Comando | RestoArgs] ) :-
+        atom_to_term(Comando, muta_progresion_acorde, _)
+       ,trataArgsMutaAcorde( RestoArgs ).
+% CREA UNA PROGRESION A PARTIR DE UNA SEMILLA DADA
+trataArgs( [Comando | RestoArgs] ) :-
+        atom_to_term(Comando, muta_progresion_multiple, _)
+       ,trataArgsMutaMultiple( RestoArgs ).
+
+/**
+* trataArgsCrea( +ListaArg ): trata los argumentos en el supuesto de que estemos en el caso de crear una progresion
+*/
+trataArgsCrea( [ Ruta_dest, N_compases | Arg_Mut] ) :-
+        generador_acordes_binario:pasa_args_a_tipo_mutacion(Arg_Mut, Tipo_Mutacion)
+       ,atom_number(N_compases, NC)
+       ,generador_acordes_binario:haz_progresion2(NC, 1, Tipo_Mutacion, Prog)
+       ,generador_acordes_binario:escribeTermino(Ruta_dest, Prog).
+
+/**
+* trataArgsMuta( +ListaArg ): trata los argumentos en el supuesto de que estemos en el caso de mutar una progresion
+*/
+trataArgsMuta( [ Ruta_origen, Ruta_dest | Arg_Mut] ) :-  % NOTA: N_COMPASES NO TIENE SENTIDO AQUI
+        generador_acordes_binario:pasa_args_a_tipo_mutacion(Arg_Mut, Tipo_Mutacion)
+       ,generador_acordes_binario:leeTermino( Ruta_origen, Prog1 )
+       ,generador_acordes_binario:modifica_prog2( Prog1, Tipo_Mutacion, Prog2 )
+       ,generador_acordes_binario:escribeTermino( Ruta_dest, Prog2).
+
+/**
+* trataArgsMutaAcorde( +ListaArg ): trata los argumentos en el supuesto de que estemos en el caso de 
+* mutar un solo acorde de la progresion
+*/
+trataArgsMutaAcorde( [Ruta_origen, Ruta_dest, N_compas | Arg_Mut] ) :-
+        generador_acordes_binario:pasa_args_a_tipo_mutacion(Arg_Mut, Tipo_Mutacion)
+       ,generador_acordes_binario:leeTermino( Ruta_origen, progresion(LC) )
+       ,atom_number(N_compas, NC)
+       ,nth(NC, LC, Cif_a_Mutar)
+       ,generador_acordes_binario:modifica_prog2( progresion([Cif_a_Mutar]) , Tipo_Mutacion, progresion(LMutada) )
+       ,biblio_genaro_listas:sustituye(LC, NC, LMutada, Laux)
+       ,flatten(Laux, Laux2)
+       ,generador_acordes_binario:escribeTermino( Ruta_dest, progresion(Laux2) ).
+
+/**
+* trataArgsMutaMultiple( +ListaArg ): trata los argumentos en el supuesto de que estemos en el caso de 
+* crear una progresion a partir de una semilla dada
+*/
+trataArgsMutaMultiple( [ Ruta_origen, Ruta_dest, N_compases | Arg_Mut ] ) :-
+        generador_acordes_binario:pasa_args_a_tipo_mutacion(Arg_Mut, Tipo_Mutacion)
+       ,generador_acordes_binario:leeTermino( Ruta_origen, Prog_Semilla )
+       ,atom_number(N_compases, NC)
+       ,generador_acordes_binario:haz_progresion2_con_semilla( NC, Prog_Semilla, Tipo_Mutacion, Prog)
+       ,generador_acordes_binario:escribeTermino( Ruta_dest, Prog ).
 
 
+
+ejemplo :- trataArgs( [ 'crea_progresion', './hola.txt', 3, mt, 1 ] ).
 
 
 

@@ -10,7 +10,8 @@
 			,dame_elemento_aleatorio/3
                         ,dame_elemento_aleatorio/4
                         ,dame_permutacion_aleatoria/2
-                        ,dame_elemento_aleat_lista_pesos/4]).
+                        ,dame_elemento_aleat_lista_pesos/4
+                        ,sustituye/4]).
 
 /* Modulos de Prolog */
 :- use_module(compat_Sicstus_SWI).
@@ -221,3 +222,13 @@ listaAStringConSaltosAcu([X|Xs], Str) :-
                 string_concat(StrX, StrSalto, StrXSalto),
                 listaAStringConSaltosAcu(Xs, StrXs),
                 string_concat(StrXSalto,StrXs, Str).
+
+/**
+* sustituye(+Lin, +N, +Elem, -Lout) : sustituye el elemento N de Lin por Elem y lo guarda en Lout. 
+* Suponemos que la lista comienza en 1
+*/
+sustituye( [_ | Xs], 1, Elem, [Elem | Xs] ).
+sustituye( [X | Xs], N, Elem, [X | Lout] ) :-
+        N2 is N - 1
+       ,sustituye(Xs, N2, Elem, Lout).
+

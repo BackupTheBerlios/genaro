@@ -1,5 +1,5 @@
 %DECLARACION DEL MODULO
-:- module(biblio_genaro_ES,[escribeTermino/2]).
+:- module(biblio_genaro_ES,[escribeTermino/2,leeTermino/2]).
 
 %BIBLIOTECAS
 :- ensure_loaded(library(system)).
@@ -19,6 +19,19 @@ escribeTermino(NombreArchivo, Termino) :-
 	open(NombreArchivo, write,Stream, [type(text)]),
 	write(Stream, Termino),
 	close(Stream).
+
+
+/**
+* leeTermino( +NombreArchivo, -Termino)
+* lee Termino en el archivo de nombre NombreArchivo (q debe ser string o un atomo), dentro
+* del directorio actual.
+* Importante: El termino del archivo tiene que terminar en un punto
+*/
+leeTermino( NombreArchivo, Termino ) :- 
+         open( NombreArchivo, read, Stream, [type(text)] )
+        ,read(Stream, Termino)
+        ,close(Stream).
+
 
 /*
 DIRECTORIO DE TRABAJO:

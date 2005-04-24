@@ -1,4 +1,4 @@
-%DESCRIPCION
+﻿%DESCRIPCION
 /*
 GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 
@@ -11,9 +11,15 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
 */
 
 %DECLARACION DEL MODULO
-%%:- module(generador_acordes_binario).
+% :- module(generador_acordes_binario).
 :- module(generador_acordes_binario
-    ,[haz_progresion/4]).
+    ,[ haz_progresion/4
+      ,accion_modif/3
+      ,modifica_prog/3
+      ,pasa_args_a_tipo_mutacion/2
+      ,es_tipo_mutacion/1
+      ,modifica_prog2/3
+      ,haz_progresion2/4] ).
 
 %BIBLIOTECAS
 :- ensure_loaded(library(lists)).
@@ -366,3 +372,186 @@ quita_acordesLista(Lo, Ld) :- busca_acordes_afines(Lo,LPos),
       ,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 2 ,sublista_suf(Lo, PosElegMas, LdB)
       ,append(LdA, [(AcordSustituto, FigSustit)], Laux), append(Laux, LdB, Ld).
 quita_acordesLista(Lo, Lo).
+
+
+
+
+/*********************** CODIGO DE ROBERTO **********************************/
+/*
+* Este codigo es usado por el mainargs. Crea y modifica una progresion en funcion de 
+* los parametros que se le pasen. Es una generalizacion del codigo que esta arriba.
+*/
+
+/**
+* es_tipo_mutacion( +Tipo_Mutacion ): indica como son las mutaciones que hay que hacer a una progresion
+*/
+es_tipo_mutacion( tm([NM]) ) :- 
+       number(NM).
+es_tipo_mutacion( tab([NMTA, NMTB]) ) :- 
+       number(NMTA)
+      ,number(NMTB).
+es_tipo_mutacion( ta45([NMTA, NMT4, NMT5]) ) :- 
+       number(NMTA)
+      ,number(NMT4)
+      ,number(NMT5).
+es_tipo_mutacion( t12345([NMT1, NMT2, NMT3, NMT4, NMT5]) ) :- 
+       number(NMT1)
+      ,number(NMT2)
+      ,number(NMT3)
+      ,number(NMT4)
+      ,number(NMT5).
+es_tipo_mutacion( t123b([NMT1, NMT2, NMT3, NMTB]) ) :-
+       number(NMT1)
+      ,number(NMT2)
+      ,number(NMT3)
+      ,number(NMTB).
+
+/**
+* para_args_a_tipo_mutacion( +Argumentos, -Tipo_Mutacion ): traduce los parametros relacionados con las mutaciones
+* que se pasa al mainargs a un tipo mas manejable por prolog
+*/
+% Solamente numero de mutaciones
+pasa_args_a_tipo_mutacion( [ MT, N_mutaciones ] , tm([NM]) ) :-
+        atom_to_term(MT, mt, _)
+       ,atom_number(N_mutaciones, NM).
+% Tipo A y Tipo B
+pasa_args_a_tipo_mutacion( [ TA, N_TA, TB, N_TB ], tab([NMTA, NMTB]) ) :-
+        atom_to_term(TA, ta, _)
+       ,atom_number(N_TA, NMTA)
+       ,atom_to_term(TB, tb, _)
+       ,atom_number(N_TB, NMTB).
+% Tipo A y Tipo 4 y 5
+pasa_args_a_tipo_mutacion( [ TA, N_TA, T4, N_T4, T5, N_T5 ] , ta45([NMTA, NMT4, NMT5]) ) :-
+        atom_to_term(TA, ta, _)
+       ,atom_number(N_TA, NMTA)
+       ,atom_to_term(T4, t4, _)
+       ,atom_number(N_T4, NMT4)
+       ,atom_to_term(T5, t5, _)
+       ,atom_number(N_T5, NMT5).
+% Tipo 1, 2, 3, 4 y 5
+pasa_args_a_tipo_mutacion( [ T1, N_T1, T2, N_T2, T3, N_T3, T4, N_T4, T5, N_T5 ] , t12345([NMT1, NMT2, NMT3, NMT4, NMT5]) ) :-
+        atom_to_term(T1, t1, _)
+       ,atom_number(N_T1, NMT1)
+       ,atom_to_term(T2, t2, _)
+       ,atom_number(N_T2, NMT2)
+       ,atom_to_term(T3, t3, _)
+       ,atom_number(N_T3, NMT3)
+       ,atom_to_term(T4, t4, _)
+       ,atom_number(N_T4, NMT4)
+       ,atom_to_term(T5, t5, _)
+       ,atom_number(N_T5, NMT5).
+% Tipo 1, 2 y 3 y Tipo B
+pasa_args_a_tipo_mutacion( [ T1, N_T1, T2, N_T2, T3, N_T3, TB, N_TB ] , t123b([NMT1, NMT2, NMT3, NMTB]) ) :-
+        atom_to_term(T1, t1, _)
+       ,atom_number(N_T1, NMT1)
+       ,atom_to_term(T2, t2, _)
+       ,atom_number(N_T2, NMT2)
+       ,atom_to_term(T3, t3, _)
+       ,atom_number(N_T3, NMT3)
+       ,atom_to_term(TB, tb, _)
+       ,atom_number(N_TB, NMTB).   
+
+/**
+* crea_progresion(+NumCompases, +Tipo, -Progresion): crea una progresion de NumCompases a partir de una
+* rpogresion semilla de tipo Tipo pero sin hacer ninguna mutacion
+*/
+crea_progresion(N, _, progresion([])) :- 
+        N =< 0
+       ,!.
+crea_progresion(N, Tipo, Prog) :- 
+        rango_prog_semilla(Tipo,MinComp, MaxComp)
+       ,intervaloEntero(MinComp, MaxComp, CompPos), divisores(N, CompPos, CompCand)
+       ,setof((CC,CC),member(CC,CompCand), ListaEligeSemilla)
+       ,dame_elemento_aleat_lista_pesos(ListaEligeSemilla, NCompasesSemilla, _, _)
+       ,haz_prog_semilla(NCompasesSemilla, Tipo, ProgSemilla)
+       ,FactorMul is N // NCompasesSemilla
+       ,multiplica_duracion(ProgSemilla, FactorMul, Prog).
+
+
+/**
+* modifica_prog2( +Pin, +TipoMutacion, -Pout): 
+*/
+% cuando se le da Tipo A y tipo B
+modifica_prog2( Pin, tab([NTA, NTB]), Pout ) :-
+        modificaProgTipoA(Pin,  Paux, NTA)
+       ,modificaProgTipoA(Paux, Pout, NTB).
+% cuando se le da Tipo A y tipo 4 y 5
+modifica_prog2( Pin, ta45([NTA, NT4, NT5]), Pout ) :-
+        modificaProgTipoA(Pin,  Paux1, NTA)
+       ,modificaProgTipoNum(Paux1, Paux2, 3, NT4)
+       ,modificaProgTipoNum(Paux2, Pout, 4, NT5).
+% cuando se le da Tipo 1, 2, 3, 4 y 5
+modifica_prog2( Pin, t12345([NT1, NT2, NT3, NT4, NT5]), Pout ) :-
+        modificaProgTipoNum(Pin,   Paux1, 0, NT1)
+       ,modificaProgTipoNum(Paux1, Paux2, 1, NT2)
+       ,modificaProgTipoNum(Paux2, Paux3, 2, NT3)
+       ,modificaProgTipoNum(Paux3, Paux4, 3, NT4)
+       ,modificaProgTipoNum(Paux4, Pout,  4, NT5).
+% cuando se le da Tipo 1, 2 y 3 y tipo B
+modifica_prog2( Pin, t123b([NT1, NT2, NT3, NTB]), Pout ) :-
+        modificaProgTipoNum(Pin, Paux1, 0, NT1)
+       ,modificaProgTipoNum(Paux1, Paux2, 1, NT2)
+       ,modificaProgTipoNum(Paux2, Paux3, 2, NT3)
+       ,modificaProgTipoB(Paux3,  Pout, NTB).
+% cuando se le da el numero de mutaciones totales
+modifica_prog2( Pin, tm([NM]), Pout ) :-
+        modifica_prog(Pin, NM, Pout).
+
+
+/**
+* Crea y modifica la progresion en funcion de los parametros que se le pasa
+*/
+haz_progresion2(N, TipoSemilla, TipoMutaciones, Prog) :-
+        crea_progresion(N, TipoSemilla, ProgAux)
+       ,modifica_prog2( ProgAux, TipoMutaciones, Prog).
+
+
+/**
+* Hacer Num_mut de tipo A
+*/
+modificaProgTipoA( Pin, Pout, Num_mut) :-
+        random(0, Num_mut, Num_tipo1)
+       ,Aux is Num_mut - Num_tipo1
+       ,random(0, Aux, Num_tipo2)
+       ,Num_tipo3 is Num_mut - Num_tipo1 - Num_tipo2
+       ,modificaProgTipoNum( Pin,    Paux,  0, Num_tipo1 )
+       ,modificaProgTipoNum( Paux,   Paux2, 1, Num_tipo2 )
+       ,modificaProgTipoNum( Paux2,  Pout,  2, Num_tipo3 ).
+
+/**
+* Hacer Num_mut de tipo B
+*/
+modificaProgTipoB( Pin, Pout, Num_mut) :-
+        random(0, Num_mut, Num_tipo4)
+       ,Num_tipo5 is Num_mut - Num_tipo4
+       ,modificaProgTipoNum( Pin,  Paux, 3, Num_tipo4 )
+       ,modificaProgTipoNum( Paux, Pout, 4, Num_tipo5 ). 
+
+/**
+* Hace Num_mut de tipo Tipo
+*/
+modificaProgTipoNum( Pin, Pin, _, Num_mut ) :- 
+        Num_mut =< 0.
+modificaProgTipoNum( Pin, Pout, Tipo, Num_mut ) :-
+        Num_mut > 0
+       ,accion_modif(Pin, Paux, Tipo)
+       ,Num_mut2 is Num_mut - 1
+       ,modificaProgTipoNum( Paux, Pout, Tipo, Num_mut2 ).
+
+
+/**
+* Crea una progresion a partir de la semilla que se le pasa
+*/
+haz_progresion2_con_semilla( NC, _, _, progresion([]) ) :-
+        NC =< 0
+       ,!.       
+%% FALTA POR HACER
+% haz_progresion2_con_semilla( NC, Prog_Semilla, Tipo_Mutacion, Prog)
+
+
+
+
+
+
+
+

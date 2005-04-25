@@ -126,12 +126,9 @@ trataArgsMutaMultiple( [ Ruta_origen, Ruta_dest, N_compases | Arg_Mut ] ) :-
         generador_acordes_binario:pasa_args_a_tipo_mutacion(Arg_Mut, Tipo_Mutacion)
        ,generador_acordes_binario:leeTermino( Ruta_origen, Prog_Semilla )
        ,atom_number(N_compases, NC)
-       ,generador_acordes_binario:haz_progresion2_con_semilla( NC, Prog_Semilla, Tipo_Mutacion, Prog)
+       ,generador_acordes_binario:haz_progresion2_con_semilla( NC, Prog_Semilla, Tipo_Mutacion, Prog) /* CUIDADO: ESTE PREDICADO NO ESTA IMPLEMENTADO BIEN TODAVIA */
        ,generador_acordes_binario:escribeTermino( Ruta_dest, Prog ).
 
-
-
-ejemplo :- trataArgs( [ 'crea_progresion', './hola.txt', 3, mt, 1 ] ).
 
 
 

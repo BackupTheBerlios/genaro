@@ -168,29 +168,51 @@ puntos. Para ello se sigue el siguiente criterio:
 -}
 --type ListaAcentos = [(Acento, Dur)]
 --type CurvaMelodica = [Int]
---ajustaCurvaMelodicaConListaAcentos :: (CurvaMelodica,ListaAcentos) -> (CurvaMelodica,ListaAcentos)
 ajustaCurvaMelodicaConListaAcentos :: FuncAleatoria (CurvaMelodica,ListaAcentos) (CurvaMelodica,ListaAcentos)
 ajustaCurvaMelodicaConListaAcentos aleat@(a1:as) (curvaMel, listaAcentos)
     | longCurva == longAcentos = ((curvaMel, listaAcentos), aleat)
-    | longCurva > longAcentos = ajustaCurvaMelodicaConListaAcentos as (curvaMel,insertaAcentoIntermedio listaAcentos)
-    | longCurva < longAcentos =
+    | longCurva > longAcentos = ajustaCurvaMelodicaConListaAcentos as (curvaMel, insertaAcentoIntermedio listaAcentos)
+    | longCurva < longAcentos = ajustaCurvaMelodicaConListaAcentos (tail as) (curvaMel, uneDosAcentos listaAcentos)
                           where longCurva = length curvaMel
                                 longAcentos = length listaAcentos
-                                listaPesosAcentos = zip acentos (map fst acentos)
-                                ((a,dur), pos) = dameElemAleatListaPesosFloat a1 listaPesosAcentos
                                 insertaAcentoIntermedio acentos@(p:ps) = nuevaLista
-                                          where nuevaDur = dur / 2
+                                          where listaPesosAcentos = zip acentos (map fst acentos)
+                                                ((a,dur), pos) = dameElemAleatListaPesosFloat a1 listaPesosAcentos
+                                                nuevaDur = dur / 2
                                                 nuevaLista = sustituyeSublistaPos pos [(a,nuevaDur),(a, nuevaDur)] acentos
-                                uneDosAcentos acentos@(p:ps) =
-                                          where posColega = if (pos == 0)
+                                uneDosAcentos acentos@(p:ps) = nuevaLista
+                                          where listaPesosAcentos = zip acentos (map fst acentos)
+                                                ((a,dur), pos) = dameElemAleatListaPesosFloat a1 listaPesosAcentos
+                                                posColega = if (pos == 0)
                                                                 then pos + 1
                                                                 else if (pos == (longAcentos - 1))
                                                                         then pos - 1
-                                                                        else if (head as <= resolucionRandom div 2)
+                                                                        else if ((head as)<= (resolucionRandom `div` 2))
                                                                                 then pos - 1
                                                                                 else pos + 1
                                                 (ac, durc) = acentos !! posColega
                                                 nuevoAcento = ((a + ac)/2, dur + durc)
+                                                [ini, fin] = sort [pos, posColega]
+                                                nuevaLista = sustituyeSublistaPosIniFin ini fin [nuevoAcento] acentos
+
+{-pruAjustaCurvaMelodicaConListaAcentos :: String -> IO()
+pruAjustaCurvaMelodicaConListaAcentos ruta = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC ruta
+                                                putStr ("Curva melodica: " ++ (show curvaMelodica aleat) ++ "\n")
+                                                putStr ("Lista de acentos: " ++ (show ))
+                                                where acentos p = construyeListaAcentos p
+                                                      curvaMelodica aleat = fst (hazCurvaMelodicaAleat aleat saltoMax probSalto numPuntos duracionTotal)
+-}
+{-pruListaAcentos ruta = do (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC ruta
+                          putStr "Lista de acentos para melodia resultado\n"
+                          print (construyeListaAcentos patronRitmico)
+
+aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+print (zip (curvaMelodica aleat) (listaGradosPitch aleat))
+where curvaMelodica aleat = fst (hazCurvaMelodicaAleat aleat saltoMax probSalto numPuntos duracionTotal)
+      listaGradosPitch aleat = curvaMelodicaAGradosPicth registroSolista Jonica C (curvaMelodica aleat) (C,5)
+-}
+
 
 {-
 saltoMaxDef :: Int

@@ -98,7 +98,8 @@ sustituyeSublistaPos pos sublista lista = nuevaLista
 
 {-
 sustituyeSublistaPosIniFin :: Int -> Int -> [a] -> [a] -> [a]
-sustituyeSublistaPosIniFin ini fin sublista lista = nuevaLista en la que se han eliminado
+sustituyeSublistaPosIniFin ini fin sublista lista = nuevaLista en la que se han eliminado los elementos entre los indices ini y fin
+(inclusive, empezando a contar desde cero) y se ha puesto en su lugar la sublista de entrada
 
 -}
 sustituyeSublistaPosIniFin :: Int -> Int -> [a] -> [a] -> [a]

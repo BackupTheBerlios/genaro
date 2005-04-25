@@ -74,6 +74,38 @@ dameMinimizadores f (x:xs) = dameMinimizadorAcu f [x] (f x) xs
                                        |nuevoVal == valMin = dameMinimizadorAcu f (u:elegidos) valMin us
                                        |otherwise = dameMinimizadorAcu f elegidos valMin us
                                                     where nuevoVal = f u
+{-
+sustituyeElemPos :: Int -> a -> [a] -> [a]
+sustituyeElemPos pos elem lista = nuevaLista en la que el elemento en la posicion pos (contando desde cero) se ha sustituido
+por elem
+-}
+sustituyeElemPos :: Int -> a -> [a] -> [a]
+sustituyeElemPos pos elem lista = sustituyeSublistaPos pos [elem] lista  --nuevaLista
+                  --  where listaIzda = [lista !! i | i <- [0..(pos-1)]]
+                  --        listaDcha = [lista !! i | i <- [(pos+1)..((length lista)-1)] ]
+                  --        nuevaLista = listaIzda ++ [elem] ++ listaDcha
+
+{-
+sustituyeSublistaPos :: Int -> [a] -> [a] -> [a]
+sustituyeSublistaPos pos sublista lista = nuevaLista en la que el elemento en la posicion pos (contando desde cero) se ha sustituido
+por la sublista sublista
+-}
+sustituyeSublistaPos :: Int -> [a] -> [a] -> [a]
+sustituyeSublistaPos pos sublista lista = nuevaLista
+                    where listaIzda = [lista !! i | i <- [0..(pos-1)]]
+                          listaDcha = [lista !! i | i <- [(pos+1)..((length lista)-1)] ]
+                          nuevaLista = listaIzda ++ sublista ++ listaDcha
+
+{-
+sustituyeSublistaPosIniFin :: Int -> Int -> [a] -> [a] -> [a]
+sustituyeSublistaPosIniFin ini fin sublista lista = nuevaLista en la que se han eliminado
+
+-}
+sustituyeSublistaPosIniFin :: Int -> Int -> [a] -> [a] -> [a]
+sustituyeSublistaPosIniFin ini fin sublista lista = nuevaLista
+                    where listaIzda = [lista !! i | i <- [0..(ini-1)]]
+                          listaDcha = [lista !! i | i <- [(fin+1)..((length lista)-1)] ]
+                          nuevaLista = listaIzda ++ sublista ++ listaDcha
 
 -- permutacion: encontrada en la pagina http://polaris.lcc.uma.es/~pacog/apuntes/pd/cap06.pdf, en la pagina 25
 {-
@@ -209,6 +241,15 @@ resolucionRandom valor que se tomara de resolucion de los cï¿½lculos aleatorios.
 -}
 resolucionRandom :: Int
 resolucionRandom = 1000
+
+{-
+Tipo que representa las funciones que emplean numeros aleatorios. type FuncAleatoria a b = [Int] -> a -> (b, [Int]), es decir,
+se espera que reciba una lista infinita de numeros enteros entre 1 y resolucionRandom, que se supone que son numeros aleatorios.
+ Por lo demás es una función de tipo (a->b),y devuelve la pareja (b,restoAleat) que es el resultado de la funcion si no fuera aleatorio,
+ y el resto de la lista infinita de numeros aleatorios que no ha consumido
+-}
+type FuncAleatoria a b = [Int] -> a -> (b, [Int])
+
 {-
 Dada una lista de parejas (termino, peso), donde los pesos son naturales, devuelve en Elem un elemento
 (es decir, primer componente de una de las parejas que forman la lista de entrada) elegido al azar entre
@@ -318,7 +359,8 @@ dameSublistaAleatListaPesosFloat aleat listaPesos = (sublistaValor_Posicion, res
    de elementos de la lista inicial elegidos segun sus pesos
    -el tamaño de la sublista resultado será mayor que 1 y menor o igual al tamaño de la lista de entrada
 -}
-dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
+--dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
+dameSublistaAleatListaPesosFloat :: FuncAleatoria [(a, Float)] [(a, Int)]
 dameSublistaAleatListaPesosFloat aleat@(a1:as) listaPesos = dameSublistaAleatListaPesosTamFloat as tamDestino listaPesos
                        where tamOri = length listaPesos
                              tamDestino = if (tamAux>0) then tamAux else 1
@@ -337,7 +379,7 @@ dameSublistaAleatListaPesosRestoFloat aleat@(a1:as) listaPesos = dameSublistaAle
                                           where tamAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
 
 {-
-dameSublistaAleatListaPesosTamRestoFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [(a, Int)], [Int])
+dameSublistaAleatListaPesosTamRestoFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [((a,Float), Int)], [Int])
 dameSublistaAleatListaPesosTamRestoFloat aleat cuantos listaPesos = (sublistaValor_Posicion, sublista_no_elegida, restoAleat)
    -como dameSublistaAleatListaPesosTamFloat pero devolviendo tb la sublista no elegida, ed, la lista de entrada menos
 la sublista elegida

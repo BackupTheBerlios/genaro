@@ -3,6 +3,7 @@ import Progresiones
 import Basics
 import BiblioGenaro
 import List
+import Maybe
 import Ratio          --para pruebas
 import Directory      --para pruebas
 import HaskoreAMidi   --para pruebas
@@ -98,6 +99,17 @@ dameNotasYPesosDeEscala escala
                         | otherwise = (grado, peso)
 
 
+{-
+valoraGrado :: Escala -> Grado -> Int
+dado un grado y una escala devuelve un entero que indica la cantidad de estabilidad de ese grado en la escala
+-}
+valoraGrado :: Escala -> Grado -> Int
+valoraGrado escala grado = resul
+                where listaGradosPeso = dameNotasYPesosDeEscala escala
+                      busca = find (\(g, val) -> (g == grado)) listaGradosPeso
+                      resul = if (isJust busca)
+                                 then (snd(fromJust busca))
+                                 else 0
 {-
 Para un acorde especificado con un elemento de tipo cifrado devuelve su escala,
 en el contexto del modo mayor

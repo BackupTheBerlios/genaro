@@ -71,6 +71,7 @@ pruListaAcentos ruta = do (FPRC cols resolucion patronRitmico) <- leePatronRitmi
 {-
 dada una lista infinita de numeros enteros aleatorios entre 1 y resolucionRandom construye
 una curva melodica aleatoria segun ciertos criterios
+hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Int -> Dur -> (CurvaMelodica, [Int])
 hazCurvaMelodicaAleat aleat saltoMax probSalto numPuntos duracionTotal = (curva, aleatSobrantes)
         .aleat         : lista infinita de numeros aleatorios entre 1 y resolucionRandom
         .saltoMax      : numero de grados que se saltara como maximo en cada punto de la curva
@@ -147,14 +148,64 @@ de entrada pero con menos densidad
 aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
 aplicaCurvaMelodicaAListaAcentos listaAleat registro escala tonica pitchPartida listaAcentos CurvaMelodica = ((musica,curvaSinConsumir), restoAleat)
 -}
-aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
+{-aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
 aplicaCurvaMelodicaAListaAcentos aleat@(a1:as) registro escala tonica pitchPartida listaAcentos curvaMelodica = --((musica,curvaSinConsumir), restoAleat)
-            where acentosElegidos = dameSublistaAleatListaPesosFloat
-                  listaGradosPitch = curvaMelodicaAGradosPicth registro escala tonica curvaMelodica pitchPartida
-
-                  numAcentosElegidos = if (numAux>0) then numAux else 1
+            where numAcentosElegidos = if (numAux>0) then numAux else 1
                                           where numAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
-                  gradosPitchElegidos =
+                  listaPesosAcentos = zip listaAcentos (map fst listaAcentos)
+                  (lAcenPosElegidos, lAcenRech, as2) = dameSublistaAleatListaPesosTamRestoFloat as numAcentosElegidos listaPesosAcentos
+                  --([(a, Int)], [((a,Float), Int)], [Int])
+                  listaGradosPitch = curvaMelodicaAGradosPicth registro escala tonica curvaMelodica pitchPartida
+                  listaPesosGrados = zip listaGradosPitch (map (\(g,p)-> fromIntegral (valoraGrado escala g)) listaGradosPitch)
+                  (lGradsElegidos, lGradsRech, as3) = dameSublistaAleatListaPesosTamRestoFloat as2 numAcentosElegidos listaPesosGrados
+-}
+{-
+ajustaCurvaMelodicaConListaAcentos :: FuncAleatoria (CurvaMelodica,ListaAcentos) (CurvaMelodica,ListaAcentos)
+dada una pareja (CurvaMelodica,ListaAcentos) devuelve una pareja del mismo tipo que sea compatible, es decir, tenga el mismo numero de
+puntos. Para ello se sigue el siguiente criterio:
+    .curva con más puntos q la lista de acentos  : se insertan en la lista de acentos puntos cortas intermedias
+    .curva con menos puntos q la lista de acentos: se unen puntos del ritmo para representar notas más largas
+-}
+--type ListaAcentos = [(Acento, Dur)]
+--type CurvaMelodica = [Int]
+--ajustaCurvaMelodicaConListaAcentos :: (CurvaMelodica,ListaAcentos) -> (CurvaMelodica,ListaAcentos)
+ajustaCurvaMelodicaConListaAcentos :: FuncAleatoria (CurvaMelodica,ListaAcentos) (CurvaMelodica,ListaAcentos)
+ajustaCurvaMelodicaConListaAcentos aleat@(a1:as) (curvaMel, listaAcentos)
+    | longCurva == longAcentos = ((curvaMel, listaAcentos), aleat)
+    | longCurva > longAcentos = ajustaCurvaMelodicaConListaAcentos as (curvaMel,insertaAcentoIntermedio listaAcentos)
+    | longCurva < longAcentos =
+                          where longCurva = length curvaMel
+                                longAcentos = length listaAcentos
+                                listaPesosAcentos = zip acentos (map fst acentos)
+                                ((a,dur), pos) = dameElemAleatListaPesosFloat a1 listaPesosAcentos
+                                insertaAcentoIntermedio acentos@(p:ps) = nuevaLista
+                                          where nuevaDur = dur / 2
+                                                nuevaLista = sustituyeSublistaPos pos [(a,nuevaDur),(a, nuevaDur)] acentos
+                                uneDosAcentos acentos@(p:ps) =
+                                          where posColega = if (pos == 0)
+                                                                then pos + 1
+                                                                else if (pos == (longAcentos - 1))
+                                                                        then pos - 1
+                                                                        else if (head as <= resolucionRandom div 2)
+                                                                                then pos - 1
+                                                                                else pos + 1
+                                                (ac, durc) = acentos !! posColega
+                                                nuevoAcento = ((a + ac)/2, dur + durc)
+
+{-
+saltoMaxDef :: Int
+Valor por defecto del salto melodico maximo en una curva melodica
+-}
+saltoMaxDef :: Int
+saltoMaxDef = 3
+
+{-
+divisorAcentos :: Int
+Cantidad por la que se dividen los acentos para duplicarlos. Se hace por dos pq es binario
+-}
+divisorAcentos :: Int
+divisorAcentos = 2
+
 
 
 type CurvaMelodicaEspacios = [Maybe PuntoMelodico]

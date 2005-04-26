@@ -453,7 +453,7 @@ pasa_args_a_tipo_mutacion( [ T1, N_T1, T2, N_T2, T3, N_T3, TB, N_TB ] , t123b([N
 
 /**
 * crea_progresion(+NumCompases, +Tipo, -Progresion): crea una progresion de NumCompases a partir de una
-* rpogresion semilla de tipo Tipo pero sin hacer ninguna mutacion
+* progresion semilla de tipo Tipo pero sin hacer ninguna mutacion
 */
 crea_progresion(N, _, progresion([])) :- 
         N =< 0

@@ -18,6 +18,7 @@
 escribeTermino(NombreArchivo, Termino) :-
 	open(NombreArchivo, write,Stream, [type(text)]),
 	write(Stream, Termino),
+        write(Stream, '.'),
 	close(Stream).
 
 

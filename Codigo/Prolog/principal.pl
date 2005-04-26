@@ -131,6 +131,9 @@ trataArgsMutaMultiple( [ Ruta_origen, Ruta_dest, N_compases | Arg_Mut ] ) :-
 
 
 
+ejemplo :- 
+        working_directory(_, 'c:/hlocal')
+       ,trataArgs([ 'crea_progresion', './prog.txt', '5', 'mt', '4' ]).
 
 
 

@@ -159,11 +159,20 @@ leeProgresion ruta = do texto <- readFile ruta
 {-
 Parser de strings en el formato de es_progesion de Prolog a elementos de tipo Progresion
 -}
+{- Esta es la version que parseaba una progresion de prolog pero sin tener en cuenta el punto del final 
 parserProgresion :: Parser Char Progresion
 parserProgresion = (token "progresion") *> parenthesized(bracketed(commaList(parCifDur))) . quitaEspacios
 		where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)
+-}
 -- parserProgresion = bracketed(commaList(parCifDur))
 --		where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)
+parserProgresion :: Parser Char Progresion
+parserProgresion = parserTotal . quitaEspacios
+               where parCifDur = parenthesized ((parserCifrado <* coma) <*> figura)
+                     comeProgresion = (token "progresion") *> parenthesized(bracketed(commaList(parCifDur)))
+                     parserTotal = comeProgresion <* (token ".") 
+
+
 {--
 Pruebas de parserProgresion
 -}

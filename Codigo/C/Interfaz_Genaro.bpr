@@ -6,12 +6,13 @@
     <PROJECT value="Interfaz_Genaro.exe"/>
     <OBJFILES value="Interfaz_Genaro.obj FormularioPrincipal.obj Interfaz_Prolog.obj 
       Unidad_Nexo.obj Interfaz_Haskell.obj FormParametrosTimidity.obj 
-      Interfaz_Timidity.obj Tipos_Estructura.obj"/>
+      Interfaz_Timidity.obj Tipos_Estructura.obj UForm_Melodia.obj"/>
     <RESFILES value="Interfaz_Genaro.res"/>
     <IDLFILES value=""/>
     <IDLGENFILES value=""/>
     <DEFFILE value=""/>
-    <RESDEPEN value="$(RESFILES) FormularioPrincipal.dfm FormParametrosTimidity.dfm"/>
+    <RESDEPEN value="$(RESFILES) FormularioPrincipal.dfm FormParametrosTimidity.dfm 
+      UForm_Melodia.dfm"/>
     <LIBFILES value=""/>
     <LIBRARIES value="Vcl50.lib"/>
     <SPARELIBS value="Vcl50.lib"/>

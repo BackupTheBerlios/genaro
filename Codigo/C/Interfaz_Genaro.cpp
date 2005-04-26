@@ -11,6 +11,7 @@ USE("Interfaz_Genaro.todo", ToDo);
 USEFORM("FormParametrosTimidity.cpp", Form2);
 USEUNIT("Interfaz_Timidity.cpp");
 USEUNIT("Tipos_Estructura.cpp");
+USEFORM("UForm_Melodia.cpp", Form_Melodia);
 //---------------------------------------------------------------------------
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
@@ -19,6 +20,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
      Application->Initialize();
      Application->CreateForm(__classid(TForm1), &Form1);
      Application->CreateForm(__classid(TForm2), &Form2);
+     Application->CreateForm(__classid(TForm_Melodia), &Form_Melodia);
      Application->Run();
   }
   catch (Exception &exception)

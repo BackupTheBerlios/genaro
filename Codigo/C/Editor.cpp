@@ -640,3 +640,13 @@ Etiqueta_Mensajes->Caption="Velocity reajustado a "+IntToStr(Velocity_Selector->
 }
 //---------------------------------------------------------------------------
 
+void __fastcall TForm1::FormPaint(TObject *Sender)
+{
+if (Inicializado)
+{
+  Dibuja_Esqueleto();
+  Dibuja_Notas(); 
+}
+}
+//---------------------------------------------------------------------------
+

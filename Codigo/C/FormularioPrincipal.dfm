@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 90
-  Top = 89
+  Left = 75
+  Top = 88
   Width = 800
   Height = 537
   Caption = 'Interfaz Genaro'
@@ -14,6 +14,7 @@ object Form1: TForm1
   OldCreateOrder = False
   OnClick = FormClick
   OnCreate = FormCreate
+  OnPaint = FormPaint
   PixelsPerInch = 96
   TextHeight = 13
   object Etiqueta_Numero_Compases: TLabel
@@ -21,7 +22,7 @@ object Form1: TForm1
     Top = 80
     Width = 10
     Height = 23
-    Caption = '0'
+    Caption = '1'
     Font.Charset = ANSI_CHARSET
     Font.Color = clWindowText
     Font.Height = -16
@@ -383,15 +384,15 @@ object Form1: TForm1
     Top = 0
     Width = 513
     Height = 161
-    ActivePage = Tab_Progresion
+    ActivePage = Tab_General
     TabOrder = 14
     Visible = False
     object Tab_General: TTabSheet
       Caption = 'General'
       ImageIndex = 3
       object Etiqueta_Bloque_Numero_Compases: TLabel
-        Left = 8
-        Top = 8
+        Left = 144
+        Top = 48
         Width = 222
         Height = 19
         Caption = 'Etiqueta_Bloque_Numero_Compases'
@@ -402,10 +403,23 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentFont = False
       end
+      object Label8: TLabel
+        Left = 144
+        Top = 8
+        Width = 219
+        Height = 20
+        Caption = 'Información de Sub Bloque'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
       object Bloque_Vacio: TCheckBox
         Left = 8
         Top = 48
-        Width = 169
+        Width = 105
         Height = 25
         Caption = 'Silencio'
         Font.Charset = ANSI_CHARSET
@@ -624,7 +638,7 @@ object Form1: TForm1
       end
     end
     object Tab_Progresion: TTabSheet
-      Caption = 'Progresión'
+      Caption = 'Mutar Progresión'
       ImageIndex = 1
       object Etiqueta_Mutaciones_Totales: TLabel
         Left = 328
@@ -986,14 +1000,110 @@ object Form1: TForm1
         TickStyle = tsAuto
         OnChange = Barra_Mutaciones_TotalesChange
       end
-      object Button10: TButton
-        Left = 376
+    end
+    object Tab_Crear_Progresion: TTabSheet
+      Caption = 'Crear Progresión'
+      ImageIndex = 4
+      object Label_Mutar_Acorde_N: TLabel
+        Left = 464
+        Top = 48
+        Width = 11
+        Height = 20
+        Caption = '1'
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label_Texto_Muta_Acorde: TLabel
+        Left = 264
+        Top = 32
+        Width = 186
+        Height = 16
+        Caption = 'Número de Acorde a Mutar'
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Button12: TButton
+        Left = 160
+        Top = 104
+        Width = 129
+        Height = 25
+        Caption = 'Crear Progresión'
+        TabOrder = 0
+        OnClick = Button12Click
+      end
+      object GroupBox1: TGroupBox
+        Left = 16
         Top = 8
-        Width = 97
-        Height = 17
-        Caption = 'Crea Progresión'
-        TabOrder = 5
-        OnClick = Button10Click
+        Width = 209
+        Height = 89
+        Caption = 'Opciones de Creación'
+        TabOrder = 1
+        object Radio_Crear_Progresion: TRadioButton
+          Left = 16
+          Top = 16
+          Width = 121
+          Height = 17
+          Caption = 'Crear Progresión'
+          Checked = True
+          TabOrder = 0
+          TabStop = True
+          OnClick = Radio_Crear_ProgresionClick
+        end
+        object Radio_Mutar_Progresion: TRadioButton
+          Left = 16
+          Top = 32
+          Width = 153
+          Height = 17
+          Caption = 'Mutar Progresión Existente'
+          TabOrder = 1
+          OnClick = Radio_Mutar_ProgresionClick
+        end
+        object Radio_Mutar_Acorde_Progresion: TRadioButton
+          Left = 16
+          Top = 48
+          Width = 177
+          Height = 17
+          Caption = 'Mutar Acorde de una Progresión'
+          TabOrder = 2
+          OnClick = Radio_Mutar_Acorde_ProgresionClick
+        end
+        object Radio_Mutar_Progresion_Multiple: TRadioButton
+          Left = 16
+          Top = 64
+          Width = 161
+          Height = 17
+          Caption = 'Mutar Progresión Múltiple'
+          TabOrder = 3
+          OnClick = Radio_Mutar_Progresion_MultipleClick
+        end
+      end
+      object Barra_Numero_Acorde_A_Mutar: TTrackBar
+        Left = 256
+        Top = 48
+        Width = 201
+        Height = 25
+        Enabled = False
+        Max = 1
+        Min = 1
+        Orientation = trHorizontal
+        Frequency = 1
+        Position = 1
+        SelEnd = 0
+        SelStart = 0
+        TabOrder = 2
+        TickMarks = tmBottomRight
+        TickStyle = tsAuto
+        OnChange = Barra_Numero_Acorde_A_MutarChange
       end
     end
     object Tab_Melodia: TTabSheet
@@ -1047,7 +1157,6 @@ object Form1: TForm1
         Width = 193
         Height = 17
         Caption = 'Crear la curva melódica '
-        Enabled = False
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -1087,17 +1196,17 @@ object Form1: TForm1
         Width = 81
         Height = 33
         Caption = 'Crear Curva'
-        Enabled = False
         TabOrder = 5
+        OnClick = Button9Click
       end
-      object Button11: TButton
+      object Selector_Pista_Acompanamiento: TComboBox
         Left = 280
-        Top = 40
-        Width = 177
-        Height = 33
-        Caption = 'Seleccionar Pista Acompañamiento'
-        Enabled = False
+        Top = 48
+        Width = 193
+        Height = 21
+        ItemHeight = 13
         TabOrder = 6
+        Text = 'Elige Pista de acompañamiento'
       end
     end
   end
@@ -1109,6 +1218,13 @@ object Form1: TForm1
       object Nuevo: TMenuItem
         Caption = '&Nuevo'
         OnClick = NuevoClick
+      end
+      object Guardar1: TMenuItem
+        Caption = '&Guardar'
+        OnClick = Guardar1Click
+      end
+      object N1: TMenuItem
+        Caption = '-'
       end
       object Salir1: TMenuItem
         Caption = '&Salir'
@@ -1133,5 +1249,9 @@ object Form1: TForm1
   object OpenDialog: TOpenDialog
     Left = 304
     Top = 456
+  end
+  object Dialogo_Origen_Progresion: TOpenDialog
+    Left = 700
+    Top = 120
   end
 end

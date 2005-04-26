@@ -1,6 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
+#include <fstream>
 #pragma hdrstop
 
 #include "Tipos_Estructura.h"
@@ -42,6 +43,7 @@ Bloque_Vacio.Vacio=true;
 Bloque_Vacio.Patron_Ritmico=P_Ritmico;
 Bloque_Vacio.Disposicion=Disposicion;
 Bloque_Vacio.Inversion=Inversion;
+Bloque_Vacio.N_Pista_Acomp=-1;
 for (int i=0;i<Pistas.size();i++)
  {
   Pistas[i]->Inserta_Bloque(Bloque_Vacio);
@@ -65,7 +67,92 @@ void Cancion::Inserta_Bloque(Bloque Nuevo_Bloque, int Num_Pista)
   }
 }
 //---------------------------------------------------------------------------
+void Cancion::Guarda_Archivo()
+{
+ofstream fichero_salida;
+fichero_salida.open("prueba_rara.txt");
+//guardamos datos de cancion
+Bloque bloque_temp;
+fichero_salida<<"Pistas: "<<Pistas.size()<<"\n";
+for (int i=0;i<Pistas.size();i++)
+ {
+ //Escribimos los datos de pista
+ fichero_salida<<"Nº "<<i<<"\n";
+ fichero_salida<<"Bloques "<<Pistas[i]->Dame_Numero_Bloques()<<" ";
+ fichero_salida<<"Tipo "<<Pistas[i]->Dame_Tipo()<<" ";
+ fichero_salida<<"Mute "<<Pistas[i]->Dame_Mute()<<" ";
+ fichero_salida<<"Instrumento "<<Pistas[i]->Dame_Instrumento()<<"\n";
+ for (int j=0;j<Pistas[i]->Dame_Numero_Bloques();j++)
+  {
+    bloque_temp=Pistas[i]->Dame_Bloque(j);
+    fichero_salida<<"bloque "<<j<<"\n";
+    fichero_salida<<"Compases "<<bloque_temp.Num_Compases<<" ";
+    fichero_salida<<"vacio "<<bloque_temp.Vacio<<" ";
+    fichero_salida<<"Patron "<<bloque_temp.Patron_Ritmico.Length()<<" ";
+    for (int k=0;k<bloque_temp.Patron_Ritmico.Length();k++)
+    {
+      if (bloque_temp.Patron_Ritmico[k+1]==' ')
+      {
+        fichero_salida<<"¬";
+      }
+      else
+      {
+        fichero_salida<<bloque_temp.Patron_Ritmico[k+1];
+      }
+    }
+    fichero_salida<<" ";
+    fichero_salida<<"Sistema "<<bloque_temp.Es_Sistema_Paralelo<<" ";
+    fichero_salida<<"Notas "<<bloque_temp.Notas_Totales<<" ";
+    fichero_salida<<"Inversion "<<bloque_temp.Inversion.Length()<<" ";
+    for (int k=0;k<bloque_temp.Inversion.Length();k++)
+    {
+      if (bloque_temp.Inversion[k+1]==' ')
+      {
+        fichero_salida<<"¬";
+      }
+      else
+      {
+      fichero_salida<<bloque_temp.Inversion[k+1];
+      }
+    }
+    fichero_salida<<" ";
+    fichero_salida<<"Disposicion "<<bloque_temp.Disposicion.Length()<<" ";
+    for (int k=0;k<bloque_temp.Disposicion.Length();k++)
+    {
+      if (bloque_temp.Disposicion[k+1]==' ')
+      {
+        fichero_salida<<"¬";
+      }
+      else
+      {
+      fichero_salida<<bloque_temp.Disposicion[k+1];
+      }
+    }
+    fichero_salida<<" ";
+    fichero_salida<<"Pista_Acomp "<<bloque_temp.N_Pista_Acomp<<" ";
+    fichero_salida<<"Progresion "<<bloque_temp.Progresion.Length()<<" ";
+    for (int k=0;k<bloque_temp.Progresion.Length();k++)
+    {
+      if (bloque_temp.Progresion[k+1]==' ')
+      {
+        fichero_salida<<"¬";
+      }
+      else
+      {
+      fichero_salida<<bloque_temp.Progresion[k+1];
+      }
+    }
+    fichero_salida<<" ";
+    fichero_salida<<"FINBLOQUE"<<"\n";
+  }
+ fichero_salida<<"FINPISTA"<<"\n";
+ }
+fichero_salida<<"FINCANCION";
+fichero_salida.close();
+}
+//---------------------------------------------------------------------------
+
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
-//---------------------------------------------------------------------------
+

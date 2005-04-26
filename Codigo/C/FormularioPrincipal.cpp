@@ -12,6 +12,7 @@
 #include "FormularioPrincipal.h"
 #include "FormParametrosTimidity.h"
 #include "Interfaz_Timidity.h";
+#include "UForm_Melodia.h";
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -328,7 +329,9 @@ void __fastcall TForm1::NuevoClick(TObject *Sender)
 {
 
 if (Inicializado)
-{}
+{
+  Dibuja_Cancion();
+}
 else
 {
   String Ruta_codigo_haskell;
@@ -342,6 +345,7 @@ else
   Musica_Genaro=new Cancion;
   Numero_Filas_A_Dibujar=0;
   Numero_Bloques=0;
+  Dibuja_Cancion();
 }
 }
 //---------------------------------------------------------------------------
@@ -352,6 +356,7 @@ if (Inicializado)
 {
   Musica_Genaro->Nueva_Pista(Barra_Tipo_Pista->Position);
   Numero_Filas_A_Dibujar++;
+  Dibuja_Cancion();
 }
 }
 //---------------------------------------------------------------------------
@@ -374,6 +379,7 @@ void __fastcall TForm1::Boton_Guarda_Cambios_PistaClick(TObject *Sender)
   Pista* Puntero_A_Pista=Musica_Genaro->Dame_Pista(Fila_Pulsada);
   Puntero_A_Pista->Cambia_Mute(Mute_Pista->Checked);
   Puntero_A_Pista->Cambia_Instrumento(Instrumento_Pista->Items->IndexOf(Instrumento_Pista->Text));
+  Dibuja_Cancion();  
 }
 //---------------------------------------------------------------------------
 
@@ -383,6 +389,7 @@ if ((Inicializado)&&(Numero_Filas_A_Dibujar>0))
 {
   Musica_Genaro->Nuevo_Bloque(Barra_N_Compases_Bloque->Position,Selector_Patron_Ritmico->Text,Lista_Disposicion->Text,Lista_Inversion->Text);
   Numero_Bloques++;
+  Dibuja_Cancion();  
 }
 }
 //---------------------------------------------------------------------------
@@ -433,7 +440,7 @@ else
 
 void __fastcall TForm1::Bloque_VacioClick(TObject *Sender)
 {
-if (Bloque_Vacio->Checked)
+/*if (Bloque_Vacio->Checked)
 {
   Tab_Patron_Ritmico->Enabled=false;
   Tab_Progresion->Enabled=false;
@@ -444,7 +451,7 @@ else
   Tab_Patron_Ritmico->Enabled=true;
   Tab_Progresion->Enabled=true;
   Tab_Melodia->Enabled=true;
-}
+}   */
 }
 //---------------------------------------------------------------------------
 void TForm1::Dibuja_Musica()
@@ -484,7 +491,34 @@ Panel_Tipo_Pista->Visible=false;
 Panel_Bloque->Visible=true;
 
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
-Etiqueta_Bloque_Numero_Compases->Caption="Nº Compases = "+IntToStr(Bloque_A_Manipular.Num_Compases);
+Etiqueta_Bloque_Numero_Compases->Caption="Nº Compases de su bloque: "+IntToStr(Bloque_A_Manipular.Num_Compases);
+Barra_Numero_Acorde_A_Mutar->Max=Bloque_A_Manipular.Num_Compases;
+
+switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
+{
+  case 0:
+    {
+      Tab_General->Enabled=true;
+      Tab_Patron_Ritmico->Enabled=true;
+      Tab_Progresion->Enabled=true;
+      Tab_Crear_Progresion->Enabled=true;
+      Tab_Melodia->Enabled=false;
+      break;
+    }
+  case 1:
+    {
+      Tab_General->Enabled=true;
+      Tab_Patron_Ritmico->Enabled=false;
+      Tab_Progresion->Enabled=false;
+      Tab_Crear_Progresion->Enabled=false;
+      Tab_Melodia->Enabled=true;
+      Inicializa_Pistas_Acompanamiento();
+      //Pista de acompañamiento=X;
+      Selector_Pista_Acompanamiento->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
+      break;
+    }
+}
+
 if (Bloque_A_Manipular.Vacio)
  {
   Bloque_Vacio->Checked=true;
@@ -496,7 +530,7 @@ else
 
 Selector_Patron_Ritmico->Text=Bloque_A_Manipular.Patron_Ritmico;
 Barra_Notas_Totales->Position=Bloque_A_Manipular.Notas_Totales;
-if (Bloque_A_Manipular.Es_Sisetma_Paralelo)
+if (Bloque_A_Manipular.Es_Sistema_Paralelo)
 {
   Sistema_Paralelo->Checked=true;
 }
@@ -507,7 +541,7 @@ else
 Lista_Inversion->Text=Bloque_A_Manipular.Inversion;
 Lista_Disposicion->Text=Bloque_A_Manipular.Disposicion;
 
-if (Bloque_Vacio->Checked)
+/*if (Bloque_Vacio->Checked)
 {
   Tab_Patron_Ritmico->Enabled=false;
   Tab_Progresion->Enabled=false;
@@ -518,7 +552,7 @@ else
   Tab_Patron_Ritmico->Enabled=true;
   Tab_Progresion->Enabled=true;
   Tab_Melodia->Enabled=true;
-}
+}      */
 
 if (Sistema_Paralelo->Checked)
  {
@@ -544,10 +578,26 @@ Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(C
 Bloque_A_Manipular.Vacio=Bloque_Vacio->Checked;
 Bloque_A_Manipular.Patron_Ritmico=Selector_Patron_Ritmico->Text;
 Bloque_A_Manipular.Notas_Totales=Barra_Notas_Totales->Position;
-Bloque_A_Manipular.Es_Sisetma_Paralelo=Sistema_Paralelo->Checked;
+Bloque_A_Manipular.Es_Sistema_Paralelo=Sistema_Paralelo->Checked;
 Bloque_A_Manipular.Inversion=Lista_Inversion->Text;
 Bloque_A_Manipular.Disposicion=Lista_Disposicion->Text;
+//mirar a que pista corresponde el selector
+int seleccion_pista=Selector_Pista_Acompanamiento->Items->IndexOf(Selector_Pista_Acompanamiento->Text);
+if (seleccion_pista!=-1)
+ {
+  int N_P_A=0;
+  for (int i=0;i<Musica_Genaro->Dame_Numero_Pistas();i++)
+  {
+    if (Musica_Genaro->Dame_Tipo_Pista(i)==0)
+    {
+      if (N_P_A==seleccion_pista)
+      {Bloque_A_Manipular.N_Pista_Acomp=i;}
+      N_P_A++;
+    }
+   }
+ }
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+Dibuja_Cancion();
 }
 //---------------------------------------------------------------------------
 
@@ -721,7 +771,152 @@ switch (Barra_Tipo_Pista->Position)
 }
 //---------------------------------------------------------------------------
 
-void __fastcall TForm1::Button10Click(TObject *Sender)
+void TForm1::Crea_Progresion(String Ruta_Prolog, String argv[])
+{
+char *args[18];
+for (int i=0;i<18;i++)
+{
+if (argv[i]==NULL)
+{args[i]=NULL;}
+else
+{
+  args[i]=argv[i].c_str();
+}
+}
+  int valor_spawn=spawnv(P_WAIT,args[0],args);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el MainArgs de prolog.");}
+}
+void __fastcall TForm1::Barra_Numero_Acorde_A_MutarChange(TObject *Sender)
+{
+Label_Mutar_Acorde_N->Caption=IntToStr(Barra_Numero_Acorde_A_Mutar->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button12Click(TObject *Sender)
+{
+if (Radio_Crear_Progresion->Checked)
+{
+  Progresion_Crear_Progresion();
+}
+if (Radio_Mutar_Progresion->Checked)
+{
+  Progresion_Mutar_Progresion();
+}
+if (Radio_Mutar_Acorde_Progresion->Checked)
+{
+  Progresion_Mutar_Acorde_Progresion();
+}
+if (Radio_Mutar_Progresion_Multiple->Checked)
+{
+  Progresion_Mutar_Progresion_Multiple();
+}
+Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+char work_dir[255];
+getcwd(work_dir, 255);
+String directorio_trabajo1=work_dir;
+Bloque_A_Manipular.Progresion="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+}
+//---------------------------------------------------------------------------
+void TForm1::Progresion_Crear_Progresion()
+{
+char work_dir[255];
+getcwd(work_dir, 255);
+String directorio_trabajo1=work_dir;
+String directorio_trabajo="\""+directorio_trabajo1+"\"";
+String Orden="crea_progresion";
+String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
+String MT="mt";
+String V1;
+String V2;
+String V3;
+String V4;
+String V5;
+String TB="tb";
+String TA="ta";
+String T1="t1";
+String T2="t2";
+String T3="t3";
+String T4="t4";
+String T5="t5";
+int valor=0;
+String argv[18];
+String Ruta_Prolog=unidad_de_union->Dame_Interfaz_Prolog()->Dame_Ruta_Prolog();
+for (int i=0;i<18;i++){argv[i]=NULL;}
+argv[valor]=Ruta_Prolog;
+valor++;
+argv[valor]=directorio_trabajo;
+valor++;
+argv[valor]=Orden;
+valor++;
+argv[valor]=Ruta_Destino;
+valor++;
+argv[valor]=NAcordes;
+valor++;
+if(Radio_Mutaciones_Totales->Checked)
+{
+  argv[valor]=MT;
+  valor++;
+  V1=IntToStr(Barra_Mutaciones_Totales->Position);
+  argv[valor]=V1;
+  valor++;
+}
+else
+{
+  if (Radio_TipoA_Generales->Checked)
+  {
+    argv[valor]=TA;
+    valor++;
+    V1=IntToStr(Barra_TipoA_Generales->Position);
+    argv[valor]=V1;
+    valor++;
+  }
+  else
+  {
+    argv[valor]=T1;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Junta_Acordes->Position);
+    argv[valor]=V1;
+    valor++;
+    argv[valor]=T2;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
+    argv[valor]=V2;
+    valor++;
+    argv[valor]=T3;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
+    argv[valor]=V3;
+    valor++;
+  }
+  if (Radio_TipoB_Generales->Checked)
+  {
+    argv[valor]=TB;
+    valor++;
+    V4=IntToStr(Barra_TipoB_Generales->Position);
+    argv[valor]=V4;
+    valor++;
+  }
+  else
+  {
+    argv[valor]=T4;
+    valor++;
+    V4=IntToStr(Barra_Mutaciones_Dominante_Sencundario->Position);
+    argv[valor]=V4;
+    valor++;
+    argv[valor]=T5;
+    valor++;
+    V4=IntToStr(Barra_Mutaciones_2M7->Position);
+    argv[valor]=V5;
+    valor++;
+  }
+}
+Crea_Progresion(Ruta_Prolog,argv);
+}
+//---------------------------------------------------------------------------
+void TForm1::Progresion_Mutar_Progresion()
 {
 //de momento creamos progresión y punto
 //Guardamos la progresión con un nombre temporal y al guardar cambios lo cambiamos y ponemos
@@ -729,104 +924,424 @@ char work_dir[255];
 getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
-String Orden="Crea_Progresion";
+String Orden="muta_progresion";
 String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
+String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
+Ruta_Origen="\""+Ruta_Origen+"\"";
+//habría que comprabar si es válido y si ha pulsado cancelar
+//if (FicheroValido(Ruta_Origen)==false){ShowMessage("Fichero No Válido"); return;}
 String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
-String MT="MT";
+String MT="mt";
 String V1;
 String V2;
 String V3;
 String V4;
 String V5;
-String TB="TB";
-String TA="TA";
-String T1="T1";
-String T2="T2";
-String T3="T3";
-String T4="T4";
-String T5="T5";
+String TB="tb";
+String TA="ta";
+String T1="t1";
+String T2="t2";
+String T3="t3";
+String T4="t4";
+String T5="t5";
 int valor=0;
-char *argv[17];
+String argv[18];
 String Ruta_Prolog=unidad_de_union->Dame_Interfaz_Prolog()->Dame_Ruta_Prolog();
-for (int i=0;i<17;i++){argv[i]=NULL;}
-argv[valor]=Ruta_Prolog.c_str();
+for (int i=0;i<18;i++){argv[i]=NULL;}
+argv[valor]=Ruta_Prolog;
 valor++;
-argv[valor]=directorio_trabajo.c_str();
+argv[valor]=directorio_trabajo;
 valor++;
-argv[valor]=Orden.c_str();
+argv[valor]=Orden;
 valor++;
-argv[valor]=Ruta_Destino.c_str();
+argv[valor]=Ruta_Origen;
 valor++;
-argv[valor]=NAcordes.c_str();
+argv[valor]=Ruta_Destino;
 valor++;
+//argv[valor]=NAcordes;
+//valor++;
 if(Radio_Mutaciones_Totales->Checked)
 {
-  argv[valor]=MT.c_str();
+  argv[valor]=MT;
   valor++;
   V1=IntToStr(Barra_Mutaciones_Totales->Position);
-  argv[valor]=V1.c_str();
+  argv[valor]=V1;
   valor++;
 }
 else
 {
   if (Radio_TipoA_Generales->Checked)
   {
-    argv[valor]=TA.c_str();
+    argv[valor]=TA;
     valor++;
     V1=IntToStr(Barra_TipoA_Generales->Position);
-    argv[valor]=V1.c_str();
+    argv[valor]=V1;
     valor++;
   }
   else
   {
-    argv[valor]=T1.c_str();
+    argv[valor]=T1;
     valor++;
     V1=IntToStr(Barra_Mutaciones_Junta_Acordes->Position);
-    argv[valor]=V1.c_str();
+    argv[valor]=V1;
     valor++;
-    argv[valor]=T2.c_str();
+    argv[valor]=T2;
     valor++;
     V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
-    argv[valor]=V2.c_str();
+    argv[valor]=V2;
     valor++;
-    argv[valor]=T3.c_str();
+    argv[valor]=T3;
     valor++;
     V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
-    argv[valor]=V3.c_str();
+    argv[valor]=V3;
     valor++;
   }
   if (Radio_TipoB_Generales->Checked)
   {
-    argv[valor]=TB.c_str();
+    argv[valor]=TB;
     valor++;
     V4=IntToStr(Barra_TipoB_Generales->Position);
-    argv[valor]=V4.c_str();
+    argv[valor]=V4;
     valor++;
   }
   else
   {
-    argv[valor]=T4.c_str();
+    argv[valor]=T4;
     valor++;
     V4=IntToStr(Barra_Mutaciones_Dominante_Sencundario->Position);
-    argv[valor]=V4.c_str();
+    argv[valor]=V4;
     valor++;
-    argv[valor]=T5.c_str();
+    argv[valor]=T5;
     valor++;
     V4=IntToStr(Barra_Mutaciones_2M7->Position);
-    argv[valor]=V5.c_str();
+    argv[valor]=V5;
     valor++;
   }
 }
 Crea_Progresion(Ruta_Prolog,argv);
-
-
-//poner un nuevo formulario en visible y modal
-//elegir entre crearla desde 0 o cogiendo la semilla de otra o partiendo de otra progresión o mutando el acorde nº n
 }
 //---------------------------------------------------------------------------
-void TForm1::Crea_Progresion(String Ruta_Prolog, char* argv[])
+void TForm1::Progresion_Mutar_Acorde_Progresion()
 {
-  int valor_spawn=spawnv(P_WAIT,Ruta_Prolog.c_str(),argv);
-  if (valor_spawn==-1)
-  {ShowMessage("Error ejecutando el MainArgs de prolog.");}
+//de momento creamos progresión y punto
+//Guardamos la progresión con un nombre temporal y al guardar cambios lo cambiamos y ponemos
+char work_dir[255];
+getcwd(work_dir, 255);
+String directorio_trabajo1=work_dir;
+String directorio_trabajo="\""+directorio_trabajo1+"\"";
+String Orden="muta_progresion_acorde";
+String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
+String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
+Ruta_Origen="\""+Ruta_Origen+"\"";
+//habría que comprabar si es válido y si ha pulsado cancelar
+//if (FicheroValido(Ruta_Origen)==false){ShowMessage("Fichero No Válido"); return;}
+String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
+String NAcorde_A_Mutar=IntToStr(Barra_Numero_Acorde_A_Mutar->Position);
+String MT="mt";
+String V1;
+String V2;
+String V3;
+String V4;
+String V5;
+String TB="tb";
+String TA="ta";
+String T1="t1";
+String T2="t2";
+String T3="t3";
+String T4="t4";
+String T5="t5";
+int valor=0;
+String argv[18];
+String Ruta_Prolog=unidad_de_union->Dame_Interfaz_Prolog()->Dame_Ruta_Prolog();
+for (int i=0;i<18;i++){argv[i]=NULL;}
+argv[valor]=Ruta_Prolog;
+valor++;
+argv[valor]=directorio_trabajo;
+valor++;
+argv[valor]=Orden;
+valor++;
+argv[valor]=Ruta_Origen;
+valor++;
+argv[valor]=Ruta_Destino;
+valor++;
+argv[valor]=NAcorde_A_Mutar;
+valor++;
+//argv[valor]=NAcordes;
+//valor++;
+if(Radio_Mutaciones_Totales->Checked)
+{
+  argv[valor]=MT;
+  valor++;
+  V1=IntToStr(Barra_Mutaciones_Totales->Position);
+  argv[valor]=V1;
+  valor++;
 }
+else
+{
+  if (Radio_TipoA_Generales->Checked)
+  {
+    argv[valor]=TA;
+    valor++;
+    V1=IntToStr(Barra_TipoA_Generales->Position);
+    argv[valor]=V1;
+    valor++;
+  }
+  else
+  {
+    argv[valor]=T1;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Junta_Acordes->Position);
+    argv[valor]=V1;
+    valor++;
+    argv[valor]=T2;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
+    argv[valor]=V2;
+    valor++;
+    argv[valor]=T3;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
+    argv[valor]=V3;
+    valor++;
+  }
+  if (Radio_TipoB_Generales->Checked)
+  {
+    argv[valor]=TB;
+    valor++;
+    V4=IntToStr(Barra_TipoB_Generales->Position);
+    argv[valor]=V4;
+    valor++;
+  }
+  else
+  {
+    argv[valor]=T4;
+    valor++;
+    V4=IntToStr(Barra_Mutaciones_Dominante_Sencundario->Position);
+    argv[valor]=V4;
+    valor++;
+    argv[valor]=T5;
+    valor++;
+    V4=IntToStr(Barra_Mutaciones_2M7->Position);
+    argv[valor]=V5;
+    valor++;
+  }
+}
+Crea_Progresion(Ruta_Prolog,argv);
+}
+//---------------------------------------------------------------------------
+void TForm1::Progresion_Mutar_Progresion_Multiple()
+{
+//de momento creamos progresión y punto
+//Guardamos la progresión con un nombre temporal y al guardar cambios lo cambiamos y ponemos
+char work_dir[255];
+getcwd(work_dir, 255);
+String directorio_trabajo1=work_dir;
+String directorio_trabajo="\""+directorio_trabajo1+"\"";
+String Orden="muta_progresion_multiple";
+String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
+String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
+Ruta_Origen="\""+Ruta_Origen+"\"";
+//habría que comprabar si es válido y si ha pulsado cancelar
+//if (FicheroValido(Ruta_Origen)==false){ShowMessage("Fichero No Válido"); return;}
+String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
+String MT="mt";
+String V1;
+String V2;
+String V3;
+String V4;
+String V5;
+String TB="tb";
+String TA="ta";
+String T1="t1";
+String T2="t2";
+String T3="t3";
+String T4="t4";
+String T5="t5";
+int valor=0;
+String argv[18];
+String Ruta_Prolog=unidad_de_union->Dame_Interfaz_Prolog()->Dame_Ruta_Prolog();
+for (int i=0;i<18;i++){argv[i]=NULL;}
+argv[valor]=Ruta_Prolog;
+valor++;
+argv[valor]=directorio_trabajo;
+valor++;
+argv[valor]=Orden;
+valor++;
+argv[valor]=Ruta_Origen;
+valor++;
+argv[valor]=Ruta_Destino;
+valor++;
+argv[valor]=NAcordes;
+valor++;
+if(Radio_Mutaciones_Totales->Checked)
+{
+  argv[valor]=MT;
+  valor++;
+  V1=IntToStr(Barra_Mutaciones_Totales->Position);
+  argv[valor]=V1;
+  valor++;
+}
+else
+{
+  if (Radio_TipoA_Generales->Checked)
+  {
+    argv[valor]=TA;
+    valor++;
+    V1=IntToStr(Barra_TipoA_Generales->Position);
+    argv[valor]=V1;
+    valor++;
+  }
+  else
+  {
+    argv[valor]=T1;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Junta_Acordes->Position);
+    argv[valor]=V1;
+    valor++;
+    argv[valor]=T2;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
+    argv[valor]=V2;
+    valor++;
+    argv[valor]=T3;
+    valor++;
+    V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
+    argv[valor]=V3;
+    valor++;
+  }
+  if (Radio_TipoB_Generales->Checked)
+  {
+    argv[valor]=TB;
+    valor++;
+    V4=IntToStr(Barra_TipoB_Generales->Position);
+    argv[valor]=V4;
+    valor++;
+  }
+  else
+  {
+    argv[valor]=T4;
+    valor++;
+    V4=IntToStr(Barra_Mutaciones_Dominante_Sencundario->Position);
+    argv[valor]=V4;
+    valor++;
+    argv[valor]=T5;
+    valor++;
+    V4=IntToStr(Barra_Mutaciones_2M7->Position);
+    argv[valor]=V5;
+    valor++;
+  }
+}
+Crea_Progresion(Ruta_Prolog,argv);
+}
+//---------------------------------------------------------------------------
+
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Radio_Crear_ProgresionClick(TObject *Sender)
+{
+if (Radio_Mutar_Acorde_Progresion->Checked)
+{
+  Label_Texto_Muta_Acorde->Enabled=true;
+  Label_Mutar_Acorde_N->Enabled=true;
+  Barra_Numero_Acorde_A_Mutar->Enabled=true;
+}
+else
+{
+  Label_Texto_Muta_Acorde->Enabled=false;
+  Label_Mutar_Acorde_N->Enabled=false;
+  Barra_Numero_Acorde_A_Mutar->Enabled=false;
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Radio_Mutar_ProgresionClick(TObject *Sender)
+{
+if (Radio_Mutar_Acorde_Progresion->Checked)
+{
+  Label_Texto_Muta_Acorde->Enabled=true;
+  Label_Mutar_Acorde_N->Enabled=true;
+  Barra_Numero_Acorde_A_Mutar->Enabled=true;
+}
+else
+{
+  Label_Texto_Muta_Acorde->Enabled=false;
+  Label_Mutar_Acorde_N->Enabled=false;
+  Barra_Numero_Acorde_A_Mutar->Enabled=false;
+}  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Radio_Mutar_Acorde_ProgresionClick(TObject *Sender)
+{
+if (Radio_Mutar_Acorde_Progresion->Checked)
+{
+  Label_Texto_Muta_Acorde->Enabled=true;
+  Label_Mutar_Acorde_N->Enabled=true;
+  Barra_Numero_Acorde_A_Mutar->Enabled=true;
+}
+else
+{
+  Label_Texto_Muta_Acorde->Enabled=false;
+  Label_Mutar_Acorde_N->Enabled=false;
+  Barra_Numero_Acorde_A_Mutar->Enabled=false;
+}  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Radio_Mutar_Progresion_MultipleClick(
+      TObject *Sender)
+{
+if (Radio_Mutar_Acorde_Progresion->Checked)
+{
+  Label_Texto_Muta_Acorde->Enabled=true;
+  Label_Mutar_Acorde_N->Enabled=true;
+  Barra_Numero_Acorde_A_Mutar->Enabled=true;
+}
+else
+{
+  Label_Texto_Muta_Acorde->Enabled=false;
+  Label_Mutar_Acorde_N->Enabled=false;
+  Barra_Numero_Acorde_A_Mutar->Enabled=false;
+}  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button9Click(TObject *Sender)
+{
+Form_Melodia->Lee_Puntos();
+Form_Melodia->Show();
+}
+//---------------------------------------------------------------------------
+void TForm1::Inicializa_Pistas_Acompanamiento()
+{
+Selector_Pista_Acompanamiento->Items->Clear();
+for (int i=0;i<Musica_Genaro->Dame_Numero_Pistas();i++)
+ {
+  if (Musica_Genaro->Dame_Tipo_Pista(i)==0)
+  {
+    Selector_Pista_Acompanamiento->Items->Add("Pista Nº "+IntToStr(i));
+  }
+ }
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Guardar1Click(TObject *Sender)
+{
+if (Inicializado)
+{
+Musica_Genaro->Guarda_Archivo();
+}
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::FormPaint(TObject *Sender)
+{
+if (Inicializado)
+{
+  Dibuja_Cancion();
+}
+}
+//---------------------------------------------------------------------------
+

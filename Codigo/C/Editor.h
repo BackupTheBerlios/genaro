@@ -57,6 +57,7 @@ __published:	// IDE-managed Components
   void __fastcall ToolButton3Click(TObject *Sender);
   void __fastcall Boton_Nueva_VozClick(TObject *Sender);
   void __fastcall Velocity_SelectorChange(TObject *Sender);
+  void __fastcall FormPaint(TObject *Sender);
 private:	// User declarations
         int Numero_Columnas_Pantalla;
         int Ancho_Columna_Pantalla;

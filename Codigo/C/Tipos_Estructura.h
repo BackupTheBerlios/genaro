@@ -13,10 +13,12 @@ struct Bloque
     int Num_Compases;
     bool Vacio;
     String Patron_Ritmico;
-    bool Es_Sisetma_Paralelo;
+    bool Es_Sistema_Paralelo;
     int Notas_Totales;
     String Inversion;
     String Disposicion;
+    int N_Pista_Acomp;
+    //String Curva_Melodica;
     //String Octava_Inicial
     //?? tipo enlace voces
     String Progresion;
@@ -58,6 +60,8 @@ public:
   void Inserta_Bloque(Bloque Nuevo_Bloque, int Num_Pista);
   void Nuevo_Bloque(int Num_Compases,String P_Ritmico,String Disposicion, String Inversion);
   int Dame_Tipo_Pista(int N_Pista){return Pistas[N_Pista]->Dame_Tipo();};
+  int Dame_Numero_Pistas(){return Pistas.size();};
   Pista* Dame_Pista(int N_Pista){return Pistas[N_Pista];};
+  void Guarda_Archivo();
 };
 #endif

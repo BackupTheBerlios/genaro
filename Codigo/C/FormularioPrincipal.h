@@ -114,8 +114,21 @@ __published:	// IDE-managed Components
   TButton *Button9;
   TLabel *Etiqueta_Numero_Compases;
   TLabel *Etiqueta_Tipo_Pista;
-  TButton *Button10;
-  TButton *Button11;
+  TLabel *Label8;
+  TTabSheet *Tab_Crear_Progresion;
+  TButton *Button12;
+  TGroupBox *GroupBox1;
+  TRadioButton *Radio_Crear_Progresion;
+  TRadioButton *Radio_Mutar_Progresion;
+  TRadioButton *Radio_Mutar_Acorde_Progresion;
+  TRadioButton *Radio_Mutar_Progresion_Multiple;
+  TTrackBar *Barra_Numero_Acorde_A_Mutar;
+  TOpenDialog *Dialogo_Origen_Progresion;
+  TLabel *Label_Mutar_Acorde_N;
+  TLabel *Label_Texto_Muta_Acorde;
+  TComboBox *Selector_Pista_Acompanamiento;
+  TMenuItem *Guardar1;
+  TMenuItem *N1;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -150,7 +163,15 @@ __published:	// IDE-managed Components
   void __fastcall Barra_Mutaciones_2M7Change(TObject *Sender);
   void __fastcall Barra_N_Compases_BloqueChange(TObject *Sender);
   void __fastcall Barra_Tipo_PistaChange(TObject *Sender);
-  void __fastcall Button10Click(TObject *Sender);
+  void __fastcall Barra_Numero_Acorde_A_MutarChange(TObject *Sender);
+  void __fastcall Button12Click(TObject *Sender);
+  void __fastcall Radio_Crear_ProgresionClick(TObject *Sender);
+  void __fastcall Radio_Mutar_ProgresionClick(TObject *Sender);
+  void __fastcall Radio_Mutar_Acorde_ProgresionClick(TObject *Sender);
+  void __fastcall Radio_Mutar_Progresion_MultipleClick(TObject *Sender);
+  void __fastcall Button9Click(TObject *Sender);
+  void __fastcall Guardar1Click(TObject *Sender);
+  void __fastcall FormPaint(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;
@@ -173,7 +194,12 @@ public:		// User declarations
   void Cuadro_Cabecera_Pista();
   void Cuadro_Bloque_Pista();  
   void Dibuja_Musica();
-  void TForm1::Crea_Progresion(String Ruta_Prolog,char* argv[]);  
+  void Crea_Progresion(String Ruta_Prolog,String argv[]);
+  void Progresion_Crear_Progresion();
+  void Progresion_Mutar_Progresion();
+  void Progresion_Mutar_Acorde_Progresion();
+  void Progresion_Mutar_Progresion_Multiple();
+  void Inicializa_Pistas_Acompanamiento();
   __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

@@ -246,17 +246,18 @@ resolucionRandom = 1000
 {-
 Tipo que representa las funciones que emplean numeros aleatorios. type FuncAleatoria a b = [Int] -> a -> (b, [Int]), es decir,
 se espera que reciba una lista infinita de numeros enteros entre 1 y resolucionRandom, que se supone que son numeros aleatorios.
- Por lo demás es una función de tipo (a->b),y devuelve la pareja (b,restoAleat) que es el resultado de la funcion si no fuera aleatorio,
+ Por lo demï¿½s es una funciï¿½n de tipo (a->b),y devuelve la pareja (b,restoAleat) que es el resultado de la funcion si no fuera aleatorio,
  y el resto de la lista infinita de numeros aleatorios que no ha consumido
 -}
-type FuncAleatoria a b = [Int] -> a -> (b, [Int])
+--type FuncAleatoria a b = [Int] -> a -> (b, [Int])
+type FuncAleatoria a b = ([Int], a) -> ([Int], b)
 
 {-
 Dada una lista de parejas (termino, peso), donde los pesos son naturales, devuelve en Elem un elemento
 (es decir, primer componente de una de las parejas que forman la lista de entrada) elegido al azar entre
 de los de la lista asignando a cada elemento/pareja una probabilidad de ser elegida igual a (peso/sumaPesos)
 , donde suma pesos es la suma de los pesos de todos los elementos de la lista. Para ello se le debe suministrar un
-numero aleatorio entre 1 y resolucionRandom. Se devuelve el elemento elegido y su posicion
+numero aleatorio entre 1 y resolucionRandom. Se devuelve el elemento elegido y su posicion CONTANDO DESDE 1 !!!!!
 -dameElemAleatListaPesos aleat listaParejas
 -}
 dameElemAleatListaPesos :: Int -> [(a, Int)] -> (a, Int)
@@ -320,7 +321,7 @@ pruDameElemAleatListaPesosFloat = do putStr "Prueba de dameElemAleatListaPesosFl
                                            estadisticasReales = map (\(val,fAbs) -> (val, fAbs, fromIntegral fAbs / fromIntegral tamPrueba)) estadsAux
                                            estadisticasEsperadas = map (\(val,peso) -> (val, peso / sumaPesos)) listaParejas
 {-
-como dameElemAleatListaPesos pero con pesos de tipo Float y devolviendo también la lista de entrada menos el elemento escogido
+como dameElemAleatListaPesos pero con pesos de tipo Float y devolviendo tambiï¿½n la lista de entrada menos el elemento escogido
 -}
 dameElemAleatListaPesosRestoFloat :: Int -> [(a, Float)] -> (a, Int, [(a, Float)])
 dameElemAleatListaPesosRestoFloat aleat listaParejas = (elem, pos, restoInv)
@@ -356,12 +357,12 @@ pruDameElemAleatListaPesosRestoFloat = do putStr "Prueba de dameElemAleatListaPe
 {-
 dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
 dameSublistaAleatListaPesosFloat aleat listaPesos = (sublistaValor_Posicion, restoAleat)
-   -dada una lista de elementos con un peso asociado a cada uno, devuelve una sublista de tamaño aleatorio
+   -dada una lista de elementos con un peso asociado a cada uno, devuelve una sublista de tamaï¿½o aleatorio
    de elementos de la lista inicial elegidos segun sus pesos
-   -el tamaño de la sublista resultado será mayor que 1 y menor o igual al tamaño de la lista de entrada
+   -el tamaï¿½o de la sublista resultado serï¿½ mayor que 1 y menor o igual al tamaï¿½o de la lista de entrada
 -}
---dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
-dameSublistaAleatListaPesosFloat :: FuncAleatoria [(a, Float)] [(a, Int)]
+dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
+--dameSublistaAleatListaPesosFloat :: FuncAleatoria [(a, Float)] [(a, Int)]
 dameSublistaAleatListaPesosFloat aleat@(a1:as) listaPesos = dameSublistaAleatListaPesosTamFloat as tamDestino listaPesos
                        where tamOri = length listaPesos
                              tamDestino = if (tamAux>0) then tamAux else 1
@@ -414,7 +415,7 @@ pruDameSublistaAleatListaPesosRestoFloat = do aleat <- listaInfNumsAleatoriosIO 
 {-
 dameSublistaAleatListaPesosTamFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [Int])
 dameSublistaAleatListaPesosTamFloat aleat@(a1:as) cuantos listaPesos = (resul,restoAleat)
-   -dada una lista de elementos con un peso asociado a cada uno, devuelve una sublista del tamaño especificado
+   -dada una lista de elementos con un peso asociado a cada uno, devuelve una sublista del tamaï¿½o especificado
    ,de elementos de la lista inicial elegidos segun sus pesos
 -}
 
@@ -600,4 +601,13 @@ elementoAleatorio :: RandomGen b => b -> [a] -> (a,b)
 elementoAleatorio g l = (l !! pos, sigg)
 	where longitud = length l;
 		(pos, sigg) = randomR (0, longitud - 1) g
+
+{-
+aplicaNVeces :: Int -> (a -> a) -> a -> a
+aplicaNVeces n f x = resultado de hacer f(f(f...f x)) n veces
+-}
+aplicaNVeces :: Int -> (a -> a) -> a -> a
+aplicaNVeces n f x
+ | n <= 0    = x
+ | otherwise = aplicaNVeces (n-1) f (f x)
 

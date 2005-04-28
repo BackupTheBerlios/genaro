@@ -64,6 +64,24 @@ construyeListaAcentos (numVoces, matriz) = listaAcentos
                                           acentoMedio = (foldl' (+) 0 listaAcentoMedioCols) / fromIntegral numColumnas
                                           listaAcentos = zip (map (\acento -> if acento >= acentoMedio then acento else 0) listaAcentoMedioCols) (map snd matriz)
 
+{-
+Funciona como si data ModoPatronHorizontal = NoCiclico
+-}
+ajustaListaAcentosADur :: Dur -> ListaAcentos -> ListaAcentos
+ajustaListaAcentosADur dur acentos
+  | durTotalAcentos == dur = acentos
+  | durTotalAcentos > dur  = acentosMenos
+  | durTotalAcentos < dur  = acentosMas
+                             where durTotalAcentos     = foldl' (+) 0 (map snd acentos)
+                                   acentosSinUltimo    = (invertir.tail.invertir) acentos
+                                   durAcentosSinUltimo = foldl' (+) 0 (map snd acentosSinUltimo)
+                                   acentosMenos        = if (durAcentosSinUltimo >= dur)
+                                                            then ajustaListaAcentosADur dur acentosSinUltimo
+                                                            else acentosSinUltimo ++ [(acQuitado, durDif)] -- me he pasao quitando
+                                                                 where durDif = dur - durAcentosSinUltimo
+                                                                       acQuitado = (fst.head.invertir) acentos
+                                   acentosMas           = ajustaListaAcentosADur dur (acentos ++ acentos)
+
 pruListaAcentos :: String -> IO()
 pruListaAcentos ruta = do (FPRC cols resolucion patronRitmico) <- leePatronRitmicoC ruta
                           putStr "Lista de acentos para melodia resultado\n"
@@ -149,10 +167,12 @@ de entrada pero con menos densidad
 aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
 aplicaCurvaMelodicaAListaAcentos listaAleat registro escala tonica pitchPartida listaAcentos CurvaMelodica = ((musica,curvaSinConsumir), restoAleat)
 -}
-{-aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
-aplicaCurvaMelodicaAListaAcentos aleat@(a1:as) registro escala tonica pitchPartida listaAcentos curvaMelodica = --((musica,curvaSinConsumir), restoAleat)
-            where numAcentosElegidos = if (numAux>0) then numAux else 1
-                                          where numAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
+{-aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> Dur -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
+aplicaCurvaMelodicaAListaAcentos aleat registro escala tonica pitchPartida dur acentos curvaMelodica = --((musica,curvaSinConsumir), restoAleat)
+            where acentosAjustadosADur = ajustaListaAcentosADur dur acentos
+                  (restoAleat1@(ra1:ras),(curvaAjustada, acentosAjustados)) = ajustaCurvaMelodicaConListaAcentos (aleat, (curvaMelodica, acentosAjustadosADur))
+                  numAcentosElegidos = if (numAux>0) then numAux else 1
+                                          where numAux = round ( fromIntegral (ra1 * (length acentosAjustados)) / fromIntegral resolucionRandom)
                   listaPesosAcentos = zip listaAcentos (map fst listaAcentos)
                   (lAcenPosElegidos, lAcenRech, as2) = dameSublistaAleatListaPesosTamRestoFloat as numAcentosElegidos listaPesosAcentos
                   --([(a, Int)], [((a,Float), Int)], [Int])

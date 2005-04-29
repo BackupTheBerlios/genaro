@@ -102,7 +102,6 @@ Conceptos:
   -Ajustar la curva melodica al ritmo, rellenando los huecos con notas cortas de paso o de bordadura
 
 -}
---hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Int -> Dur -> (CurvaMelodica, [Int])
 hazCurvaMelodicaAleat :: FuncAleatoria (Int, Int, Int, Dur) CurvaMelodica
 hazCurvaMelodicaAleat (aleat@(a1:as), (saltoMax, probSalto, numPuntos, duracionTotal)) = (aleatSobran, puntoPartida:restoCurva) --(puntoPartida:restoCurva, aleatSobran)
                                                                                  where sube = (fromIntegral a1/ fromIntegral resolucionRandom) >= 0.5
@@ -167,19 +166,23 @@ de entrada pero con menos densidad
 aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
 aplicaCurvaMelodicaAListaAcentos listaAleat registro escala tonica pitchPartida listaAcentos CurvaMelodica = ((musica,curvaSinConsumir), restoAleat)
 -}
-{-aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> Dur -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
-aplicaCurvaMelodicaAListaAcentos aleat registro escala tonica pitchPartida dur acentos curvaMelodica = --((musica,curvaSinConsumir), restoAleat)
+--aplicaCurvaMelodicaAListaAcentos :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, ListaAcentos, CurvaMelodica ) ([Music],CurvaMelodicaEspacios)
+aplicaCurvaMelodicaAListaAcentos (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = preMusica1 --((musica,curvaSinConsumir), restoAleat)
             where acentosAjustadosADur = ajustaListaAcentosADur dur acentos
-                  (restoAleat1@(ra1:ras),(curvaAjustada, acentosAjustados)) = ajustaCurvaMelodicaConListaAcentos (aleat, (curvaMelodica, acentosAjustadosADur))
+                  (restoAleat1@(ra1:restoAleat2),(curvaAjustada, acentosAjustados)) = ajustaCurvaMelodicaConListaAcentos (aleat, (curvaMelodica, acentosAjustadosADur))
                   numAcentosElegidos = if (numAux>0) then numAux else 1
                                           where numAux = round ( fromIntegral (ra1 * (length acentosAjustados)) / fromIntegral resolucionRandom)
-                  listaPesosAcentos = zip listaAcentos (map fst listaAcentos)
-                  (lAcenPosElegidos, lAcenRech, as2) = dameSublistaAleatListaPesosTamRestoFloat as numAcentosElegidos listaPesosAcentos
-                  --([(a, Int)], [((a,Float), Int)], [Int])
+                  listaPesosAcentos = zip acentos (map fst acentos)
+                  (restoAleat3, (lAcenPosElegidos, lAcenRech)) = dameSublistaAleatListaPesosTamRestoFloat (restoAleat2, (numAcentosElegidos, listaPesosAcentos))
+                  --([(a, Int)], [((a,Float), Int)])
                   listaGradosPitch = curvaMelodicaAGradosPicth registro escala tonica curvaMelodica pitchPartida
                   listaPesosGrados = zip listaGradosPitch (map (\(g,p)-> fromIntegral (valoraGrado escala g)) listaGradosPitch)
-                  (lGradsElegidos, lGradsRech, as3) = dameSublistaAleatListaPesosTamRestoFloat as2 numAcentosElegidos listaPesosGrados
--}
+                  (restoAleat4, (lGradsPosElegidos, lGradsRech)) = dameSublistaAleatListaPesosTamRestoFloat (restoAleat3, (numAcentosElegidos, listaPesosGrados))
+                  preMusica1 = zip (map fst lAcenPosElegidos) (map fst lGradsPosElegidos)
+
+type CurvaMelodicaEspacios = [Maybe PuntoMelodico]
+
+--pruAplicaCurvaMelodicaAListaAcentos ::
 {-
 ajustaCurvaMelodicaConListaAcentos :: FuncAleatoria (CurvaMelodica,ListaAcentos) (CurvaMelodica,ListaAcentos)
 dada una pareja (CurvaMelodica,ListaAcentos) devuelve una pareja del mismo tipo que sea compatible, es decir, tenga el mismo numero de
@@ -273,8 +276,6 @@ divisorAcentos :: Int
 divisorAcentos = 2
 
 
-
-type CurvaMelodicaEspacios = [Maybe PuntoMelodico]
 curvaMelodicaAGradosPicth :: Registro -> Escala -> PitchClass -> CurvaMelodica -> Pitch -> [(Grado,Pitch)]
 curvaMelodicaAGradosPicth registro escala tonica [] pitchPartida = []
 curvaMelodicaAGradosPicth registro escala tonica (salto:pms) pitchPartida = (nuevoGrado,nuevoPitch) : restoMelodia

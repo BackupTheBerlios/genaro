@@ -249,7 +249,6 @@ se espera que reciba una lista infinita de numeros enteros entre 1 y resolucionR
  Por lo dem�s es una funci�n de tipo (a->b),y devuelve la pareja (b,restoAleat) que es el resultado de la funcion si no fuera aleatorio,
  y el resto de la lista infinita de numeros aleatorios que no ha consumido
 -}
---type FuncAleatoria a b = [Int] -> a -> (b, [Int])
 type FuncAleatoria a b = ([Int], a) -> ([Int], b)
 
 {-
@@ -369,25 +368,25 @@ dameSublistaAleatListaPesosFloat aleat@(a1:as) listaPesos = dameSublistaAleatLis
                                           where tamAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
 
 {-
-dameSublistaAleatListaPesosRestoFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [(a, Int)], [Int])
-dameSublistaAleatListaPesosRestoFloat aleat listaPesos = (sublistaValor_Posicion, sublista_no_elegida, restoAleat)
+dameSublistaAleatListaPesosRestoFloat :: FuncAleatoria [(a, Float)] ([(a, Int)], [((a,Float), Int)])
+dameSublistaAleatListaPesosRestoFloat (aleat@(a1:as), listaPesos) = (restoAleat, (sublistaValor_Posicion, sublista_no_elegida))
    -como dameSublistaAleatListaPesosFloat pero devolviendo tb la sublista no elegida, ed, la lista de entrada menos
 la sublista elegida
 -}
-dameSublistaAleatListaPesosRestoFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [((a,Float), Int)], [Int])
-dameSublistaAleatListaPesosRestoFloat aleat@(a1:as) listaPesos = dameSublistaAleatListaPesosTamRestoFloat as tamDestino listaPesos
+dameSublistaAleatListaPesosRestoFloat :: FuncAleatoria [(a, Float)] ([(a, Int)], [((a,Float), Int)])
+dameSublistaAleatListaPesosRestoFloat (aleat@(a1:as), listaPesos) = (restoAleat, (sublistaValor_Posicion, sublista_no_elegida))
                        where tamOri = length listaPesos
                              tamDestino = if (tamAux>0) then tamAux else 1
                                           where tamAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
-
+                             (restoAleat, (sublistaValor_Posicion, sublista_no_elegida)) = dameSublistaAleatListaPesosTamRestoFloat (as, (tamDestino, listaPesos))
 {-
 dameSublistaAleatListaPesosTamRestoFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [((a,Float), Int)], [Int])
 dameSublistaAleatListaPesosTamRestoFloat aleat cuantos listaPesos = (sublistaValor_Posicion, sublista_no_elegida, restoAleat)
    -como dameSublistaAleatListaPesosTamFloat pero devolviendo tb la sublista no elegida, ed, la lista de entrada menos
 la sublista elegida
 -}
-dameSublistaAleatListaPesosTamRestoFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [((a,Float), Int)], [Int])
-dameSublistaAleatListaPesosTamRestoFloat aleat cuantos listaPesos = (elemsElegidos, elemsRechazados, restoAleat)
+dameSublistaAleatListaPesosTamRestoFloat :: FuncAleatoria (Int, [(a, Float)]) ([(a, Int)], [((a,Float), Int)])
+dameSublistaAleatListaPesosTamRestoFloat (aleat, (cuantos, listaPesos)) = (restoAleat, (elemsElegidos, elemsRechazados))
                        where construyeSublista aleat2@(a1:as) n listaPesos
                                 | n > 0     = ((elem, pos):restoElegido, restoNoElegido, restoAleat)
                                 | otherwise = ([], listaPesos, aleat2)
@@ -408,8 +407,11 @@ pruDameSublistaAleatListaPesosRestoFloat = do aleat <- listaInfNumsAleatoriosIO 
                                               putStr ("Lista elegida: " ++ show(sublistaElegida aleat) ++ "\n")
                                               putStr ("Lista rechazada: " ++ show(sublistaRechazada aleat) ++ "\n")
                                               where listaParejas   = [('a',0.33333),('b',0.5),('c',1.0),('d',0.5),('e',0.333333)]
-                                                    sublistaElegida aleat = primero (dameSublistaAleatListaPesosRestoFloat aleat listaParejas)
-                                                    sublistaRechazada aleat = segundo (dameSublistaAleatListaPesosRestoFloat aleat listaParejas)
+                                                    resul aleat = snd (dameSublistaAleatListaPesosRestoFloat (aleat, listaParejas))
+                                                    sublistaElegida aleat = fst (resul aleat)
+                                                    sublistaRechazada aleat = snd (resul aleat)
+                                                    --sublistaElegida aleat = primero (dameSublistaAleatListaPesosRestoFloat (aleat, listaParejas))
+                                                    --sublistaRechazada aleat = segundo (dameSublistaAleatListaPesosRestoFloat aleat listaParejas)
 
 
 {-

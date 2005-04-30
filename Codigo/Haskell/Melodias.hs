@@ -167,22 +167,44 @@ aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass ->
 aplicaCurvaMelodicaAListaAcentos listaAleat registro escala tonica pitchPartida listaAcentos CurvaMelodica = ((musica,curvaSinConsumir), restoAleat)
 -}
 --aplicaCurvaMelodicaAListaAcentos :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, ListaAcentos, CurvaMelodica ) ([Music],CurvaMelodicaEspacios)
-aplicaCurvaMelodicaAListaAcentos (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = preMusica1 --((musica,curvaSinConsumir), restoAleat)
+aplicaCurvaMelodicaAListaAcentos (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (preMusica1, musica1) --((musica,curvaSinConsumir), restoAleat)
             where acentosAjustadosADur = ajustaListaAcentosADur dur acentos
                   (restoAleat1@(ra1:restoAleat2),(curvaAjustada, acentosAjustados)) = ajustaCurvaMelodicaConListaAcentos (aleat, (curvaMelodica, acentosAjustadosADur))
-                  numAcentosElegidos = if (numAux>0) then numAux else 1
-                                          where numAux = round ( fromIntegral (ra1 * (length acentosAjustados)) / fromIntegral resolucionRandom)
-                  listaPesosAcentos = zip acentos (map fst acentos)
+                  numAcentosElegidos = if (numAux<=0)
+                                            then 1
+                                            else if (numAux > tamAcentos)
+                                                    then tamAcentos
+                                                    else numAux
+                                          where numAux = round ( fromIntegral (ra1 * tamAcentos) / fromIntegral resolucionRandom)
+                                                tamAcentos = length acentosAjustados
+                  listaPesosAcentos = zip acentosAjustados (map fst acentosAjustados)
                   (restoAleat3, (lAcenPosElegidos, lAcenRech)) = dameSublistaAleatListaPesosTamRestoFloat (restoAleat2, (numAcentosElegidos, listaPesosAcentos))
                   --([(a, Int)], [((a,Float), Int)])
-                  listaGradosPitch = curvaMelodicaAGradosPicth registro escala tonica curvaMelodica pitchPartida
+                  listaGradosPitch = curvaMelodicaAGradosPicth registro escala tonica curvaAjustada pitchPartida
                   listaPesosGrados = zip listaGradosPitch (map (\(g,p)-> fromIntegral (valoraGrado escala g)) listaGradosPitch)
                   (restoAleat4, (lGradsPosElegidos, lGradsRech)) = dameSublistaAleatListaPesosTamRestoFloat (restoAleat3, (numAcentosElegidos, listaPesosGrados))
                   preMusica1 = zip (map fst lAcenPosElegidos) (map fst lGradsPosElegidos)
+                  convMus = \((vel, dur),(grado, pitch)) -> (Note pitch dur [Volume vel])
+                  musica1 = line (map convMus preMusica1)
+
 
 type CurvaMelodicaEspacios = [Maybe PuntoMelodico]
 
---pruAplicaCurvaMelodicaAListaAcentos ::
+pruAplicaCurvaMelodicaAListaAcentos :: String -> Int -> Dur -> IO()
+pruAplicaCurvaMelodicaAListaAcentos ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                            (FPRC cols resolucion p) <- leePatronRitmicoC ruta
+                                                            putStr ("Curva melodica: " ++ (show (curvaMelodica aleat)) ++ "\n")
+                                                            putStr ("Lista de acentos: " ++ (show (acentos p)) ++ "\n")
+                                                            putStr ("Resultado :" ++ (show (resul aleat p)) ++ "\n")
+                                                            haskoreAMidi (musica aleat p) "./pruMelodiaRitmo.mid"
+                                                            putStr "Escrito con exito midi de prueba\n"
+                                                            where acentos p = construyeListaAcentos p
+                                                                  curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
+                                                                  longCurIni aleat = length (curvaMelodica aleat)
+                                                                  restoAl1 aleat = fst (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
+                                                                  resul aleat p = aplicaCurvaMelodicaAListaAcentos ((restoAl1 aleat), (registroSolista, Jonica, C, (C,6), dur, (acentos p), curvaMelodica aleat))
+                                                                  musica aleat p = snd (resul aleat p)
+
 {-
 ajustaCurvaMelodicaConListaAcentos :: FuncAleatoria (CurvaMelodica,ListaAcentos) (CurvaMelodica,ListaAcentos)
 dada una pareja (CurvaMelodica,ListaAcentos) devuelve una pareja del mismo tipo que sea compatible, es decir, tenga el mismo numero de

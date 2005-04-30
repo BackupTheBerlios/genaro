@@ -224,8 +224,13 @@ listaAStringConSaltosAcu([X|Xs], Str) :-
                 string_concat(StrXSalto,StrXs, Str).
 
 /**
-* sustituye(+Lin, +N, +Elem, -Lout) : sustituye el elemento N de Lin por Elem y lo guarda en Lout. 
-* Suponemos que la lista comienza en 1
+* sustituye(+Lin, +N, +Elem, -Lout)
+* Sustituye el elemento N de Lin por Elem y lo guarda en Lout.
+* Suponemos que la lista comienza en 1.
+* @param +Lin lista de entrada
+* @param +N indice sobre la lista. El primer elemento es el 1
+* @param +Elem elemento que sustituira al elemento N-esimo
+* @param -Lout lista de salida
 */
 sustituye( [_ | Xs], 1, Elem, [Elem | Xs] ).
 sustituye( [X | Xs], N, Elem, [X | Lout] ) :-

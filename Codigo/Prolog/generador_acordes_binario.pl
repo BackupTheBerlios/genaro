@@ -19,7 +19,8 @@ GENERADOR DE SECUENCIAS DE ACORDES A REDONDAS EN ESCALA DE DO JONICO
       ,pasa_args_a_tipo_mutacion/2
       ,es_tipo_mutacion/1
       ,modifica_prog2/3
-      ,haz_progresion2/4] ).
+      ,haz_progresion2/4
+      ,duracionProg/2] ).
 
 %BIBLIOTECAS
 :- ensure_loaded(library(lists)).
@@ -383,7 +384,9 @@ quita_acordesLista(Lo, Lo).
 */
 
 /**
-* es_tipo_mutacion( +Tipo_Mutacion ): indica como son las mutaciones que hay que hacer a una progresion
+* es_tipo_mutacion( +Tipo_Mutacion )
+* Define la estructura de terminos que indican como son las mutaciones que hay que hacer a una progresion
+* @param +Tipo_Mutacion termino que indica el numero de las diferentes posibilidades para las mutaciones
 */
 es_tipo_mutacion( tm([NM]) ) :- 
        number(NM).
@@ -406,9 +409,12 @@ es_tipo_mutacion( t123b([NMT1, NMT2, NMT3, NMTB]) ) :-
       ,number(NMT3)
       ,number(NMTB).
 
+
 /**
-* para_args_a_tipo_mutacion( +Argumentos, -Tipo_Mutacion ): traduce los parametros relacionados con las mutaciones
-* que se pasa al mainargs a un tipo mas manejable por prolog
+* para_args_a_tipo_mutacion( +Argumentos, -Tipo_Mutacion )
+* Traduce los parametros relacionados con las mutaciones que se pasa al mainargs a un tipo mas manejable por prolog
+* @param +Argumentos lista de atomos que indican las mutaciones tal y como las recibe el mainargs
+* @param -Tipo_Mutacion cumple es_tipo_mutacion/1
 */
 % Solamente numero de mutaciones
 pasa_args_a_tipo_mutacion( [ MT, N_mutaciones ] , tm([NM]) ) :-
@@ -452,8 +458,11 @@ pasa_args_a_tipo_mutacion( [ T1, N_T1, T2, N_T2, T3, N_T3, TB, N_TB ] , t123b([N
        ,atom_number(N_TB, NMTB).   
 
 /**
-* crea_progresion(+NumCompases, +Tipo, -Progresion): crea una progresion de NumCompases a partir de una
-* progresion semilla de tipo Tipo pero sin hacer ninguna mutacion
+* crea_progresion(+NumCompases, +Tipo, -Progresion)
+* Crea una progresion de NumCompases a partir de una progresion semilla de tipo Tipo pero sin hacer ninguna mutacion
+* @param +NumCompases numero de compases de Progresion
+* @param +Tipo tipo de la progresion semilla usada
+* @param -Progresion cumple es_progresion/1 creada sin ninguna mutacion
 */
 crea_progresion(N, _, progresion([])) :- 
         N =< 0
@@ -469,7 +478,11 @@ crea_progresion(N, Tipo, Prog) :-
 
 
 /**
-* modifica_prog2( +Pin, +TipoMutacion, -Pout): 
+* modifica_prog2( +Pin, +TipoMutacion, -Pout)
+* Muta la progresion de entrada en funcion de TipoMutacion
+* @param +Pin cumple es_progresion/1. Progresion para mutar
+* @param +TipoMutacion forma en que hay que mutarla
+* @param -Pout cumple es_progresion/1. Progresion de salida
 */
 % cuando se le da Tipo A y tipo B
 modifica_prog2( Pin, tab([NTA, NTB]), Pout ) :-
@@ -478,20 +491,20 @@ modifica_prog2( Pin, tab([NTA, NTB]), Pout ) :-
 % cuando se le da Tipo A y tipo 4 y 5
 modifica_prog2( Pin, ta45([NTA, NT4, NT5]), Pout ) :-
         modificaProgTipoA(Pin,  Paux1, NTA)
-       ,modificaProgTipoNum(Paux1, Paux2, 3, NT4)
-       ,modificaProgTipoNum(Paux2, Pout, 4, NT5).
+       ,modificaProgTipoNum(Paux1, Paux2, 4, NT4)
+       ,modificaProgTipoNum(Paux2, Pout, 5, NT5).
 % cuando se le da Tipo 1, 2, 3, 4 y 5
 modifica_prog2( Pin, t12345([NT1, NT2, NT3 , NT4, NT5]), Pout ) :-
-        modificaProgTipoNum(Pin,   Paux1, 0, NT1)
-       ,modificaProgTipoNum(Paux1, Paux2, 1, NT2)
-       ,modificaProgTipoNum(Paux2, Paux3, 2, NT3)
-       ,modificaProgTipoNum(Paux3, Paux4, 3, NT4)
-       ,modificaProgTipoNum(Paux4, Pout,  4, NT5).
+        modificaProgTipoNum(Pin,   Paux1, 1, NT1)
+       ,modificaProgTipoNum(Paux1, Paux2, 2, NT2)
+       ,modificaProgTipoNum(Paux2, Paux3, 3, NT3)
+       ,modificaProgTipoNum(Paux3, Paux4, 4, NT4)
+       ,modificaProgTipoNum(Paux4, Pout,  5, NT5).
 % cuando se le da Tipo 1, 2 y 3 y tipo B
 modifica_prog2( Pin, t123b([NT1, NT2, NT3, NTB]), Pout ) :-
-        modificaProgTipoNum(Pin, Paux1, 0, NT1)
-       ,modificaProgTipoNum(Paux1, Paux2, 1, NT2)
-       ,modificaProgTipoNum(Paux2, Paux3, 2, NT3)
+        modificaProgTipoNum(Pin, Paux1, 1, NT1)
+       ,modificaProgTipoNum(Paux1, Paux2, 2, NT2)
+       ,modificaProgTipoNum(Paux2, Paux3, 3, NT3)
        ,modificaProgTipoB(Paux3,  Pout, NTB).
 % cuando se le da el numero de mutaciones totales
 modifica_prog2( Pin, tm([NM]), Pout ) :-
@@ -499,7 +512,12 @@ modifica_prog2( Pin, tm([NM]), Pout ) :-
 
 
 /**
-* Crea y modifica la progresion en funcion de los parametros que se le pasa
+* haz_progresion2( +NumCompases, +TipoSemilla, +TipoMutaciones, -Prog)
+* Crea y modifica una progresion en funcion de los parametros que se le pasa
+* @param +NumCompases numero de compases de la progresion de salida
+* @param +TipoSemilla tipo de semilla usada en la creacion
+* @param +TipoMutaciones forma en que hay que mutar
+* @param -Prog progresion salida. Cumple es_progresion/1
 */
 haz_progresion2(N, TipoSemilla, TipoMutaciones, Prog) :-
         crea_progresion(N, TipoSemilla, ProgAux)
@@ -507,7 +525,11 @@ haz_progresion2(N, TipoSemilla, TipoMutaciones, Prog) :-
 
 
 /**
-* Hacer Num_mut de tipo A
+* modificaProgTipoA( +Pin, -Pout, +Num_mut)
+* Hacer Num_mut de tipo A a la progresion de entrada
+* @param +Pin progresion entrada. Cumple es_progresion/1
+* @param -Pout progresion de salida y mutada con Num_mut de tipo A. Cumple es_progresion/1
+* @param +Num_mut numero de mutaciones de tipo A
 */
 modificaProgTipoA( Pin, Pin, Num_mut) :- Num_mut =< 0.
 modificaProgTipoA( Pin, Pout, Num_mut) :-
@@ -515,40 +537,122 @@ modificaProgTipoA( Pin, Pout, Num_mut) :-
        ,Aux is Num_mut - Num_tipo1
        ,random(0, Aux, Num_tipo2)
        ,Num_tipo3 is Num_mut - Num_tipo1 - Num_tipo2
-       ,modificaProgTipoNum( Pin,    Paux,  0, Num_tipo1 )
-       ,modificaProgTipoNum( Paux,   Paux2, 1, Num_tipo2 )
-       ,modificaProgTipoNum( Paux2,  Pout,  2, Num_tipo3 ).
-
+       ,modificaProgTipoNum( Pin,    Paux,  1, Num_tipo1 )
+       ,modificaProgTipoNum( Paux,   Paux2, 2, Num_tipo2 )
+       ,modificaProgTipoNum( Paux2,  Pout,  3, Num_tipo3 ).
 /**
-* Hacer Num_mut de tipo B
+* modificaProgTipoB( +Pin, -Pout, +Num_mut)
+* Hacer Num_mut de tipo B a la progresion de entrada
+* @param +Pin progresion entrada. Cumple es_progresion/1
+* @param -Pout progresion de salida y mutada con Num_mut de tipo B. Cumple es_progresion/1
+* @param +Num_mut numero de mutaciones de tipo A
 */
 modificaProgTipoB( Pin, Pin, Num_mut) :- Num_mut =< 0.
 modificaProgTipoB( Pin, Pout, Num_mut) :-
         random(0, Num_mut, Num_tipo4)
        ,Num_tipo5 is Num_mut - Num_tipo4
-       ,modificaProgTipoNum( Pin,  Paux, 3, Num_tipo4 )
-       ,modificaProgTipoNum( Paux, Pout, 4, Num_tipo5 ). 
+       ,modificaProgTipoNum( Pin,  Paux, 4, Num_tipo4 )
+       ,modificaProgTipoNum( Paux, Pout, 5, Num_tipo5 ). 
 
 /**
-* Hace Num_mut de tipo Tipo
+* modificaProgTipoNum( +Pin, -Pout, +TipoMutacion, +Num_mut)
+* Hace Num_mut de tipo TipoMutacion a la progresion de entrada
+* @param +Pin progresion entrada. Cumple es_progresion/1
+* @param -Pout progresion de salida y mutada con Num_mut de tipo TipoMutacion. Cumple es_progresion/1
+* @param +TipoMutacion numero del 1 al 5 correspondiente con las cinco formas de mutar una progresion
+* @param +Num_mut numero de mutaciones de tipo A
 */
 modificaProgTipoNum( Pin, Pin, _, Num_mut ) :- 
         Num_mut =< 0.
-modificaProgTipoNum( Pin, Pout, Tipo, Num_mut ) :-
+modificaProgTipoNum( Pin, Pout, TipoR, Num_mut ) :-
         Num_mut > 0
-       ,accion_modif(Pin, Paux, Tipo)
+       ,traduceTipoRobertoATipoJuan(TipoR, TipoJ)
+       ,accion_modif(Pin, Paux, TipoJ)
        ,Num_mut2 is Num_mut - 1
-       ,modificaProgTipoNum( Paux, Pout, Tipo, Num_mut2 ).
+       ,modificaProgTipoNum( Paux, Pout, TipoR, Num_mut2 ).
 
 
 /**
-* Crea una progresion a partir de la semilla que se le pasa
+* traducedeTipoRobertATipoJuan( ?TipoRober, ?TipoJuan)
+* Debido a que hay una diferencia de numeracion entre las mutaciones que estaban ya puestas y las que van a ser
+* definitivas se ha creado esta mini base de datos relacional que relaciona los dos tipos
+* @param ?TipoRober numero de la mutacion definitivo. De 1 a 5
+* @param ?TipoJuan numero de la mutacion que estaba ya hecho. de 0 a 5
+*/
+traducedeTipoRobertATipoJuan(1, 3). % quita acordes
+traducedeTipoRobertATipoJuan(2, 2). % aniade acordes
+traducedeTipoRobertATipoJuan(3, 4). % cabia acordes
+traducedeTipoRobertATipoJuan(4, 0). % aniade dominantes secundarios
+traducedeTipoRobertATipoJuan(5, 1). % aniade IIm7 relativos
+
+
+
+/**
+* haz_progresion2_con_semilla( +NumeroCompases, +ProgSemilla, +Tipo_Mutacion, -Pout)
+* Crea y muta una progresion a partir de una mutacion semilla y los parametros pasados
+* @param +NumeroCompases numero de compases de Pout
+* @param +ProgSemilla progresion semilla. Cumple es_progresion/1 
+* @param +Tipo_Mutacion tipo de mutaciones. Cumple es_tipo_mutacion/1
+* @param -Pout progresion de salida. Cumple es_progresion/1
 */
 haz_progresion2_con_semilla( NC, _, _, progresion([]) ) :-
         NC =< 0
        ,!.       
-%% FALTA POR HACER
-%haz_progresion2_con_semilla( NC, Prog_Semilla, Tipo_Mutacion, Prog)
+haz_progresion2_con_semilla( NC, P, Tipo_Mutacion, ProgMutada) :-
+       NC > 0
+      ,duracionProg(P, Dur)  % DURACION DE LA PROGRESION
+      ,figuras_y_ritmo:divideFiguras( figura(NC, 1), Dur, FactorMul )
+      ,multiplica_duracion2(P, FactorMul, ProgMutable)
+      ,modifica_prog2(ProgMutable, Tipo_Mutacion, ProgMutada).
+
+
+
+/**
+* multiplica_duracion2( +Pin, +Figura , -Pout )
+* multiplica cada acorde la la progresion Pin por Figura.
+* @param +Pin progresion de entrada. Cumple es_progresion/1
+* @param +Figura cumple es_figura/1
+* @param +Pout progresion de salida. Cumple es_progresion/1
+*/
+multiplica_duracion2(progresion(L), Figura , progresion(Lout) ) :-
+       multiplica_duracion2_rec(L, Figura, Lout).
+
+
+/** 
+* multiplica_duracion2_rec( +ListaCifradosIn, +Figura, -ListaCifradosOut)
+* predicado auxiliar de multiplica_duracion2_rec. Recorre la lista multiplicando la duracion de cada
+* acorde por Figura
+* @param +ListaCifradosIn lista de acordes de entrada
+* @param +Figura cumple es_figura/1
+* @param -ListaCifradosOut lista de acordes de salida
+*/
+multiplica_duracion2_rec([], _, []).
+multiplica_duracion2_rec([(C, F1) | Resto], F2, [(C, F3) | Lout] ) :-
+       figuras_y_ritmo:multiplicaFiguras(F1, F2, F3)
+      ,multiplica_duracion2_rec( Resto, F2, Lout ).
+
+
+/**
+* duracionProg( +Prog, +Duracion)
+* Obtiene la duracion de la progresion Prog
+* @param +Prog progresion de entrada. Cumple es_progresion/1
+* @param +Duracion duracion de la progresion. Cumple es_figura/1
+*/
+duracionProg(progresion(L), Dur) :- duracionProg_rec(L, Dur).
+
+
+/**
+* duracionProg_rec( +Prog, +Duracion)
+* Predicado auxiliar de duracionProg/2. Recorre la lista acumulando la duracion de cada acorde.
+* @param +Prog lista de acordes
+* @param +Duracion duracion de la progresion. Cumple es_figura/1
+*/
+duracionProg_rec([], figura(0,1)).
+duracionProg_rec([(_, F1) | Resto], F3) :-
+       duracionProg_rec(Resto, F2)
+      ,figuras_y_ritmo:sumaFiguras(F1, F2, F3).
+
+
 
 
 

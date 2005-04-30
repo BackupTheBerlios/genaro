@@ -1,9 +1,11 @@
 
 :- module(figuras_y_ritmo,
-			[divideFigura/3
-                        , multiplicaFigura/3
-			, fuerzaEnElCompas/4
-			, sumaFiguras/3]).
+		  [ divideFigura/3
+                  , multiplicaFigura/3
+                  , fuerzaEnElCompas/4
+                  , sumaFiguras/3
+                  , divideFiguras/3
+                  , multiplicaFiguras/3]).
 
 /* Modulos propios usados */
 :- use_module(biblio_genaro_fracciones).
@@ -66,7 +68,25 @@ fuerzaEnElCompas(_, _, binario, debil).
 
 
 
+/**
+* divideFiguras(+F1, +F2, -Fr)
+* Divide las figuras F1 y F2 como si fueran fracciones
+* @param +F1 figura del numerador. Cumple es_fugura/1
+* @param +F2 figura del denominador. Cumple es_fugura/1
+* @param +Fr figura resultado. Cumple es_fugura/1
+*/
+divideFiguras(figura(N1, D1), figura(N2, D2), figura(Nr, Dr)) :-
+	biblio_genaro_fracciones:dividirFracciones(fraccion_nat(N1, D1), fraccion_nat(N2, D2), fraccion_nat(Nr, Dr)).
 
 
+/**
+* multiplicaFiguras(+F1, +F2, -Fr)
+* multiplica las figuras F1 y F2 como si fueran fracciones
+* @param +F1 Cumple es_fugura/1
+* @param +F2 Cumple es_fugura/1
+* @param +Fr Cumple es_fugura/1
+*/
+multiplicaFiguras(figura(N1, D1), figura(N2, D2), figura(Nr, Dr)) :-
+	biblio_genaro_fracciones:multiplicarFracciones(fraccion_nat(N1, D1), fraccion_nat(N2, D2), fraccion_nat(Nr, Dr)).
 
 

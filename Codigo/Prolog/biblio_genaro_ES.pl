@@ -24,9 +24,11 @@ escribeTermino(NombreArchivo, Termino) :-
 
 /**
 * leeTermino( +NombreArchivo, -Termino)
-* lee Termino en el archivo de nombre NombreArchivo (q debe ser string o un atomo), dentro
+* Lee Termino en el archivo de nombre NombreArchivo (q debe ser string o un atomo), dentro
 * del directorio actual.
 * Importante: El termino del archivo tiene que terminar en un punto
+* @param +NombreArchivo atomo o string que representa la ruta relativa o absoluta del archivo
+* @param -Termino termino que lee de ese archivo
 */
 leeTermino( NombreArchivo, Termino ) :- 
          open( NombreArchivo, read, Stream, [type(text)] )

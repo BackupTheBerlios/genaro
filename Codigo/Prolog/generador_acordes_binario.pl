@@ -533,13 +533,16 @@ haz_progresion2(N, TipoSemilla, TipoMutaciones, Prog) :-
 */
 modificaProgTipoA( Pin, Pin, Num_mut) :- Num_mut =< 0.
 modificaProgTipoA( Pin, Pout, Num_mut) :-
-        random(0, Num_mut, Num_tipo1)
-       ,Aux is Num_mut - Num_tipo1
-       ,random(0, Aux, Num_tipo2)
+        Num_mut_aux is Num_mut + 1
+       ,random(0, Num_mut_aux, Num_tipo1) %numero aleatorio entre 0 y Num_mut => [0,Num_mut] = [0,Num_mut+1)
+       ,Aux is Num_mut - Num_tipo1 + 1
+       ,random(0, Aux, Num_tipo2) %numero aleatorio entre 0 y Aux => [0,Aux] = [0,Aux+1)
        ,Num_tipo3 is Num_mut - Num_tipo1 - Num_tipo2
        ,modificaProgTipoNum( Pin,    Paux,  1, Num_tipo1 )
        ,modificaProgTipoNum( Paux,   Paux2, 2, Num_tipo2 )
        ,modificaProgTipoNum( Paux2,  Pout,  3, Num_tipo3 ).
+
+
 /**
 * modificaProgTipoB( +Pin, -Pout, +Num_mut)
 * Hacer Num_mut de tipo B a la progresion de entrada
@@ -549,7 +552,8 @@ modificaProgTipoA( Pin, Pout, Num_mut) :-
 */
 modificaProgTipoB( Pin, Pin, Num_mut) :- Num_mut =< 0.
 modificaProgTipoB( Pin, Pout, Num_mut) :-
-        random(0, Num_mut, Num_tipo4)
+        Num_mut_aux is Num_mut + 1
+       ,random(0, Num_mut_aux, Num_tipo4)      %numero aleatorio entre 0 y Num_mut => [0,Num_mut] = [0,Num_mut+1)
        ,Num_tipo5 is Num_mut - Num_tipo4
        ,modificaProgTipoNum( Pin,  Paux, 4, Num_tipo4 )
        ,modificaProgTipoNum( Paux, Pout, 5, Num_tipo5 ). 

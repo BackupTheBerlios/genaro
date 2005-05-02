@@ -6,6 +6,7 @@ import Progresiones
 import Escalas
 import HaskoreAMidi
 import PatronesRitmicos
+import Maybe
 import PrologAHaskell --para pruebas
 import Ratio          --para pruebas
 import Directory      --para pruebas
@@ -163,11 +164,20 @@ acentos elegir en cuales vamos a atacar y en el resto ver si las ligamos a las a
      . la curva sin consumir representada de forma que no se pierda la posicion relativa de los puntos de la curva, como la curva
 de entrada pero con menos densidad
 
-aplicaCurvaMelodicaAListaAcentos :: [Int] -> Registro -> Escala -> PitchClass -> Pitch -> ListaAcentos -> CurvaMelodica -> (([Music],CurvaMelodicaEspacios), Int)
-aplicaCurvaMelodicaAListaAcentos listaAleat registro escala tonica pitchPartida listaAcentos CurvaMelodica = ((musica,curvaSinConsumir), restoAleat)
+
+aplicaCurvaMelodicaFase1 :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, ListaAcentos, CurvaMelodica ) ([Music],ListaAcentos,[Maybe ((Grado,Pitch),Float)])
+aplicaCurvaMelodicaFase1 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (restoAleat4,(musica, acentosSobran, curvaSobra))
+Devuelve : .acentosSobran :: ListaAcentos: los acentos de dur -1 ya estan consumidos
+           .curvaSobra :: [Maybe ((Grado,Pitch),Float)] : los Nothing son puntos de la curva consumidos
+                                                          los Just son el grado y pitch correspondiente al punto de la curva
+                                                          y los float su peso/estabilidad calculado con valoraGrado
+
+
 -}
---aplicaCurvaMelodicaAListaAcentos :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, ListaAcentos, CurvaMelodica ) ([Music],CurvaMelodicaEspacios)
-aplicaCurvaMelodicaAListaAcentos (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (preMusica1, musica1) --((musica,curvaSinConsumir), restoAleat)
+--aplicaCurvaMelodicaFase1 :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, ListaAcentos, CurvaMelodica ) ([Music],CurvaMelodicaEspacios)
+--aplicaCurvaMelodicaFase1 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (musicaSuena, musica, acentosAjustados, acentosSobran, curvaSobra) --((musica,curvaSinConsumir), restoAleat)
+aplicaCurvaMelodicaFase1 :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, ListaAcentos, CurvaMelodica ) ([Music],ListaAcentos,[Maybe ((Grado,Pitch),Float)])
+aplicaCurvaMelodicaFase1 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (restoAleat4,(musica, acentosSobran, curvaSobra))
             where acentosAjustadosADur = ajustaListaAcentosADur dur acentos
                   (restoAleat1@(ra1:restoAleat2),(curvaAjustada, acentosAjustados)) = ajustaCurvaMelodicaConListaAcentos (aleat, (curvaMelodica, acentosAjustadosADur))
                   numAcentosElegidos = if (numAux<=0)
@@ -179,31 +189,47 @@ aplicaCurvaMelodicaAListaAcentos (aleat, (registro, escala, tonica, pitchPartida
                                                 tamAcentos = length acentosAjustados
                   listaPesosAcentos = zip acentosAjustados (map fst acentosAjustados)
                   (restoAleat3, (lAcenPosElegidos, lAcenRech)) = dameSublistaAleatListaPesosTamRestoFloat (restoAleat2, (numAcentosElegidos, listaPesosAcentos))
-                  --([(a, Int)], [((a,Float), Int)])
-                  listaGradosPitch = curvaMelodicaAGradosPicth registro escala tonica curvaAjustada pitchPartida
+                  --  FuncAleatoria (Int, [(a, Float)]) ([(a, Int)], [((a,Float), Int)])
+                  listaGradosPitch = curvaMelodicaAGradosPitch registro escala tonica curvaAjustada pitchPartida
                   listaPesosGrados = zip listaGradosPitch (map (\(g,p)-> fromIntegral (valoraGrado escala g)) listaGradosPitch)
                   (restoAleat4, (lGradsPosElegidos, lGradsRech)) = dameSublistaAleatListaPesosTamRestoFloat (restoAleat3, (numAcentosElegidos, listaPesosGrados))
-                  preMusica1 = zip (map fst lAcenPosElegidos) (map fst lGradsPosElegidos)
-                  convMus = \((vel, dur),(grado, pitch)) -> (Note pitch dur [Volume vel])
-                  musica1 = line (map convMus preMusica1)
+                  posAcentosElegidos = map snd lAcenPosElegidos
+                  convMus (vel, dur) (grado, pitch) = (Note pitch dur [Volume vel'])
+                                                        where vel' = max vel 5.0
+                  musicaSuena = zip (zipWith convMus (map fst lAcenPosElegidos) (map fst lGradsPosElegidos)) posAcentosElegidos
+                  musicaNoSuena = [(Rest dur,pos) | (((_, dur),_), pos) <- lAcenRech]
+                  ordena x y = compare (snd x) (snd y)
+                  musica = map fst listaMus
+                           where listaMus = sortBy ordena (union musicaSuena musicaNoSuena)
+                  --los acentos de velocity -1 se suponen ya consumidos
+                  acentosSobran = map fst (sortBy ordena (union acentosNulos acentosNoNulos))
+                           where acentosNulos = [((-1, dur), pos) | ((_,dur),pos) <- lAcenPosElegidos]
+                                 acentosNoNulos = [((ac,dur), pos) | (((ac,dur), _), pos) <- lAcenRech]
+                  curvaSobra = map fst (sortBy ordena (union puntosNulos puntosNoNulos))
+                           where puntosNulos = [(Nothing, pos) |(_,pos) <- lGradsPosElegidos ]
+                                 puntosNoNulos = [(Just (punto, peso),pos) |((punto, peso),pos) <- lGradsRech]
 
+{-
+--aplicaCurvaMelodicaFase2 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (restoAleat4,(musica, acentosSobran, curvaSobra))
+aplicaCurvaMelodicaFase2 (aleat, (acentosSobran, curvaSobra))
+      where
+-}
+--([Music],ListaAcentos,[Maybe ((Grado,Pitch),Float)])
 
-type CurvaMelodicaEspacios = [Maybe PuntoMelodico]
-
-pruAplicaCurvaMelodicaAListaAcentos :: String -> Int -> Dur -> IO()
-pruAplicaCurvaMelodicaAListaAcentos ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                                            (FPRC cols resolucion p) <- leePatronRitmicoC ruta
-                                                            putStr ("Curva melodica: " ++ (show (curvaMelodica aleat)) ++ "\n")
-                                                            putStr ("Lista de acentos: " ++ (show (acentos p)) ++ "\n")
-                                                            putStr ("Resultado :" ++ (show (resul aleat p)) ++ "\n")
-                                                            haskoreAMidi (musica aleat p) "./pruMelodiaRitmo.mid"
-                                                            putStr "Escrito con exito midi de prueba\n"
-                                                            where acentos p = construyeListaAcentos p
-                                                                  curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
-                                                                  longCurIni aleat = length (curvaMelodica aleat)
-                                                                  restoAl1 aleat = fst (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
-                                                                  resul aleat p = aplicaCurvaMelodicaAListaAcentos ((restoAl1 aleat), (registroSolista, Jonica, C, (C,6), dur, (acentos p), curvaMelodica aleat))
-                                                                  musica aleat p = snd (resul aleat p)
+pruAplicaCurvaMelodicaFase1 :: String -> Int -> Dur -> IO()
+pruAplicaCurvaMelodicaFase1 ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                    (FPRC cols resolucion p) <- leePatronRitmicoC ruta
+                                                    putStr ("Curva melodica: " ++ (show (curvaMelodica aleat)) ++ "\n")
+                                                    putStr ("Lista de acentos: " ++ (show (acentos p)) ++ "\n")
+                                                    putStr ("Resultado :" ++ (show (resul aleat p)) ++ "\n")
+                                                    haskoreAMidi (musica aleat p) "./pruMelodiaFase1.mid"
+                                                    putStr "Escrito con exito midi de prueba en ./pruMelodiaFase1.mid\n"
+                                                    where acentos p = construyeListaAcentos p
+                                                          curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
+                                                          longCurIni aleat = length (curvaMelodica aleat)
+                                                          restoAl1 aleat = fst (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
+                                                          resul aleat p = snd (aplicaCurvaMelodicaFase1 ((restoAl1 aleat), (registroSolista, Jonica, C, (C,6), dur, (acentos p), curvaMelodica aleat)))
+                                                          musica aleat p = line (primero (resul aleat p))
 
 {-
 ajustaCurvaMelodicaConListaAcentos :: FuncAleatoria (CurvaMelodica,ListaAcentos) (CurvaMelodica,ListaAcentos)
@@ -298,14 +324,14 @@ divisorAcentos :: Int
 divisorAcentos = 2
 
 
-curvaMelodicaAGradosPicth :: Registro -> Escala -> PitchClass -> CurvaMelodica -> Pitch -> [(Grado,Pitch)]
-curvaMelodicaAGradosPicth registro escala tonica [] pitchPartida = []
-curvaMelodicaAGradosPicth registro escala tonica (salto:pms) pitchPartida = (nuevoGrado,nuevoPitch) : restoMelodia
+curvaMelodicaAGradosPitch :: Registro -> Escala -> PitchClass -> CurvaMelodica -> Pitch -> [(Grado,Pitch)]
+curvaMelodicaAGradosPitch registro escala tonica [] pitchPartida = []
+curvaMelodicaAGradosPitch registro escala tonica (salto:pms) pitchPartida = (nuevoGrado,nuevoPitch) : restoMelodia
                     where (p,oct)   = saltaIntervaloPitch escala tonica salto pitchPartida
                           octavaDef = ajustaOctava registro oct
                           nuevoPitch = (p,octavaDef)
                           nuevoGrado = dameIntervaloPitch tonica nuevoPitch
-                          restoMelodia = curvaMelodicaAGradosPicth registro escala tonica pms nuevoPitch
+                          restoMelodia = curvaMelodicaAGradosPitch registro escala tonica pms nuevoPitch
 {-
 Devuelve el resultado de truncar la octava suministrada para que se ajuste al registro especificado
 -}
@@ -371,16 +397,67 @@ saltaIntervaloGrado escala num gradoPartida
 
 {-
 saltaIntervaloPitch escala num gradoPartida, devuelve el Pitch correspondiente a saltar en la escala indicada
-tantos grados como num, contando desde gradoPartida
+tantos grados como num, contando desde gradoPartida. USA dameGradoDiatonicoCercano PARA LOS CASOS EN QUE SE
+PARTA DE UNA NOTA NO DIATÓNICA
 -}
 saltaIntervaloPitch :: Escala -> PitchClass -> Int -> Pitch -> Pitch
-saltaIntervaloPitch escala tonica num notaPartida = resul
-                where (_,gradosEscala,_)  = dameInfoEscala escala
+saltaIntervaloPitch escala tonica num notaPartida@(clase, oct)
+ | num == 0  = notaPartida
+ | otherwise = pitchResul
+            where (_,gradosEscala,_)  = dameInfoEscala escala
+                  gradoPartida        = dameIntervaloPitch tonica notaPartida
+                  pitchResul = case (elemIndex gradoPartida gradosEscala) of
+                                      Just posGradoPartida -> saltaIntervaloPitchDiatonico escala tonica num notaPartida  --salto desde grado diatonico
+                                      Nothing              -> saltaIntervaloPitchDiatonico escala tonica numAux (claseCercano, octavaCercano)
+                                                                  where subir = num > 0
+                                                                        gradoCercano = dameGradoDiatonicoCercano subir escala gradoPartida
+                                                                        claseCercano = gradoAPitchClassTonica tonica gradoCercano
+                                                                        octavaCercano = if num>0
+                                                                                           then if (posPartida < posCercano) -- subiendo
+                                                                                                then oct     -- no ha cambiado de octava
+                                                                                                else oct + 1 -- ha subido una octava
+                                                                                           else if (posPartida > posCercano) -- bajando
+                                                                                                then oct     -- no ha cambiado de octava
+                                                                                                else oct - 1 -- ha bajado una octava
+                                                                                              where posPartida = absPitch (gradoAPitchClassTonica tonica gradoPartida,0)
+                                                                                                    posCercano = absPitch (gradoAPitchClassTonica tonica gradoCercano,0)
+                                                                        numAux = if num>0
+                                                                                    then num - 1
+                                                                                    else num + 1
+
+{-
+Como saltaIntervaloPitch pero suponiendo que se parte de una nota diatonica
+-}
+saltaIntervaloPitchDiatonico :: Escala -> PitchClass -> Int -> Pitch -> Pitch
+saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
+ | num == 0  = notaPartida
+ | num > 0   = (claseResul, oct + octavaResulSube)
+ | num < 0   = (claseResul, oct - octavaResulBaja)
+              where (_,gradosEscala,_)  = dameInfoEscala escala
+                    gradoPartida        = dameIntervaloPitch tonica notaPartida
+                    gradoSalida         = saltaIntervaloGrado escala num gradoPartida
+                    claseResul          = gradoAPitchClassTonica tonica gradoSalida
+                    posGradoPartida     = fromJust (elemIndex gradoPartida gradosEscala)
+                    posGradoSalida      = fromJust (elemIndex gradoSalida gradosEscala)
+                    numGrados           = length gradosEscala
+                    numOctavasPorNumGrados = div (abs num) numGrados
+                    octavaResulSube = if (posGradoSalida < posGradoPartida)
+                                         then numOctavasPorNumGrados + 1
+                                         else numOctavasPorNumGrados
+                    octavaResulBaja = if (posGradoSalida > posGradoPartida)
+                                         then numOctavasPorNumGrados + 1
+                                         else numOctavasPorNumGrados
+
+
+{-saltaIntervaloPitch escala tonica num notaPartida@(clase, oct) = resul
+                where --(_,gradosEscala,_)  = dameInfoEscala escala
                       gradoPartida        = dameIntervaloPitch tonica notaPartida
                       gradoSalida         = saltaIntervaloGrado escala num gradoPartida
-                      numGrados           = length gradosEscala
-                      salto               = (gradoAIntAbs gradoSalida) - (gradoAIntAbs gradoPartida) + (div num numGrados)*12
-                      resul               = pitch ((absPitch notaPartida) + salto)
+                      --numGrados           = length gradosEscala
+                      --salto               = (gradoAIntAbs gradoSalida) - (gradoAIntAbs gradoPartida) + (div num numGrados)*12
+                      --resul               = pitch ((absPitch notaPartida) + salto)
+                      claseResul            = gradoAPitchClassTonica tonica gradoSalida
+                      octavaResul =           -}
 
 pruMelAc :: IO()
 pruMelAc = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
@@ -408,7 +485,7 @@ pruCurvaMelAleat :: Int -> Int -> Int -> Dur -> IO()
 pruCurvaMelAleat saltoMax probSalto numPuntos duracionTotal = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
                                                                  print (zip (curvaMelodica aleat) (listaGradosPitch aleat))
                                                                  where curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (saltoMax, probSalto, numPuntos, duracionTotal)))
-                                                                       listaGradosPitch aleat = curvaMelodicaAGradosPicth registroSolista Jonica C (curvaMelodica aleat) (C,5)
+                                                                       listaGradosPitch aleat = curvaMelodicaAGradosPitch registroSolista Jonica C (curvaMelodica aleat) (C,5)
 
 pruFallo :: String -> Int -> IO()
 pruFallo dirTrabajo num

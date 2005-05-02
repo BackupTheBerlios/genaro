@@ -380,10 +380,12 @@ dameSublistaAleatListaPesosRestoFloat (aleat@(a1:as), listaPesos) = (restoAleat,
                                           where tamAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
                              (restoAleat, (sublistaValor_Posicion, sublista_no_elegida)) = dameSublistaAleatListaPesosTamRestoFloat (as, (tamDestino, listaPesos))
 {-
-dameSublistaAleatListaPesosTamRestoFloat :: [Int] -> Int -> [(a, Float)] -> ([(a, Int)], [((a,Float), Int)], [Int])
-dameSublistaAleatListaPesosTamRestoFloat aleat cuantos listaPesos = (sublistaValor_Posicion, sublista_no_elegida, restoAleat)
+dameSublistaAleatListaPesosTamRestoFloat :: FuncAleatoria (Int, [(a, Float)]) ([(a, Int)], [((a,Float), Int)])
+dameSublistaAleatListaPesosTamRestoFloat (aleat, (cuantos, listaPesos)) = (restoAleat, (elemsElegidos, elemsRechazados))
    -como dameSublistaAleatListaPesosTamFloat pero devolviendo tb la sublista no elegida, ed, la lista de entrada menos
 la sublista elegida
+   -CUENTA POSICIONES DESDE CERO: PONERLO LUEGO BIEN EN TODOS LOS COMENTARIOS, COMO SIGUE ESTE CRITERIO CADA
+   FUNCION DE ESTAS
 -}
 dameSublistaAleatListaPesosTamRestoFloat :: FuncAleatoria (Int, [(a, Float)]) ([(a, Int)], [((a,Float), Int)])
 dameSublistaAleatListaPesosTamRestoFloat (aleat, (cuantos, listaPesos)) = (restoAleat, (elemsElegidos, elemsRechazados))

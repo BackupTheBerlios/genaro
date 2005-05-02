@@ -58,8 +58,8 @@ dameIntervaloPitch tonica p = grado
                       grado = absPitchAGrado (abs - absTonica)
 
 {-
-dameGradoDiatonicoCercano subir escala gradoPartida devuelve el grado diatónico más cercano al
-indicado. En el caso de que haya dos grados diatónicos a la misma distancia devuelve el superior
+dameGradoDiatonicoCercano subir escala gradoPartida devuelve el grado diatï¿½nico mï¿½s cercano al
+indicado. En el caso de que haya dos grados diatï¿½nicos a la misma distancia devuelve el superior
 en el caso de q subir sea cierto y el inferior en el otro caso
 -}
 dameGradoDiatonicoCercano :: Bool -> Escala -> Grado -> Grado
@@ -109,7 +109,7 @@ valoraGrado escala grado = resul
                       busca = find (\(g, val) -> (g == grado)) listaGradosPeso
                       resul = if (isJust busca)
                                  then (snd(fromJust busca))
-                                 else 0
+                                 else 5 --tampoco hay q pasarse
 {-
 Para un acorde especificado con un elemento de tipo cifrado devuelve su escala,
 en el contexto del modo mayor
@@ -142,12 +142,12 @@ infoAcordeMayor :: Cifrado -> InfoEscala
 infoAcordeMayor = dameInfoEscala . escalaDelAcorde
 
 {-
-Indica cuales son las octavas apropiadas para cada instrumento. Serán octavas consecutivas, claro
+Indica cuales son las octavas apropiadas para cada instrumento. Serï¿½n octavas consecutivas, claro
 -}
 type Registro = [Octave]
 {-
 Registro en el que debe encuadrarse cualquier composicion para ser audible (que se escuchen todas las notas, no demasiado aguda, es decir,
-no después de la octava 10), correcta (que haskore genere el midi sin fallos, es decir, sin octavas negativas) y agradable (que no suene
+no despuï¿½s de la octava 10), correcta (que haskore genere el midi sin fallos, es decir, sin octavas negativas) y agradable (que no suene
 chillona ni de ultratumba, es decir, sin la octava 0 ni la 10)
 -}
 registroGeneral :: Registro
@@ -169,13 +169,13 @@ registroAgudo :: Registro
 registroAgudo = [7..9]
 
 {-
-Registro en al que deberá ajustarse el instrumento que haga la melodia
+Registro en al que deberï¿½ ajustarse el instrumento que haga la melodia
 -}
 registroSolista :: Registro
 registroSolista = union registroAgudo registroMedio
 
 {-
-Registro en al que deberá ajustarse el instrumento que haga de bajo
+Registro en al que deberï¿½ ajustarse el instrumento que haga de bajo
 -}
 registroDelBajo :: Registro
 registroDelBajo = registroGrave
@@ -193,7 +193,7 @@ pruRegistro dirTrabajo nota octavaInferior octavaSuperior = do setCurrentDirecto
                                                                where mensajeDirTrabajo dir = "\n El directorio de trabajo es: " ++ dir ++ "\n"
                                                                      rutaDestinoMidi = "./pruRegistro"++(show nota)++".mid"
                                                                      prologo = "\n\tProbando el numero de octavas soportadas por haskore\n"
-                                                                     argums = "\n\tGenerando lista de "++(show nota)++"´s desde la octava "++(show octavaInferior)++" hasta la octava "++(show octavaSuperior)++"\n"
+                                                                     argums = "\n\tGenerando lista de "++(show nota)++"ï¿½s desde la octava "++(show octavaInferior)++" hasta la octava "++(show octavaSuperior)++"\n"
                                                                      generandoMidi = "\n\tGenerando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
                                                                      mensaje = prologo ++ argums ++ generandoMidi
                                                                      musica =  line (map (\o -> Note (nota,o) (1%2) []) [octavaInferior .. octavaSuperior])

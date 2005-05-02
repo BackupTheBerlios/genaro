@@ -161,6 +161,8 @@ absPitchAPitchClass = fst.pitch
 gradoAPitchClass :: Grado -> PitchClass
 gradoAPitchClass = absPitchAPitchClass.gradoAInt
 
+gradoAPitchClassTonica :: PitchClass -> Grado -> PitchClass
+gradoAPitchClassTonica tonica grado = fst (pitch ((gradoAInt grado) + absPitch (tonica,0)))
 
 -----------------------------------------------------------------------
 

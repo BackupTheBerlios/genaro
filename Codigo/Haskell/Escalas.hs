@@ -235,3 +235,11 @@ muestraRegistros dirTrabajo nota = do setCurrentDirectory dirTrabajo
                                             musicaGrave =  line (map (\o -> Note (nota,o) (1%2) []) registroGrave)
                                             musicaMedia =  line (map (\o -> Note (nota,o) (1%2) []) registroMedio)
                                             musicaAguda =  line (map (\o -> Note (nota,o) (1%2) []) registroAgudo)
+
+
+{-
+Solo funciona con musics de tipo Note
+-}
+damePitch :: Music -> Pitch
+damePitch (Note p _ _) = p
+

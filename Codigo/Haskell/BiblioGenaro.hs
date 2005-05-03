@@ -359,13 +359,26 @@ dameSublistaAleatListaPesosFloat aleat listaPesos = (sublistaValor_Posicion, res
    -dada una lista de elementos con un peso asociado a cada uno, devuelve una sublista de tama�o aleatorio
    de elementos de la lista inicial elegidos segun sus pesos
    -el tama�o de la sublista resultado ser� mayor que 1 y menor o igual al tama�o de la lista de entrada
+   -CUENTA LAS POSICIONES DESDE CERO
 -}
-dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
---dameSublistaAleatListaPesosFloat :: FuncAleatoria [(a, Float)] [(a, Int)]
-dameSublistaAleatListaPesosFloat aleat@(a1:as) listaPesos = dameSublistaAleatListaPesosTamFloat as tamDestino listaPesos
+--dameSublistaAleatListaPesosFloat :: [Int] -> [(a, Float)] -> ([(a, Int)], [Int])
+dameSublistaAleatListaPesosFloat :: FuncAleatoria [(a, Float)] [(a, Int)]
+dameSublistaAleatListaPesosFloat (aleat@(a1:as), listaPesos) = (restoAleat, resul)
                        where tamOri = length listaPesos
-                             tamDestino = if (tamAux>0) then tamAux else 1
+                             tamDestino = if (tamAux<=0)
+                                             then 1
+                                             else if (tamAux >  tamOri)
+                                                     then tamOri
+                                                     else tamAux
                                           where tamAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
+                             (resul,restoAleat) = dameSublistaAleatListaPesosTamFloat as tamDestino listaPesos
+
+pruDameSublistaAleatListaPesosFloat :: IO()
+pruDameSublistaAleatListaPesosFloat = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                         putStr ("Prueba con los valores :"++ (show listaParejas) ++ "\n")
+                                         print (sublista aleat)
+                                         where listaParejas   = [('a',0.33333),('b',0.5),('c',1.0),('d',0.5),('e',0.333333)]
+                                               sublista aleat = snd (dameSublistaAleatListaPesosFloat (aleat, listaParejas))
 
 {-
 dameSublistaAleatListaPesosRestoFloat :: FuncAleatoria [(a, Float)] ([(a, Int)], [((a,Float), Int)])
@@ -376,7 +389,11 @@ la sublista elegida
 dameSublistaAleatListaPesosRestoFloat :: FuncAleatoria [(a, Float)] ([(a, Int)], [((a,Float), Int)])
 dameSublistaAleatListaPesosRestoFloat (aleat@(a1:as), listaPesos) = (restoAleat, (sublistaValor_Posicion, sublista_no_elegida))
                        where tamOri = length listaPesos
-                             tamDestino = if (tamAux>0) then tamAux else 1
+                             tamDestino = if (tamAux<=0)
+                                             then 1
+                                             else if (tamAux >  tamOri)
+                                                     then tamOri
+                                                     else tamAux
                                           where tamAux = round ( fromIntegral (a1 * tamOri) / fromIntegral resolucionRandom)
                              (restoAleat, (sublistaValor_Posicion, sublista_no_elegida)) = dameSublistaAleatListaPesosTamRestoFloat (as, (tamDestino, listaPesos))
 {-
@@ -437,12 +454,6 @@ dameSublistaAleatListaPesosTamFloat aleat cuantos listaPesos = (resul,restoAleat
                              posElegidas = sort (map fst posElegidasAux)
                              resul = [((fst (listaPesos!!pos)),pos)| pos <- posElegidas]
 
-pruDameSublistaAleatListaPesosFloat :: IO()
-pruDameSublistaAleatListaPesosFloat = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                         putStr ("Prueba con los valores :"++ (show listaParejas) ++ "\n")
-                                         print (sublista aleat)
-                                         where listaParejas   = [('a',0.33333),('b',0.5),('c',1.0),('d',0.5),('e',0.333333)]
-                                               sublista aleat = fst (dameSublistaAleatListaPesosFloat aleat listaParejas)
 {-
 
 Devuelve True si el string de entrada representa a un entero.

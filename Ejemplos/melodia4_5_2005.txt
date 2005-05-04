@@ -1,0 +1,11 @@
+Salida de Haskell, el midi subido al cvs es el de la segunda fase (alargado una vez)
+
+Melodias> pruAplicaCurvaMelodica "/root/cvsrepo/PatronesRitmicos/vals.txt" 15 (3%1)
+Curva melodica: [0,0,1,0,-1,2,-3,3,-3,2,-2,3,-2,2,-3]
+Lista de acentos: [(0.0,1 % 4),(30.0,1 % 4),(30.0,1 % 4),(0.0,1 % 4)]
+Musica resultado: Rest (1 % 4) :+: (Note (C,6) (1 % 4) [Volume 30.0] :+: (Note (C,6) (1 % 4) [Volume 30.0] :+: (Rest (1 % 8) :+: (Rest (1 % 8) :+: (Rest (1 % 8) :+: (Rest (1 % 8) :+: (Note (E,6) (1 % 4) [Volume 30.0] :+: (Note (B,5) (1 % 4) [Volume 30.0] :+: (Rest (1 % 4) :+: (Rest (1 % 8) :+: (Note (D,6) (1 % 8) [Volume 5.0] :+: (Note (E,6) (1 % 4) [Volume 30.0] :+: (Note (C,6) (1 % 4) [Volume 30.0] :+: Note (E,6) (1 % 4) [Volume 5.0])))))))))))))
+Acentos sobrantes: [(0.0,1 % 4),(-1.0,1 % 4),(-1.0,1 % 4),(0.0,1 % 8),(0.0,1 % 8),(0.0,1 % 8),(0.0,1 % 8),(-1.0,1 % 4),(-1.0,1 % 4),(0.0,1 % 4),(0.0,1 % 8),(-1.0,1 % 8),(-1.0,1 % 4),(-1.0,1 % 4),(-1.0,1 % 4)]
+Curva melodica sobrante: [Nothing,Just ((I,(C,6)),100.0),Just ((II,(D,6)),30.0),Just ((II,(D,6)),30.0),Nothing,Nothing,Nothing,Just ((III,(E,6)),80.0),Just ((VII,(B,5)),30.0),Nothing,Just ((VII,(B,5)),30.0),Nothing,Nothing,Nothing,Just ((VII,(B,5)),30.0)]
+Escrito con exito midi de prueba en ./pruMelodiaFase1.mid
+Musica alargada: Rest (1 % 4) :+: (Note (C,6) (1 % 4) [Volume 30.0] :+: (Note (C,6) (3 % 8) [Volume 30.0] :+: (Rest (1 % 8) :+: (Rest (1 % 8) :+: (Rest (1 % 8) :+: (Note (E,6) (1 % 4) [Volume 30.0] :+: (Note (B,5) (1 % 4) [Volume 30.0] :+: (Rest (1 % 4) :+: (Rest (1 % 8) :+: (Note (D,6) (1 % 8) [Volume 5.0] :+: (Note (E,6) (1 % 4) [Volume 30.0] :+: (Note (C,6) (1 % 4) [Volume 30.0] :+: Note (E,6) (1 % 4) [Volume 5.0]))))))))))))
+Escrito con exito midi alargado de prueba en ./pruMelodiaFase2.mid

@@ -208,28 +208,30 @@ aplicaCurvaMelodicaFase1 (aleat, (registro, escala, tonica, pitchPartida, dur, a
                            where puntosNulos = [(Nothing, pos) |(_,pos) <- lGradsPosElegidos ]
                                  puntosNoNulos = [(Just (punto, peso),pos) |((punto, peso),pos) <- lGradsRech]
 
-dameCandidatosFase2 :: ListaAcentos -> [(Int, Dur)]
+dameCandidatosFase2 :: ListaAcentos -> [Int]
 dameCandidatosFase2 acentos  = sacaCandidatosPos 0 acentos
         where numAcentos = length acentos
               --formato de entrada (velocity, dur)
               sacaCandidatosPos _ []     = []
               sacaCandidatosPos _ (x:[]) = []
-              sacaCandidatosPos pos ((v1,d1):(v2,d2):xs)   --se añade la dur de la derecha
-                | (v1 <0) && (v2 >=0) = (pos,d2) : (restoCandidatos)
+              sacaCandidatosPos pos ((v1,d1):(v2,d2):xs)
+                | (v1 <0) && (v2 >=0) = pos : (restoCandidatos)
                 | otherwise           = restoCandidatos
                               where restoCandidatos = sacaCandidatosPos (pos +1) ((v2,d2):xs)
 
 
-alargaMusicaFase2 :: [(Int, Dur)] -> [Music] -> [Music]
+alargaMusicaFase2 :: [Int] -> [Music] -> [Music]
 alargaMusicaFase2 = alargaElemTalPos 0
     where alargaElemTalPos _ _ []      = []
           alargaElemTalPos _ [] musica = musica
-          alargaElemTalPos pos1 ((pos2,dur):xs) (m1:m2:ms)
-            | pos1 == pos2 = ((sumaDur dur m1):restoMusExito)
+          alargaElemTalPos pos1 (pos2:xs) (m1:m2:ms)
+            | pos1 == pos2 = ((sumaDur (dur m2) m1):restoMusExito)
             | otherwise    = (m1:restoMusFallo)
-                               where restoMusExito = alargaElemTalPos (pos1 + 1) xs ms
-                                     restoMusFallo = alargaElemTalPos (pos1 + 1) ((pos2,dur):xs) (m2:ms)
+                               where restoMusExito = alargaElemTalPos (pos1 + 2) xs ms
+                                     restoMusFallo = alargaElemTalPos (pos1 + 1) (pos2:xs) (m2:ms)
                                      sumaDur dur (Note p durOri atribs) = (Note p (durOri + dur) atribs)
+
+
 {-alargaMusicaFase2 = alargaElemTalPos 0
     where alargaElemTalPos _ _ []      = []
           alargaElemTalPos _ [] musica = musica
@@ -249,9 +251,8 @@ aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica))
  | numAcentosCand <= 0 = musica
  | otherwise = musicaLarga
       where posAcentosCand = dameCandidatosFase2 acentos
-            numAcentosCand = length posAcentosCand --esto es una chorrada, si no hay acentos usados no hay musica,
-            --pero por si acaso
-            listaPesosAcentos = zip posAcentosCand [fromIntegral (valoraGrado escala (dameIntervaloPitch tonica (damePitch(musica!!pos))))|pos <- (map fst posAcentosCand)]
+            numAcentosCand = length posAcentosCand
+            listaPesosAcentos = zip posAcentosCand [fromIntegral (valoraGrado escala (dameIntervaloPitch tonica (damePitch(musica!!pos))))|pos <- posAcentosCand]
             --tienen mas probabilidad de alargarse las notas q corresponden a grados mas estables
             (restoAleat1, (lAcenPosElegidos, lAcenRech)) = dameSublistaAleatListaPesosRestoFloat (aleat, listaPesosAcentos)
             --FuncAleatoria [(a, Float)] ([(a, Int)], [((a,Float), Int)])
@@ -265,7 +266,7 @@ pruAplicaCurvaMelodica ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO
                                                putStr ("Curva melodica: " ++ (show (curvaMelodica aleat)) ++ "\n")
                                                putStr ("Lista de acentos: " ++ (show (acentos p)) ++ "\n")
                                                --putStr ("Resultado: " ++ (show (resul aleat p)) ++ "\n")
-                                               putStr ("Musica resultado: "++(show (musica1 aleat p))++"\n")
+                                               putStr ("Musica fase1: "++(show (musica1 aleat p))++"\n")
                                                putStr ("Acentos sobrantes: "++(show (acentosSobran aleat p))++"\n")
                                                putStr ("Curva melodica sobrante: "++(show (curvaSobra aleat p))++"\n")
                                                haskoreAMidi (musica1 aleat p) "./pruMelodiaFase1.mid"

@@ -214,8 +214,8 @@ dameCandidatosFase2 acentos  = sacaCandidatosPos 0 acentos
               --formato de entrada (velocity, dur)
               sacaCandidatosPos _ []     = []
               sacaCandidatosPos _ (x:[]) = []
-              sacaCandidatosPos pos ((v1,d1):(v2,d2):xs)
-                | (v1 <0) && (v2 >=0) = (pos,d1) : (restoCandidatos)
+              sacaCandidatosPos pos ((v1,d1):(v2,d2):xs)   --se añade la dur de la derecha
+                | (v1 <0) && (v2 >=0) = (pos,d2) : (restoCandidatos)
                 | otherwise           = restoCandidatos
                               where restoCandidatos = sacaCandidatosPos (pos +1) ((v2,d2):xs)
 
@@ -224,12 +224,22 @@ alargaMusicaFase2 :: [(Int, Dur)] -> [Music] -> [Music]
 alargaMusicaFase2 = alargaElemTalPos 0
     where alargaElemTalPos _ _ []      = []
           alargaElemTalPos _ [] musica = musica
+          alargaElemTalPos pos1 ((pos2,dur):xs) (m1:m2:ms)
+            | pos1 == pos2 = ((sumaDur dur m1):restoMusExito)
+            | otherwise    = (m1:restoMusFallo)
+                               where restoMusExito = alargaElemTalPos (pos1 + 1) xs ms
+                                     restoMusFallo = alargaElemTalPos (pos1 + 1) ((pos2,dur):xs) (m2:ms)
+                                     sumaDur dur (Note p durOri atribs) = (Note p (durOri + dur) atribs)
+{-alargaMusicaFase2 = alargaElemTalPos 0
+    where alargaElemTalPos _ _ []      = []
+          alargaElemTalPos _ [] musica = musica
           alargaElemTalPos pos1 ((pos2,dur):xs) (m:ms)
             | pos1 == pos2 = ((sumaDur dur m):restoMusExito)
             | otherwise    = (m:restoMusFallo)
                                where restoMusExito = alargaElemTalPos (pos1 + 1) xs ms
                                      restoMusFallo = alargaElemTalPos (pos1 + 1) ((pos2,dur):xs) ms
                                      sumaDur dur (Note p durOri atribs) = (Note p (durOri + dur) atribs)
+-}
 
 --aplicaCurvaMelodicaFase2 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (restoAleat4,(musica, acentosSobran, curvaSobra))
 --aplicaCurvaMelodicaFase2 (aleat, (acentos, curva, musica))

@@ -235,22 +235,98 @@ alargaMusicaFase2 = alargaElemTalPos 0
 mete una nota de paso intermedia, para ello interpola:
   -pitch: notas que esten entre dos notas, dentro de la escala!, eligiendo al azar entre los candidatos
   -ritmo: para q haya mas variacion ritmica respecto al patron ritmico siempre mete notas en el tiempo partido
-por dos, pq suponemos binario, ej: entre dos notas Note (C,6) (1%2) [] y Note (E,6) (1%8) [] pondría un
+por dos, pq suponemos binario, ej: entre dos notas Note (C,6) (1%2) [] y Note (E,6) (1%8) [] pondrï¿½a un
 Note (D,6) (1%4) [] diviendo en dos el primer do para q queden entre medias, es decir:
 (Note (C,6) (1%4) []) :+: Note (D,6) (1%4) [] :+: Note (E,6) (1%8) []
 -}
---aplicaCurvaMelodicaFase3 ::
-{-aplicaCurvaMelodicaFase3 (aleat@(a1,restoAleat1), (registro, escala, tonica, musica)) =
-                 where numNotasIn = length musica
-                       listaPesosNotas = zip [0..(numNotasIn - 1)] [1| p <- [0..(numNotasIn - 1)]]
-                       posElegida = dameElemAleatListaPesos a1 listaPesosNotas
-                       -- al loro con el caso en que se elije la ultima nota, pq no tiene ninguna a su derecha
-                       -- esto tb ocurre si solo hay una nota claro
-  -}
 {-
+aplicaCurvaMelodicaFase3 ::
+aplicaCurvaMelodicaFase3 (aleat@(a1:restoAleat1), (escala, tonica, musica)) =
+ | numCandidatos <= 0 = (aleat, musica)
+ | otherwise          =
+                 where posCandidatos = dameCandidatosFase3 musica
+                       numCandidatos = length posCandidatos
+                       listaPesosNotas = zip posCandidatos (replicate numCandidatos 1)
+                       posElegida = fst (dameElemAleatListaPesos a1 listaPesosNotas)
+                       -- nunca se se elije la ultima nota, pq no tiene ninguna a su derecha
+                       -- esto tb ocurre si solo hay una nota
+                       esNotaSuena (Rest _) = False
+                       esNotaSuena (Note _ _ _) = True
+                       -- buscaNotaSuena pos durAcu (nota:ns), pos es la posicion durante el recorrido en la superlista
+                       -- a la q pertenece la lista. durAcu es la suma de la duracion de los silencios que va encintrando
+                       -- Esto devuelve el trio formado por la primera nota que suena
+                       -- q encuentra desde la izquierda en la sublista, su posicion en la superlista total y la
+                       -- duracion de los silencios q encuentra por el camino
+                       buscaNotaSuena pos durAcu (nota:ns)
+                        | esNotaSuena nota = (nota, pos, durAcu)
+                        | otherwise        = buscaNotaSuena (pos + 1) (durAcu + (dur nota)) ns
+                       notaElegida = musica !! posElegida
+                       sublistaBusqueda = [musica !! i | i <- [(posElegida + 1)..((length musica)-1)] ]
+                       (notaDcha, posNotaDcha, durSilenciosEntre) = buscaNotaSuena (posElegida +1) 0 sublistaBusqueda
+                       durTotal = (dur notaElegida) + durSilenciosEntre
+                       sublistaSustituta =
+                       musicaResul = if (posElegida < (numNotasIn - 1))
+                                        then sustituyeSublistaPosIniFin posElegida (posElegida + 1) parSustitutoNoExtremos musica
+-}
+
+{-
+Los candidatos son posiciones en la lista de entrada de elementos de tipo Music correspondientes a la constructora
+Note y tales q en alguna posicion a su derecha se encuentra otro elementos de tipo Music correspondiente a la
+constructora Note
+-}
+dameCandidatosFase3 :: [Music] -> [Int]
+dameCandidatosFase3 musica = buscaCandsAcu False (numNotas -1) (reverse musica)
+   where numNotas = length musica
+         esNotaSuena (Rest _) = False
+         esNotaSuena (Note _ _ _) = True
+         buscaCandsAcu _ _ [] = []
+         -- el booleano indica si hemos encontrado alguna nota no silencio desde el inicio del
+         -- recorrido. Como vamos de dcha a izda es falso hasta despuÃ©s de la nota no silencio
+         -- que esta mas tarde. El resto de notas mas a la izda si son candidatas si no son silencios
+         -- pq tienen alguna nota no silencio a su derecha
+         buscaCandsAcu False pos (nota:ns)
+           | (esNotaSuena nota) = buscaCandsAcu True (pos -1) ns -- primer no silencio de la derecha
+           | otherwise          = buscaCandsAcu False (pos -1) ns
+         buscaCandsAcu True pos (nota:ns)
+           | (esNotaSuena nota) = pos:(buscaCandsAcu True (pos -1) ns)
+           | otherwise          = buscaCandsAcu True (pos -1) ns
+
+{-dameCandidatosFase3 musica = cands
+                where esNota (Rest _) = False
+                      esNota (Note _ _ _) = True
+                      numNotas = length musica
+                      cands = filter (\pos -> esNota(musica !! pos)) [0..(numNotas -1)]
+                      -}
+
 damePitchIntermedioAleatFase3 :: FuncAleatoria (Escala, PitchClass, Pitch, Pitch) Pitch
-damePitchIntermedioAleatFase3 (aleat, (escala, tonica, notaIzda, notaDcha))
-NO PENSAR Q LA NOTA IZDA ES MAS GRAVE PQ NO TIENE PQ!!!
+damePitchIntermedioAleatFase3 (aleat@(a1:restoAleat1), (escala, tonica, notaIzda@(pci,oi), notaDcha@(pcd,od)))
+  | (notaIzda < notaDcha) = (restoAleat1, pitchMenor)
+  | (notaIzda > notaDcha) = (restoAleat1, pitchMayor)
+  | otherwise             = (aleat, notaIzda)
+                      where distanciaMenor = (dameDistanciaEnEscala escala tonica notaIzda notaDcha) + 7*(od-oi)
+                            listaPesosMenor = (0, pesoExtremos):((distanciaMenor,pesoExtremos):(zip [1..(distanciaMenor-1)] [1.0 | p <- [1..(distanciaMenor-1)]]))
+                            saltoMenor = fst (dameElemAleatListaPesosFloat a1 listaPesosMenor)
+                            pitchMenor = saltaIntervaloPitch escala tonica saltoMenor notaIzda
+                            distanciaMayor = (dameDistanciaEnEscala escala tonica notaDcha notaIzda) + 7*(oi-od)
+                            listaPesosMayor = (0, pesoExtremos):((distanciaMayor,pesoExtremos):(zip [1..(distanciaMayor-1)] [1.0 | p <- [1..(distanciaMayor-1)]]))
+                            saltoMayor = fst (dameElemAleatListaPesosFloat a1 listaPesosMayor)
+                            pitchMayor = saltaIntervaloPitch escala tonica saltoMayor notaDcha
+                            pesoExtremos = 0.05
+
+
+pruDamePitchIntermedioAleatFase3 :: Pitch -> Pitch -> IO()
+pruDamePitchIntermedioAleatFase3 notaIzda notaDcha= do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                       putStr ("nota izquierda "++(show notaIzda) ++ " nota derecha "++(show notaDcha)++"\n")
+                                                       putStr ("resultado: " ++ (show (pitch aleat)))
+                                                       where pitch aleat = snd (damePitchIntermedioAleatFase3 (aleat,(Jonica, C, notaIzda, notaDcha)) )
+
+-- NO PENSAR Q LA NOTA IZDA ES MAS GRAVE PQ NO TIENE PQ!!!
+{-
+dameDistanciaEnEscala :: Escala -> PitchClass -> Pitch -> Pitch -> Int
+dameDistanciaEnEscala escala tonica pitchAbajo@(pc1,_) pitchArriba@(pc2,_)
+
+saltaIntervaloPitch :: Escala -> PitchClass -> Int -> Pitch -> Pitch
+saltaIntervaloPitch escala tonica num notaPartida@(clase, oct)
 -}
 
 --aplicaCurvaMelodicaFase2 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (restoAleat4,(musica, acentosSobran, curvaSobra))

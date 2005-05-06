@@ -58,6 +58,33 @@ dameIntervaloPitch tonica p = grado
                       grado = absPitchAGrado (abs - absTonica)
 
 {-
+dameDistanciaEnEscala escala tonica pitchAbajo pitchArriba
+ -devuelve el numero de grados de distancia entre los dos pitch en la escala. No tiene pq ser
+diatonicos ninguno, pero si debe ocurrir q pitchAbajo sea mas grave q pitchArriba
+  -ejemplos:
+    .dameDistanciaEnEscala Jonica C (C,0) (C,0) = 0
+    .dameDistanciaEnEscala Jonica C (C,0) (C,2) = 0
+    .dameDistanciaEnEscala Jonica C (C,0) (D,0) = 1
+    .dameDistanciaEnEscala Jonica C (C,0) (D,1) = 1
+    .dameDistanciaEnEscala Jonica C (Cs,0) (D,0) = 1
+    .dameDistanciaEnEscala Jonica C (Cs,0) (E,0) = 2
+    .dameDistanciaEnEscala Jonica C (Cs,0) (Gs,0) = 5 (1 de Cs a D, 3 de D a G y 1 de G a Gs)
+-}
+dameDistanciaEnEscala :: Escala -> PitchClass -> Pitch -> Pitch -> Int
+dameDistanciaEnEscala escala tonica pitchAbajo@(pc1,_) pitchArriba@(pc2,_)
+  | pc1 == pc2 = 0
+  | otherwise  = distancia
+      where gradoAbajoIni = dameIntervaloPitch tonica pitchAbajo
+            gradoArribaIni = dameIntervaloPitch tonica pitchArriba
+            gradoAbajoCorregido = dameGradoDiatonicoCercano True escala gradoAbajoIni
+            gradoArribaCorregido = dameGradoDiatonicoCercano False escala gradoArribaIni
+            correccionAbajo = if (gradoAbajoIni == gradoAbajoCorregido) then 0 else 1
+            correccionArriba = if (gradoArribaIni == gradoArribaCorregido) then 0 else 1
+            (_,gradosEscala,_)  = dameInfoEscala escala
+            posGradoAbajo = fromJust (elemIndex gradoAbajoCorregido gradosEscala)
+            posGradoArriba = fromJust (elemIndex gradoArribaCorregido gradosEscala)
+            distancia = correccionAbajo + correccionArriba + abs (posGradoAbajo - posGradoArriba)
+{-
 dameGradoDiatonicoCercano subir escala gradoPartida devuelve el grado diat�nico m�s cercano al
 indicado. En el caso de que haya dos grados diat�nicos a la misma distancia devuelve el superior
 en el caso de q subir sea cierto y el inferior en el otro caso

@@ -231,25 +231,36 @@ alargaMusicaFase2 = alargaElemTalPos 0
                                      restoMusFallo = alargaElemTalPos (pos1 + 1) (pos2:xs) (m2:ms)
                                      sumaDur dur (Note p durOri atribs) = (Note p (durOri + dur) atribs)
 
-
-{-alargaMusicaFase2 = alargaElemTalPos 0
-    where alargaElemTalPos _ _ []      = []
-          alargaElemTalPos _ [] musica = musica
-          alargaElemTalPos pos1 ((pos2,dur):xs) (m:ms)
-            | pos1 == pos2 = ((sumaDur dur m):restoMusExito)
-            | otherwise    = (m:restoMusFallo)
-                               where restoMusExito = alargaElemTalPos (pos1 + 1) xs ms
-                                     restoMusFallo = alargaElemTalPos (pos1 + 1) ((pos2,dur):xs) ms
-                                     sumaDur dur (Note p durOri atribs) = (Note p (durOri + dur) atribs)
+{-
+mete una nota de paso intermedia, para ello interpola:
+  -pitch: notas que esten entre dos notas, dentro de la escala!, eligiendo al azar entre los candidatos
+  -ritmo: para q haya mas variacion ritmica respecto al patron ritmico siempre mete notas en el tiempo partido
+por dos, pq suponemos binario, ej: entre dos notas Note (C,6) (1%2) [] y Note (E,6) (1%8) [] pondría un
+Note (D,6) (1%4) [] diviendo en dos el primer do para q queden entre medias, es decir:
+(Note (C,6) (1%4) []) :+: Note (D,6) (1%4) [] :+: Note (E,6) (1%8) []
+-}
+--aplicaCurvaMelodicaFase3 ::
+{-aplicaCurvaMelodicaFase3 (aleat@(a1,restoAleat1), (registro, escala, tonica, musica)) =
+                 where numNotasIn = length musica
+                       listaPesosNotas = zip [0..(numNotasIn - 1)] [1| p <- [0..(numNotasIn - 1)]]
+                       posElegida = dameElemAleatListaPesos a1 listaPesosNotas
+                       -- al loro con el caso en que se elije la ultima nota, pq no tiene ninguna a su derecha
+                       -- esto tb ocurre si solo hay una nota claro
+  -}
+{-
+damePitchIntermedioAleatFase3 :: FuncAleatoria (Escala, PitchClass, Pitch, Pitch) Pitch
+damePitchIntermedioAleatFase3 (aleat, (escala, tonica, notaIzda, notaDcha))
+NO PENSAR Q LA NOTA IZDA ES MAS GRAVE PQ NO TIENE PQ!!!
 -}
 
 --aplicaCurvaMelodicaFase2 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica)) = (restoAleat4,(musica, acentosSobran, curvaSobra))
 --aplicaCurvaMelodicaFase2 (aleat, (acentos, curva, musica))
 --se ligan las notas con el acento de su derecha para alargarlos: es un proceso que se puede repetir varias veces
 --para hacer melodias con notas mas largas. La curva melodcia no se necesita
+aplicaCurvaMelodicaFase2  :: FuncAleatoria (Escala, PitchClass, ListaAcentos, [Music]) [Music]
 aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica))
- | numAcentosCand <= 0 = musica
- | otherwise = musicaLarga
+ | numAcentosCand <= 0 = (aleat, musica)
+ | otherwise = (restoAleat1, musicaLarga)
       where posAcentosCand = dameCandidatosFase2 acentos
             numAcentosCand = length posAcentosCand
             listaPesosAcentos = zip posAcentosCand [fromIntegral (valoraGrado escala (dameIntervaloPitch tonica (damePitch(musica!!pos))))|pos <- posAcentosCand]
@@ -284,7 +295,7 @@ pruAplicaCurvaMelodica ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO
                                                      musica1 aleat p = line (primero (resul aleat p))
                                                      acentosSobran aleat p = segundo (resul aleat p)
                                                      curvaSobra aleat p = tercero (resul aleat p)
-                                                     musicaLarga aleat p = line (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p)))))
+                                                     musicaLarga aleat p = line (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
                                                       -- aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica))
 
 

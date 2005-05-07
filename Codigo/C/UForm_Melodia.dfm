@@ -48,6 +48,7 @@ object Form_Melodia: TForm_Melodia
     Height = 25
     Caption = 'Guardar Curva'
     TabOrder = 3
+    OnClick = Button1Click
   end
   object Radio_Eliminar_Puntos: TRadioButton
     Left = 352

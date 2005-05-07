@@ -322,6 +322,10 @@ else
    {
     Cuadro_Bloque_Pista();
    }
+  else
+   {
+    Panel_Bloque->Visible=false;
+   }
  }
 }
 //---------------------------------------------------------------------------
@@ -493,13 +497,14 @@ Panel_Bloque->Visible=true;
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 Etiqueta_Bloque_Numero_Compases->Caption="Nº Compases de su bloque: "+IntToStr(Bloque_A_Manipular.Num_Compases);
 Barra_Numero_Acorde_A_Mutar->Max=Bloque_A_Manipular.Num_Compases;
-
+Lista_8_Inicial->Text=IntToStr(Bloque_A_Manipular.Octava_Inicial);
 switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
 {
   case 0:
     {
       Tab_General->Enabled=true;
       Tab_Patron_Ritmico->Enabled=true;
+      Tab_Aplicacion_Patron->Enabled=true;
       Tab_Progresion->Enabled=true;
       Tab_Crear_Progresion->Enabled=true;
       Tab_Melodia->Enabled=false;
@@ -509,6 +514,7 @@ switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
     {
       Tab_General->Enabled=true;
       Tab_Patron_Ritmico->Enabled=false;
+      Tab_Aplicacion_Patron->Enabled=false;      
       Tab_Progresion->Enabled=false;
       Tab_Crear_Progresion->Enabled=false;
       Tab_Melodia->Enabled=true;
@@ -581,6 +587,19 @@ Bloque_A_Manipular.Notas_Totales=Barra_Notas_Totales->Position;
 Bloque_A_Manipular.Es_Sistema_Paralelo=Sistema_Paralelo->Checked;
 Bloque_A_Manipular.Inversion=Lista_Inversion->Text;
 Bloque_A_Manipular.Disposicion=Lista_Disposicion->Text;
+Bloque_A_Manipular.Octava_Inicial=StrToInt(Lista_8_Inicial->Text);
+if (Radio_Delegar_Haskell->Checked)
+{
+  Bloque_A_Manipular.Tipo_Melodia=0;
+}
+if (Radio_Curva_Melodia->Checked)
+{
+  Bloque_A_Manipular.Tipo_Melodia=1;
+}
+if (Radio_Editor_Midi->Checked)
+{
+  Bloque_A_Manipular.Tipo_Melodia=2;
+}
 //mirar a que pista corresponde el selector
 int seleccion_pista=Selector_Pista_Acompanamiento->Items->IndexOf(Selector_Pista_Acompanamiento->Text);
 if (seleccion_pista!=-1)
@@ -771,17 +790,19 @@ switch (Barra_Tipo_Pista->Position)
 }
 //---------------------------------------------------------------------------
 
-void TForm1::Crea_Progresion(String Ruta_Prolog, String argv[])
+void TForm1::Crea_Progresion(String Ruta_Prolog, String argv[],int total_args)
 {
 char *args[18];
 for (int i=0;i<18;i++)
 {
-if (argv[i]==NULL)
+total_args--;
+if ((argv[i]==NULL)&&(total_args<0))
 {args[i]=NULL;}
 else
 {
   args[i]=argv[i].c_str();
 }
+
 }
   int valor_spawn=spawnv(P_WAIT,args[0],args);
   if (valor_spawn==-1)
@@ -815,7 +836,7 @@ Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(C
 char work_dir[255];
 getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
-Bloque_A_Manipular.Progresion="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+Bloque_A_Manipular.Progresion="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
 }
 //---------------------------------------------------------------------------
@@ -826,7 +847,7 @@ getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="crea_progresion";
-String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
 String MT="mt";
 String V1;
@@ -882,12 +903,12 @@ else
     valor++;
     argv[valor]=T2;
     valor++;
-    V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
+    V2=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
     argv[valor]=V2;
     valor++;
     argv[valor]=T3;
     valor++;
-    V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
+    V3=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
     argv[valor]=V3;
     valor++;
   }
@@ -908,12 +929,12 @@ else
     valor++;
     argv[valor]=T5;
     valor++;
-    V4=IntToStr(Barra_Mutaciones_2M7->Position);
+    V5=IntToStr(Barra_Mutaciones_2M7->Position);
     argv[valor]=V5;
     valor++;
   }
 }
-Crea_Progresion(Ruta_Prolog,argv);
+Crea_Progresion(Ruta_Prolog,argv,valor);
 }
 //---------------------------------------------------------------------------
 void TForm1::Progresion_Mutar_Progresion()
@@ -925,7 +946,7 @@ getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="muta_progresion";
-String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
 String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
 Ruta_Origen="\""+Ruta_Origen+"\"";
@@ -988,12 +1009,12 @@ else
     valor++;
     argv[valor]=T2;
     valor++;
-    V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
+    V2=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
     argv[valor]=V2;
     valor++;
     argv[valor]=T3;
     valor++;
-    V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
+    V3=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
     argv[valor]=V3;
     valor++;
   }
@@ -1014,12 +1035,12 @@ else
     valor++;
     argv[valor]=T5;
     valor++;
-    V4=IntToStr(Barra_Mutaciones_2M7->Position);
+    V5=IntToStr(Barra_Mutaciones_2M7->Position);
     argv[valor]=V5;
     valor++;
   }
 }
-Crea_Progresion(Ruta_Prolog,argv);
+Crea_Progresion(Ruta_Prolog,argv,valor);
 }
 //---------------------------------------------------------------------------
 void TForm1::Progresion_Mutar_Acorde_Progresion()
@@ -1031,7 +1052,7 @@ getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="muta_progresion_acorde";
-String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
 String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
 Ruta_Origen="\""+Ruta_Origen+"\"";
@@ -1097,12 +1118,12 @@ else
     valor++;
     argv[valor]=T2;
     valor++;
-    V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
+    V2=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
     argv[valor]=V2;
     valor++;
     argv[valor]=T3;
     valor++;
-    V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
+    V3=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
     argv[valor]=V3;
     valor++;
   }
@@ -1123,12 +1144,12 @@ else
     valor++;
     argv[valor]=T5;
     valor++;
-    V4=IntToStr(Barra_Mutaciones_2M7->Position);
+    V5=IntToStr(Barra_Mutaciones_2M7->Position);
     argv[valor]=V5;
     valor++;
   }
 }
-Crea_Progresion(Ruta_Prolog,argv);
+Crea_Progresion(Ruta_Prolog,argv,valor);
 }
 //---------------------------------------------------------------------------
 void TForm1::Progresion_Mutar_Progresion_Multiple()
@@ -1139,8 +1160,8 @@ char work_dir[255];
 getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
-String Orden="muta_progresion_multiple";
-String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_temporal.txt"+"\"";
+String Orden="crea_con_semilla";
+String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
 String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
 Ruta_Origen="\""+Ruta_Origen+"\"";
@@ -1203,12 +1224,12 @@ else
     valor++;
     argv[valor]=T2;
     valor++;
-    V1=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
+    V2=IntToStr(Barra_Mutaciones_Separa_Acordes->Position);
     argv[valor]=V2;
     valor++;
     argv[valor]=T3;
     valor++;
-    V1=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
+    V3=IntToStr(Barra_Mutaciones_Cambia_Acordes->Position);
     argv[valor]=V3;
     valor++;
   }
@@ -1229,12 +1250,12 @@ else
     valor++;
     argv[valor]=T5;
     valor++;
-    V4=IntToStr(Barra_Mutaciones_2M7->Position);
+    V5=IntToStr(Barra_Mutaciones_2M7->Position);
     argv[valor]=V5;
     valor++;
   }
 }
-Crea_Progresion(Ruta_Prolog,argv);
+Crea_Progresion(Ruta_Prolog,argv,valor);
 }
 //---------------------------------------------------------------------------
 
@@ -1311,7 +1332,8 @@ else
 
 void __fastcall TForm1::Button9Click(TObject *Sender)
 {
-Form_Melodia->Lee_Puntos();
+//bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+Form_Melodia->Lee_Puntos(Musica_Genaro,Fila_Pulsada,Columna_Pulsada);
 Form_Melodia->Show();
 }
 //---------------------------------------------------------------------------
@@ -1342,6 +1364,23 @@ if (Inicializado)
 {
   Dibuja_Cancion();
 }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button10Click(TObject *Sender)
+{
+//si es pista de acompañamiento
+//llamamos a haskel con el patron ritmico, la progresion y no se que otros parámetros. la progresión ha de estar ya hecha
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),directorio_trabajo.c_str(),NULL);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el runhugs de haskell.");}
+//si es pista de melodía hacemos la llamada con los parámetros de la pista de acompañamiento asociada. si no hay pista de acompañamiento asociada, esto peta.
 }
 //---------------------------------------------------------------------------
 

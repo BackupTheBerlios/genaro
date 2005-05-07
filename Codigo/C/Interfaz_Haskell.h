@@ -18,6 +18,7 @@ class Interfaz_Haskell
     //ADVERTENCIA, runhugs no admite rutas con \\, usa /en su lugar
 
     void Ejecuta_Funcion(String nombre_archivo, String num_repeticiones);
+    String Dame_Ruta_Haskell(){return Ruta_Haskell;};
 };
 
 

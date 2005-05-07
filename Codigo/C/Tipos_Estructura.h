@@ -17,7 +17,10 @@ struct Bloque
     int Notas_Totales;
     String Inversion;
     String Disposicion;
+    String Curva_Melodica;
+    int Octava_Inicial;
     int N_Pista_Acomp;
+    int Tipo_Melodia; //0=delegar en haskell, 1= curva melódica ... 2=editor midi 
     //String Curva_Melodica;
     //String Octava_Inicial
     //?? tipo enlace voces

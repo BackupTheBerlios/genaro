@@ -79,7 +79,7 @@ __published:	// IDE-managed Components
   TRadioGroup *RadioGroup2;
   TRadioButton *Radio_Editor_Midi;
   TRadioButton *Radio_Curva_Melodia;
-  TRadioButton *RadioButton3;
+  TRadioButton *Radio_Delegar_Haskell;
   TLabel *Label7;
   TGroupBox *Grupo_TipoA;
   TGroupBox *Grupo_TipoB;
@@ -129,6 +129,20 @@ __published:	// IDE-managed Components
   TComboBox *Selector_Pista_Acompanamiento;
   TMenuItem *Guardar1;
   TMenuItem *N1;
+  TButton *Button10;
+  TTabSheet *Tab_Aplicacion_Patron;
+  TGroupBox *GroupBox2;
+  TGroupBox *GroupBox3;
+  TGroupBox *GroupBox4;
+  TGroupBox *GroupBox5;
+  TRadioButton *Radio_Horizontal_Ciclico;
+  TRadioButton *Radio_Horizontal_No_Ciclico;
+  TRadioButton *Radio_Vertical_Mayor_Truncar;
+  TRadioButton *Radio_Vertical_Mayor_Saturar;
+  TRadioButton *Radio_Vertical_Menor_Truncar;
+  TRadioButton *Radio_Vertical_Menor_Saturar;
+  TRadioButton *Radio_Vertical_Menor_Ciclico;
+  TRadioButton *Radio_Vertical_Menor_Modulo;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -172,6 +186,7 @@ __published:	// IDE-managed Components
   void __fastcall Button9Click(TObject *Sender);
   void __fastcall Guardar1Click(TObject *Sender);
   void __fastcall FormPaint(TObject *Sender);
+  void __fastcall Button10Click(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;
@@ -194,7 +209,7 @@ public:		// User declarations
   void Cuadro_Cabecera_Pista();
   void Cuadro_Bloque_Pista();  
   void Dibuja_Musica();
-  void Crea_Progresion(String Ruta_Prolog,String argv[]);
+  void Crea_Progresion(String Ruta_Prolog,String argv[],int total_args);
   void Progresion_Crear_Progresion();
   void Progresion_Mutar_Progresion();
   void Progresion_Mutar_Acorde_Progresion();

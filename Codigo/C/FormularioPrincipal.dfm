@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 75
-  Top = 88
+  Left = 73
+  Top = 117
   Width = 800
   Height = 537
   Caption = 'Interfaz Genaro'
@@ -384,7 +384,7 @@ object Form1: TForm1
     Top = 0
     Width = 513
     Height = 161
-    ActivePage = Tab_General
+    ActivePage = Tab_Progresion
     TabOrder = 14
     Visible = False
     object Tab_General: TTabSheet
@@ -446,6 +446,21 @@ object Form1: TForm1
         TabOrder = 1
         OnClick = Boton_Guardar_Cambios_BloqueClick
       end
+      object Button10: TButton
+        Left = 344
+        Top = 96
+        Width = 97
+        Height = 25
+        Caption = 'Generar Notas'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 2
+        OnClick = Button10Click
+      end
     end
     object Tab_Patron_Ritmico: TTabSheet
       Caption = 'Patrón Rítmico'
@@ -480,7 +495,7 @@ object Form1: TForm1
         Top = 96
         Width = 11
         Height = 20
-        Caption = '0'
+        Caption = '2'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -543,7 +558,15 @@ object Form1: TForm1
         Height = 21
         ItemHeight = 13
         TabOrder = 1
-        Text = '8ª Inicial'
+        Text = '1'
+        Items.Strings = (
+          '1'
+          '2'
+          '3'
+          '4'
+          '5'
+          '6'
+          '7')
       end
       object Barra_Notas_Totales: TTrackBar
         Left = 0
@@ -551,10 +574,11 @@ object Form1: TForm1
         Width = 113
         Height = 25
         Max = 20
+        Min = 2
         Orientation = trHorizontal
         PageSize = 1
         Frequency = 1
-        Position = 0
+        Position = 2
         SelEnd = 0
         SelStart = 0
         TabOrder = 2
@@ -635,6 +659,112 @@ object Form1: TForm1
           '2ª Disposición'
           '3ª Disposición'
           '4ª Disposición')
+      end
+    end
+    object Tab_Aplicacion_Patron: TTabSheet
+      Caption = 'Aplicación Patrón'
+      ImageIndex = 5
+      object GroupBox2: TGroupBox
+        Left = 8
+        Top = 8
+        Width = 161
+        Height = 121
+        Caption = 'Aplicación Horizontal'
+        TabOrder = 0
+        object Radio_Horizontal_Ciclico: TRadioButton
+          Left = 16
+          Top = 32
+          Width = 129
+          Height = 25
+          Caption = 'Cíclico'
+          Checked = True
+          TabOrder = 0
+          TabStop = True
+        end
+        object Radio_Horizontal_No_Ciclico: TRadioButton
+          Left = 16
+          Top = 80
+          Width = 121
+          Height = 17
+          Caption = 'No Cíclico'
+          TabOrder = 1
+        end
+      end
+      object GroupBox3: TGroupBox
+        Left = 176
+        Top = 8
+        Width = 313
+        Height = 121
+        Caption = '                              Aplicación Vertical'
+        TabOrder = 1
+        object GroupBox4: TGroupBox
+          Left = 8
+          Top = 16
+          Width = 121
+          Height = 97
+          Caption = 'A > P'
+          TabOrder = 0
+          object Radio_Vertical_Mayor_Truncar: TRadioButton
+            Left = 8
+            Top = 24
+            Width = 105
+            Height = 17
+            Caption = 'Truncar'
+            Checked = True
+            TabOrder = 0
+            TabStop = True
+          end
+          object Radio_Vertical_Mayor_Saturar: TRadioButton
+            Left = 8
+            Top = 64
+            Width = 97
+            Height = 17
+            Caption = 'Saturar'
+            TabOrder = 1
+          end
+        end
+        object GroupBox5: TGroupBox
+          Left = 136
+          Top = 16
+          Width = 161
+          Height = 97
+          Caption = 'A < P'
+          TabOrder = 1
+          object Radio_Vertical_Menor_Truncar: TRadioButton
+            Left = 16
+            Top = 16
+            Width = 97
+            Height = 17
+            Caption = 'Truncar'
+            Checked = True
+            TabOrder = 0
+            TabStop = True
+          end
+          object Radio_Vertical_Menor_Saturar: TRadioButton
+            Left = 16
+            Top = 32
+            Width = 89
+            Height = 17
+            Caption = 'Saturar'
+            TabOrder = 1
+          end
+          object Radio_Vertical_Menor_Ciclico: TRadioButton
+            Left = 16
+            Top = 48
+            Width = 81
+            Height = 25
+            Caption = 'Cíclico'
+            TabOrder = 2
+          end
+          object Radio_Vertical_Menor_Modulo: TRadioButton
+            Left = 16
+            Top = 64
+            Width = 81
+            Height = 25
+            Caption = 'Módulo'
+            TabOrder = 3
+          end
+        end
       end
     end
     object Tab_Progresion: TTabSheet
@@ -754,6 +884,7 @@ object Form1: TForm1
           Width = 97
           Height = 25
           Enabled = False
+          Max = 25
           Orientation = trHorizontal
           Frequency = 1
           Position = 0
@@ -779,6 +910,7 @@ object Form1: TForm1
           Width = 65
           Height = 25
           Enabled = False
+          Max = 20
           Orientation = trHorizontal
           Frequency = 1
           Position = 0
@@ -795,6 +927,7 @@ object Form1: TForm1
           Width = 65
           Height = 25
           Enabled = False
+          Max = 20
           Orientation = trHorizontal
           Frequency = 1
           Position = 0
@@ -811,6 +944,7 @@ object Form1: TForm1
           Width = 65
           Height = 25
           Enabled = False
+          Max = 20
           Orientation = trHorizontal
           Frequency = 1
           Position = 0
@@ -911,6 +1045,7 @@ object Form1: TForm1
           Width = 89
           Height = 25
           Enabled = False
+          Max = 25
           Orientation = trHorizontal
           Frequency = 1
           Position = 0
@@ -926,6 +1061,7 @@ object Form1: TForm1
           Top = 64
           Width = 89
           Height = 25
+          Max = 20
           Orientation = trHorizontal
           Frequency = 1
           Position = 0
@@ -942,6 +1078,7 @@ object Form1: TForm1
           Width = 81
           Height = 25
           Enabled = False
+          Max = 20
           Orientation = trHorizontal
           Frequency = 1
           Position = 0
@@ -990,6 +1127,7 @@ object Form1: TForm1
         Top = 0
         Width = 153
         Height = 25
+        Max = 50
         Orientation = trHorizontal
         Frequency = 1
         Position = 0
@@ -1110,11 +1248,11 @@ object Form1: TForm1
       Caption = 'Melodía'
       ImageIndex = 2
       object Label7: TLabel
-        Left = 280
+        Left = 296
         Top = 16
-        Width = 186
+        Width = 166
         Height = 19
-        Caption = 'Pista de Acompañamiento: ??'
+        Caption = 'Pista de Acompañamiento:'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -1139,7 +1277,7 @@ object Form1: TForm1
       object Radio_Editor_Midi: TRadioButton
         Left = 40
         Top = 48
-        Width = 169
+        Width = 153
         Height = 17
         Caption = 'Usar el editor MIDI'
         Enabled = False
@@ -1165,10 +1303,10 @@ object Form1: TForm1
         ParentFont = False
         TabOrder = 2
       end
-      object RadioButton3: TRadioButton
+      object Radio_Delegar_Haskell: TRadioButton
         Left = 40
         Top = 96
-        Width = 209
+        Width = 161
         Height = 17
         Caption = 'Delegar en Haskell'
         Checked = True

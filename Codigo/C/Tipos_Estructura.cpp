@@ -1,7 +1,7 @@
 //---------------------------------------------------------------------------
 
 #include <vcl.h>
-#include <fstream>
+#include <fstream.h>
 #pragma hdrstop
 
 #include "Tipos_Estructura.h"
@@ -43,7 +43,10 @@ Bloque_Vacio.Vacio=true;
 Bloque_Vacio.Patron_Ritmico=P_Ritmico;
 Bloque_Vacio.Disposicion=Disposicion;
 Bloque_Vacio.Inversion=Inversion;
+Bloque_Vacio.Curva_Melodica="";
 Bloque_Vacio.N_Pista_Acomp=-1;
+Bloque_Vacio.Octava_Inicial=1;
+Bloque_Vacio.Tipo_Melodia=0;
 for (int i=0;i<Pistas.size();i++)
  {
   Pistas[i]->Inserta_Bloque(Bloque_Vacio);
@@ -91,56 +94,36 @@ for (int i=0;i<Pistas.size();i++)
     fichero_salida<<"Patron "<<bloque_temp.Patron_Ritmico.Length()<<" ";
     for (int k=0;k<bloque_temp.Patron_Ritmico.Length();k++)
     {
-      if (bloque_temp.Patron_Ritmico[k+1]==' ')
-      {
-        fichero_salida<<"¬";
-      }
-      else
-      {
         fichero_salida<<bloque_temp.Patron_Ritmico[k+1];
-      }
     }
     fichero_salida<<" ";
+    fichero_salida<<"Octava_Inicial "<<bloque_temp.Octava_Inicial<<" ";
     fichero_salida<<"Sistema "<<bloque_temp.Es_Sistema_Paralelo<<" ";
     fichero_salida<<"Notas "<<bloque_temp.Notas_Totales<<" ";
     fichero_salida<<"Inversion "<<bloque_temp.Inversion.Length()<<" ";
     for (int k=0;k<bloque_temp.Inversion.Length();k++)
     {
-      if (bloque_temp.Inversion[k+1]==' ')
-      {
-        fichero_salida<<"¬";
-      }
-      else
-      {
       fichero_salida<<bloque_temp.Inversion[k+1];
-      }
     }
     fichero_salida<<" ";
     fichero_salida<<"Disposicion "<<bloque_temp.Disposicion.Length()<<" ";
     for (int k=0;k<bloque_temp.Disposicion.Length();k++)
     {
-      if (bloque_temp.Disposicion[k+1]==' ')
-      {
-        fichero_salida<<"¬";
-      }
-      else
-      {
       fichero_salida<<bloque_temp.Disposicion[k+1];
-      }
+    }
+    fichero_salida<<" ";
+    fichero_salida<<"Tipo_Melodia "<<bloque_temp.Tipo_Melodia<<" ";//0=delegar en haskell, 1=curva melodica, 2= fichero midi
+    fichero_salida<<"Curva_Melodica "<<bloque_temp.Curva_Melodica.Length()<<" ";
+    for (int p=0;p<bloque_temp.Curva_Melodica.Length();p++)
+    {
+      fichero_salida<<bloque_temp.Curva_Melodica[p+1];
     }
     fichero_salida<<" ";
     fichero_salida<<"Pista_Acomp "<<bloque_temp.N_Pista_Acomp<<" ";
     fichero_salida<<"Progresion "<<bloque_temp.Progresion.Length()<<" ";
     for (int k=0;k<bloque_temp.Progresion.Length();k++)
     {
-      if (bloque_temp.Progresion[k+1]==' ')
-      {
-        fichero_salida<<"¬";
-      }
-      else
-      {
       fichero_salida<<bloque_temp.Progresion[k+1];
-      }
     }
     fichero_salida<<" ";
     fichero_salida<<"FINBLOQUE"<<"\n";

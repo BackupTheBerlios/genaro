@@ -9,7 +9,7 @@
 module Parsers where
 import Parser_library
 import Ratio
-
+import List
 
 open = symbol '('
 close = symbol ')'
@@ -119,3 +119,19 @@ devuelve el string correspondiente a quitar los caracteres de retorno de carro \
 -}
 quitaFormatoDOS :: String -> String
 quitaFormatoDOS = filter (/= '\r')
+
+-- type Parser symbol result  =  [symbol] -> [([symbol],result)]
+parserAceptaTodo :: Parser Char String
+--parserAceptaTodo str = zip (inits str) (tails str)
+parserAceptaTodo str = reverse (map (\(a,b) -> (b,a)) [(divideListaPos div str) | div <- [(-1)..((length str) -1)]])
+
+{-
+divideListaPos :: Int -> [a] -> ([a], [a])
+divideListaPos pos xs = (listaIzda, listaDcha)
+  -devuelve una pareja de listas, la primera con los elementos desde el 0 al pos-esimo inclusive, y la
+  segunda con los elementos desde el (pos+1)-esimo al ultimo
+-}
+divideListaPos :: Int -> [a] -> ([a], [a])
+divideListaPos pos xs = (listaIzda, listaDcha)
+            where listaIzda = [xs !! i | i <- [0..pos]]
+                  listaDcha = [xs !! i | i <- [(pos+1)..((length xs)-1)] ]

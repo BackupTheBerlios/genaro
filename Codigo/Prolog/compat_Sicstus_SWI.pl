@@ -19,7 +19,7 @@ random(+Int)
     Evaluates to a random integer i for which 0 =< i < Int. The seed of this random generator is determined by the system clock when SWI-Prolog was started.
 solo funciona si U>0 y L<U
 */
-random(N,N,N). % este caso evita que salga error cuando los limites son iguales
+%random(N,N,N). % este caso evita que salga error cuando los limites son iguales
 random(L,U,N) :- Rango is (U - L), Azar is random(Rango), N is L + Azar.
 
 /**

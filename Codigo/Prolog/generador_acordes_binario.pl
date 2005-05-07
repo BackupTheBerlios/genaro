@@ -105,7 +105,7 @@ aniade_dom_sec_lista(Lo, Ld):-
     buscaCandidatosADominanteSec(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
     ,setof(((Cif, figura(N,D), PosElegida),Peso),
-    	(member((Cif, figura(N,D), PosElegida),Lc), Peso is N/D*1024)
+    	(member((Cif, figura(N,D), PosElegida),Lc), Peso is round(N/D*2048))
     	, ListaEligeDominante)
     ,dame_elemento_aleat_lista_pesos(ListaEligeDominante, (Cif, F, PosElegida), _, _)
 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
@@ -205,7 +205,7 @@ aniade_iim7_rel_lista(Lo, Ld):-
     buscaCandidatosAiimRel(Lo, Lc)
 	,length(Lc,Long), Long >0 ,!
     ,setof(((Cif, figura(N,D), PosElegida),Peso),
-    	(member((Cif, figura(N,D), PosElegida),Lc), Peso is N/D*1024)
+    	(member((Cif, figura(N,D), PosElegida),Lc), Peso is round(N/D*2048))
     	, ListaEligeiimRel)
     ,dame_elemento_aleat_lista_pesos(ListaEligeiimRel, (Cif, F, PosElegida), _, _)
 	,sublista_pref(Lo, PosElegida, LdA), PosElegMas is PosElegida + 1
@@ -570,24 +570,24 @@ modificaProgTipoNum( Pin, Pin, _, Num_mut ) :-
         Num_mut =< 0.
 modificaProgTipoNum( Pin, Pout, TipoR, Num_mut ) :-
         Num_mut > 0
-       ,traduceTipoRobertoATipoJuan(TipoR, TipoJ)
+       ,traducedeTipoRobertoATipoJuan(TipoR, TipoJ)
        ,accion_modif(Pin, Paux, TipoJ)
        ,Num_mut2 is Num_mut - 1
        ,modificaProgTipoNum( Paux, Pout, TipoR, Num_mut2 ).
 
 
 /**
-* traducedeTipoRobertATipoJuan( ?TipoRober, ?TipoJuan)
+* traducedeTipoRobertoATipoJuan( ?TipoRober, ?TipoJuan)
 * Debido a que hay una diferencia de numeracion entre las mutaciones que estaban ya puestas y las que van a ser
 * definitivas se ha creado esta mini base de datos relacional que relaciona los dos tipos
 * @param ?TipoRober numero de la mutacion definitivo. De 1 a 5
 * @param ?TipoJuan numero de la mutacion que estaba ya hecho. de 0 a 5
 */
-traducedeTipoRobertATipoJuan(1, 3). % quita acordes
-traducedeTipoRobertATipoJuan(2, 2). % aniade acordes
-traducedeTipoRobertATipoJuan(3, 4). % cabia acordes
-traducedeTipoRobertATipoJuan(4, 0). % aniade dominantes secundarios
-traducedeTipoRobertATipoJuan(5, 1). % aniade IIm7 relativos
+traducedeTipoRobertoATipoJuan(1, 3). % quita acordes
+traducedeTipoRobertoATipoJuan(2, 2). % aniade acordes
+traducedeTipoRobertoATipoJuan(3, 4). % cabia acordes
+traducedeTipoRobertoATipoJuan(4, 0). % aniade dominantes secundarios
+traducedeTipoRobertoATipoJuan(5, 1). % aniade IIm7 relativos
 
 
 

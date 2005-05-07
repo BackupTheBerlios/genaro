@@ -161,9 +161,8 @@ trataArgsCreaConSemilla( [ Ruta_origen, Ruta_dest, N_compases | Arg_Mut ] ) :-
 
 /*
 ejemplo :- 
-        working_directory(_, 'D:/CVS/Proyecto musica/Codigo/Prolog')
-       ,trataArgs(['crea_con_semilla', './semilla.txt', './destino.txt', '11', 'mt', '20']).
-
+        working_directory(_, 'D:/genaro/Codigo/Prolog')
+       ,trataArgs(['muta_progresion_acorde', './semilla.txt', './destino.txt', '3', 't1', '1', 't2', '2', 't3', '3', 't4', '4', 't5', '5']).
 
 
 ejemplo2:-

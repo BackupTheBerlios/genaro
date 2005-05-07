@@ -145,6 +145,29 @@ if ((X<X_Final)&&(X>X_Inicial)&&(Y<Y_Final)&&(Y>Y_Inicial))
     {Puntos[P_X]=-1;}
   }
 }
+//buscamos cuantos puntos existen en la curva
+int total_puntos=1;
+for (int i=1;i<99;i++)
+{
+  if (Puntos[i]!=-1){total_puntos++;}
+}
+//ahora calculamos cual es la distancia entre los puntos
+float distancia=((float)98/(float)total_puntos);
+int Puntos_Aux[100];
+for (int p=0;p<100;p++){Puntos_Aux[p]=-1;}
+Puntos_Aux[0]=Puntos[0];
+Puntos_Aux[99]=Puntos[99];
+int puntos_ya_recorridos=1;
+for (int j=1;j<99;j++)
+{
+  if (Puntos[j]!=-1)
+  {
+    Puntos_Aux[(int)(puntos_ya_recorridos*distancia)]=Puntos[j];
+    puntos_ya_recorridos++;
+  }
+}
+for (int k=0;k<100;k++)
+{Puntos[k]=Puntos_Aux[k];}
 Dibuja_Curva();
 }
 //---------------------------------------------------------------------------

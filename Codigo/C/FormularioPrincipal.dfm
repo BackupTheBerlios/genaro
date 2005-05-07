@@ -384,7 +384,7 @@ object Form1: TForm1
     Top = 0
     Width = 513
     Height = 161
-    ActivePage = Tab_Progresion
+    ActivePage = Tab_Crear_Progresion
     TabOrder = 14
     Visible = False
     object Tab_General: TTabSheet
@@ -547,7 +547,7 @@ object Form1: TForm1
         Top = 32
         Width = 145
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         Text = 'Elige el patrón rítmico'
       end
@@ -1342,7 +1342,7 @@ object Form1: TForm1
         Top = 48
         Width = 193
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 6
         Text = 'Elige Pista de acompañamiento'
       end

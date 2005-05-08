@@ -627,3 +627,11 @@ aplicaNVeces n f x
  | n <= 0    = x
  | otherwise = aplicaNVeces (n-1) f (f x)
 
+
+{-
+Pausa lo que se esta haciendo, hay que presionar enter
+-}
+pausa :: IO()
+pausa = do putStr "Pausa: presione enter para continuar\n"
+           linea <- getLine
+           putStr ""

@@ -20,6 +20,8 @@ Hay q revisar pq importa módulos de más
 > import Parsers
 > import Parser_library
 > import HaskoreALilypond
+> import BiblioGenaro
+
 
 \end{verbatim}
 
@@ -51,6 +53,74 @@ Se suponen llamadas del estilo: runhugs main.lhs directorioDeTrabajo rutaPatronR
 Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero de repeticiones del bulcle
 
 > mainArgumentos :: [String] -> IO()
+> mainArgumentos (dirTrabajo : restoArgumentos) =
+>          do setCurrentDirectory dirTrabajo
+>             diferenciaComandos restoArgumentos
+
+
+> diferenciaComandos :: [String] -> IO()
+> diferenciaComandos ( "previsualizaPatron" : restoArgumentos ) = previsualizaPatron restoArgumentos
+> diferenciaComandos ( "generaSubbloqueAcompanamiento" : restoArgumentos ) = generaSubbloqueAcompanamiento restoArgumentos
+
+> ------------------------------ PREVISUALIZA PATRON ----------------------------
+
+> previsualizaPatron :: [String] -> IO()
+> previsualizaPatron [ rutaPatronRitmico, negras_min, rutaMidiDest ] =
+>         do fichPatron <- leePatronRitmicoC rutaPatronRitmico
+>            haskoreAMidi2 (fichPatRitAMusic fichPatron) negras_min_int rutaMidiDest
+>            pausa
+>            where negras_min_int = aplicaParser integer negras_min
+             
+
+> ------------------------------ GENERA SUBBLOQUE ACOMPANAMIENTO ----------------------------
+> generaSubbloqueAcompanamiento :: [String] -> IO()
+> generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "paralelo", "inversion", inversion, "disposicion", disposicion, "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] =
+>         do progresion <- leeProgresion rutaProgresion
+>            patronR <- leePatronRitmicoC2 rutaPatron
+>            writeFile rutaDest (show (musica progresion patronR))
+>            pausa
+>            where octavaIniInt = aplicaParser integer octavaIni 
+>                  numNotasInt = aplicaParser integer numNotas
+>                  inversionInt = toInversion inversion
+>                  disposicionInt = toDisposicion disposicion
+>                  ao prog = traduceProgresion (Paralelo octavaIniInt inversionInt disposicionInt numNotasInt) prog
+>                  musica prog patron= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao prog)
+> generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "continuo", "semilla", semilla, "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] = 
+>         do progresion <- leeProgresion rutaProgresion
+>            patronR <- leePatronRitmicoC2 rutaPatron
+>            writeFile rutaDest (show (musica progresion patronR))
+>            pausa
+>            where octavaIniInt = aplicaParser integer octavaIni 
+>                  numNotasInt = aplicaParser integer numNotas
+>                  semillaInt = aplicaParser integer semilla
+>                  ao prog = traduceProgresion (Continuo semillaInt octavaIniInt numNotasInt) prog
+>                  musica prog patron= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao prog)
+> generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "continuo", "nosemilla", "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] = 
+>         do progresion <- leeProgresion rutaProgresion
+>            patronR <- leePatronRitmicoC2 rutaPatron
+>            semillaInt <- numAleatorioIO 1 100
+>            writeFile rutaDest (show (musica progresion patronR semillaInt))
+>            pausa
+>            where octavaIniInt = aplicaParser integer octavaIni 
+>                  numNotasInt = aplicaParser integer numNotas
+>                  ao semilla prog = traduceProgresion (Continuo semilla octavaIniInt numNotasInt) prog
+>                  musica prog patron semilla= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao semilla prog)
+
+> toInversion :: String -> Inversion
+> toInversion "Fundamental" = 0
+> toInversion "1Inversion" = 1
+> toInversion "2Inversion" = 2
+> toInversion "3Inversion" = 3
+
+> toDisposicion :: String -> Disposicion
+> toDisposicion "1Disposicion" = 1
+> toDisposicion "2Disposicion" = 2
+> toDisposicion "3Disposicion" = 3
+> toDisposicion "4Disposicion" = 4
+
+
+> {-
+> mainArgumentos :: [String] -> IO()
 > mainArgumentos [dirTrabajo,rutaPatRit,numReps] = do setCurrentDirectory dirTrabajo
 >                                                     putStr (mensajeDirTrabajo dirTrabajo)
 >                                                     putStr (mensajeProcesandoProgresion dirTrabajo)
@@ -68,7 +138,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                                                           mensajeGenerandoMidi dirTrabajo = "\n Generando el archivo midi: " ++ (rutaAbsArchivoMidi dirTrabajo)++ "\n"
 >                                                           rutaAbsArchivoPartitura = (++ "\\" ++ (tail (tail rutaDestinoPartitura)))
 >                                                           mensajeGenerandoPartitura dirTrabajo = "\n Generando el archivo de partitura lilypond: " ++ (rutaAbsArchivoPartitura dirTrabajo)++ "\n"
-
+> -}
 
 
 > hazMusicaYPartitura :: Int -> Progresion -> PatronRitmico -> IO()

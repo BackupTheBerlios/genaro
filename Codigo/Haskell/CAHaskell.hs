@@ -62,7 +62,7 @@ triada de Do mayor, subiendo una octava con cada nota repetida. A este acorde se
 se produce la musica
 -}
 fichPatRitAMusic :: FichPatronRitmicoC -> Music
-fichPatRitAMusic (FPRC cols res patron@(altura, matriz)) = Trans 36 (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patron [acordeOrd])
+fichPatRitAMusic (FPRC cols res patron@(altura, matriz)) = Trans 48 (deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patron [acordeOrd])
                                                where duracionAcorde = (fromIntegral cols) * res
                                                      triada 0 = (C,0)
                                                      triada 1 = (E,0)
@@ -132,3 +132,9 @@ analisis
 leePatronRitmicoC :: String -> IO FichPatronRitmicoC
 leePatronRitmicoC ruta = do texto <- readFile ruta
                             return ((aplicaParser parserFichPatronRitmicoC) texto)
+
+
+
+leePatronRitmicoC2 :: String -> IO PatronRitmico
+leePatronRitmicoC2 ruta = do (FPRC cols resolucion patronR) <- leePatronRitmicoC ruta
+                             return patronR

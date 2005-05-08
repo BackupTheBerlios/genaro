@@ -30,6 +30,33 @@ Numero de grados que se mueve hacia arriba la melodia desde el punto anterior
 -}
 type SaltoMelodico = Int
 type CurvaMelodica = [SaltoMelodico]
+
+
+{-
+mutaCurvaMelodica :: FuncAleatoria (Int, CurvaMelodica) CurvaMelodica
+mutaCurvaMelodica (aleat, (despMax, curva))
+   -cambia un solo punto de la curva melodica elegido al azar, moviendolo entre (-despMax) y despMax,
+  excepto cero, (al azar tb)
+-}
+mutaCurvaMelodica :: FuncAleatoria (Int, CurvaMelodica) CurvaMelodica
+mutaCurvaMelodica (aleat@(a1:a2:a3:restoAleat1), (despMax, curva)) = (restoAleat1, curvaResul)
+    where  tamCurva = length curva
+           candidatos = zip curva (replicate tamCurva 1)
+           (puntoElegido,posElegidaMasUno) = dameElemAleatListaPesos a1 candidatos
+           --como minimo se desplaza una unidad
+           despElegido = max 1 (round ((fromIntegral a2/(fromIntegral resolucionRandom))*(fromIntegral despMax)))
+           signo = if ((fromIntegral a3) > (fromIntegral resolucionRandom)/2) then 1 else (-1)
+           nuevoPunto = puntoElegido + signo*despElegido
+           curvaResul = sustituyeElemPos (posElegidaMasUno-1) nuevoPunto curva
+
+pepe :: Int -> Int -> Int
+pepe despMax a2 = round ((fromIntegral a2/(fromIntegral resolucionRandom))*(fromIntegral despMax))
+
+pruMutaCurvaMelodica :: [Int] ->Int ->  IO ()
+pruMutaCurvaMelodica curva despMax = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                        putStr ("Curva original: "++(show curva)++"\n")
+                                        putStr ("Curva mutada: "++(show (curvaMut aleat))++"\n")
+                                        where curvaMut aleat = snd (mutaCurvaMelodica (aleat ,(despMax, curva)))
 {-
 Resultado de procesar un PatronRitmico, da los acentos fuertes que se consideraran para una melodia. Para ello
 calcula la lista que tiene para cada columna de un patron ritmico la media de acentos de cada voz, y la media
@@ -466,6 +493,22 @@ hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado
                       (curvaAleat,restoAleat) = hazCurvaMelodicaAleat as saltoMax probSalto numNotas duracion
                       musica = aplicaCurvaMelodica registroSolista escala tonica curvaAleat pitchPartida
 -}
+
+damePitchIniAleat :: FuncAleatoria Cifrado Pitch
+damePitchIniAleat (aleat@(a1:a2:as), (acorde@(grado,matricula))) = (as, pitchPartida)
+                where escala = escalaDelAcorde acorde
+                      notasYPesos = dameNotasYPesosDeEscala escala
+                      (gradoIni,_) = dameElemAleatListaPesos a1 notasYPesos
+                      octavaCentral = (\xs -> xs !! (length xs `div` 2)) registroSolista
+                      octavasYPesos = zip registroSolista  (map (\x -> 1 / fromIntegral (abs(x - octavaCentral)+1)) registroSolista)
+                      (octavaDePartida,_) = dameElemAleatListaPesosFloat a2 octavasYPesos
+                      --(tonica,_) = pitch (gradoAIntAbs grado + 0)
+                      (pcAux, octAux) = pitch (gradoAIntAbs grado + gradoAIntAbs gradoIni + 0)
+                      pitchPartida = (pcAux, octavaDePartida)
+
+--pruDamePitchIniAleat
+--pruDamePitchIniAleat
+
 {-
 saltaIntervaloGrado escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
 tantos grados como num, sin contar desde gradoPartida. Por ejemplo:

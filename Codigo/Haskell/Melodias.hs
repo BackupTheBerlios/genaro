@@ -533,10 +533,14 @@ pruHazMelodiaParaProgresion rutaProgresion rutaPatron = do aleat <- listaInfNums
                                                                  curvaMelodicas aleat prog pat = snd (snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, 6, 1, 3))))
                                                                  rutaDest = "./pruMelodiaParaProgresion.mid"
 
+correspondeANat :: Float -> Bool
+correspondeANat f = (fromIntegral (floor f)) == f
 
+dameParteDchaComa :: Float -> Float
+dameParteDchaComa f = f - (fromIntegral (floor f))
 
 --distribuyeCurvaEntreDurs :: FuncAleatoria (CurvaMelodica, [Dur]) [Float]  --CurvaMelodicaProgresion
-distribuyeCurvaEntreDurs (aleat, (curva, duraciones)) = (listaPorcentajes, listaNumPuntosPrim)
+distribuyeCurvaEntreDurs (aleat, (curva, duraciones)) = (listaPorcentajes, listaNumPuntosPrim, numPuntosDistPrimFase, numPuntosDistSegFase, candsSegFase)
     where numPuntos = length curva
           numDurs = length duraciones
           durAFloat dur = (fromIntegral (numerator dur)) / (fromIntegral (denominator dur))
@@ -546,13 +550,31 @@ distribuyeCurvaEntreDurs (aleat, (curva, duraciones)) = (listaPorcentajes, lista
           -- la curva con el elemento a su derecha. Se decide la disputa aleatoriamente, dando como peso de cada elemento la
           -- parte no entera de su valor
           listaPorcentajes = map (\d -> ((durAFloat d)/ sumaDurs)*(fromIntegral numPuntos)) duraciones
-          --correspondeANat :: Float -> Bool
-          correspondeANat f = (fromIntegral (floor f)) == f
-          listaNumPuntosPrim = map soloNats (zip listaPorcentajes [0 .. (numDurs -1)])
-                       where soloNats (f, pos) = if (correspondeANat f) then (f, pos) else (0.0, pos)
 
-
-          -- listaSinAjustar =
+          --listaNumPuntosPrim = map soloNats (zip listaPorcentajes [0 .. (numDurs -1)])
+          --             where soloNats (f, pos) = if (correspondeANat f) then (f, pos) else (0.0, pos)
+          listaNumPuntosPrim = zip (map floor listaPorcentajes) [0 .. (numDurs -1)]
+          numPuntosDistPrimFase = foldl1' (+) (map fst listaNumPuntosPrim)
+          numPuntosDistSegFase = numPuntos -  numPuntosDistPrimFase
+          candsSegFase = zipWith f listaPorcentajes listaNumPuntosPrim
+              where f porcOri (porcPrimFase, pos) = (pos, porcOri - (fromIntegral porcPrimFase))
+          -- ([3.5,1.75,1.75],[(3,0),(1,1),(1,2)],5,2,[(0,0.5),(1,0.75),(2,0.75)])
+          -- (listaPorcentajes, listaNumPuntosPrim, numPuntosDistPrimFase, numPuntosDistSegFase, candsSegFase)
+          distribuyeSegFase aleat@(a1:as) n cands
+            | n <= 0    = (aleat, [])
+            | otherwise = (restoAleat, elemEleg:restoAsignado)
+                   where (elemEleg, posEleg) = dameElemAleatListaPesosFloat a1 cands
+                         nuevosCands = sustituyeSublistaPos (posEleg - 1) [] cands
+                         (restoAleat, restoAsignado) = distribuyeSegFase as (n-1) nuevosCands
+          (restoAleat, posAAumentarFase2) = distribuyeSegFase aleat numPuntosDistSegFase candsSegFase
+          aniadeNuevosPuntos [] listaPares = listaPares
+          aniadeNuevosPuntos (pos1:ps) ((val,pos2):listaPares) -- LOS PUNTOS DEBEN ESTAR ORDENADOS
+            | pos1 == pos2 = (val +1, pos2):restoParesExito
+            | otherwise    = (val,pos2):restoParesFallo
+                  where restoParesExito = aniadeNuevosPuntos ps listaPares
+                        restoParesFallo = aniadeNuevosPuntos (pos1:ps) listaPares
+          paresDef = aniadeNuevosPuntos (sort posAAumentarFase2) listaNumPuntosPrim
+--          construyeListaCurvas
 
 hazMelodiaParaAcorde :: FuncAleatoria (CurvaMelodica, ListaAcentos, (Cifrado, Dur), Int, Int, Pitch) [Music]
 hazMelodiaParaAcorde (aleat, (curva, acentos, (acorde@(grado,matricula), dur), numApsFase2, numApsFase3, pitchPartida)) = (restoAleat1, musicaLista)

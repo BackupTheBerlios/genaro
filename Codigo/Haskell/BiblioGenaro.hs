@@ -290,6 +290,7 @@ pruDameElemAleatListaPesos = do putStr "Prueba de dameElemAleatListaPesos de nat
 
 {-
 como dameElemAleatListaPesos pero con pesos de tipo Float
+ Se devuelve el elemento elegido y su posicion CONTANDO DESDE 1 !!!!!
 -}
 dameElemAleatListaPesosFloat :: Int -> [(a, Float)] -> (a, Int)
 dameElemAleatListaPesosFloat aleat listaParejas = aplicaAleat aleatNorm listaParejas 0.0 1

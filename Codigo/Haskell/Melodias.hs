@@ -147,7 +147,8 @@ hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n durTotal movAcumulado
 
 
 aplicaCurvaMelodica :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, Int, Int, ListaAcentos, CurvaMelodica) [Music]
-aplicaCurvaMelodica (aleat, (registro, escala, tonica, pitchPartida, dur, numAplicacionesFase2, numAplicacionesFase3,acentos , curvaMelodica)) = (restoAleat3, musicaFase3)
+aplicaCurvaMelodica (aleat, (_, _, _, _, _, _, _, _, [])) = (aleat, [])
+aplicaCurvaMelodica (aleat, (registro, escala, tonica, pitchPartida, dur, numAplicacionesFase2, numAplicacionesFase3,acentos , curvaMelodica@(a1:as))) = (restoAleat3, musicaFase3)
     where (restoAleat1,(musicaFase1, acentosSobranFase1, curvaSobraFase1)) = aplicaCurvaMelodicaFase1 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica))
           repiteFase2 n (aleat, (escala, tonica, acentos, musica))
             | n<=0      = (aleat, musica)
@@ -532,6 +533,26 @@ pruHazMelodiaParaProgresion rutaProgresion rutaPatron = do aleat <- listaInfNums
                                                                  curvaMelodicas aleat prog pat = snd (snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, 6, 1, 3))))
                                                                  rutaDest = "./pruMelodiaParaProgresion.mid"
 
+
+
+--distribuyeCurvaEntreDurs :: FuncAleatoria (CurvaMelodica, [Dur]) [Float]  --CurvaMelodicaProgresion
+distribuyeCurvaEntreDurs (aleat, (curva, duraciones)) = (listaPorcentajes, listaNumPuntosPrim)
+    where numPuntos = length curva
+          numDurs = length duraciones
+          durAFloat dur = (fromIntegral (numerator dur)) / (fromIntegral (denominator dur))
+          sumaDurs = durAFloat (foldl1' (+) duraciones)
+          -- listaPorcentajes en su elemento i-esimo da el numero de puntos de la curva que corresponden al elemento i-esimo
+          -- de duraciones, como un float. Si ese float no corresponde a un entero entonces se disputa un punto de
+          -- la curva con el elemento a su derecha. Se decide la disputa aleatoriamente, dando como peso de cada elemento la
+          -- parte no entera de su valor
+          listaPorcentajes = map (\d -> ((durAFloat d)/ sumaDurs)*(fromIntegral numPuntos)) duraciones
+          --correspondeANat :: Float -> Bool
+          correspondeANat f = (fromIntegral (floor f)) == f
+          listaNumPuntosPrim = map soloNats (zip listaPorcentajes [0 .. (numDurs -1)])
+                       where soloNats (f, pos) = if (correspondeANat f) then (f, pos) else (0.0, pos)
+
+
+          -- listaSinAjustar =
 
 hazMelodiaParaAcorde :: FuncAleatoria (CurvaMelodica, ListaAcentos, (Cifrado, Dur), Int, Int, Pitch) [Music]
 hazMelodiaParaAcorde (aleat, (curva, acentos, (acorde@(grado,matricula), dur), numApsFase2, numApsFase3, pitchPartida)) = (restoAleat1, musicaLista)

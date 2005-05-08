@@ -143,6 +143,8 @@ __published:	// IDE-managed Components
   TRadioButton *Radio_Vertical_Menor_Saturar;
   TRadioButton *Radio_Vertical_Menor_Ciclico;
   TRadioButton *Radio_Vertical_Menor_Modulo;
+  TCheckBox *Check_Semilla;
+  TEdit *Edit_Semilla;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -187,6 +189,7 @@ __published:	// IDE-managed Components
   void __fastcall Guardar1Click(TObject *Sender);
   void __fastcall FormPaint(TObject *Sender);
   void __fastcall Button10Click(TObject *Sender);
+  void __fastcall Edit_SemillaChange(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;
@@ -215,6 +218,7 @@ public:		// User declarations
   void Progresion_Mutar_Acorde_Progresion();
   void Progresion_Mutar_Progresion_Multiple();
   void Inicializa_Pistas_Acompanamiento();
+  void Genera_Music_Acompanamiento();  
   __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

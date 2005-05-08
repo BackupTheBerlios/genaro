@@ -141,6 +141,7 @@ Curva_Melodica="";
 N_Pista_Acomp=-1;
 Octava_Inicial=1;
 Tipo_Melodia=0;
+Progresion=NULL;
 Aplicacion_Horizontal=0;
 Aplicacion_Vertical_Mayor=0;
 Aplicacion_Vertical_Menor=0;

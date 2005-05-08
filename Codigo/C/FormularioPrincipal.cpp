@@ -408,6 +408,8 @@ if (Sistema_Paralelo->Checked)
   Etiqueta_Disposicion->Enabled=true;
   Lista_Inversion->Enabled=true;
   Lista_Disposicion->Enabled=true;
+  Edit_Semilla->Enabled=false;
+  Check_Semilla->Enabled=false;
  }
 else
  {
@@ -415,6 +417,8 @@ else
   Etiqueta_Disposicion->Enabled=false;
   Lista_Inversion->Enabled=false;
   Lista_Disposicion->Enabled=false;
+  Edit_Semilla->Enabled=true;
+  Check_Semilla->Enabled=true;
  }
 }
 //---------------------------------------------------------------------------
@@ -427,6 +431,8 @@ if (Sistema_Paralelo->Checked)
   Etiqueta_Disposicion->Enabled=true;
   Lista_Inversion->Enabled=true;
   Lista_Disposicion->Enabled=true;
+  Edit_Semilla->Enabled=false;
+  Check_Semilla->Enabled=false;  
  }
 else
  {
@@ -434,6 +440,8 @@ else
   Etiqueta_Disposicion->Enabled=false;
   Lista_Inversion->Enabled=false;
   Lista_Disposicion->Enabled=false;
+  Edit_Semilla->Enabled=true;
+  Check_Semilla->Enabled=true;
  }
 }
 //---------------------------------------------------------------------------
@@ -587,6 +595,8 @@ if (Sistema_Paralelo->Checked)
   Etiqueta_Disposicion->Enabled=true;
   Lista_Inversion->Enabled=true;
   Lista_Disposicion->Enabled=true;
+  Edit_Semilla->Enabled=false;
+  Check_Semilla->Enabled=false;
  }
 else
  {
@@ -594,6 +604,8 @@ else
   Etiqueta_Disposicion->Enabled=false;
   Lista_Inversion->Enabled=false;
   Lista_Disposicion->Enabled=false;
+  Edit_Semilla->Enabled=true;
+  Check_Semilla->Enabled=true;
  }
 }
 //---------------------------------------------------------------------------
@@ -892,7 +904,7 @@ Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(C
 char work_dir[255];
 getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
-Bloque_A_Manipular.Progresion="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
+Bloque_A_Manipular.Progresion="progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog";
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
 }
 //---------------------------------------------------------------------------
@@ -1425,18 +1437,118 @@ if (Inicializado)
 
 void __fastcall TForm1::Button10Click(TObject *Sender)
 {
+Boton_Guardar_Cambios_BloqueClick(Sender);
 //si es pista de acompañamiento
 //llamamos a haskel con el patron ritmico, la progresion y no se que otros parámetros. la progresión ha de estar ya hecha
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==0)//generamos el music para pista de acompañamiento
+{
+  Genera_Music_Acompanamiento();
+}
+
+//si es pista de melodía hacemos la llamada con los parámetros de la pista de acompañamiento asociada. si no hay pista de acompañamiento asociada, esto peta.
+}
+//---------------------------------------------------------------------------
+void TForm1::Genera_Music_Acompanamiento()
+{
   char work_dir[255];
   getcwd(work_dir, 255);
   String directorio_trabajo=work_dir;
   directorio_trabajo="\""+directorio_trabajo+"\"";
   String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+  String Ruta_Codigo_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Codigo_Haskell();
+  String Orden="generaSubbloqueAcompanamiento";
+  //si no hay progresion asignada, se le crea una
+  Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+  if (Bloque_A_Manipular.Progresion==NULL)
+  {
+    ShowMessage("No hay ninguna progresión asociada a esta pista, se crea una por defecto");
+    Progresion_Crear_Progresion();
+    String directorio_trabajo1=work_dir;
+    Bloque_A_Manipular.Progresion="\""+directorio_trabajo1+"/progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
+    Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+  }
+  String Ruta_Progresion=Bloque_A_Manipular.Progresion;
+  String P_Ritmico="./PatronesRitmicos/"+Bloque_A_Manipular.Patron_Ritmico;
+  String Pal_Octava="octava";
+  String O_Inicial=Lista_8_Inicial->Text;
+  String Pal_Notas="numero_notas";
+  String N_Notas=IntToStr(Barra_Notas_Totales->Position);
+  String Pal_Sistema="sistema";
+  String Sistem;
+  String Pal_Horizontal="horizontal";
+  String horizontal;
+  if (Radio_Horizontal_Ciclico->Checked)
+  {horizontal="Ciclico";}
+  else
+  {horizontal="NoCiclico";}
+  String Pal_Vertical_Mayor="vertical_mayor";
+  String Vertical_Mayor;
+  if (Radio_Vertical_Mayor_Truncar->Checked)
+  {Vertical_Mayor="Truncar1";}
+  else
+  {Vertical_Mayor="Saturar1";}
+  String Pal_Vertical_Menor="vertical_menor";
+  String Vertical_Menor;
+  if (Radio_Vertical_Menor_Truncar->Checked){Vertical_Menor="Truncar2";}
+  if (Radio_Vertical_Menor_Saturar->Checked){Vertical_Menor="Saturar2";}
+  if (Radio_Vertical_Menor_Ciclico->Checked){Vertical_Menor="Ciclico2";}
+  if (Radio_Vertical_Menor_Modulo->Checked){Vertical_Menor="Modulo2";}
+  String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".msc";
+  //caso sistema paralelo
+  if (Sistema_Paralelo->Checked)
+  {
+    Sistem="paralelo";
+    String Pal_Inversion="inversion";
+    String Inversion=Lista_Inversion->Text;
+    String Pal_Disposicion="disposicion";
+    String Disposicion="\""+Lista_Disposicion->Text+"\"";
+    int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
+    Pal_Octava.c_str(),O_Inicial.c_str(),Pal_Notas.c_str(),N_Notas.c_str(),Pal_Sistema.c_str(),Sistem.c_str(),
+    Pal_Inversion.c_str(),Inversion.c_str(),Pal_Disposicion.c_str(),Disposicion.c_str(),
+    Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Ruta_Destino_Music.c_str(),NULL);
+    if (valor_spawn==-1)
+    {ShowMessage("Error ejecutando el runhugs de haskell.");}
+  }
+  //caso sistema continuo
+  else
+  {
+    Sistem="continuo";
+    String Pal_Semilla;
+    if (Check_Semilla->Checked)
+    {
+      Pal_Semilla="nosemilla";
+      int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
+      Pal_Octava.c_str(),O_Inicial.c_str(),Pal_Notas.c_str(),N_Notas.c_str(),Pal_Sistema.c_str(),Sistem.c_str(),Pal_Semilla.c_str(),
+      Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Ruta_Destino_Music.c_str(),NULL);
+      if (valor_spawn==-1)
+      {ShowMessage("Error ejecutando el runhugs de haskell.");}
+    }
+    else
+    {
+      Pal_Semilla="semilla";
+      String Semilla=Edit_Semilla->Text;
+      int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
+      Pal_Octava.c_str(),O_Inicial.c_str(),Pal_Notas.c_str(),N_Notas.c_str(),Pal_Sistema.c_str(),Sistem.c_str(),Pal_Semilla.c_str(),Semilla.c_str(),
+      Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Ruta_Destino_Music.c_str(),NULL);
+      if (valor_spawn==-1)
+      {ShowMessage("Error ejecutando el runhugs de haskell.");}
+    }
 
-  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),directorio_trabajo.c_str(),NULL);
-  if (valor_spawn==-1)
-  {ShowMessage("Error ejecutando el runhugs de haskell.");}
-//si es pista de melodía hacemos la llamada con los parámetros de la pista de acompañamiento asociada. si no hay pista de acompañamiento asociada, esto peta.
+  }
+}
+//----------------------------------------------------------------------------
+void __fastcall TForm1::Edit_SemillaChange(TObject *Sender)
+{
+try
+{
+  StrToInt(Edit_Semilla->Text);
+}
+catch (...)
+{
+  ShowMessage("Has escrito un número no válido");
+  Edit_Semilla->Text="0";
+}
 }
 //---------------------------------------------------------------------------
+
 

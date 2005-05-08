@@ -4,7 +4,10 @@
 #pragma hdrstop
 
 #include <math.h>
+#include <dir.h>
+#include <process.h>
 #include "Editor.h"
+
 
 
 //---------------------------------------------------------------------------
@@ -302,6 +305,9 @@ for (int i=0;i<total_casillas_a_recorrer;i++)
 //---------------------------------------------------------------------------
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  Dir_Trabajo_Inicial=work_dir;
 Numero_Columnas_Pantalla=1;
 Ancho_Columna_Pantalla=1;
 Numero_Filas_Pantalla=1;
@@ -311,6 +317,19 @@ Ancho_Minimo_Columna_Pantalla=4;
 Alto_Minimo_Columna_Pantalla=15;
 Inicializado=false;
 Estado_Trabajo=0;
+int esta=FileOpen("Codigo", fmOpenRead);
+if (esta==-1)
+{
+  String directorio_de_trabajo="..\\..\\";
+  if (chdir(directorio_de_trabajo.c_str())==-1)
+  {ShowMessage("Error cambiando el directorio de trabajo");}
+  else
+  {
+    getcwd(work_dir, 255);
+    Dir_Trabajo_Inicial=work_dir;
+  }
+}
+
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BarraChange(TObject *Sender)
@@ -400,6 +419,8 @@ else
 {
   Etiqueta_Mensajes->Caption="No has generado ningún patrón rítmico";
 }
+if (chdir(Dir_Trabajo_Inicial.c_str())==-1)
+{ShowMessage("Error cambiando el directorio de trabajo");}
 }
 //---------------------------------------------------------------------------
 void TForm1::Dibuja_Notas()
@@ -494,12 +515,25 @@ if (Inicializado)
 
 void __fastcall TForm1::CargarPatrnRtmico1Click(TObject *Sender)
 {
+
 String fichero;
 if (Cargar_Patron->Execute()==false)
 {return;}
 fichero=Cargar_Patron->FileName;
 if (Inicializado)
 {
+    MatrizNotas* Aux1;
+    MatrizNotas* Aux2;
+    Aux2=Partitura;
+    Partitura=Aux1;
+    delete Aux2;
+    Partitura=new MatrizNotas(4);
+    Partitura->CambiaResolucion(128);
+    Inicializado=true;
+    PosicionActual=0;
+    FilaActual=0;
+    Fila_Seleccionada=0;
+    BarraVoces->Max=Partitura->DameVoces()-1;
   Partitura->CargaFicheroTexto(fichero);
   Partitura->CambiaResolucion(128);
   Inicializado=true;
@@ -519,6 +553,8 @@ else
   FilaActual=0;
   BarraVoces->Max=Partitura->DameVoces()-1;  
 }
+if (chdir(Dir_Trabajo_Inicial.c_str())==-1)
+{ShowMessage("Error cambiando el directorio de trabajo");}
 Dibuja_Esqueleto();
 Dibuja_Notas();
 }
@@ -649,4 +685,62 @@ if (Inicializado)
 }
 }
 //---------------------------------------------------------------------------
+
+void __fastcall TForm1::Previsualizar1Click(TObject *Sender)
+{
+//creamos el fichero en patron.temp
+//llamamos a haskell para crear midi
+//llamar a timidity para reproducirlo
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_TempoChange(TObject *Sender)
+{
+  Label_Tempo->Caption=IntToStr(Barra_Tempo->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::ToolButton5Click(TObject *Sender)
+{
+if (Inicializado==false){return;}
+//creamos el fichero en patron.temp
+String Patron_Temporal="PatronTemporal.pr";
+Partitura->CreaFicheroTexto("PatronTemporal.pr");
+//llamamos a haskell para crear midi
+  String Ruta_Haskell=".\\Codigo\\Haskell\\runhugs.exe";
+  String Ruta_Codigo=".\\Codigo\\Haskell\\main.lhs";
+  String Orden="previsualizaPatron";
+  String Tempo=IntToStr(Barra_Tempo->Position);
+  String Destino_Midi="MidiPatron.mid";
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  String directorio_trabajob=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Patron_Temporal.c_str(),Tempo.c_str(),Destino_Midi.c_str(),NULL);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el runhugs de haskell.");}
+//llamar a timidity para reproducirlo
+
+String arg1="-int";//opciones de inferfaz
+String arg2="-a";//activar antialiasing
+String arg3="-p";//polifonia
+String arg4="256(a)";
+String arg5="-U";//Unload instruments entre cancion y cancion
+String arg6="A90";
+String arg7="Ww";//mas opciones de inferfaz
+String arg8="EFchorus=1,60";
+String arg9="EFreverb=1,60";
+String arg10="EFdelay=b";
+String arg11="s44100";
+String timi_exe=".\\Timidity\\timidity.exe";
+String Ruta_Midi="\""+directorio_trabajob+"\\"+Destino_Midi+"\"";
+valor_spawn=spawnl(P_NOWAIT	,timi_exe.c_str(),timi_exe.c_str(),arg1.c_str(),arg2.c_str(),arg3.c_str(),arg4.c_str(),arg5.c_str(),arg6.c_str(),arg7.c_str(),arg8.c_str(),arg9.c_str(),arg10.c_str(),arg11.c_str(),Ruta_Midi.c_str(),NULL);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando Timidity");}
+
+}
+//---------------------------------------------------------------------------
+
 

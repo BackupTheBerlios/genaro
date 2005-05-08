@@ -42,6 +42,11 @@ __published:	// IDE-managed Components
   TSaveDialog *Guardar_Patron;
   TTrackBar *Velocity_Selector;
   TButton *Boton_Nueva_Voz;
+  TTrackBar *Barra_Tempo;
+  TLabel *Label2;
+  TLabel *Label_Tempo;
+  TToolButton *ToolButton4;
+  TToolButton *ToolButton5;
   void __fastcall FormClick(TObject *Sender);
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall BarraChange(TObject *Sender);
@@ -58,6 +63,9 @@ __published:	// IDE-managed Components
   void __fastcall Boton_Nueva_VozClick(TObject *Sender);
   void __fastcall Velocity_SelectorChange(TObject *Sender);
   void __fastcall FormPaint(TObject *Sender);
+  void __fastcall Previsualizar1Click(TObject *Sender);
+  void __fastcall Barra_TempoChange(TObject *Sender);
+  void __fastcall ToolButton5Click(TObject *Sender);
 private:	// User declarations
         int Numero_Columnas_Pantalla;
         int Ancho_Columna_Pantalla;
@@ -73,6 +81,7 @@ private:	// User declarations
         int Fila_Seleccionada;
         int Estado_Trabajo;//0-insertar, 1-borrar, 2- elegir fila
         MatrizNotas* Partitura;
+        String Dir_Trabajo_Inicial;
 public:		// User declarations
         int CalcularArea(int& ancho,int& alto);
         void CambiarIndice(int X, int Y);

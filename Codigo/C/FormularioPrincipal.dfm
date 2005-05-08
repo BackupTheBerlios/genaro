@@ -384,7 +384,7 @@ object Form1: TForm1
     Top = 0
     Width = 513
     Height = 161
-    ActivePage = Tab_General
+    ActivePage = Tab_Patron_Ritmico
     TabOrder = 14
     Visible = False
     object Tab_General: TTabSheet
@@ -448,7 +448,7 @@ object Form1: TForm1
       end
       object Button10: TButton
         Left = 344
-        Top = 96
+        Top = 88
         Width = 97
         Height = 25
         Caption = 'Generar Notas'
@@ -518,7 +518,7 @@ object Form1: TForm1
       end
       object Etiqueta_Inversion: TLabel
         Left = 376
-        Top = 16
+        Top = 0
         Width = 57
         Height = 19
         Caption = 'Inversión'
@@ -531,7 +531,7 @@ object Form1: TForm1
       end
       object Etiqueta_Disposicion: TLabel
         Left = 376
-        Top = 72
+        Top = 48
         Width = 68
         Height = 19
         Caption = 'Disposición'
@@ -634,7 +634,7 @@ object Form1: TForm1
       end
       object Lista_Inversion: TComboBox
         Left = 352
-        Top = 40
+        Top = 24
         Width = 121
         Height = 21
         ItemHeight = 13
@@ -642,23 +642,50 @@ object Form1: TForm1
         Text = 'Fundamental'
         Items.Strings = (
           'Fundamental'
-          '1ª Inversión'
-          '2ª Inversión'
-          '3ª Inversión')
+          '1Inversion'
+          '2Inversion'
+          '3Inversion')
       end
       object Lista_Disposicion: TComboBox
         Left = 352
-        Top = 96
+        Top = 64
         Width = 121
         Height = 21
         ItemHeight = 13
         TabOrder = 7
-        Text = '1ª Disposición'
+        Text = '1Disposicion'
         Items.Strings = (
-          '1ª Disposición'
-          '2ª Disposición'
-          '3ª Disposición'
-          '4ª Disposición')
+          '1Disposicion'
+          '2Disposicion'
+          '3Disposicion'
+          '4Disposicion')
+      end
+      object Check_Semilla: TCheckBox
+        Left = 352
+        Top = 88
+        Width = 121
+        Height = 17
+        Caption = 'Semilla Aleatoria'
+        Checked = True
+        Enabled = False
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        State = cbChecked
+        TabOrder = 8
+      end
+      object Edit_Semilla: TEdit
+        Left = 352
+        Top = 104
+        Width = 121
+        Height = 21
+        Enabled = False
+        TabOrder = 9
+        Text = '5'
+        OnChange = Edit_SemillaChange
       end
     end
     object Tab_Aplicacion_Patron: TTabSheet
@@ -1391,7 +1418,7 @@ object Form1: TForm1
     Top = 456
   end
   object Dialogo_Origen_Progresion: TOpenDialog
-    Left = 700
-    Top = 120
+    Left = 708
+    Top = 24
   end
 end

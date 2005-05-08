@@ -19,6 +19,7 @@ class Interfaz_Haskell
 
     void Ejecuta_Funcion(String nombre_archivo, String num_repeticiones);
     String Dame_Ruta_Haskell(){return Ruta_Haskell;};
+    String Dame_Ruta_Codigo_Haskell(){return Ruta_Codigo;};
 };
 
 

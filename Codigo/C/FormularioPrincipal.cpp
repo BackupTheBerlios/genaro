@@ -74,11 +74,7 @@ void TForm1::Inicializa_Patrones_Ritmicos()
 
   }
 }
-
-
-
-
-
+//---------------------------------------------------------------------------
 void __fastcall TForm1::Barra_Numero_AcordesChange(TObject *Sender)
 {
 Etiqueta_Numero_Acordes->Caption=IntToStr(Barra_Numero_Acordes->Position);
@@ -498,6 +494,31 @@ Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(C
 Etiqueta_Bloque_Numero_Compases->Caption="Nº Compases de su bloque: "+IntToStr(Bloque_A_Manipular.Num_Compases);
 Barra_Numero_Acorde_A_Mutar->Max=Bloque_A_Manipular.Num_Compases;
 Lista_8_Inicial->Text=IntToStr(Bloque_A_Manipular.Octava_Inicial);
+if (Bloque_A_Manipular.Aplicacion_Horizontal==0)
+{
+  Radio_Horizontal_Ciclico->Checked=true;
+}
+else
+{
+  Radio_Horizontal_No_Ciclico->Checked=true;
+}
+if (Bloque_A_Manipular.Aplicacion_Vertical_Mayor==0)
+{
+  Radio_Vertical_Mayor_Truncar->Checked=true;
+}
+else
+{
+  Radio_Vertical_Mayor_Saturar->Checked=true;
+}
+
+switch (Bloque_A_Manipular.Aplicacion_Vertical_Menor)
+{
+  case 0:{Radio_Vertical_Menor_Truncar->Checked=true;break;}
+  case 1:{Radio_Vertical_Menor_Saturar->Checked=true;break;}
+  case 2:{Radio_Vertical_Menor_Ciclico->Checked=true;break;}
+  case 3:{Radio_Vertical_Menor_Modulo->Checked=true;break;}
+}
+
 switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
 {
   case 0:
@@ -588,6 +609,41 @@ Bloque_A_Manipular.Es_Sistema_Paralelo=Sistema_Paralelo->Checked;
 Bloque_A_Manipular.Inversion=Lista_Inversion->Text;
 Bloque_A_Manipular.Disposicion=Lista_Disposicion->Text;
 Bloque_A_Manipular.Octava_Inicial=StrToInt(Lista_8_Inicial->Text);
+if (Radio_Horizontal_Ciclico->Checked==true)
+{
+  Bloque_A_Manipular.Aplicacion_Horizontal=0;
+}
+else
+{
+  Bloque_A_Manipular.Aplicacion_Horizontal=1;
+}
+
+if (Radio_Vertical_Mayor_Truncar->Checked==true)
+{
+  Bloque_A_Manipular.Aplicacion_Vertical_Mayor=0;
+}
+else
+{
+  Bloque_A_Manipular.Aplicacion_Vertical_Mayor=1;
+}
+
+if (Radio_Vertical_Menor_Truncar->Checked==true)
+{
+  Bloque_A_Manipular.Aplicacion_Vertical_Menor=0;
+}
+if (Radio_Vertical_Menor_Saturar->Checked==true)
+{
+  Bloque_A_Manipular.Aplicacion_Vertical_Menor=1;
+}
+if (Radio_Vertical_Menor_Ciclico->Checked==true)
+{
+  Bloque_A_Manipular.Aplicacion_Vertical_Menor=2;
+}
+if (Radio_Vertical_Menor_Modulo->Checked==true)
+{
+  Bloque_A_Manipular.Aplicacion_Vertical_Menor=3;
+}
+
 if (Radio_Delegar_Haskell->Checked)
 {
   Bloque_A_Manipular.Tipo_Melodia=0;

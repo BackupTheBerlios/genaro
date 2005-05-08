@@ -37,16 +37,12 @@ void Cancion::Nueva_Pista(Tipo_Pista tipopista)
 void Cancion::Nuevo_Bloque(int Num_Compases,String P_Ritmico,String Disposicion, String Inversion)
 {
 Bloque Bloque_Vacio;
+Bloque_Vacio.Inicializa();
 Bloque_Vacio.Num_Compases=Num_Compases;
-Bloque_Vacio.Notas_Totales=0;
-Bloque_Vacio.Vacio=true;
 Bloque_Vacio.Patron_Ritmico=P_Ritmico;
 Bloque_Vacio.Disposicion=Disposicion;
 Bloque_Vacio.Inversion=Inversion;
-Bloque_Vacio.Curva_Melodica="";
-Bloque_Vacio.N_Pista_Acomp=-1;
-Bloque_Vacio.Octava_Inicial=1;
-Bloque_Vacio.Tipo_Melodia=0;
+
 for (int i=0;i<Pistas.size();i++)
  {
   Pistas[i]->Inserta_Bloque(Bloque_Vacio);
@@ -97,6 +93,9 @@ for (int i=0;i<Pistas.size();i++)
         fichero_salida<<bloque_temp.Patron_Ritmico[k+1];
     }
     fichero_salida<<" ";
+    fichero_salida<<"Aplicacion_Horizontal "<<bloque_temp.Aplicacion_Horizontal<<" ";
+    fichero_salida<<"Aplicacion_Vertical_Mayor "<<bloque_temp.Aplicacion_Vertical_Mayor<<" ";
+    fichero_salida<<"Aplicacion_Vertical_Menor "<<bloque_temp.Aplicacion_Vertical_Menor<<" ";
     fichero_salida<<"Octava_Inicial "<<bloque_temp.Octava_Inicial<<" ";
     fichero_salida<<"Sistema "<<bloque_temp.Es_Sistema_Paralelo<<" ";
     fichero_salida<<"Notas "<<bloque_temp.Notas_Totales<<" ";
@@ -134,7 +133,18 @@ fichero_salida<<"FINCANCION";
 fichero_salida.close();
 }
 //---------------------------------------------------------------------------
-
+void Bloque::Inicializa()
+{
+Notas_Totales=0;
+Vacio=true;
+Curva_Melodica="";
+N_Pista_Acomp=-1;
+Octava_Inicial=1;
+Tipo_Melodia=0;
+Aplicacion_Horizontal=0;
+Aplicacion_Vertical_Mayor=0;
+Aplicacion_Vertical_Menor=0;
+}
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------
 //---------------------------------------------------------------------------

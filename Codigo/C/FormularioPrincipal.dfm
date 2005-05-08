@@ -384,7 +384,7 @@ object Form1: TForm1
     Top = 0
     Width = 513
     Height = 161
-    ActivePage = Tab_Crear_Progresion
+    ActivePage = Tab_General
     TabOrder = 14
     Visible = False
     object Tab_General: TTabSheet
@@ -547,7 +547,7 @@ object Form1: TForm1
         Top = 32
         Width = 145
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'Elige el patrón rítmico'
       end
@@ -669,7 +669,7 @@ object Form1: TForm1
         Top = 8
         Width = 161
         Height = 121
-        Caption = 'Aplicación Horizontal'
+        Caption = '         Aplicación Horizontal       '
         TabOrder = 0
         object Radio_Horizontal_Ciclico: TRadioButton
           Left = 16
@@ -695,14 +695,16 @@ object Form1: TForm1
         Top = 8
         Width = 313
         Height = 121
-        Caption = '                              Aplicación Vertical'
+        Caption = 
+          '                              Aplicación Vertical               ' +
+          '                         '
         TabOrder = 1
         object GroupBox4: TGroupBox
           Left = 8
           Top = 16
           Width = 121
           Height = 97
-          Caption = 'A > P'
+          Caption = '             A > P             '
           TabOrder = 0
           object Radio_Vertical_Mayor_Truncar: TRadioButton
             Left = 8
@@ -728,7 +730,7 @@ object Form1: TForm1
           Top = 16
           Width = 161
           Height = 97
-          Caption = 'A < P'
+          Caption = '                    A < P                    '
           TabOrder = 1
           object Radio_Vertical_Menor_Truncar: TRadioButton
             Left = 16
@@ -1342,7 +1344,7 @@ object Form1: TForm1
         Top = 48
         Width = 193
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 6
         Text = 'Elige Pista de acompañamiento'
       end

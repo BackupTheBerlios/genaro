@@ -20,11 +20,15 @@ struct Bloque
     String Curva_Melodica;
     int Octava_Inicial;
     int N_Pista_Acomp;
-    int Tipo_Melodia; //0=delegar en haskell, 1= curva melódica ... 2=editor midi 
+    int Tipo_Melodia; //0=delegar en haskell, 1= curva melódica ... 2=editor midi
+    int Aplicacion_Horizontal;//0=ciclico, 1= no ciclico
+    int Aplicacion_Vertical_Mayor;//0=truncar, 1=saturar
+    int Aplicacion_Vertical_Menor;//0=truncar, 1=saturar,2=ciclico, 3=modulo
     //String Curva_Melodica;
     //String Octava_Inicial
     //?? tipo enlace voces
     String Progresion;
+    void Inicializa();
 };
 //---------------------------------------------------------------------------
 typedef vector<Bloque> Bloques_Pista;

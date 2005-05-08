@@ -478,8 +478,10 @@ ajustaOctava registro oct = if elem oct registro
 supone siempre que la tonica es Do
 -}
 
-hazMelodiaParaAcorde :: [Int] -> Int -> Int -> Int -> (Cifrado, Dur) -> ([Music],[Int])
-hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado,matricula), duracion) = ([Rest 0], aleat)
+--hazMelodiaParaAcorde :: [Int] -> Int -> Int -> Int -> (Cifrado, Dur) -> ([Music],[Int])
+--hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado,matricula), duracion) = ([Rest 0], aleat)
+--hazMelodiaParaAcorde :: FuncAleatoria
+
 {-hazMelodiaParaAcorde aleat@(a1:a2:as) saltoMax probSalto numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)
                 where escala = escalaDelAcorde acorde
                       notasYPesos = dameNotasYPesosDeEscala escala
@@ -506,8 +508,11 @@ damePitchIniAleat (aleat@(a1:a2:as), (acorde@(grado,matricula))) = (as, pitchPar
                       (pcAux, octAux) = pitch (gradoAIntAbs grado + gradoAIntAbs gradoIni + 0)
                       pitchPartida = (pcAux, octavaDePartida)
 
---pruDamePitchIniAleat
---pruDamePitchIniAleat
+pruDamePitchIniAleat :: Cifrado -> IO()
+pruDamePitchIniAleat acorde = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                 putStr ("Acorde de entrada: "++(show acorde)++"\n")
+                                 putStr ("Pitch inicial aleatorio: "++(show (pitchIni aleat))++"\n")
+                                 where pitchIni aleat = snd (damePitchIniAleat (aleat, acorde))
 
 {-
 saltaIntervaloGrado escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
@@ -586,39 +591,9 @@ saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
                                          then numOctavasPorNumGrados + 1
                                          else numOctavasPorNumGrados
 
-pruMelAc :: IO()
-pruMelAc = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-              putStr mensajeGenerandoMidi
-              haskoreAMidi (musica aleat) rutaDestinoMidi
-              putStr "\n Proceso terminado satisfactoriamente\n"
-              where rutaDestinoMidi = "c:/hlocal/midiMeloso.mid"
-                    mensajeGenerandoMidi = "\n Generando el archivo midi: " ++ rutaDestinoMidi ++ "\n"
-                    musica aleat = line (fst (hazMelodiaParaAcorde aleat 4 8 4 ((I,Maj7), 2%1)))
-
-pruMelAcArgs :: String -> Int -> Int -> Int -> Dur -> IO()
-pruMelAcArgs dirTrabajo saltoMax probSalto numNotas duracion = do setCurrentDirectory dirTrabajo
-                                                                  putStr (mensajeDirTrabajo dirTrabajo)
-                                                                  aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                                                  putStr mensajeGenerandoMidi
-                                                                  haskoreAMidi (musica aleat) rutaDestinoMidi
-                                                                  putStr "\n Proceso terminado satisfactoriamente\n"
-                                                                  where mensajeDirTrabajo dir = "\n El directorio de trabajo es: " ++ dir ++ "\n"
-                                                                        rutaDestinoMidi = "./midiMeloso.mid"
-                                                                        parametros = "\n\tsaltoMaximo: " ++ (show saltoMax) ++ "\n\tpeso de cambiar de direccion: " ++ (show probSalto) ++ "\n\tnumero de notas: " ++ (show numNotas) ++ "\n\tduracion de la melodia: " ++ (show duracion) ++ "\n\tfichero destino: " ++ rutaDestinoMidi
-                                                                        mensajeGenerandoMidi = "\n Generando el archivo midi de parametros: " ++ parametros ++ "\n"
-                                                                        musica aleat = line (fst (hazMelodiaParaAcorde aleat saltoMax probSalto numNotas ((I,Maj7), duracion)))
-
 pruCurvaMelAleat :: Int -> Int -> Int -> Dur -> IO()
 pruCurvaMelAleat saltoMax probSalto numPuntos duracionTotal = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
                                                                  print (zip (curvaMelodica aleat) (listaGradosPitch aleat))
                                                                  where curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (saltoMax, probSalto, numPuntos, duracionTotal)))
                                                                        listaGradosPitch aleat = curvaMelodicaAGradosPitch registroSolista Jonica C (curvaMelodica aleat) (C,5)
 
-pruFallo :: String -> Int -> IO()
-pruFallo dirTrabajo num
-  | num > 0   = do putStr ("\n\nFaltan " ++ (show num) ++" pruebas\n\n")
-                   pruMelAcArgs dirTrabajo 5 10 10 (5%1)
-                   pruFallo dirTrabajo (num - 1)
-  | otherwise = do putStr "\n\nNo ha fallado, fin\n\n"
---haskoreAMidi :: Music -> String -> IO()
---hazMelodiaParaAcorde aleat@(a1:as) saltoMax numNotas (acorde@(grado,matricula), duracion) = (musica, restoAleat)

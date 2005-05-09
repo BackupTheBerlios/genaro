@@ -1,0 +1,20 @@
+Progresion usada:
+
+progresion([ (cifrado(grado(i), matricula(maj7)), figura(1, 4)), (cifrado(grado(iii), matricula(m7)), figura(1, 4)), (cifrado(grado(vi), matricula(m7)), figura(1, 8)), (cifrado(grado(vii), matricula(m7b5)), figura(1, 8)), (cifrado(grado(vii), matricula(m7b5)), figura(1, 4)), (cifrado(grado(iii), matricula(m7)), figura(1, 4))]).
+
+Orden y salida de haskell:
+
+Melodias> pruHazMelodiaParaProgresion "C:/hlocal/prog.txt" "c:/hlocal/PatronesRi
+tmicos/arpegio_6_voces_negras.txt" 5
+Progresion de entrada: [((I,Maj7),1 % 4),((III,Men7),1 % 4),((VI,Men7),1 % 8),((
+VII,Men7B5),1 % 8),((VII,Men7B5),1 % 4),((III,Men7),1 % 4)]
+Patron ritmico de entrada: (6,[([(1,50.0,False)],1 % 4),([(2,50.0,False)],1 % 4)
+,([(3,50.0,False)],1 % 4),([(4,50.0,False)],1 % 4),([(5,50.0,False)],1 % 4),([(6
+,50.0,False)],1 % 4)])
+Curvas melodicas resultado: [[0],[2],[],[0],[0],[0]]
+Melodia resultado: (((((Rest (0 % 1) :+: (Rest (0 % 1) :+: Note (E,5) (1 % 4) [V
+olume 8.333333])) :+: (Rest (0 % 1) :+: Note (G,5) (1 % 4) [Volume 8.333333])) :
++: Rest (0 % 1)) :+: (Rest (0 % 1) :+: Note (E,4) (1 % 8) [Volume 8.333333])) :+
+: (Rest (0 % 1) :+: Note (E,4) (1 % 4) [Volume 8.333333])) :+: (Rest (0 % 1) :+:
+ Note (E,4) (1 % 4) [Volume 8.333333])
+Escrito con exito midi de prueba   

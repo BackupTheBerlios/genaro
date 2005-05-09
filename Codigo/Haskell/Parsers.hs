@@ -122,8 +122,8 @@ quitaFormatoDOS = filter (/= '\r')
 
 -- type Parser symbol result  =  [symbol] -> [([symbol],result)]
 parserAceptaTodo :: Parser Char String
---parserAceptaTodo str = zip (inits str) (tails str)
-parserAceptaTodo str = reverse (map (\(a,b) -> (b,a)) [(divideListaPos div str) | div <- [(-1)..((length str) -1)]])
+--parserAceptaTodo str = reverse (map (\(a,b) -> (b,a)) [(divideListaPos div str) | div <- [(-1)..((length str) -1)]])
+parserAceptaTodo str = [(drop n str, take n str)| n <- (reverse [0..(length str)])]
 
 {-
 divideListaPos :: Int -> [a] -> ([a], [a])

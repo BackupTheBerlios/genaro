@@ -3,6 +3,8 @@ import Random
 import Parser_library
 import List
 import Parsers
+import Basics
+import Ratio
 
 {-
         - cada elemento de un tipo matriz es una fila cujos elementos i-esimos son los de la
@@ -497,7 +499,7 @@ Devuelve True si el string de entrada representa a un float.
 -}
 
 esFloatString :: String -> Bool
-esFloatString = parseoExitoso float
+esFloatString = parseoExitoso Parser_library.float
 
 
 
@@ -635,3 +637,18 @@ pausa :: IO()
 pausa = do putStr "Pausa: presione enter para continuar\n"
            linea <- getLine
            putStr ""
+
+correspondeANat :: Float -> Bool
+correspondeANat f = (fromIntegral (floor f)) == f
+
+dameParteDchaComa :: Float -> Float
+dameParteDchaComa f = f - (fromIntegral (floor f))
+
+
+lineSeguro :: [Music] -> Music
+-- line  = foldr1 (:+:)
+lineSeguro = foldl (:+:) (Rest (0%1))
+
+chordSeguro :: [Music] -> Music
+-- chord = foldr1 (:=:)
+chordSeguro = foldl (:=:) (Rest (0%1))

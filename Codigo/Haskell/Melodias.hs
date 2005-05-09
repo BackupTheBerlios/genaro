@@ -11,6 +11,7 @@ import PrologAHaskell --para pruebas
 import Ratio          --para pruebas
 import Directory      --para pruebas
 import CAHaskell      --para pruebas solo??????????
+import TraduceCifrados --para pruebas
 {-
 BUGS!!!!!!!!!!!!!!
     -hazCurvaMelodicaAleatAcu:el 20 es una chunguez y el 0.8 ni te cuento
@@ -97,24 +98,23 @@ pruListaAcentos ruta = do (FPRC cols resolucion patronRitmico) <- leePatronRitmi
 {-
 dada una lista infinita de numeros enteros aleatorios entre 1 y resolucionRandom construye
 una curva melodica aleatoria segun ciertos criterios
-hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Int -> Dur -> (CurvaMelodica, [Int])
+hazCurvaMelodicaAleat :: [Int] -> Int -> Int -> Int -> (CurvaMelodica, [Int])
 hazCurvaMelodicaAleat aleat saltoMax probSalto numPuntos duracionTotal = (curva, aleatSobrantes)
         .aleat         : lista infinita de numeros aleatorios entre 1 y resolucionRandom
         .saltoMax      : numero de grados que se saltara como maximo en cada punto de la curva
         .probSalto     : cuanto mayor sea mayor probabilidad habra de que la curva melodica cambie de direccion en cada punto.
                          Debe ser del orden del numero de grados, es decir, de 1 a 12 mas o menos
         .numPuntos     : numero de puntos que tendra la curva
-        .duracionTotal : duracion de la curva melodica en dur
 Conceptos:
   -Las notas mas largas son las notas mas estables
   -Ajustar la curva melodica al ritmo, rellenando los huecos con notas cortas de paso o de bordadura
 
 -}
-hazCurvaMelodicaAleat :: FuncAleatoria (Int, Int, Int, Dur) CurvaMelodica
-hazCurvaMelodicaAleat (aleat@(a1:as), (saltoMax, probSalto, numPuntos, duracionTotal)) = (aleatSobran, puntoPartida:restoCurva)
+hazCurvaMelodicaAleat :: FuncAleatoria (Int, Int, Int) CurvaMelodica
+hazCurvaMelodicaAleat (aleat@(a1:as), (saltoMax, probSalto, numPuntos)) = (aleatSobran, puntoPartida:restoCurva)
                                                                                  where sube = (fromIntegral a1/ fromIntegral resolucionRandom) >= 0.5
                                                                                        puntoPartida = 0
-                                                                                       (restoCurva, aleatSobran) = hazCurvaMelodicaAleatAcu as sube saltoMax probSalto (numPuntos-1) duracionTotal 0
+                                                                                       (restoCurva, aleatSobran) = hazCurvaMelodicaAleatAcu as sube saltoMax probSalto (numPuntos-1) 0
 {-
 hazCurvaMelodicaAleatAcu aleat sube saltoMax probSalto numPuntos durTotal movAcumulado = (curva, aleatSobrantes)
         .aleat         : lista infinita de numeros aleatorios entre 1 y resolucionRandom
@@ -123,12 +123,11 @@ hazCurvaMelodicaAleatAcu aleat sube saltoMax probSalto numPuntos durTotal movAcu
         .probSalto     : cuanto mayor sea mayor probabilidad habra de que la curva melodica cambie de direccion en cada punto.
                          Debe ser del orden del numero de grados, es decir, de 1 a 12 mas o menos
         .numPuntos     : numero de puntos que tendra la curva
-        .duracionTotal : duracion de la curva melodica en dur
         .movAcumulado  : numero de grados que se llevan movidos en el sentido (ascendente o descendente) actual de la curva
 -}
-hazCurvaMelodicaAleatAcu :: [Int] -> Bool -> Int -> Int -> Int -> Dur -> Int -> (CurvaMelodica, [Int])
-hazCurvaMelodicaAleatAcu aleat _ _ _ 0 _ _ = ([],aleat)
-hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n durTotal movAcumulado
+hazCurvaMelodicaAleatAcu :: [Int] -> Bool -> Int -> Int -> Int -> Int -> (CurvaMelodica, [Int])
+hazCurvaMelodicaAleatAcu aleat _ _ _ 0 _ = ([],aleat)
+hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n movAcumulado
   | n > 0 = (nuevoPunto:restoCurva, aleatSobran)
                where salta        = (fromIntegral a1/fromIntegral resolucionRandom) <= (fromIntegral movAcumulado * fromIntegral ps/20)
                      candsNoSalto =  map (\x -> if (x /= 0) then (x,(1/ fromIntegral x)) else (x,0.8::Float)) [0..sm]
@@ -143,7 +142,7 @@ hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n durTotal movAcumulado
                                           then saltoAbs
                                           else (-1) * saltoAbs
                      nuevoPunto    = salto
-                     (restoCurva,aleatSobran)    = hazCurvaMelodicaAleatAcu as nuevoSube sm ps (n-1) durTotal (movAcumulado + saltoAbs)
+                     (restoCurva,aleatSobran)    = hazCurvaMelodicaAleatAcu as nuevoSube sm ps (n-1) (movAcumulado + saltoAbs)
 
 
 aplicaCurvaMelodica :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, Int, Int, ListaAcentos, CurvaMelodica) [Music]
@@ -363,9 +362,9 @@ pruAplicaCurvaMelodica ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO
                                                haskoreAMidi (musicaNotasIntermedias aleat p) "./pruMelodiaFase3.mid"
                                                putStr "\nEscrito con exito midi con notas intermedias de prueba en ./pruMelodiaFase3.mid\n"
                                                where acentos p = construyeListaAcentos p
-                                                     curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
+                                                     curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos)))
                                                      longCurIni aleat = length (curvaMelodica aleat)
-                                                     restoAl1 aleat = fst (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
+                                                     restoAl1 aleat = fst (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos)))
                                                      resul aleat p = snd (aplicaCurvaMelodicaFase1 ((restoAl1 aleat), (registroSolista, Jonica, C, (C,6), dur, (acentos p), curvaMelodica aleat)))
                                                      restoAl2 aleat p = fst (aplicaCurvaMelodicaFase1 ((restoAl1 aleat), (registroSolista, Jonica, C, (C,6), dur, (acentos p), curvaMelodica aleat)))
                                                      musicaLista aleat p = primero (resul aleat p)
@@ -450,9 +449,9 @@ pruAjustaCurvaMelodicaConListaAcentos ruta numPuntos = do aleat <- listaInfNumsA
                                                           putStr ("\tlongitud de la lista de acentos: "++(show (longAcFin aleat patronRitmico))++"\n")
                                                           where acentos p = construyeListaAcentos p
                                                                 longAcIni p = length (acentos p)
-                                                                curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
+                                                                curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos)))
                                                                 longCurIni aleat = length (curvaMelodica aleat)
-                                                                restoAl aleat = fst (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos, (1%4))))
+                                                                restoAl aleat = fst (hazCurvaMelodicaAleat (aleat, (3, 6, numPuntos)))
                                                                 resul aleat p = snd (ajustaCurvaMelodicaConListaAcentos ((restoAl aleat),(curvaMelodica aleat, acentos p)))
                                                                 longAcFin aleat p = length (snd (resul aleat p))
                                                                 longCurFin aleat p = length (fst (resul aleat p))
@@ -493,12 +492,36 @@ ajustaOctava registro oct = if elem oct registro
                                          where octavaMin = dameMinimizador id registro
                                                octavaMax = dameMinimizador (*(-1)) registro
 {-
-supone siempre que la tonica es Do
-Hace la melodia para un solo acorde
--}
---type CurvaMelodicaProgresion = [CurvaMelodica]
 hazMelodiaParaProgresion :: FuncAleatoria (Progresion, PatronRitmico, Int, Int, Int, Int, Int) (Music, CurvaMelodicaProgresion)
 hazMelodiaParaProgresion (aleat, (progresion, patron, saltoMax, probSalto, numNotas, numApsFase2, numApsFase3)) = (restoAleat3, (musicaResul, listaDeCurvasMelodicas))
+ -supone siempre que la tonica es Do
+ -Hace la melodia para un solo acorde
+ -numNotas es el numero de notas total de la melodia entera, es decir, para toda la progresion
+
+-}
+--type CurvaMelodicaProgresion = [CurvaMelodica]
+
+hazMelodiaParaProgresion :: FuncAleatoria (Progresion, PatronRitmico, Int, Int, Int, Int, Int) (Music, CurvaMelodicaProgresion)
+hazMelodiaParaProgresion (aleat, (progresion, patron, saltoMax, probSalto, numNotas, numApsFase2, numApsFase3)) = (restoAleat3, (musicaResul, listaDeCurvasMelodicas))
+   where (restoAleat1, curvaTotal)  = hazCurvaMelodicaAleat (aleat, (saltoMax, probSalto, numNotas))
+         listaDurs = map snd progresion
+         (restoAleat1b, listaDeCurvasMelodicas) = distribuyeCurvaEntreDurs (restoAleat1, (curvaTotal, listaDurs))
+         acentos = construyeListaAcentos patron
+         primerAcorde = fst (head progresion)
+         (restoAleat2, pitchPartida) = damePitchIniAleat (restoAleat1b, primerAcorde)
+         buscaUltimoPitch (aleat, cif, listaMus)= buscaUltimoPitchAcu (aleat, cif, reverse listaMus)
+                       where buscaUltimoPitchAcu (aleat, cif, []) = damePitchIniAleat (aleat, cif)
+                             buscaUltimoPitchAcu (aleat, cif, ((Rest _):ns)) = buscaUltimoPitchAcu (aleat, cif, ns)
+                             buscaUltimoPitchAcu (aleat, cif, ((Note p _ _):ns)) = (aleat, p)
+         construyeMusicas aleat pitchAnterior [] = (aleat, [])
+         construyeMusicas aleat pitchAnterior (((cifrado, dur),curva):ccs) = (restoAleat, musicaAux:restoDeMusicas)
+                   where (restoAlAux1, musicaAux) = hazMelodiaParaAcorde (aleat, (curva, acentos, (cifrado, dur), numApsFase2, numApsFase3, pitchAnterior))
+                         (restoAlAux2, ultimoPitchAux) = buscaUltimoPitch (restoAlAux1, cifrado, musicaAux)
+                         (restoAleat, restoDeMusicas) = construyeMusicas restoAlAux2 ultimoPitchAux ccs
+         (restoAleat3, listaDeMusicas) = construyeMusicas restoAleat2 pitchPartida (zip progresion listaDeCurvasMelodicas)
+         musicaResul = lineSeguro (map lineSeguro listaDeMusicas) -- cuidado con las lista vacias
+
+{-hazMelodiaParaProgresion (aleat, (progresion, patron, saltoMax, probSalto, numNotas, numApsFase2, numApsFase3)) = (restoAleat3, (musicaResul, listaDeCurvasMelodicas))
    where construyeCurvas aleat [] = (aleat, [])
          construyeCurvas aleat ((cifrado, dur):ps) = (restoAleat, curvaAux:restoDeCurvas)
                         where (restoAlAux, curvaAux) = hazCurvaMelodicaAleat (aleat, (saltoMax, probSalto, numNotas, dur))
@@ -518,41 +541,43 @@ hazMelodiaParaProgresion (aleat, (progresion, patron, saltoMax, probSalto, numNo
                          (restoAleat, restoDeMusicas) = construyeMusicas restoAlAux2 ultimoPitchAux ccs
          (restoAleat3, listaDeMusicas) = construyeMusicas restoAleat2 pitchPartida (zip progresion listaDeCurvasMelodicas)
          musicaResul = line (map line listaDeMusicas)
+-}
 
-pruHazMelodiaParaProgresion :: String -> String -> IO ()
-pruHazMelodiaParaProgresion rutaProgresion rutaPatron = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                                           prog <- leeProgresion rutaProgresion
-                                                           (FPRC cols resolucion pat) <- leePatronRitmicoC rutaPatron
-                                                           putStr ("Progresion de entrada: "++(show prog)++"\n")
-                                                           putStr ("Patron ritmico de entrada: "++(show pat)++"\n")
-                                                           putStr ("Curvas melodicas resultado: "++(show(curvaMelodicas aleat prog pat))++"\n")
-                                                           putStr ("Musica resultado: "++(show (musica aleat prog pat)))
-                                                           haskoreAMidi (musica aleat prog pat) rutaDest
-                                                           putStr ("\nEscrito con exito midi con notas intermedias de prueba en "++rutaDest++"\n")
-                                                           where musica aleat prog pat = fst (snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, 2, 1, 3))))
-                                                                 curvaMelodicas aleat prog pat = snd (snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, 6, 1, 3))))
-                                                                 rutaDest = "./pruMelodiaParaProgresion.mid"
+pruHazMelodiaParaProgresion :: String -> String -> Int -> IO ()
+pruHazMelodiaParaProgresion rutaProgresion rutaPatron numNotas = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                                    prog <- leeProgresion rutaProgresion
+                                                                    (FPRC cols resolucion pat) <- leePatronRitmicoC rutaPatron
+                                                                    putStr ("Progresion de entrada: "++(show prog)++"\n")
+                                                                    putStr ("Patron ritmico de entrada: "++(show pat)++"\n")
+                                                                    putStr ("Curvas melodicas resultado: "++(show(curvaMelodicas aleat prog pat))++"\n")
+                                                                    putStr ("Melodia resultado: "++(show (melodia aleat prog pat)))
+                                                                    haskoreAMidi (melodia aleat prog pat) rutaDestSola
+                                                                    haskoreAMidi (musica aleat prog pat) rutaDestAcomp
+                                                                    putStr ("\nEscrito con exito midi de prueba\n")
+                                                                    where preMel aleat prog pat = snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, numNotas, 2, 0)))
+                                                                          melodia aleat prog pat = fst (preMel aleat prog pat)
+                                                                          curvaMelodicas aleat prog pat = snd (preMel aleat prog pat)
+                                                                          rutaDestSola = "./pruMelodiaParaProgresionSola.mid"
+                                                                          rutaDestAcomp = "./pruMelodiaParaProgresionAcomp.mid"
+                                                                          paramEjemplo = Paralelo 4 0 1 4
+                                                                          progOrd =  traduceProgresion paramEjemplo
+                                                                          hazMusicaFase1 prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
+                                                                          --hazMusica prog patRit = line (take numReps (repeat (hazMusicaFase1 prog patRit)))
+                                                                          acordes prog patRit = hazMusicaFase1 prog patRit
+                                                                          musica aleat prog pat = lineSeguro (take 4 (repeat ((melodia aleat prog pat) :=: (acordes prog pat))))
 
-correspondeANat :: Float -> Bool
-correspondeANat f = (fromIntegral (floor f)) == f
 
-dameParteDchaComa :: Float -> Float
-dameParteDchaComa f = f - (fromIntegral (floor f))
-
---distribuyeCurvaEntreDurs :: FuncAleatoria (CurvaMelodica, [Dur]) [Float]  --CurvaMelodicaProgresion
-distribuyeCurvaEntreDurs (aleat, (curva, duraciones)) = (listaPorcentajes, listaNumPuntosPrim, numPuntosDistPrimFase, numPuntosDistSegFase, candsSegFase)
+distribuyeCurvaEntreDurs :: FuncAleatoria (CurvaMelodica, [Dur]) CurvaMelodicaProgresion
+distribuyeCurvaEntreDurs (aleat, (curva, duraciones)) = (restoAleat, curvaMelProgResul) -- (listaPorcentajes, paresDef, curvaMelProgResul)
     where numPuntos = length curva
           numDurs = length duraciones
           durAFloat dur = (fromIntegral (numerator dur)) / (fromIntegral (denominator dur))
           sumaDurs = durAFloat (foldl1' (+) duraciones)
           -- listaPorcentajes en su elemento i-esimo da el numero de puntos de la curva que corresponden al elemento i-esimo
           -- de duraciones, como un float. Si ese float no corresponde a un entero entonces se disputa un punto de
-          -- la curva con el elemento a su derecha. Se decide la disputa aleatoriamente, dando como peso de cada elemento la
-          -- parte no entera de su valor
+          -- la curva con otros elementos en la misma situacion. Se decide la disputa aleatoriamente, dando como peso de cada
+          -- elemento la parte no entera de su valor
           listaPorcentajes = map (\d -> ((durAFloat d)/ sumaDurs)*(fromIntegral numPuntos)) duraciones
-
-          --listaNumPuntosPrim = map soloNats (zip listaPorcentajes [0 .. (numDurs -1)])
-          --             where soloNats (f, pos) = if (correspondeANat f) then (f, pos) else (0.0, pos)
           listaNumPuntosPrim = zip (map floor listaPorcentajes) [0 .. (numDurs -1)]
           numPuntosDistPrimFase = foldl1' (+) (map fst listaNumPuntosPrim)
           numPuntosDistSegFase = numPuntos -  numPuntosDistPrimFase
@@ -574,7 +599,15 @@ distribuyeCurvaEntreDurs (aleat, (curva, duraciones)) = (listaPorcentajes, lista
                   where restoParesExito = aniadeNuevosPuntos ps listaPares
                         restoParesFallo = aniadeNuevosPuntos (pos1:ps) listaPares
           paresDef = aniadeNuevosPuntos (sort posAAumentarFase2) listaNumPuntosPrim
---          construyeListaCurvas
+          construyeListaCurvas [] _ = []
+          construyeListaCurvas ((val,pos):restoPares) curva = (take val curva):(construyeListaCurvas restoPares (drop val curva))
+          curvaMelProgResul = construyeListaCurvas paresDef curva
+
+pruDistribuyeCurvaEntreDurs :: CurvaMelodica -> [Dur] -> IO ()
+pruDistribuyeCurvaEntreDurs curva duraciones = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                  putStrLn (show (resul aleat))
+                                                  putStr ""
+                                                  where resul aleat = snd (distribuyeCurvaEntreDurs (aleat, (curva, duraciones)))
 
 hazMelodiaParaAcorde :: FuncAleatoria (CurvaMelodica, ListaAcentos, (Cifrado, Dur), Int, Int, Pitch) [Music]
 hazMelodiaParaAcorde (aleat, (curva, acentos, (acorde@(grado,matricula), dur), numApsFase2, numApsFase3, pitchPartida)) = (restoAleat1, musicaLista)
@@ -678,10 +711,3 @@ saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
                     octavaResulBaja = if (posGradoSalida > posGradoPartida)
                                          then numOctavasPorNumGrados + 1
                                          else numOctavasPorNumGrados
-
-pruCurvaMelAleat :: Int -> Int -> Int -> Dur -> IO()
-pruCurvaMelAleat saltoMax probSalto numPuntos duracionTotal = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                                                 print (zip (curvaMelodica aleat) (listaGradosPitch aleat))
-                                                                 where curvaMelodica aleat = snd (hazCurvaMelodicaAleat (aleat, (saltoMax, probSalto, numPuntos, duracionTotal)))
-                                                                       listaGradosPitch aleat = curvaMelodicaAGradosPitch registroSolista Jonica C (curvaMelodica aleat) (C,5)
-

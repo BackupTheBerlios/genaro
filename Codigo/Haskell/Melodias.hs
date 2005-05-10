@@ -155,11 +155,17 @@ aplicaCurvaMelodica (aleat, (_, _, _, _, _, _, _, _, [])) = (aleat, [])
 aplicaCurvaMelodica (aleat, (_, _, _, _, _, _, _, [], _)) = (aleat, [])
 aplicaCurvaMelodica (aleat, (registro, escala, tonica, pitchPartida, dur, numAplicacionesFase2, numAplicacionesFase3,acentos , curvaMelodica@(a1:as))) = (restoAleat3, musicaFase3)
     where (restoAleat1,(musicaFase1, acentosSobranFase1, curvaSobraFase1)) = aplicaCurvaMelodicaFase1 (aleat, (registro, escala, tonica, pitchPartida, dur, acentos, curvaMelodica))
-          repiteFase2 n (aleat, (escala, tonica, acentos, musica))
+          {-repiteFase2 n (aleat, (escala, tonica, acentos, musica))
             | n<=0      = (aleat, musica)
             | otherwise = repiteFase2 (n-1) (restoAlAux, (escala, tonica, acentosAux, musAux))
                        where (restoAlAux, (musAux, acentosAux)) = aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica))
           (restoAleat2, musicaFase2) = repiteFase2 numAplicacionesFase2 (restoAleat1,(escala, tonica, acentosSobranFase1, musicaFase1))
+          -}
+          repiteFase2 n (aleat, (escala, tonica, musica))
+            | n<=0      = (aleat, musica)
+            | otherwise = repiteFase2 (n-1) (restoAlAux, (escala, tonica, musAux))
+                       where (restoAlAux, musAux) = aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, musica))
+          (restoAleat2, musicaFase2) = repiteFase2 numAplicacionesFase2 (restoAleat1,(escala, tonica, musicaFase1))
           repiteFase3 n (aleat, (escala, tonica, musica))
             | n<=0      = (aleat, musica)
             | otherwise = repiteFase3 (n-1) (restoAlAux, (escala, tonica, musicaAux))
@@ -290,42 +296,23 @@ aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica))
 para hacer melodias con notas mas largas. La curva melodcia no se necesita
   -liga varias notas, un numero aleatorio de ellas
 -}
-aplicaCurvaMelodicaFase2  :: FuncAleatoria (Escala, PitchClass, ListaAcentos, [Music]) ([Music], ListaAcentos)
-aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica))
- | numAcentosCand <= 0 = (aleat, (musica, acentos))
- | otherwise = (restoAleat1, (musicaLarga, acentosSobran))
-      where -- posAcentosCand = dameCandidatosFase2 acentos
-            posAcentosCand = dameCandidatosFase2 musica
-            numAcentosCand = length posAcentosCand
-            listaPesosAcentos = zip posAcentosCand [fromIntegral (valoraGrado escala (dameIntervaloPitch tonica (damePitch(musica!!pos))))|pos <- posAcentosCand]
+aplicaCurvaMelodicaFase2  :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
+aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, musica))
+ | numCand <= 0 = (aleat, musica)
+ | otherwise = (restoAleat1, musicaLarga)
+      where posCand = dameCandidatosFase2 musica
+            numCand = length posCand
+            listaPesos = zip posCand [fromIntegral (valoraGrado escala (dameIntervaloPitch tonica (damePitch(musica!!pos))))|pos <- posCand]
             --tienen mas probabilidad de alargarse las notas q corresponden a grados mas estables
-            (restoAleat1, (lAcenPosElegidos, lAcenRech)) = dameSublistaAleatListaPesosRestoFloat (aleat, listaPesosAcentos)
+            (restoAleat1, (lPosElegidos, lRech)) = dameSublistaAleatListaPesosRestoFloat (aleat, listaPesos)
             --FuncAleatoria [(a, Float)] ([(a, Int)], [((a,Float), Int)])
             ordena x y = compare (snd x) (snd y)
-            acentosSobran = map fst (sortBy ordena (union acentosHechosNulos restoAcentos))
-                           where posAcentosAEliminar = map (+1) (map fst lAcenPosElegidos) --pq los elegidos son los q se alargaran
-                                 -- por tanto los q se usan seran los de su derecha
-                                 posRestoAcentos = filter (\x -> (not (elem x posAcentosAEliminar))) [0..((length acentos) -1)]
-                                 hazNulo (ac,dur) = (-1, dur)
-                                 acentosHechosNulos = [(hazNulo (acentos !! pos), pos) | pos <- posAcentosAEliminar]
-                                 restoAcentos = [(acentos !! pos, pos) | pos <- posRestoAcentos]
-            musicaLarga = alargaMusicaFase2 (map fst lAcenPosElegidos) musica
+            musicaLarga = alargaMusicaFase2 (map fst lPosElegidos) musica
 
 {-
 dameCandidatosFase2 :: ListaAcentos -> [Int]
 Devuelve la lista de posiciones dentro de la lista de entrada de las notas candidatas a ser alargadas. Las notas candidatas
 deben cumplir que su acento sea negativo y el de su derecha positivo, por tanto son notas no silencios con silencios a su derecha
--}
-{-dameCandidatosFase2 :: ListaAcentos -> [Int]
-dameCandidatosFase2 acentos  = sacaCandidatosPos 0 acentos
-        where numAcentos = length acentos
-              --formato de entrada (velocity, dur)
-              sacaCandidatosPos _ []     = []
-              sacaCandidatosPos _ (x:[]) = []
-              sacaCandidatosPos pos ((v1,d1):(v2,d2):xs)
-                | (v1 <0) && (v2 >=0) = pos : (restoCandidatos)
-                | otherwise           = restoCandidatos
-                              where restoCandidatos = sacaCandidatosPos (pos +1) ((v2,d2):xs)
 -}
 dameCandidatosFase2 :: [Music] -> [Int]
 dameCandidatosFase2 musica  = sacaCandidatosPos 0 musicaLimpia
@@ -450,7 +437,7 @@ pruAplicaCurvaMelodica ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO
                                                haskoreAMidi (musica1 aleat p) "./pruMelodiaFase1.mid"
                                                putStr "\nEscrito con exito midi de prueba en ./pruMelodiaFase1.mid\n"
                                                putStr ("Musica alargada: "++(show (musicaLarga aleat p))++"\n")
-                                               putStr ("Acentos Sobrantes 2: "++(show (curvaSobra2 aleat p))++"\n")
+                                               --putStr ("Acentos Sobrantes 2: "++(show (curvaSobra2 aleat p))++"\n")
                                                haskoreAMidi (musicaLarga aleat p) "./pruMelodiaFase2.mid"
                                                putStr "\nEscrito con exito midi alargado de prueba en ./pruMelodiaFase2.mid\n"
                                                putStr ("Musica con notas intermedias: "++ (show (musicaNotasIntermedias aleat p))++"\n")
@@ -466,10 +453,13 @@ pruAplicaCurvaMelodica ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO
                                                      musica1 aleat p = lineSeguro (primero (resul aleat p))
                                                      acentosSobran aleat p = segundo (resul aleat p)
                                                      curvaSobra aleat p = tercero (resul aleat p)
-                                                     musicaLargaLista aleat p = fst (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
-                                                     curvaSobra2 aleat p = snd (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
+                                                     --musicaLargaLista aleat p = fst (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
+                                                     --curvaSobra2 aleat p = snd (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
+                                                     musicaLargaLista aleat p = (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, ((musicaLista aleat p))))))
+                                                     --curvaSobra2 aleat p = snd (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, ((musicaLista aleat p))))))
                                                      musicaLarga aleat p = lineSeguro (musicaLargaLista aleat p) -- lineSeguro (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
-                                                     restoAl3 aleat p = fst (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p)))))
+                                                     --restoAl3 aleat p = fst (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p)))))
+                                                     restoAl3 aleat p = fst (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C,  ((musicaLista aleat p)))))
                                                      musicaNotasIntermedias aleat p = lineSeguro (snd (aplicaCurvaMelodicaFase3 (restoAl3 aleat p, (Jonica, C, musicaLargaLista aleat p))))
                                                       -- aplicaCurvaMelodicaFase3 (aleat@(a1:restoAleat1), (escala, tonica, musica))
 
@@ -522,28 +512,6 @@ hazMelodiaParaProgresion (aleat, (progresion, patron, saltoMax, probSalto, numNo
                          (restoAleat, restoDeMusicas) = construyeMusicas restoAlAux2 ultimoPitchAux ccs
          (restoAleat3, listaDeMusicas) = construyeMusicas restoAleat2 pitchPartida (zip progresion listaDeCurvasMelodicas)
          musicaResul = lineSeguro (map lineSeguro listaDeMusicas) -- cuidado con las lista vacias
-
-{-hazMelodiaParaProgresion (aleat, (progresion, patron, saltoMax, probSalto, numNotas, numApsFase2, numApsFase3)) = (restoAleat3, (musicaResul, listaDeCurvasMelodicas))
-   where construyeCurvas aleat [] = (aleat, [])
-         construyeCurvas aleat ((cifrado, dur):ps) = (restoAleat, curvaAux:restoDeCurvas)
-                        where (restoAlAux, curvaAux) = hazCurvaMelodicaAleat (aleat, (saltoMax, probSalto, numNotas, dur))
-                              (restoAleat, restoDeCurvas) = construyeCurvas restoAlAux ps
-         (restoAleat1, listaDeCurvasMelodicas) = construyeCurvas aleat progresion
-         acentos = construyeListaAcentos patron
-         primerAcorde = fst (head progresion)
-         (restoAleat2, pitchPartida) = damePitchIniAleat (restoAleat1, primerAcorde)
-         buscaUltimoPitch (aleat, cif, listaMus)= buscaUltimoPitchAcu (aleat, cif, reverse listaMus)
-                       where buscaUltimoPitchAcu (aleat, cif, []) = damePitchIniAleat (aleat, cif)
-                             buscaUltimoPitchAcu (aleat, cif, ((Rest _):ns)) = buscaUltimoPitchAcu (aleat, cif, ns)
-                             buscaUltimoPitchAcu (aleat, cif, ((Note p _ _):ns)) = (aleat, p)
-         construyeMusicas aleat pitchAnterior [] = (aleat, [])
-         construyeMusicas aleat pitchAnterior (((cifrado, dur),curva):ccs) = (restoAleat, musicaAux:restoDeMusicas)
-                   where (restoAlAux1, musicaAux) = hazMelodiaParaAcorde (aleat, (curva, acentos, (cifrado, dur), numApsFase2, numApsFase3, pitchAnterior))
-                         (restoAlAux2, ultimoPitchAux) = buscaUltimoPitch (restoAlAux1, cifrado, musicaAux)
-                         (restoAleat, restoDeMusicas) = construyeMusicas restoAlAux2 ultimoPitchAux ccs
-         (restoAleat3, listaDeMusicas) = construyeMusicas restoAleat2 pitchPartida (zip progresion listaDeCurvasMelodicas)
-         musicaResul = lineSeguro (map lineSeguro listaDeMusicas)
--}
 
 pruHazMelodiaParaProgresion :: String -> String -> Int -> IO ()
 pruHazMelodiaParaProgresion rutaProgresion rutaPatron numNotas = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
@@ -717,7 +685,7 @@ saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
 
 pruPeta :: Int -> IO ()
 pruPeta n
- | n>0       = do putStr ("Empezando prueba numero "++(show n) ++"\n\n")
+ | n>0       = do putStr ("Quedan "++(show n) ++" pruebas\n\n")
                   pruHazMelodiaParaProgresion "c:/hlocal/prog.txt" "c:/hlocal/PatronesRitmicos/arpegio_continuado_6_voces_corcheas.txt" 40
                   pruPeta (n -1)
  | otherwise = putStrLn "Prueba superada con exito"

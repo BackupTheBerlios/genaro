@@ -652,3 +652,18 @@ lineSeguro = foldl (:+:) (Rest (0%1))
 chordSeguro :: [Music] -> Music
 -- chord = foldr1 (:=:)
 chordSeguro = foldl (:=:) (Rest (0%1))
+
+
+esNotaSuena :: Music -> Bool
+esNotaSuena = not. esSilencio
+--esNotaSuena (Note _ _ _)= True
+--esNotaSuena (Rest _) = False
+
+esSilencio :: Music -> Bool
+esSilencio (Note _ _ _) = False
+esSilencio (Rest _) = True
+
+esNotaVacia :: Music -> Bool
+esNotaVacia m = (dur m) <= 0
+-- Note Pitch Dur [NoteAttribute]   -- a note \ atomic
+-- Rest Dur                         -- a rest /    objects

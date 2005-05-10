@@ -209,7 +209,8 @@ aplicaCurvaMelodicaFase2  :: FuncAleatoria (Escala, PitchClass, ListaAcentos, [M
 aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica))
  | numAcentosCand <= 0 = (aleat, (musica, acentos))
  | otherwise = (restoAleat1, (musicaLarga, acentosSobran))
-      where posAcentosCand = dameCandidatosFase2 acentos
+      where -- posAcentosCand = dameCandidatosFase2 acentos
+            posAcentosCand = dameCandidatosFase2 musica
             numAcentosCand = length posAcentosCand
             listaPesosAcentos = zip posAcentosCand [fromIntegral (valoraGrado escala (dameIntervaloPitch tonica (damePitch(musica!!pos))))|pos <- posAcentosCand]
             --tienen mas probabilidad de alargarse las notas q corresponden a grados mas estables
@@ -225,7 +226,12 @@ aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica))
                                  restoAcentos = [(acentos !! pos, pos) | pos <- posRestoAcentos]
             musicaLarga = alargaMusicaFase2 (map fst lAcenPosElegidos) musica
 
+{-
 dameCandidatosFase2 :: ListaAcentos -> [Int]
+Devuelve la lista de posiciones dentro de la lista de entrada de las notas candidatas a ser alargadas. Las notas candidatas
+deben cumplir que su acento sea negativo y el de su derecha positivo, por tanto son notas no silencios con silencios a su derecha
+-}
+{-dameCandidatosFase2 :: ListaAcentos -> [Int]
 dameCandidatosFase2 acentos  = sacaCandidatosPos 0 acentos
         where numAcentos = length acentos
               --formato de entrada (velocity, dur)
@@ -235,8 +241,23 @@ dameCandidatosFase2 acentos  = sacaCandidatosPos 0 acentos
                 | (v1 <0) && (v2 >=0) = pos : (restoCandidatos)
                 | otherwise           = restoCandidatos
                               where restoCandidatos = sacaCandidatosPos (pos +1) ((v2,d2):xs)
+-}
+dameCandidatosFase2 :: [Music] -> [Int]
+dameCandidatosFase2 musica  = sacaCandidatosPos 0 musicaLimpia
+        where musicaLimpia = filter (not.esNotaVacia) musica
+              numNotas = length musica
+              sacaCandidatosPos _ []     = []
+              sacaCandidatosPos _ (_:[]) = []
+              sacaCandidatosPos pos (m1:m2:ms)
+                | (esNotaSuena m1) && (esSilencio m2)  = pos : (restoCandidatos)
+                | otherwise           = restoCandidatos
+                              where restoCandidatos = sacaCandidatosPos (pos +1) (m2:ms)
 
 
+{-
+Dada una lista de posiciones y una lista de Music alarga las notas de la lista de Music cuyas posiciones esten en la lista de
+posiciones, para ello les añade la duracion de la nota de su derecha, q debe ser un silencio
+-}
 alargaMusicaFase2 :: [Int] -> [Music] -> [Music]
 alargaMusicaFase2 = alargaElemTalPos 0
     where alargaElemTalPos _ _ []      = []
@@ -368,14 +389,14 @@ pruAplicaCurvaMelodica ruta numPuntos dur = do aleat <- listaInfNumsAleatoriosIO
                                                      resul aleat p = snd (aplicaCurvaMelodicaFase1 ((restoAl1 aleat), (registroSolista, Jonica, C, (C,6), dur, (acentos p), curvaMelodica aleat)))
                                                      restoAl2 aleat p = fst (aplicaCurvaMelodicaFase1 ((restoAl1 aleat), (registroSolista, Jonica, C, (C,6), dur, (acentos p), curvaMelodica aleat)))
                                                      musicaLista aleat p = primero (resul aleat p)
-                                                     musica1 aleat p = line (primero (resul aleat p))
+                                                     musica1 aleat p = lineSeguro (primero (resul aleat p))
                                                      acentosSobran aleat p = segundo (resul aleat p)
                                                      curvaSobra aleat p = tercero (resul aleat p)
                                                      musicaLargaLista aleat p = fst (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
                                                      curvaSobra2 aleat p = snd (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
-                                                     musicaLarga aleat p = line (musicaLargaLista aleat p) -- line (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
+                                                     musicaLarga aleat p = lineSeguro (musicaLargaLista aleat p) -- lineSeguro (snd (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p))))))
                                                      restoAl3 aleat p = fst (aplicaCurvaMelodicaFase2 ((restoAl2 aleat p), (Jonica, C, (acentosSobran aleat p), ((musicaLista aleat p)))))
-                                                     musicaNotasIntermedias aleat p = line (snd (aplicaCurvaMelodicaFase3 (restoAl3 aleat p, (Jonica, C, musicaLargaLista aleat p))))
+                                                     musicaNotasIntermedias aleat p = lineSeguro (snd (aplicaCurvaMelodicaFase3 (restoAl3 aleat p, (Jonica, C, musicaLargaLista aleat p))))
                                                       -- aplicaCurvaMelodicaFase3 (aleat@(a1:restoAleat1), (escala, tonica, musica))
 
 
@@ -540,7 +561,7 @@ hazMelodiaParaProgresion (aleat, (progresion, patron, saltoMax, probSalto, numNo
                          (restoAlAux2, ultimoPitchAux) = buscaUltimoPitch (restoAlAux1, cifrado, musicaAux)
                          (restoAleat, restoDeMusicas) = construyeMusicas restoAlAux2 ultimoPitchAux ccs
          (restoAleat3, listaDeMusicas) = construyeMusicas restoAleat2 pitchPartida (zip progresion listaDeCurvasMelodicas)
-         musicaResul = line (map line listaDeMusicas)
+         musicaResul = lineSeguro (map lineSeguro listaDeMusicas)
 -}
 
 pruHazMelodiaParaProgresion :: String -> String -> Int -> IO ()
@@ -554,7 +575,7 @@ pruHazMelodiaParaProgresion rutaProgresion rutaPatron numNotas = do aleat <- lis
                                                                     haskoreAMidi (melodia aleat prog pat) rutaDestSola
                                                                     haskoreAMidi (musica aleat prog pat) rutaDestAcomp
                                                                     putStr ("\nEscrito con exito midi de prueba\n")
-                                                                    where preMel aleat prog pat = snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, numNotas, 2, 0)))
+                                                                    where preMel aleat prog pat = snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, numNotas, 2, 4)))
                                                                           melodia aleat prog pat = fst (preMel aleat prog pat)
                                                                           curvaMelodicas aleat prog pat = snd (preMel aleat prog pat)
                                                                           rutaDestSola = "./pruMelodiaParaProgresionSola.mid"
@@ -562,7 +583,7 @@ pruHazMelodiaParaProgresion rutaProgresion rutaPatron numNotas = do aleat <- lis
                                                                           paramEjemplo = Paralelo 4 0 1 4
                                                                           progOrd =  traduceProgresion paramEjemplo
                                                                           hazMusicaFase1 prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
-                                                                          --hazMusica prog patRit = line (take numReps (repeat (hazMusicaFase1 prog patRit)))
+                                                                          --hazMusica prog patRit = lineSeguro (take numReps (repeat (hazMusicaFase1 prog patRit)))
                                                                           acordes prog patRit = hazMusicaFase1 prog patRit
                                                                           musica aleat prog pat = lineSeguro (take 4 (repeat ((melodia aleat prog pat) :=: (acordes prog pat))))
 

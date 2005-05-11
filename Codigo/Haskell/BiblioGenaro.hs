@@ -682,3 +682,6 @@ esNotaVacia :: Music -> Bool
 esNotaVacia m = (dur m) <= 0
 -- Note Pitch Dur [NoteAttribute]   -- a note \ atomic
 -- Rest Dur                         -- a rest /    objects
+
+valorDeFraccion :: Dur -> Float
+valorDeFraccion frac = (fromIntegral (numerator frac))/(fromIntegral (denominator frac))

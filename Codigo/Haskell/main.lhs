@@ -61,24 +61,35 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > diferenciaComandos :: [String] -> IO()
 > diferenciaComandos ( "previsualizaPatron" : restoArgumentos ) = previsualizaPatron restoArgumentos
 > diferenciaComandos ( "generaSubbloqueAcompanamiento" : restoArgumentos ) = generaSubbloqueAcompanamiento restoArgumentos
+> diferenciaComandos _ = errorGenaro "comando erroneo en diferenciaCommandos"
 
 > ------------------------------ PREVISUALIZA PATRON ----------------------------
 
 > previsualizaPatron :: [String] -> IO()
 > previsualizaPatron [ rutaPatronRitmico, negras_min, rutaMidiDest ] =
->         do fichPatron <- leePatronRitmicoC rutaPatronRitmico
+>         do mensajeGenaro "Comienzo lectura de patron"
+>            fichPatron <- leePatronRitmicoC rutaPatronRitmico
+>            mensajeGenaro "Fin lectura de patron"
+>            mensajeGenaro "Comienzo transformacion de subbloque a Midi"
 >            haskoreAMidi2 (fichPatRitAMusic fichPatron) negras_min_int rutaMidiDest
->            pausa
+>            mensajeGenaro "Fin transformacion de subbloque a Midi"
+>            mensajeGenaro "Completado previsualizaPatron"
 >            where negras_min_int = aplicaParser integer negras_min
-             
+> previsualizaPatron _ = errorGenaro "error de encaje de patrones en previsualizaPatron"             
 
 > ------------------------------ GENERA SUBBLOQUE ACOMPANAMIENTO ----------------------------
 > generaSubbloqueAcompanamiento :: [String] -> IO()
 > generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "paralelo", "inversion", inversion, "disposicion", disposicion, "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] =
->         do progresion <- leeProgresion rutaProgresion
+>         do mensajeGenaro "Comienzo lectura progresion"
+>            progresion <- leeProgresion rutaProgresion
+>            mensajeGenaro "Fin lectura progresion"
+>            mensajeGenaro "Comienzo lectura patron"
 >            patronR <- leePatronRitmicoC2 rutaPatron
+>            mensajeGenaro "Fin lectura patron"
+>            mensajeGenaro "Comienzo escritura del music"
 >            writeFile rutaDest (show (musica progresion patronR))
->            pausa
+>            mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Completado generaSubbloqueAcompanamiento"
 >            where octavaIniInt = aplicaParser integer octavaIni 
 >                  numNotasInt = aplicaParser integer numNotas
 >                  inversionInt = toInversion inversion
@@ -86,25 +97,40 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                  ao prog = traduceProgresion (Paralelo octavaIniInt inversionInt disposicionInt numNotasInt) prog
 >                  musica prog patron= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao prog)
 > generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "continuo", "semilla", semilla, "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] = 
->         do progresion <- leeProgresion rutaProgresion
+>         do mensajeGenaro "Comienzo lectura progresion"
+>            progresion <- leeProgresion rutaProgresion
+>            mensajeGenaro "Fin lectura progresion"
+>            mensajeGenaro "Comienzo lectura patron"
 >            patronR <- leePatronRitmicoC2 rutaPatron
+>            mensajeGenaro "Fin lectura patron"
+>            mensajeGenaro "Comienzo escritura del music"
 >            writeFile rutaDest (show (musica progresion patronR))
->            pausa
+>            mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Completado generaSubbloqueAcompanamiento "
 >            where octavaIniInt = aplicaParser integer octavaIni 
 >                  numNotasInt = aplicaParser integer numNotas
 >                  semillaInt = aplicaParser integer semilla
 >                  ao prog = traduceProgresion (Continuo semillaInt octavaIniInt numNotasInt) prog
 >                  musica prog patron= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao prog)
 > generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "continuo", "nosemilla", "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] = 
->         do progresion <- leeProgresion rutaProgresion
+>         do mensajeGenaro "Comienzo lectura progresion"
+>            progresion <- leeProgresion rutaProgresion
+>            mensajeGenaro "Fin lectura progresion"
+>            mensajeGenaro "Comienzo lectura patron"
 >            patronR <- leePatronRitmicoC2 rutaPatron
->            semillaInt <- numAleatorioIO 1 100
+>            mensajeGenaro "Fin lectura patron"
+>            mensajeGenaro "Comienzo generacion semilla"
+>            semillaInt <- numAleatorioIO 1 100        -- No se que numero poner de maximo
+>            mensajeGenaro "Fin generacion semilla"
+>            mensajeGenaro "Comienzo escritura del music"
 >            writeFile rutaDest (show (musica progresion patronR semillaInt))
->            pausa
+>            mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Completado generaSubbloqueAcompanamiento "
 >            where octavaIniInt = aplicaParser integer octavaIni 
 >                  numNotasInt = aplicaParser integer numNotas
 >                  ao semilla prog = traduceProgresion (Continuo semilla octavaIniInt numNotasInt) prog
 >                  musica prog patron semilla= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao semilla prog)
+> generaSubbloqueAcompanamiento _ = errorGenaro "error de encaje de patrones en generaSubbloqueAcompanamiento"
 
 > toInversion :: String -> Inversion
 > toInversion "Fundamental" = 0

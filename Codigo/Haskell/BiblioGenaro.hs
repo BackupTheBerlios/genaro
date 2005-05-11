@@ -638,6 +638,21 @@ pausa = do putStr "Pausa: presione enter para continuar\n"
            linea <- getLine
            putStr ""
 
+{-
+errorGenaro muestra el mensaje de error por pantalla y pausa la ejecucion
+-}
+errorGenaro :: String -> IO()
+errorGenaro mensaje = do putStr ("ERROR GENARO: " ++ mensaje ++ "\n")
+                         pausa
+
+{-
+mensajeGenaro muestra el mensaje por pantalla y pausa la ejecucion
+-}
+mensajeGenaro :: String -> IO()
+mensajeGenaro mensaje = do putStr (mensaje ++ "\n")
+                           pausa
+
+
 correspondeANat :: Float -> Bool
 correspondeANat f = (fromIntegral (floor f)) == f
 

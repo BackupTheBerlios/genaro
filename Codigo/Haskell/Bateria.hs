@@ -5,7 +5,7 @@ import Haskore
 import List
 import TraduceCifrados
 import Maybe
-
+import PatronesRitmicos
 
 data PercusionGenaro = Bombo | CajaFuerte | CajaSuave | CharlesPisado | CharlesAbierto
                        | CharlesCerrado | TimbalAgudo | TimbalGrave | Ride | Crash
@@ -60,7 +60,33 @@ acordeOrdenadoBateria' :: Dur -> [AcordeOrdenado]
 acordeOrdenadoBateria' d = [acordeOrdenadoBateria d]
 
 
+-- Los parametros de encaje no importan (si el patron ritmico es de bateria, claro) pero algo hay que poner
+encajaBateria :: Dur -> PatronRitmico -> Music
+encajaBateria d pr = deAcordesOrdenadosAMusica Ciclico (Truncar1, Truncar2) pr (acordeOrdenadoBateria' d)
 
 
+-- EJEMPLO -----------
 
+{-
+bateriaMusic :: Music
+bateriaMusic = Instr "Drums" (encajaBateria (2%1) patronR)
 
+patronR :: PatronRitmico
+patronR = (10,[([(1,100,False),(4,100,False),(10,100,False),(2,100,False)],1%8),
+               ([(3,100,False)],1%8),
+               ([(4,100,False),(2,100,False)],1%8),
+               ([(3,100,False)],1%8),
+               ([(4,100,False),(2,100,False)],1%8),
+               ([(3,100,False)],1%8),
+               ([(4,100,False),(2,100,False)],1%8),
+               ([(3,100,False)],1%8),
+               ([(1,100,False),(4,100,False),(9,100,False),(2,100,False)],1%8),
+               ([(3,100,False)],1%8),
+               ([(4,100,False),(2,100,False)],1%8),
+               ([(3,100,False)],1%8),
+               ([(4,100,False),(2,100,False)],1%8),
+               ([(3,100,False)],1%8),
+               ([(4,100,False),(2,100,False)],1%8),
+               ([(3,100,False)],1%8)] )
+
+-}

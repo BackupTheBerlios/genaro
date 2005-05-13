@@ -140,6 +140,17 @@ segundo (a,b,c) = b
 tercero :: (a,b,c) -> c
 tercero (a,b,c) = c
 
+prim4 :: (a,b,c,d) -> a
+prim4 (a,b,c,d) = a
+
+seg4 :: (a,b,c,d) -> b
+seg4 (a,b,c,d) = b
+
+terc4 :: (a,b,c,d) -> c
+terc4 (a,b,c,d) = c
+
+cuat4 :: (a,b,c,d) -> d
+cuat4 (a,b,c,d) = d
 
 {-
 Generacion de numeros aleatorios

@@ -5,7 +5,7 @@ import OutputMidi
 import HaskToMidi
 import Performance
 
--- OutputMidi: 
+-- OutputMidi:
 -- outputMidiFile :: String -> MidiFile -> IO ()
 -- outputMidiFile fn mf = writeBinaryFile fn (midiFileToString mf)
 
@@ -37,13 +37,13 @@ import Performance
 -- incluido) especificada. Por ahora casi todo son valores por defecto, luego lo ampliaremos
 haskoreAMidi :: Music -> String -> IO()
 haskoreAMidi musica ruta = outputMidiFile ruta midi
-			where midi = performToMidi interpretacion tablaPatchDef 
+			where midi = performToMidi interpretacion tablaPatchDef
 				where interpretacion = perform tablaInterpretesDef contextoDef musica
 
 -- Igual que haskoreAMidi pero con un parametro mas que indica el numero de negras por minuto
 haskoreAMidi2 :: Music -> Int -> String -> IO()
 haskoreAMidi2 musica negras_min ruta = outputMidiFile ruta midi
-				where midi = performToMidi interpretacion tablaPatchDef 
+				where midi = performToMidi interpretacion tablaPatchDef
 					where interpretacion = perform tablaInterpretesDef (contextoConMetro negras_min ) musica
 
 tablaInterpretesDef :: String -> Player
@@ -54,13 +54,13 @@ tablaInterpretesDef nomInterprete =
 tablaPatchDef :: UserPatchMap
 tablaPatchDef = [("piano","Acoustic Grand Piano",1),
            ("vibes","Vibraphone",2),
-           ("bass","Acoustic Bass",3),
+           ("bass","Fretless Bass",3),
            ("flute","Flute",4),
            ("sax","Tenor Sax",5),
            ("guitar","Acoustic Guitar (steel)",6),
            ("violin","Viola",7),
            ("violins","String Ensemble 1",8),
-           ("drums","Acoustic Grand Piano",9)]  
+           ("drums","Acoustic Grand Piano",9)]
              -- the GM name for drums is unimportant, only channel 9
 
 contextoDef :: Context

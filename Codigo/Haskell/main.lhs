@@ -76,6 +76,9 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > diferenciaComandos ( "generaSubbloqueAcompanamiento" : restoArgumentos ) = generaSubbloqueAcompanamiento restoArgumentos
 > diferenciaComandos ( "generaSubbloqueSilencio" : restoArgumentos ) = generaSubbloqueSilencio restoArgumentos
 > diferenciaComandos ( "generaCurvaMelAlea" : restoArgumentos ) = generaCurvaMelAlea restoArgumentos
+> diferenciaComandos ( "generaMusicConCurva" : restoArgumentos ) = generaMusicConCurva restoArgumentos
+> diferenciaComandos ( "mutaCurva" : restoArgumentos ) = mutaCurva restoArgumentos
+> diferenciaComandos ( "mutaCUrvaYMusic" : restoArgumentos ) = mutaCurvaYMusic restoArgumentos
 > diferenciaComandos _ = errorGenaro "comando erroneo en diferenciaCommandos"
 
 > ------------------------------ PREVISUALIZA PATRON ----------------------------

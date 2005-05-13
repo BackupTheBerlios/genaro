@@ -13,6 +13,7 @@
 #include <Dialogs.hpp>
 #include <ComCtrls.hpp>
 #include "Tipos_Estructura.h"
+#include <Grids.hpp>
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
@@ -32,7 +33,6 @@ __published:	// IDE-managed Components
   TOpenDialog *OpenDialog;
   TMenuItem *EditordePianola1;
   TMenuItem *Reproduccin1;
-  TButton *Button7;
   TPanel *Panel1;
   TLabel *Label1;
   TLabel *Label2;
@@ -145,6 +145,10 @@ __published:	// IDE-managed Components
   TRadioButton *Radio_Vertical_Menor_Modulo;
   TCheckBox *Check_Semilla;
   TEdit *Edit_Semilla;
+  TButton *Boton_Cargar_Progresion;
+  TStringGrid *Grid_Progresion;
+  TButton *Button7;
+  TButton *Button11;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -155,7 +159,6 @@ __published:	// IDE-managed Components
   void __fastcall Button3Click(TObject *Sender);
   void __fastcall Button1Click(TObject *Sender);
   void __fastcall Button4Click(TObject *Sender);
-  void __fastcall Button7Click(TObject *Sender);
   void __fastcall FormClick(TObject *Sender);
   void __fastcall NuevoClick(TObject *Sender);
   void __fastcall Boton_Nueva_PistaClick(TObject *Sender);
@@ -190,6 +193,9 @@ __published:	// IDE-managed Components
   void __fastcall FormPaint(TObject *Sender);
   void __fastcall Button10Click(TObject *Sender);
   void __fastcall Edit_SemillaChange(TObject *Sender);
+  void __fastcall Boton_Cargar_ProgresionClick(TObject *Sender);
+  void __fastcall Button7Click(TObject *Sender);
+  void __fastcall Button11Click(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;

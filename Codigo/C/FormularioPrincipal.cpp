@@ -240,16 +240,6 @@ this->Canvas->Pen->Width=1;
 Dibuja_Esqueleto();
 }
 //---------------------------------------------------------------------------
-void __fastcall TForm1::Button7Click(TObject *Sender)
-{
-if (Inicializado)
-{
-  Dibuja_Cancion();
-}
-//Panel_Bloque->Visible=!Panel_Bloque->Visible;
-//Panel1->Visible=!Panel1->Visible;
-}
-//---------------------------------------------------------------------------
 void TForm1::Dibuja_Esqueleto()
 {
 /*Numero_Filas=8;
@@ -901,9 +891,9 @@ if (Radio_Mutar_Progresion_Multiple->Checked)
   Progresion_Mutar_Progresion_Multiple();
 }
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
-char work_dir[255];
+/*char work_dir[255];
 getcwd(work_dir, 255);
-String directorio_trabajo1=work_dir;
+String directorio_trabajo1=work_dir;  */
 Bloque_A_Manipular.Progresion="progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog";
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
 }
@@ -1015,9 +1005,11 @@ String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="muta_progresion";
 String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
-if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
-String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
-Ruta_Origen="\""+Ruta_Origen+"\"";
+
+Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+String Progresion_Bloque=Bloque_A_Manipular.Progresion;
+String Ruta_Origen="\""+directorio_trabajo1+"\\"+Progresion_Bloque+"\"";
+
 //habría que comprabar si es válido y si ha pulsado cancelar
 //if (FicheroValido(Ruta_Origen)==false){ShowMessage("Fichero No Válido"); return;}
 String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
@@ -1121,13 +1113,14 @@ String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="muta_progresion_acorde";
 String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
-if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
-String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
-Ruta_Origen="\""+Ruta_Origen+"\"";
+Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+String Progresion_Bloque=Bloque_A_Manipular.Progresion;
+String Ruta_Origen="\""+directorio_trabajo1+"\\"+Progresion_Bloque+"\"";
 //habría que comprabar si es válido y si ha pulsado cancelar
 //if (FicheroValido(Ruta_Origen)==false){ShowMessage("Fichero No Válido"); return;}
 String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
-String NAcorde_A_Mutar=IntToStr(Barra_Numero_Acorde_A_Mutar->Position);
+//numero de acorde a mutar
+String NAcorde_A_Mutar=IntToStr(Grid_Progresion->Col+1);
 String MT="mt";
 String V1;
 String V2;
@@ -1230,9 +1223,9 @@ String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="crea_con_semilla";
 String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
-if (Dialogo_Origen_Progresion->Execute()==false){ShowMessage("Operación Anulada");return;}
-String Ruta_Origen=Dialogo_Origen_Progresion->FileName;
-Ruta_Origen="\""+Ruta_Origen+"\"";
+Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+String Progresion_Bloque=Bloque_A_Manipular.Progresion;
+String Ruta_Origen="\""+directorio_trabajo1+"\\"+Progresion_Bloque+"\"";
 //habría que comprabar si es válido y si ha pulsado cancelar
 //if (FicheroValido(Ruta_Origen)==false){ShowMessage("Fichero No Válido"); return;}
 String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
@@ -1551,4 +1544,68 @@ catch (...)
 }
 //---------------------------------------------------------------------------
 
+
+void __fastcall TForm1::Boton_Cargar_ProgresionClick(TObject *Sender)
+{
+Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+
+//nos quedamos con el nombre del fichero
+if (Dialogo_Origen_Progresion->Execute()==false)
+{ShowMessage("Operación Cancelada, esto parece la seguridad social");}
+String Progre=Dialogo_Origen_Progresion->FileName;
+String fichero="";
+for (int i=0;i<Progre.Length();i++)
+ {
+  if (Progre[i+1]=='\\'){fichero="";}
+  else{fichero+=Progre[i+1];}
+ }
+if (Es_Progresion_Valida(fichero)==-1){ShowMessage("Progresión no válida");}
+// prueba turbia
+TStringList *cadenitas;
+cadenitas=Come_Progresion(fichero);
+//ShowMessage(IntToStr(cadenitas->Count));
+Grid_Progresion->RowCount=1;//no vamos a aumentar este número
+Grid_Progresion->ColCount=cadenitas->Count;
+for (int i=0;i<cadenitas->Count;i++)
+{
+  Grid_Progresion->Cols[i]->Clear();
+  Grid_Progresion->Cols[i]->Add(cadenitas->Strings[i]);
+}
+
+//prueba turbia
+Bloque_A_Manipular.Progresion=fichero;
+Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm1::Button7Click(TObject *Sender)
+{
+Grid_Progresion->RowCount=1;//no vamos a aumentar este número
+Grid_Progresion->ColCount=1;
+Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("sde");
+Grid_Progresion->ColCount++;
+Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("2");
+Grid_Progresion->ColCount++;
+Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("3");
+Grid_Progresion->ColCount++;
+Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("4");
+Grid_Progresion->ColCount++;
+Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("4");
+Grid_Progresion->ColCount++;
+Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("34");
+Grid_Progresion->ColCount++;
+Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("f");
+Grid_Progresion->ColCount++;
+Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("df4");
+ShowMessage(IntToStr(Grid_Progresion->ColCount));
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button11Click(TObject *Sender)
+{
+ShowMessage(IntToStr(Grid_Progresion->Col));
+ShowMessage(Grid_Progresion->Cols[Grid_Progresion->Col]->Strings[0]);
+}
+//---------------------------------------------------------------------------
 

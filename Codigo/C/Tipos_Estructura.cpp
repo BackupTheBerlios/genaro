@@ -147,6 +147,270 @@ Aplicacion_Vertical_Mayor=0;
 Aplicacion_Vertical_Menor=0;
 }
 //---------------------------------------------------------------------------
+int Es_Progresion_Valida(String fichero_Progresion)
+{
+String Progresion=Come_Azucar(fichero_Progresion);
+String Inutil="";
+if(Procesar(Progresion,"progresion([")==-1){return -1;};
+//ahora empieza el listado de cifrados
+//--punto de retorno para el cifrado ya escrito
+//guail tru
+while (true)
+{
+  if (Procesar(Progresion,"(")==-1){break;}
+  //comemos cifrado
+  if(Procesar(Progresion,"cifrado(")==-1)
+  {break;}//salimos del while true puesto que ya hemos terminado el listado de cifrados
+    //comemos el grado
+    if (Procesar_Grado(Progresion,Inutil)==-1){return -1;}
+    //comemos ,
+    if(Procesar(Progresion,",")==-1){return -1;}
+    //comemos matricula
+    if (Procesar_Matricula(Progresion)==-1){return -1;}
+  //comemos cerrar paréntesis
+  if (Procesar(Progresion,")")==-1){return -1;}
+  //comemos ,
+  if (Procesar(Progresion,",")==-1){return -1;}
+  //comemos figura
+    if(Procesar(Progresion,"figura(")==-1){return -1;}
+    //procesamos un entero natural
+    if (Procesa_Num_Natural(Progresion)==-1){return -1;}
+    //procesamos ,
+    if(Procesar(Progresion,",")==-1){return -1;}
+    //procesamos otro entero natural
+    if (Procesa_Num_Natural(Progresion)==-1){return -1;}
+    //comemos )
+    if(Procesar(Progresion,")")==-1){return -1;}
+  //cerramos el cifrado
+  if (Procesar(Progresion,")")==-1){return -1;}
+  if (Procesar(Progresion,",")==-1){break;}
+}
+//fin del guail tru
+if (Procesar(Progresion,"]).")==-1){return -1;};
+return 0;
+}
 //---------------------------------------------------------------------------
+String Come_Azucar(String Fichero)
+{
+ifstream fichero_origen;
+String salida="";
+fichero_origen.open(Fichero.c_str());
+char temp;
+while (fichero_origen.eof()!=true)
+ {
+  fichero_origen>>temp;
+  if (fichero_origen.eof()!=true)
+  {
+  if ((temp!='\t')&&(temp!='\n')&&(temp!=' '))
+  {salida+=temp;}
+  }
+ }
+return salida;
+}
 //---------------------------------------------------------------------------
+int Procesar(String &Total,String A_Eliminar)
+{
+for (int i=0;i<A_Eliminar.Length();i++)
+{
+  if(Total[i+1]!=A_Eliminar[i+1])
+  {
+    return -1;
+  }
+}
+String nuevo_total="";
+//buscar el nuevo total
+for (int j=0;j<Total.Length()-A_Eliminar.Length();j++)
+{
+  nuevo_total+=Total[j+A_Eliminar.Length()+1];
+}
+Total=nuevo_total;
+return 0;
+}
+//-----------------------------------------------------------------------------
+int Num_Inter_Simple(String &Progresion)
+{
+//hay que mirar en que posicion esta el punto
+int Num_Inter_Simple;
+bool Encontrado=false;
+String Progresion_Temporal=Progresion;
+for (int i=0;((i<Tam_Inter_Simples)&&(!Encontrado));i++)
+ {
+  if (Procesar(Progresion_Temporal,Inter_Simples[i])!=-1){Num_Inter_Simple=i;Encontrado=true;}
+  if (Encontrado)
+   {
+    //miramos si el siguiente caracter es bueno o no
+    if ((Progresion_Temporal[1]!='i')&&(Progresion_Temporal[1]!='b')&&(Progresion_Temporal[1]!='v')&&(Progresion_Temporal[1]!='a')&&(Progresion_Temporal[1]!='u'))
+     {//es válido, actualizamos progresion
+      Progresion=Progresion_Temporal;
+      Num_Inter_Simple=i;
+     }
+    else
+     {//si es no valido, ponemos progresion_temporal=progresion
+      Progresion_Temporal=Progresion;
+      Encontrado=false;
+     }
+    }
+ } //fin for
+if (Encontrado){return Num_Inter_Simple;}
+else{return -1;}
+}
+//------------------------------------------------------------------------------
+int Procesar_Grado(String &Progresion,String &Salida)
+{
+Salida="";
+int grado=0;
+bool es_grado=true;
+if(Procesar(Progresion,"grado(")!=-1)
+{      //o bien es v7 o iim7
+      grado=-2;
+      Salida=" v7";
+      if (Procesar(Progresion,"v7")==-1)
+       {
+       grado=-3;
+       Salida=" iim7";
+        if(Procesar(Progresion,"iim7")==-1){es_grado=false;}//no es ni v7 ni iim7
+       }
+      if (es_grado)
+      {
+      //comemos el /
+      String Salida_Parcial="";
+      if (Procesar(Progresion,"/")==-1){return -1;}
+      //procesamos el grado
+      //llamada recursiva
+      int entero_temp=Procesar_Grado(Progresion,Salida_Parcial);
+      Salida=Salida+Salida_Parcial;
+      grado*10+entero_temp;
+      if (entero_temp==-1)
+      {
+        return -1;
+      }
+      if(Procesar(Progresion,")")==-1){}
+      return grado;
+      }
+}
+      //o bien es intervalo simple
+       //miramos si es correcto lo que encuentra
+       int Num_Inter_Temp=Num_Inter_Simple(Progresion);
+       if (Num_Inter_Temp!=-1)
+       {
+       if (Procesar(Progresion,")")==-1){return -1;}
+       Salida=" "+Inter_Simples[Num_Inter_Temp];
+       return Num_Inter_Temp;
+       }
+       else
+       {return -1;}
 
+
+
+}
+//------------------------------------------------------------------------------
+int Procesar_Matricula(String &Progresion)
+{
+if(Procesar(Progresion,"matricula(")==-1){return -1;}
+
+//hay que mirar en que posicion esta el punto
+int Num_matricula;
+bool Encontrado=false;
+String Progresion_Temporal=Progresion;
+for (int i=0;(i<Tam_Matriculas)&&(!Encontrado);i++)
+ {
+  if (Procesar(Progresion_Temporal,Matriculas[i])!=-1){Num_matricula=i;Encontrado=true;}
+  if (Encontrado)
+   {
+    //miramos si el siguiente caracter es bueno o no
+    if ((Progresion_Temporal[1]!='m')&&(Progresion_Temporal[1]!='a')&&(Progresion_Temporal[1]!='y')&&(Progresion_Temporal[1]!='o')&&(Progresion_Temporal[1]!='r')&&(Progresion_Temporal[1]!='u')&&(Progresion_Temporal[1]!='d')&&(Progresion_Temporal[1]!='s')&&(Progresion_Temporal[1]!='i')&&(Progresion_Temporal[1]!='6')&&(Progresion_Temporal[1]!='b')&&(Progresion_Temporal[1]!='5')&&(Progresion_Temporal[1]!='7')&&(Progresion_Temporal[1]!='M')&&(Progresion_Temporal[1]!='j'))
+     {//es válido, actualizamos progresion
+      Progresion=Progresion_Temporal;
+      Num_matricula=i;
+     }
+    else
+     {//si es no valido, ponemos progresion_temporal=progresion
+      Progresion_Temporal=Progresion;
+      Encontrado=false;
+     }
+    }
+ } //fin for
+if(Procesar(Progresion,")")==-1){return -1;}
+return Num_matricula;
+}
+//------------------------------------------------------------------------------
+int Procesa_Num_Natural(String &Progresion)
+{
+String Nuevo_String="";
+int Numero=0;
+int Digitos=0;
+while ((Progresion[Digitos+1]=='0')||(Progresion[Digitos+1]=='1')||(Progresion[Digitos+1]=='2')||(Progresion[Digitos+1]=='3')||(Progresion[Digitos+1]=='4')||(Progresion[Digitos+1]=='5')||(Progresion[Digitos+1]=='6')||(Progresion[Digitos+1]=='7')||(Progresion[Digitos+1]=='8')||(Progresion[Digitos+1]=='9'))
+{
+  Numero=Numero*10+StrToInt(Progresion[Digitos+1]);
+  Digitos++;
+}
+for (int i=0;i<Progresion.Length()-Digitos;i++)
+{
+  Nuevo_String+=Progresion[i+Digitos+1];
+}
+Progresion=Nuevo_String;
+if (Digitos=0){return -1;}
+return Numero;
+}
+
+//------------------------------------------------------------------------------
+TStringList* Come_Progresion(String fichero_Progresion)
+{
+TStringList* Cadenas;
+Cadenas=new TStringList();
+Cadenas->Clear();
+String Temporal="";
+String Cadena_Temporal="";
+
+String Progresion=Come_Azucar(fichero_Progresion);
+if(Procesar(Progresion,"progresion([")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+//ahora empieza el listado de cifrados
+//--punto de retorno para el cifrado ya escrito
+//guail tru
+while (true)
+{
+  if (Procesar(Progresion,"(")==-1){break;}
+  //comemos cifrado
+  if(Procesar(Progresion,"cifrado(")==-1)
+  {break;}//salimos del while true puesto que ya hemos terminado el listado de cifrados
+    Cadena_Temporal="";
+    //comemos el grado
+    int entero=Procesar_Grado(Progresion,Temporal);
+    Cadena_Temporal+=Temporal;
+    //comemos ,
+    if(Procesar(Progresion,",")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+    //comemos matricula
+    entero=Procesar_Matricula(Progresion);
+    if(entero==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+    Cadena_Temporal+=" "+Matriculas[entero];
+  //comemos cerrar paréntesis
+  if (Procesar(Progresion,")")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+  //comemos ,
+  if (Procesar(Progresion,",")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+  //comemos figura
+    if(Procesar(Progresion,"figura(")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+    //procesamos un entero natural
+    entero=Procesa_Num_Natural(Progresion);
+    if(entero==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+    Cadena_Temporal+=" "+IntToStr(entero);
+    //procesamos ,
+    if(Procesar(Progresion,",")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+    Cadena_Temporal+="/";
+    //procesamos otro entero natural
+    entero=Procesa_Num_Natural(Progresion);
+    if (entero==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+    Cadena_Temporal+=" "+IntToStr(entero);
+    //comemos )
+    if(Procesar(Progresion,")")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+  //cerramos el cifrado
+  if (Procesar(Progresion,")")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+  //añadimos la cadena
+  Cadenas->Add(Cadena_Temporal);
+  Cadena_Temporal="";
+  if (Procesar(Progresion,",")==-1){break;}
+
+}
+//fin del guail tru
+if (Procesar(Progresion,"]).")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
+return Cadenas;
+}

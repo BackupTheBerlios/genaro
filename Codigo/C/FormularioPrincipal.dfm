@@ -102,22 +102,13 @@ object Form1: TForm1
     Caption = 'Exportar PDF'
     TabOrder = 6
   end
-  object Button7: TButton
-    Left = 368
-    Top = 456
-    Width = 121
-    Height = 17
-    Caption = 'Button7'
-    TabOrder = 7
-    OnClick = Button7Click
-  end
   object Panel1: TPanel
     Left = 224
     Top = 0
     Width = 513
     Height = 153
     BorderStyle = bsSingle
-    TabOrder = 8
+    TabOrder = 7
     Visible = False
     object Label1: TLabel
       Left = 49
@@ -253,7 +244,7 @@ object Form1: TForm1
     Width = 73
     Height = 17
     Caption = 'Nueva Pista'
-    TabOrder = 9
+    TabOrder = 8
     OnClick = Boton_Nueva_PistaClick
   end
   object Barra_Tipo_Pista: TTrackBar
@@ -268,7 +259,7 @@ object Form1: TForm1
     Position = 0
     SelEnd = 0
     SelStart = 0
-    TabOrder = 10
+    TabOrder = 9
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = Barra_Tipo_PistaChange
@@ -279,7 +270,7 @@ object Form1: TForm1
     Width = 513
     Height = 153
     BorderStyle = bsSingle
-    TabOrder = 11
+    TabOrder = 10
     Visible = False
     object Nombre_Pista: TLabel
       Left = 184
@@ -365,7 +356,7 @@ object Form1: TForm1
     Position = 1
     SelEnd = 0
     SelStart = 0
-    TabOrder = 12
+    TabOrder = 11
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = Barra_N_Compases_BloqueChange
@@ -376,7 +367,7 @@ object Form1: TForm1
     Width = 73
     Height = 17
     Caption = 'Nuevo Bloque'
-    TabOrder = 13
+    TabOrder = 12
     OnClick = Boton_Nuevo_BloqueClick
   end
   object Panel_Bloque: TPageControl
@@ -384,8 +375,8 @@ object Form1: TForm1
     Top = 0
     Width = 513
     Height = 161
-    ActivePage = Tab_Patron_Ritmico
-    TabOrder = 14
+    ActivePage = Tab_Crear_Progresion
+    TabOrder = 13
     Visible = False
     object Tab_General: TTabSheet
       Caption = 'General'
@@ -1172,8 +1163,8 @@ object Form1: TForm1
       Caption = 'Crear Progresión'
       ImageIndex = 4
       object Label_Mutar_Acorde_N: TLabel
-        Left = 464
-        Top = 48
+        Left = 488
+        Top = 112
         Width = 11
         Height = 20
         Caption = '1'
@@ -1184,10 +1175,11 @@ object Form1: TForm1
         Font.Name = 'MS Sans Serif'
         Font.Style = [fsBold]
         ParentFont = False
+        Visible = False
       end
       object Label_Texto_Muta_Acorde: TLabel
         Left = 264
-        Top = 32
+        Top = 8
         Width = 186
         Height = 16
         Caption = 'Número de Acorde a Mutar'
@@ -1200,9 +1192,9 @@ object Form1: TForm1
         ParentFont = False
       end
       object Button12: TButton
-        Left = 160
+        Left = 120
         Top = 104
-        Width = 129
+        Width = 105
         Height = 25
         Caption = 'Crear Progresión'
         TabOrder = 0
@@ -1255,9 +1247,9 @@ object Form1: TForm1
         end
       end
       object Barra_Numero_Acorde_A_Mutar: TTrackBar
-        Left = 256
-        Top = 48
-        Width = 201
+        Left = 440
+        Top = 104
+        Width = 33
         Height = 25
         Enabled = False
         Max = 1
@@ -1270,7 +1262,49 @@ object Form1: TForm1
         TabOrder = 2
         TickMarks = tmBottomRight
         TickStyle = tsAuto
+        Visible = False
         OnChange = Barra_Numero_Acorde_A_MutarChange
+      end
+      object Boton_Cargar_Progresion: TButton
+        Left = 16
+        Top = 104
+        Width = 97
+        Height = 25
+        Caption = 'Cargar Progresion'
+        TabOrder = 3
+        OnClick = Boton_Cargar_ProgresionClick
+      end
+      object Grid_Progresion: TStringGrid
+        Left = 232
+        Top = 32
+        Width = 265
+        Height = 49
+        ColCount = 1
+        DefaultColWidth = 80
+        DefaultRowHeight = 28
+        FixedCols = 0
+        RowCount = 1
+        FixedRows = 0
+        ScrollBars = ssHorizontal
+        TabOrder = 4
+      end
+      object Button7: TButton
+        Left = 368
+        Top = 104
+        Width = 41
+        Height = 25
+        Caption = 'Button7'
+        TabOrder = 5
+        OnClick = Button7Click
+      end
+      object Button11: TButton
+        Left = 408
+        Top = 104
+        Width = 41
+        Height = 25
+        Caption = 'Button11'
+        TabOrder = 6
+        OnClick = Button11Click
       end
     end
     object Tab_Melodia: TTabSheet

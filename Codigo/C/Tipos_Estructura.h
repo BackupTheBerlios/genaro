@@ -7,6 +7,18 @@
 //---------------------------------------------------------------------------
 enum Tipo_Pista {ACOMP=0,MELOD=1};
 //---------------------------------------------------------------------------
+int Es_Progresion_Valida(String fichero_Progresion);
+TStringList* Come_Progresion(String fichero_Progresion);
+String Come_Azucar(String Fichero);
+int Procesar(String &Total,String A_Eliminar);
+int Procesar_Grado(String &Progresion,String &Salida);
+int Procesar_Matricula(String &Progresion);
+int Procesa_Num_Natural(String &Progresion);
+const Tam_Inter_Simples=23;
+String Inter_Simples[Tam_Inter_Simples]={"i", "bii", "ii", "biii", "iii", "iv", "bv", "v", "auv", "vi", "bvii", "vii", "bbii", "bbiii", "auii", "biv", "auiii", "auiv", "bbvi", "bvi", "auvi", "bviii", "auviii"};
+const Tam_Matriculas=13;
+String Matriculas[Tam_Matriculas]={"mayor","m","au","dis","6","m6","m7b5", "maj7","7","m7","mMaj7","au7","dis7"};
+//---------------------------------------------------------------------------
 struct Bloque
 {
   public:

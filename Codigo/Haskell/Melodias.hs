@@ -370,6 +370,7 @@ por dos, pq suponemos binario, ej: entre dos notas Note (C,6) (1%2) [] y Note (E
 Note (D,6) (1%4) [] diviendo en dos el primer do para q queden entre medias, es decir:
 (Note (C,6) (1%4) []) :+: Note (D,6) (1%4) [] :+: Note (E,6) (1%8) []
  -¡¡¡CAMBIADO CRITERIO!!!: ahora tiende a elegir notas largas para poner despues de estas notas intermedias
+ -la nota intermedia dura la mitad
 -}
 
 aplicaCurvaMelodicaFase3 :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
@@ -401,7 +402,53 @@ aplicaCurvaMelodicaFase3 (aleat@(a1:restoAleat1), (escala, tonica, musica))
                        --durPosibleNotaIntermedia =  [2^n | n <- [1..(round(logBase 2 (fromIntegral (denominator (durTotal/2)))))]] --valores del denominador
                        --durNotaIntermedia =  1 % (fst (dameElemAleatListaPesos a2 (zip durPosibleNotaIntermedia (replicate (length durPosibleNotaIntermedia) 1))))
                        --no funciona pq para k%1 siempre da cero el (round(logBase 2 (fromIntegral (denominator (durTotal/2)))))
-                       durNotaIntermedia = durTotal/2
+                       -- durNotaIntermedia = durTotal/2
+                       --sublistaSustituta = [Note pEl durNotaIzdaNuevo atsEl,Rest ((durTotal/2)- durNotaIzdaNuevo), Note pitchIntermedio durNotaIntermedia atsEl, Rest ((durTotal/2)- durNotaIntermedia)]
+                       sublistaSustituta = [Note pEl durNotaIzdaNuevo atsEl,Rest ((durTotal/2)- durNotaIzdaNuevo), Note pitchIntermedio (durTotal/2) atsEl]
+                       --CAMBIAR LOS ATRIBUTOS PARA EL VELOCITY DE LA NOTA INTERMEDIA
+                       musicaResul = sustituyeSublistaPosIniFin posElegida (posNotaDcha -1) sublistaSustituta musica
+
+
+{-
+mete una nota de paso intermedia, para ello interpola:
+  -pitch: notas que esten entre dos notas, dentro de la escala!, eligiendo al azar entre los candidatos
+  -ritmo: para q haya mas variacion ritmica respecto al patron ritmico siempre mete notas en el tiempo partido
+por dos, pq suponemos binario, ej: entre dos notas Note (C,6) (1%2) [] y Note (E,6) (1%8) [] pondrï¿½a un
+Note (D,6) (1%4) [] diviendo en dos el primer do para q queden entre medias, es decir:
+(Note (C,6) (1%4) []) :+: Note (D,6) (1%4) [] :+: Note (E,6) (1%8) []
+ -¡¡¡CAMBIADO CRITERIO!!!: ahora tiende a elegir notas largas para poner despues de estas notas intermedias
+ -elije la duracion de la nota internedia al azar
+-}
+
+aplicaCurvaMelodicaFase4 :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
+aplicaCurvaMelodicaFase4 (aleat@(a1:restoAleat1), (escala, tonica, musica))
+ | numCandidatos <= 0 = (aleat, musica)
+ | otherwise          = (restoAleat3, musicaResul)
+                 where posCandidatos = dameCandidatosFase3 musica
+                       numCandidatos = length posCandidatos
+                       --listaPesosNotas = zip posCandidatos (replicate numCandidatos 1)
+                       listaPesosNotas = zip posCandidatos [valorDeFraccion (dur (musica !! p)) | p <- posCandidatos]
+                       posElegida = fst (dameElemAleatListaPesosFloat a1 listaPesosNotas)
+                       -- nunca se se elije la ultima nota, pq no tiene ninguna a su derecha
+                       -- esto tb ocurre si solo hay una nota
+                       -- buscaNotaSuena pos durAcu (nota:ns), pos es la posicion durante el recorrido en la superlista
+                       -- a la q pertenece la lista. durAcu es la suma de la duracion de los silencios que va encontrando
+                       -- Esto devuelve el trio formado por la primera nota que suena
+                       -- q encuentra desde la izquierda en la sublista, su posicion en la superlista total y la
+                       -- duracion de los silencios q encuentra por el camino
+                       buscaNotaSuena pos durAcu (nota:ns)
+                        | esNotaSuena nota = (nota, pos, durAcu)
+                        | otherwise        = buscaNotaSuena (pos + 1) (durAcu + (dur nota)) ns
+                       -- notaElegida = musica !! posElegida
+                       Note pEl durEl atsEl = musica !! posElegida
+                       sublistaBusqueda = [musica !! i | i <- [(posElegida + 1)..((length musica)-1)] ]
+                       (Note pNotaDcha durNotaDcha atsNotaDcha, posNotaDcha, durSilenciosEntre) = buscaNotaSuena (posElegida +1) 0 sublistaBusqueda
+                       durTotal = (durEl) + durSilenciosEntre
+                       durNotaIzdaNuevo = min durEl (durTotal/2)
+                       (restoAleat2@(a2:restoAleat3), pitchIntermedio) = damePitchIntermedioAleatFase3 (restoAleat1, (escala, tonica, pEl, pNotaDcha))
+                       durPosibleNotaIntermedia =  [2^n | n <- [1..(round(logBase 2 (fromIntegral (denominator (durTotal/2)))))]] --valores del denominador
+                       durNotaIntermedia =  1 % (fst (dameElemAleatListaPesos a2 (zip durPosibleNotaIntermedia (replicate (length durPosibleNotaIntermedia) 1))))
+                       --no funciona pq para k%1 siempre da cero el (round(logBase 2 (fromIntegral (denominator (durTotal/2)))))
                        sublistaSustituta = [Note pEl durNotaIzdaNuevo atsEl,Rest ((durTotal/2)- durNotaIzdaNuevo), Note pitchIntermedio durNotaIntermedia atsEl, Rest ((durTotal/2)- durNotaIntermedia)]
                        --CAMBIAR LOS ATRIBUTOS PARA EL VELOCITY DE LA NOTA INTERMEDIA
                        musicaResul = sustituyeSublistaPosIniFin posElegida (posNotaDcha -1) sublistaSustituta musica
@@ -536,6 +583,29 @@ hazMelodiaParaProgresion (aleat, (progresion, patron, saltoMax, probSalto, numNo
                          (restoAleat, restoDeMusicas) = construyeMusicas restoAlAux2 ultimoPitchAux ccs
          (restoAleat3, listaDeMusicas) = construyeMusicas restoAleat2 pitchPartida (zip progresion listaDeCurvasMelodicas)
          musicaResul = lineSeguro (map lineSeguro listaDeMusicas) -- cuidado con las lista vacias
+
+--hazMelodiaParaProgresionCurva :: FuncAleatoria (CurvaMelodica, Progresion, PatronRitmico, Int, Int, Int, Int, Int) (Music, CurvaMelodicaProgresion)
+--hazMelodiaParaProgresionCurva (aleat, (curvaTotal, progresion, patron, saltoMax, probSalto, numNotas, numApsFase2, numApsFase3)) = (restoAleat3, (musicaResul, listaDeCurvasMelodicas))
+hazMelodiaParaProgresionCurva :: FuncAleatoria (CurvaMelodica, Progresion, PatronRitmico, Int, Int) (Music, CurvaMelodicaProgresion)
+hazMelodiaParaProgresionCurva (aleat, (curvaTotal, progresion, patron, numApsFase2, numApsFase3)) = (restoAleat3, (musicaResul, listaDeCurvasMelodicas))
+   where --(restoAleat1, curvaTotal)  = hazCurvaMelodicaAleat (aleat, (saltoMax, probSalto, numNotas))
+         listaDurs = map snd progresion
+         (restoAleat1b, listaDeCurvasMelodicas) = distribuyeCurvaEntreDurs (aleat, (curvaTotal, listaDurs))
+         acentos = construyeListaAcentos patron
+         primerAcorde = fst (head progresion)
+         (restoAleat2, pitchPartida) = damePitchIniAleat (restoAleat1b, primerAcorde)
+         buscaUltimoPitch (aleat, cif, listaMus)= buscaUltimoPitchAcu (aleat, cif, reverse listaMus)
+                       where buscaUltimoPitchAcu (aleat, cif, []) = damePitchIniAleat (aleat, cif)
+                             buscaUltimoPitchAcu (aleat, cif, ((Rest _):ns)) = buscaUltimoPitchAcu (aleat, cif, ns)
+                             buscaUltimoPitchAcu (aleat, cif, ((Note p _ _):ns)) = (aleat, p)
+         construyeMusicas aleat pitchAnterior [] = (aleat, [])
+         construyeMusicas aleat pitchAnterior (((cifrado, dur),curva):ccs) = (restoAleat, musicaAux:restoDeMusicas)
+                   where (restoAlAux1, musicaAux) = hazMelodiaParaAcorde (aleat, (curva, acentos, (cifrado, dur), numApsFase2, numApsFase3, pitchAnterior))
+                         (restoAlAux2, ultimoPitchAux) = buscaUltimoPitch (restoAlAux1, cifrado, musicaAux)
+                         (restoAleat, restoDeMusicas) = construyeMusicas restoAlAux2 ultimoPitchAux ccs
+         (restoAleat3, listaDeMusicas) = construyeMusicas restoAleat2 pitchPartida (zip progresion listaDeCurvasMelodicas)
+         musicaResul = lineSeguro (map lineSeguro listaDeMusicas) -- cuidado con las lista vacias
+
 
 pruHazMelodiaParaProgresion :: String -> String -> Int -> IO ()
 pruHazMelodiaParaProgresion rutaProgresion rutaPatron numNotas = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
@@ -709,11 +779,11 @@ saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
 
 pruPeta :: Int -> IO ()
 pruPeta n
- | n>0       = do putStr ("Quedan "++(show n) ++" pruebas\n\n")
-                  --pruHazMelodiaParaProgresion "c:/hlocal/prog.txt" "c:/hlocal/PatronesRitmicos/arpegio_continuado_6_voces_corcheas.txt" 40
-                  pruHazMelodiaParaProgresionNoFlush "c:/hlocal/prog.txt" "c:/hlocal/PatronesRitmicos/arpegio_continuado_6_voces_corcheas.txt" 40
+ | n>0       = do putStr ("\n\nQuedan "++(show n) ++" pruebas\n\n")
+                  --pruHazMelodiaParaProgresion "./prog.txt" "./PatronesRitmicos/arpegio_continuado_6_voces_corcheas.txt" 40
+                  pruHazMelodiaParaProgresionNoFlush "./prog.txt" "./PatronesRitmicos/arpegio_continuado_6_voces_corcheas.txt" 40
                   pruPeta (n -1)
- | otherwise = putStrLn "Prueba superada con exito"
+ | otherwise = putStrLn "\n\n\nPrueba superada con exito\n\n"
 
 
 pruHazMelodiaParaProgresionNoFlush :: String -> String -> Int -> IO ()
@@ -723,7 +793,7 @@ pruHazMelodiaParaProgresionNoFlush rutaProgresion rutaPatron numNotas = do aleat
                                                                          --  putStr ("Progresion de entrada: "++(show prog)++"\n")
                                                                          --  putStr ("Patron ritmico de entrada: "++(show pat)++"\n")
                                                                          --  putStr ("Curvas melodicas resultado: "++(show(curvaMelodicas aleat prog pat))++"\n")
-                                                                         --  putStr ("Melodia resultado: "++(show (melodia aleat prog pat)))
+                                                                           putStr ("Melodia resultado: "++(show (melodia aleat prog pat)))
                                                                            haskoreAMidi (melodia aleat prog pat) rutaDestSola
                                                                            haskoreAMidi (musica aleat prog pat) rutaDestAcomp
                                                                          --  putStr ("\nEscrito con exito midi de prueba\n")

@@ -317,6 +317,7 @@ Ancho_Minimo_Columna_Pantalla=4;
 Alto_Minimo_Columna_Pantalla=15;
 Inicializado=false;
 Estado_Trabajo=0;
+/*
 int esta=FileOpen("Codigo", fmOpenRead);
 if (esta==-1)
 {
@@ -329,7 +330,7 @@ if (esta==-1)
     Dir_Trabajo_Inicial=work_dir;
   }
 }
-
+*/
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::BarraChange(TObject *Sender)

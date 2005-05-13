@@ -21,6 +21,9 @@ Hay q revisar pq importa módulos de más
 > import Parser_library
 > import HaskoreALilypond
 > import BiblioGenaro
+> import Ratio
+> import HaskellAHaskell
+> import Melodias
 
 
 \end{verbatim}
@@ -50,6 +53,16 @@ Se suponen llamadas del estilo: runhugs main.lhs directorioDeTrabajo rutaPatronR
 > paramEjemplo :: ParametrosTraduceCifrados
 > paramEjemplo = Paralelo 4 0 1 4
 
+
+> {-
+> Dada una lista de archivos lee el music que contiene y los pone en secuencia
+> -}
+> generaPista :: [String] -> IO Music
+> generaPista listaArchivos = 
+>        do listaMusic <- mapM (leeMusic) listaArchivos
+>           return (lineSeguro listaMusic)
+
+
 Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero de repeticiones del bulcle
 
 > mainArgumentos :: [String] -> IO()
@@ -61,6 +74,8 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > diferenciaComandos :: [String] -> IO()
 > diferenciaComandos ( "previsualizaPatron" : restoArgumentos ) = previsualizaPatron restoArgumentos
 > diferenciaComandos ( "generaSubbloqueAcompanamiento" : restoArgumentos ) = generaSubbloqueAcompanamiento restoArgumentos
+> diferenciaComandos ( "generaSubbloqueSilencio" : restoArgumentos ) = generaSubbloqueSilencio restoArgumentos
+> diferenciaComandos ( "generaCurvaMelAlea" : restoArgumentos ) = generaCurvaMelAlea restoArgumentos
 > diferenciaComandos _ = errorGenaro "comando erroneo en diferenciaCommandos"
 
 > ------------------------------ PREVISUALIZA PATRON ----------------------------
@@ -143,6 +158,117 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > toDisposicion "2Disposicion" = 2
 > toDisposicion "3Disposicion" = 3
 > toDisposicion "4Disposicion" = 4
+
+
+
+> ------------------------------ GENERA SUBBLOQUE SILENCIO ---------------------------------
+
+> generaSubbloqueSilencio :: [String] -> IO ()
+> generaSubbloqueSilencio ["numero_compases", num_comp, "ruta_destino", ruta_dest] = 
+>        do mensajeGenaro "Comienzo escritura del music"
+>           writeFile ruta_dest (show musica)
+>           mensajeGenaro "Fin escritura del music"
+>           where num_comp_int = aplicaParser integer num_comp
+>                 musica = Rest (num_comp_int % 1)
+> generaSubbloqueSilencio _ = errorGenaro "error de encaje de patrones en generaSubbloqueSilencio"
+
+
+
+> ------------------------------ DE PISTA A MIDI ---------------------------------
+
+> dePistaAMidi :: [String] -> IO ()
+> dePistaAMidi ("ruta_destino" : ruta_dest : "negras_por_minuto" : negras_min : "Instrumento" : i : "lista_de_subbloques" : lista_archivo) =
+>       do musica <- generaPista lista_archivo
+>          haskoreAMidi2 (Instr i musica) negras_min_int ruta_dest
+>          where negras_min_int = aplicaParser integer negras_min
+
+
+> ------------------------------ GENERA CURVA MELODIA ALEATORIAMENTE ---------------------------------
+
+> generaCurvaMelAlea :: [String] -> IO ()
+> generaCurvaMelAlea ["ruta_progresion", ruta_prog, "ruta_patron" , ruta_patron, "parametros_curva", saltoMax, probSalto, numNotas, numDivisiones, numApsFase2, numApsFase3, numApsFase4, "ruta_dest_music", ruta_dest_music, "ruta_dest_curva", ruta_dest_curva ] = 
+>       do progresion <- leeProgresion ruta_prog
+>          patron <- leePatronRitmicoC2 ruta_patron
+>          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          writeFile ruta_dest_music (show (musica progresion patron alea))
+>          writeFile ruta_dest_curva ((show.concat) (curva progresion patron alea))
+>          where saltoMax_int = aplicaParser integer saltoMax
+>                probSalto_int = aplicaParser integer probSalto
+>                numNotas_int = aplicaParser integer numNotas
+>                numDivisiones_int = aplicaParser integer numDivisiones
+>                numApsFase2_int = aplicaParser integer numApsFase2
+>                numApsFase3_int = aplicaParser integer numApsFase3
+>                numApsFase4_int = aplicaParser integer numApsFase4
+>                musicYCurvaYAlea prog patron alea = hazMelodiaParaProgresion (alea, (prog, patron, saltoMax_int, probSalto_int, numNotas_int, numDivisiones_int, numApsFase2_int, numApsFase3_int, numApsFase4_int))
+>                musicYCurva prog patron alea = snd (musicYCurvaYAlea prog patron alea)
+>                musica prog patron alea = fst (musicYCurva prog patron alea)
+>                curva prog patron alea = snd (musicYCurva prog patron alea)
+
+
+> ------------------------------ GENERA MUSIC A PARTIR DE CURVA ---------------------------------
+
+> generaMusicConCurva :: [String] -> IO()
+> generaMusicConCurva ["ruta_curva", ruta_curva, "ruta_progresion", ruta_prog, "ruta_patron" , ruta_patron, "parametros_curva", numDivisiones, numApsFase2, numApsFase3, numApsFase4, "ruta_dest_music", ruta_dest_music ] = 
+>       do cadena <- readFile ruta_curva
+>          progresion <- leeProgresion ruta_prog
+>          patron <- leePatronRitmicoC2 ruta_patron
+>          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          writeFile ruta_dest_music (show (musica progresion patron alea cadena))
+>          where numDivisiones_int = aplicaParser integer numDivisiones
+>                numApsFase2_int = aplicaParser integer numApsFase2
+>                numApsFase3_int = aplicaParser integer numApsFase3
+>                numApsFase4_int = aplicaParser integer numApsFase4
+>                musicYCurvaYAlea prog patron alea cadena = hazMelodiaParaProgresionCurva (alea, (read cadena, prog, patron, numDivisiones_int, numApsFase2_int, numApsFase3_int, numApsFase4_int))
+>                musicYCurva prog patron alea cadena = snd (musicYCurvaYAlea prog patron alea cadena)
+>                musica prog patron alea cadena = fst (musicYCurva prog patron alea cadena)
+>                curva prog patron alea cadena = snd (musicYCurva prog patron alea cadena)
+
+
+
+> ---------------------------- MUTA UNA CURVA ------------------------------------------------
+
+> mutaCurva :: [String] -> IO ()
+> mutaCurva ["ruta_curva", ruta_curva, "numero_mutaciones", num_mut, "desplazamiendo_maximo", desp_max, "ruta_dest", ruta_dest] = 
+>       do alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          cadena <- readFile ruta_curva
+>          writeFile ruta_dest (show (curvaMut cadena alea))
+>          where desp_max_int = aplicaParser integer desp_max
+>                num_mut_int = aplicaParser integer num_mut
+>                curvaMut cadenaCurva alea = mutaCurvaMelodicaNVeces num_mut_int desp_max_int alea (read cadenaCurva)
+
+> mutaCurvaMelodicaNVeces :: Int -> Int -> [Int] -> CurvaMelodica -> CurvaMelodica
+> mutaCurvaMelodicaNVeces 0 _ _ curva = curva
+> mutaCurvaMelodicaNVeces n despMax alea curva = mutaCurvaMelodicaNVeces (n-1) despMax alea2 cabeza
+>        where (alea2, cabeza) = mutaCurvaMelodica (alea, (despMax, curva))
+
+
+
+> ---------------------------- MUTA CURVA Y ESCRIBE EL MUSIC ------------------------------------------------
+
+
+> mutaCurvaYMusic :: [String] -> IO ()
+> mutaCurvaYMusic ["ruta_curva", ruta_curva, "ruta_prog", ruta_prog, "ruta_patron", ruta_patron, "numero_mutaciones", num_mut, "parametros", numDivisiones, desp_max, numApsFase2, numApsFase3, numApsFase4, "ruta_dest_curva", ruta_dest_curva, "ruta_dest_music", ruta_dest_music] =
+>       do alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          cadena <- readFile ruta_curva
+>          progresion <- leeProgresion ruta_prog
+>          patron <- leePatronRitmicoC2 ruta_patron
+>          writeFile ruta_dest_curva (show (curvaMut cadena alea))
+>          writeFile ruta_dest_music (show (musica progresion patron alea cadena) )
+>          where desp_max_int = aplicaParser integer desp_max
+>                num_mut_int = aplicaParser integer num_mut
+>                numDivisiones_int = aplicaParser integer numDivisiones
+>                numApsFase2_int = aplicaParser integer numApsFase2
+>                numApsFase3_int = aplicaParser integer numApsFase3
+>                numApsFase4_int = aplicaParser integer numApsFase4
+>                curvaMut cadenaCurva alea = mutaCurvaMelodicaNVeces num_mut_int desp_max_int alea (read cadenaCurva)
+>                musicYCurvaYAlea prog patron alea cadena = hazMelodiaParaProgresionCurva (alea, (read cadena, prog, patron, numDivisiones_int, numApsFase2_int, numApsFase3_int, numApsFase4_int))
+>                musicYCurva prog patron alea cadena = snd (musicYCurvaYAlea prog patron alea cadena)
+>                musica prog patron alea cadena = fst (musicYCurva prog patron alea cadena)
+>                curva prog patron alea cadena = snd (musicYCurva prog patron alea cadena)
+
+
+
+
 
 
 > {-

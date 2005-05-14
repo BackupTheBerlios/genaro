@@ -59,7 +59,11 @@ dePistaAMusic ((instr , _, False), subbloques) =
 
 
 
+-- Ejemplo de Obra completa
 
+obraCompleta :: ObraCompleta
+obraCompleta = ((120, (C, Mayor)), [(("piano",Acompanamiento,False),[(9, "./Music_0_0.msc", False)]),
+                                    (("violin",Acompanamiento,False),[(9, "./Music_1_0.msc", False)])] )
 
 
 

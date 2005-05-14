@@ -1,0 +1,17 @@
+Para disminuido
+
+progresion([ (cifrado(grado(iv), matricula(dis7)), figura(4, 1))]).
+
+Melodias> pruHazMelodiaParaProgresion "prog.txt" "PatronesRitmicos/arpegio_continuado_6_voces_corcheas.txt" 20
+Progresion de entrada: [((IV,Dis7),4 % 1)]
+Patron ritmico de entrada: (6,[([(1,50.0,True)],1 % 8),([(1,50.0,True),(2,50.0,True)],1 % 8),([(1,50.0,True),(2,50.0,True
+),(3,50.0,True)],1 % 8),([(1,50.0,True),(2,50.0,True),(3,50.0,True),(4,50.0,True)],1 % 8),([(1,50.0,True),(2,50.0,True),(
+3,50.0,True),(4,50.0,True),(5,50.0,True)],1 % 8),([(1,50.0,False),(2,50.0,False),(3,50.0,False),(4,50.0,False),(5,50.0,Fa
+lse),(6,50.0,False)],1 % 8)])
+Curvas melodicas resultado: [[0,1,1,-3,2,-1,1,-3,3,-2,1,-3,1,-3,3,-3,3,-3,3,-2]]
+Melodia resultado: Rest (0 % 1) :+: ((((((((((((((((Rest (0 % 1) :+: Rest (1 % 8)) :+: Rest (1 % 8)) :+: Rest (1 % 8)) :+
+: Note (D,4) (1 % 8) [Volume 33.33333]) :+: Note (D,4) (3 % 8) [Volume 45.83334]) :+: Rest (1 % 4)) :+: Note (Cs,4) (1 %
+8) [Volume 33.33333]) :+: Note (D,4) (5 % 8) [Volume 45.83334]) :+: Note (B,4) (3 % 4) [Volume 43.75]) :+: Rest (1 % 8))
+:+: Note (A,4) (1 % 4) [Volume 45.83334]) :+: Rest (0 % 1)) :+: Note (A,4) (1 % 16) [Volume 45.83334]) :+: Rest (3 % 16))
+ :+: Note (A,4) (3 % 8) [Volume 18.75]) :+: Note (F,4) (3 % 8) [Volume 50.0])
+Escrito con exito midi de prueba  

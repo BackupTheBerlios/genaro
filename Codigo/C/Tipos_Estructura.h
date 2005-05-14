@@ -30,6 +30,7 @@ struct Bloque
     String Inversion;
     String Disposicion;
     String Curva_Melodica;
+    String Tipo_Music;
     int Octava_Inicial;
     int N_Pista_Acomp;
     int Tipo_Melodia; //0=delegar en haskell, 1= curva melódica ... 2=editor midi
@@ -82,5 +83,6 @@ public:
   int Dame_Numero_Pistas(){return Pistas.size();};
   Pista* Dame_Pista(int N_Pista){return Pistas[N_Pista];};
   void Guarda_Archivo();
+  void Guarda_Archivo_Haskell();  
 };
 #endif

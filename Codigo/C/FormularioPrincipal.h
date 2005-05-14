@@ -149,6 +149,12 @@ __published:	// IDE-managed Components
   TStringGrid *Grid_Progresion;
   TButton *Button7;
   TButton *Button11;
+  TButton *Button13;
+  TTrackBar *Barra_Tempo;
+  TLabel *Etiqueta_Tempo;
+  TLabel *Label9;
+  TComboBox *ComboBox1;
+  TLabel *Label10;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -196,6 +202,8 @@ __published:	// IDE-managed Components
   void __fastcall Boton_Cargar_ProgresionClick(TObject *Sender);
   void __fastcall Button7Click(TObject *Sender);
   void __fastcall Button11Click(TObject *Sender);
+  void __fastcall Button13Click(TObject *Sender);
+  void __fastcall Barra_TempoChange(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;
@@ -209,7 +217,7 @@ private:	// User declarations
   int Columna_Pulsada;
   int X_Inicial,X_Final,Y_Inicial,Y_Final;
   bool Inicializado;
-  Cancion* Musica_Genaro; 
+  Cancion* Musica_Genaro;
 public:		// User declarations
   void Inicializa_Patrones_Ritmicos();
   void Dibuja_Cancion();
@@ -226,6 +234,9 @@ public:		// User declarations
   void Inicializa_Pistas_Acompanamiento();
   void Genera_Music_Acompanamiento();
   void Progresion_A_Grid();
+  void Crea_Curva_Delegando();
+  void Genera_Music_Melodia();
+  int Comprobar_Si_Generados_Music();
   __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

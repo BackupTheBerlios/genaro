@@ -1399,9 +1399,17 @@ else
 
 void __fastcall TForm1::Button9Click(TObject *Sender)
 {
-//bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
-Form_Melodia->Lee_Puntos(Musica_Genaro,Fila_Pulsada,Columna_Pulsada);
-Form_Melodia->Show();
+if (Radio_Curva_Melodia->Checked)
+{
+  //bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+  Form_Melodia->Lee_Puntos(Musica_Genaro,Fila_Pulsada,Columna_Pulsada);
+  Form_Melodia->Show();
+}
+if (Radio_Delegar_Haskell->Checked)
+{
+  //creamos la curva melódica delegando en haskell.
+  Crea_Curva_Delegando();
+}
 }
 //---------------------------------------------------------------------------
 void TForm1::Inicializa_Pistas_Acompanamiento()
@@ -1442,6 +1450,10 @@ Boton_Guardar_Cambios_BloqueClick(Sender);
 if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==0)//generamos el music para pista de acompañamiento
 {
   Genera_Music_Acompanamiento();
+}
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==1)
+{
+  Genera_Music_Melodia();
 }
 
 //si es pista de melodía hacemos la llamada con los parámetros de la pista de acompañamiento asociada. si no hay pista de acompañamiento asociada, esto peta.
@@ -1534,6 +1546,8 @@ void TForm1::Genera_Music_Acompanamiento()
     }
 
   }
+  Bloque_A_Manipular.Tipo_Music=Ruta_Destino_Music;
+  Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
 }
 //----------------------------------------------------------------------------
 void __fastcall TForm1::Edit_SemillaChange(TObject *Sender)
@@ -1629,6 +1643,100 @@ void __fastcall TForm1::Button11Click(TObject *Sender)
 {
 ShowMessage(IntToStr(Grid_Progresion->Col));
 ShowMessage(Grid_Progresion->Cols[Grid_Progresion->Col]->Strings[0]);
+}
+//---------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+void TForm1::Crea_Curva_Delegando()
+{
+  Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+  String Ruta_Codigo_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Codigo_Haskell();
+  String Orden="generaCurvaMelAlea";
+  String fichero1="CurvaMelodica_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".cm";
+  String Pal_Parametros="parametros_curva";
+  String Parametro1=3; //salto maximo
+  String Parametro2=6; //probabilidad de salto
+  String Parametro3=10; //numero de puntos
+  String Pal_Ruta="ruta_dest_curva";
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Pal_Parametros.c_str(),Parametro1.c_str(),Parametro2.c_str(),Parametro3.c_str(),Pal_Ruta.c_str(),fichero1.c_str(),NULL);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el runhugs de haskell.");}
+
+  Bloque_A_Manipular.Curva_Melodica=fichero1;
+  Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+}
+//------------------------------------------------------------------------------
+void TForm1::Genera_Music_Melodia()
+{
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+  String Ruta_Codigo_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Codigo_Haskell();
+  String Orden="generaMusicConCurva";
+  Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+  //si no hay curva asignada, se avisa y se sale
+  if (Bloque_A_Manipular.Curva_Melodica==NULL){ShowMessage("No tiene curva melódica asignada");return;}
+  String Pal_Rutacurva="ruta_curva";
+  String Ruta_Curva=Bloque_A_Manipular.Curva_Melodica;
+  String Pal_Rutaprogresion="ruta_progresion";
+  //Hay que coger la progresion de la pista de acompañamiento asignada
+  if(Bloque_A_Manipular.N_Pista_Acomp==-1){ShowMessage("No has asignado pista de acompañamiento para este subbloque");return;}
+  Bloque Bloque_Acompanamiento=Musica_Genaro->Dame_Pista(Bloque_A_Manipular.N_Pista_Acomp)->Dame_Bloque(Columna_Pulsada);
+  if (Bloque_Acompanamiento.Progresion==NULL){ShowMessage("El bloque de acompañamiento no tiene progresión asignada");return;}
+  String Ruta_Progresion=Bloque_Acompanamiento.Progresion;
+  String Pal_patron="ruta_patron";
+  String Ruta_Patron="./PatronesRitmicos/"+Bloque_Acompanamiento.Patron_Ritmico;
+  String Pal_Parametros="parametros_curva";
+  String Parametro1=2;//numero de divisiones
+  String Parametro2=2;//numero de aplicaciones de fase 2
+  String Parametro3=2;//numero de aplicaciones de fase 3
+  String Parametro4=2;//numero de aplicaciones de fase 4
+  String Pal_Ruta_Destino="ruta_dest_music";
+  String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".msc";
+
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Pal_Rutacurva.c_str(),Ruta_Curva.c_str(),Pal_Rutaprogresion.c_str(),Ruta_Progresion.c_str(),Pal_patron.c_str(),Ruta_Patron.c_str(),Pal_Parametros.c_str(),Parametro1.c_str(),Parametro2.c_str(),Parametro3.c_str(),Parametro4.c_str(),Pal_Ruta_Destino.c_str(),Ruta_Destino_Music.c_str(),NULL);
+  if (valor_spawn==-1){ShowMessage("Error creando el music de melodia");}
+
+  Bloque_A_Manipular.Tipo_Music=Ruta_Destino_Music;
+  Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Button13Click(TObject *Sender)
+{
+if (Inicializado)
+{
+ if (Comprobar_Si_Generados_Music()!=-1)
+ {
+  Musica_Genaro->Guarda_Archivo_Haskell();
+ }
+}
+}
+//---------------------------------------------------------------------------
+int TForm1::Comprobar_Si_Generados_Music()
+{
+bool Correcto=true;
+for (int i=0;i<Musica_Genaro->Dame_Numero_Pistas();i++)
+{
+  for (int j=0; j<Musica_Genaro->Dame_Pista(i)->Dame_Numero_Bloques();j++)
+  {
+    if(Musica_Genaro->Dame_Pista(i)->Dame_Bloque(j).Tipo_Music==NULL)
+    {
+      ShowMessage("No están generados todos los tipos music");
+      return -1;
+    }
+  }
+}
+return 0;
+}
+void __fastcall TForm1::Barra_TempoChange(TObject *Sender)
+{
+Etiqueta_Tempo->Caption=IntToStr(Barra_Tempo->Position);
 }
 //---------------------------------------------------------------------------
 

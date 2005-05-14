@@ -125,6 +125,12 @@ for (int i=0;i<Pistas.size();i++)
       fichero_salida<<bloque_temp.Progresion[k+1];
     }
     fichero_salida<<" ";
+    fichero_salida<<"Tipo_Music "<<bloque_temp.Tipo_Music.Length()<<" ";
+    for (int h=0;h<bloque_temp.Tipo_Music.Length();h++)
+    {
+      fichero_salida<<bloque_temp.Tipo_Music[h+1];
+    }
+    fichero_salida<<" ";
     fichero_salida<<"FINBLOQUE"<<"\n";
   }
  fichero_salida<<"FINPISTA"<<"\n";
@@ -138,6 +144,7 @@ void Bloque::Inicializa()
 Notas_Totales=0;
 Vacio=true;
 Curva_Melodica="";
+Tipo_Music="";
 N_Pista_Acomp=-1;
 Octava_Inicial=1;
 Tipo_Melodia=0;
@@ -414,3 +421,47 @@ while (true)
 if (Procesar(Progresion,"]).")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
 return Cadenas;
 }
+//------------------------------------------------------------------------------
+void Cancion::Guarda_Archivo_Haskell()
+{
+ofstream fichero_salida;
+fichero_salida.open("Fichero_Indice.gen");
+//guardamos datos de cancion
+Bloque bloque_temp;
+fichero_salida<<"Pistas: "<<Pistas.size()<<"\n";
+for (int i=0;i<Pistas.size();i++)
+ {
+ //Escribimos los datos de pista
+ fichero_salida<<"N "<<i<<"\n";
+ fichero_salida<<"Bloques "<<Pistas[i]->Dame_Numero_Bloques()<<" ";
+ fichero_salida<<"Tipo ";
+ if (Pistas[i]->Dame_Tipo()==0)
+ {
+    fichero_salida<<"Acompanamiento"<<" ";
+ }
+ if (Pistas[i]->Dame_Tipo()==1)
+ {
+    fichero_salida<<"Melodia"<<" ";
+ }
+ fichero_salida<<"Mute "<<Pistas[i]->Dame_Mute()<<" ";
+ fichero_salida<<"Instrumento "<<Pistas[i]->Dame_Instrumento()<<"\n";
+ for (int j=0;j<Pistas[i]->Dame_Numero_Bloques();j++)
+  {
+    bloque_temp=Pistas[i]->Dame_Bloque(j);
+    fichero_salida<<"bloque "<<j<<"\n";
+    fichero_salida<<"Compases "<<bloque_temp.Num_Compases<<" ";
+    fichero_salida<<"vacio "<<bloque_temp.Vacio<<" ";
+    fichero_salida<<"Tipo_Music "<<bloque_temp.Tipo_Music.Length()<<" ";
+    for (int h=0;h<bloque_temp.Tipo_Music.Length();h++)
+    {
+      fichero_salida<<bloque_temp.Tipo_Music[h+1];
+    }
+    fichero_salida<<" ";
+    fichero_salida<<"FINBLOQUE"<<"\n";
+  }
+ fichero_salida<<"FINPISTA"<<"\n";
+ }
+fichero_salida<<"FINCANCION";
+fichero_salida.close();
+}
+

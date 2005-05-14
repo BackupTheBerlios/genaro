@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 73
-  Top = 117
+  Left = 216
+  Top = 120
   Width = 800
   Height = 537
   Caption = 'Interfaz Genaro'
@@ -43,6 +43,54 @@ object Form1: TForm1
     Font.Style = [fsBold]
     ParentFont = False
   end
+  object Etiqueta_Tempo: TLabel
+    Left = 104
+    Top = 136
+    Width = 25
+    Height = 16
+    Caption = '100'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Label9: TLabel
+    Left = 24
+    Top = 120
+    Width = 50
+    Height = 16
+    Caption = 'Tempo'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Label10: TLabel
+    Left = 24
+    Top = 80
+    Width = 72
+    Height = 16
+    Caption = 'Tonalidad'
+    Font.Charset = DEFAULT_CHARSET
+    Font.Color = clWindowText
+    Font.Height = -13
+    Font.Name = 'MS Sans Serif'
+    Font.Style = [fsBold]
+    ParentFont = False
+  end
+  object Button13: TButton
+    Left = 24
+    Top = 0
+    Width = 81
+    Height = 25
+    Caption = 'Exportar Midi'
+    TabOrder = 14
+    OnClick = Button13Click
+  end
   object Panel_Musica: TPanel
     Left = 24
     Top = 168
@@ -52,16 +100,16 @@ object Form1: TForm1
     Visible = False
   end
   object Button2: TButton
-    Left = 16
-    Top = 92
+    Left = 336
+    Top = 460
     Width = 33
     Height = 25
     Caption = '[_]'
     TabOrder = 1
   end
   object Button3: TButton
-    Left = 48
-    Top = 92
+    Left = 368
+    Top = 460
     Width = 33
     Height = 25
     Caption = '|>'
@@ -69,35 +117,36 @@ object Form1: TForm1
     OnClick = Button3Click
   end
   object Button5: TButton
-    Left = 80
-    Top = 92
+    Left = 400
+    Top = 460
     Width = 33
     Height = 25
     Caption = '| |'
     TabOrder = 3
   end
   object Button1: TButton
-    Left = 32
-    Top = 8
+    Left = 40
+    Top = 456
     Width = 73
     Height = 25
     Caption = 'Exportar Midi'
     TabOrder = 4
+    Visible = False
     OnClick = Button1Click
   end
   object Button4: TButton
-    Left = 32
-    Top = 32
-    Width = 73
+    Left = 24
+    Top = 24
+    Width = 81
     Height = 25
     Caption = 'Exportar Wav'
     TabOrder = 5
     OnClick = Button4Click
   end
   object Button6: TButton
-    Left = 32
-    Top = 56
-    Width = 73
+    Left = 24
+    Top = 48
+    Width = 81
     Height = 25
     Caption = 'Exportar PDF'
     TabOrder = 6
@@ -375,7 +424,7 @@ object Form1: TForm1
     Top = 0
     Width = 513
     Height = 161
-    ActivePage = Tab_Crear_Progresion
+    ActivePage = Tab_Melodia
     TabOrder = 13
     Visible = False
     object Tab_General: TTabSheet
@@ -486,7 +535,7 @@ object Form1: TForm1
         Top = 96
         Width = 11
         Height = 20
-        Caption = '2'
+        Caption = '6'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -538,7 +587,7 @@ object Form1: TForm1
         Top = 32
         Width = 145
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'Elige el patrón rítmico'
       end
@@ -549,7 +598,7 @@ object Form1: TForm1
         Height = 21
         ItemHeight = 13
         TabOrder = 1
-        Text = '1'
+        Text = '4'
         Items.Strings = (
           '1'
           '2'
@@ -569,7 +618,7 @@ object Form1: TForm1
         Orientation = trHorizontal
         PageSize = 1
         Frequency = 1
-        Position = 2
+        Position = 6
         SelEnd = 0
         SelStart = 0
         TabOrder = 2
@@ -795,7 +844,7 @@ object Form1: TForm1
         Top = 0
         Width = 10
         Height = 23
-        Caption = '0'
+        Caption = '5'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -16
@@ -821,7 +870,7 @@ object Form1: TForm1
           Top = 16
           Width = 8
           Height = 19
-          Caption = '0'
+          Caption = '5'
           Enabled = False
         end
         object Etiqueta_Tipo1: TLabel
@@ -829,7 +878,7 @@ object Form1: TForm1
           Top = 64
           Width = 8
           Height = 19
-          Caption = '0'
+          Caption = '5'
           Enabled = False
         end
         object Etiqueta_Tipo2: TLabel
@@ -837,7 +886,7 @@ object Form1: TForm1
           Top = 64
           Width = 8
           Height = 19
-          Caption = '0'
+          Caption = '5'
           Enabled = False
         end
         object Etiqueta_Tipo3: TLabel
@@ -845,7 +894,7 @@ object Form1: TForm1
           Top = 64
           Width = 8
           Height = 19
-          Caption = '0'
+          Caption = '5'
           Enabled = False
         end
         object Label12: TLabel
@@ -907,7 +956,7 @@ object Form1: TForm1
           Max = 25
           Orientation = trHorizontal
           Frequency = 1
-          Position = 0
+          Position = 5
           SelEnd = 0
           SelStart = 0
           TabOrder = 1
@@ -933,7 +982,7 @@ object Form1: TForm1
           Max = 20
           Orientation = trHorizontal
           Frequency = 1
-          Position = 0
+          Position = 5
           SelEnd = 0
           SelStart = 0
           TabOrder = 3
@@ -950,7 +999,7 @@ object Form1: TForm1
           Max = 20
           Orientation = trHorizontal
           Frequency = 1
-          Position = 0
+          Position = 5
           SelEnd = 0
           SelStart = 0
           TabOrder = 4
@@ -967,7 +1016,7 @@ object Form1: TForm1
           Max = 20
           Orientation = trHorizontal
           Frequency = 1
-          Position = 0
+          Position = 5
           SelEnd = 0
           SelStart = 0
           TabOrder = 5
@@ -1020,7 +1069,7 @@ object Form1: TForm1
           Top = 64
           Width = 8
           Height = 19
-          Caption = '0'
+          Caption = '5'
           Enabled = False
         end
         object Etiqueta_Tipo5: TLabel
@@ -1028,7 +1077,7 @@ object Form1: TForm1
           Top = 64
           Width = 8
           Height = 19
-          Caption = '0'
+          Caption = '5'
           Enabled = False
         end
         object Etiqueta_TipoB_Generales: TLabel
@@ -1036,7 +1085,7 @@ object Form1: TForm1
           Top = 16
           Width = 8
           Height = 19
-          Caption = '0'
+          Caption = '5'
           Enabled = False
         end
         object Radio_TipoB_Generales: TRadioButton
@@ -1068,7 +1117,7 @@ object Form1: TForm1
           Max = 25
           Orientation = trHorizontal
           Frequency = 1
-          Position = 0
+          Position = 5
           SelEnd = 0
           SelStart = 0
           TabOrder = 2
@@ -1084,7 +1133,7 @@ object Form1: TForm1
           Max = 20
           Orientation = trHorizontal
           Frequency = 1
-          Position = 0
+          Position = 5
           SelEnd = 0
           SelStart = 0
           TabOrder = 3
@@ -1101,7 +1150,7 @@ object Form1: TForm1
           Max = 20
           Orientation = trHorizontal
           Frequency = 1
-          Position = 0
+          Position = 5
           SelEnd = 0
           SelStart = 0
           TabOrder = 4
@@ -1150,7 +1199,7 @@ object Form1: TForm1
         Max = 50
         Orientation = trHorizontal
         Frequency = 1
-        Position = 0
+        Position = 5
         SelEnd = 0
         SelStart = 0
         TabOrder = 4
@@ -1326,7 +1375,7 @@ object Form1: TForm1
       object RadioGroup2: TRadioGroup
         Left = 8
         Top = 16
-        Width = 249
+        Width = 201
         Height = 105
         Caption = 'Elige como crear la melodía:'
         Font.Charset = ANSI_CHARSET
@@ -1338,7 +1387,7 @@ object Form1: TForm1
         TabOrder = 0
       end
       object Radio_Editor_Midi: TRadioButton
-        Left = 40
+        Left = 16
         Top = 48
         Width = 153
         Height = 17
@@ -1353,9 +1402,9 @@ object Form1: TForm1
         TabOrder = 1
       end
       object Radio_Curva_Melodia: TRadioButton
-        Left = 40
+        Left = 16
         Top = 72
-        Width = 193
+        Width = 185
         Height = 17
         Caption = 'Crear la curva melódica '
         Font.Charset = DEFAULT_CHARSET
@@ -1367,7 +1416,7 @@ object Form1: TForm1
         TabOrder = 2
       end
       object Radio_Delegar_Haskell: TRadioButton
-        Left = 40
+        Left = 16
         Top = 96
         Width = 161
         Height = 17
@@ -1385,7 +1434,7 @@ object Form1: TForm1
       object Button8: TButton
         Left = 280
         Top = 88
-        Width = 81
+        Width = 89
         Height = 33
         Caption = 'Editor Midi'
         Enabled = False
@@ -1394,7 +1443,7 @@ object Form1: TForm1
       object Button9: TButton
         Left = 376
         Top = 88
-        Width = 81
+        Width = 89
         Height = 33
         Caption = 'Crear Curva'
         TabOrder = 5
@@ -1410,6 +1459,48 @@ object Form1: TForm1
         Text = 'Elige Pista de acompañamiento'
       end
     end
+  end
+  object Barra_Tempo: TTrackBar
+    Left = 16
+    Top = 136
+    Width = 89
+    Height = 25
+    Max = 300
+    Min = 1
+    Orientation = trHorizontal
+    Frequency = 1
+    Position = 100
+    SelEnd = 0
+    SelStart = 0
+    TabOrder = 15
+    TickMarks = tmBottomRight
+    TickStyle = tsAuto
+    OnChange = Barra_TempoChange
+  end
+  object ComboBox1: TComboBox
+    Left = 24
+    Top = 96
+    Width = 81
+    Height = 21
+    ItemHeight = 13
+    TabOrder = 16
+    Text = 'C'
+    Items.Strings = (
+      'C'
+      'Cb'
+      'C#'
+      'D'
+      'Db'
+      'E'
+      'Eb'
+      'F'
+      'F#'
+      'G'
+      'Gb'
+      'A'
+      'Ab'
+      'B'
+      'Bb')
   end
   object MainMenu1: TMainMenu
     Left = 200

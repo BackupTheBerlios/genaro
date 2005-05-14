@@ -27,7 +27,7 @@ type Progresion = [(Cifrado, Dur)]
 Una escala es una lista de grados. Todo el rato se supone implicito que el grado I corresponde a
 Do, luego ya se puede trasponer el tono f�cilmente con la constructora Trans del tipo Music
 -}
-data Escala = Jonica|Dorica|Frigia|Lidia|Mixolidia|Eolia|Locria|MixolidiaB13|MixolidiaB9B13AU9
+data Escala = Jonica|Dorica|Frigia|Lidia|Mixolidia|Eolia|Locria|MixolidiaB13|MixolidiaB9B13AU9|Disminuida
      deriving(Enum,Read,Show,Eq,Ord,Bounded)
 {-
 InfoEscala = (tensiones, lista de notas que la forman, notas a evitar)
@@ -44,13 +44,14 @@ dameInfoEscala Eolia = ([IX,XI],[I,II,BIII,IV,V,BVI,BVII],[BVI])
 dameInfoEscala Locria = ([XI,BXIII],[I,BII,BIII,IV,BV,BVI,BVII],[BII])
 dameInfoEscala MixolidiaB13 = ([BIX,IX,BXIII],[I,II,III,IV,V,BVI,BVII],[IV])
 dameInfoEscala MixolidiaB9B13AU9 = ([BIX,BXIII],[I,BII,AUII,III,IV,V,BVI,BVII],[IV])
-
+dameInfoEscala Disminuida = ([], [I,BII,BIII,III,BV,AUV,VI,VII], [BII]) --Comprobar!!!
 
 {-
 dameIntervaloPitch :: PitchClass -> Pitch -> Grado
 dameIntervaloPitch tonica pitch devuelve que grado es la nota indicada por pitch respecto
 a tonica
 -}
+
 dameIntervaloPitch :: PitchClass -> Pitch -> Grado
 dameIntervaloPitch tonica p = grado
                 where absTonica = absPitch (tonica,0)
@@ -107,6 +108,7 @@ dameNotasYPesosDeEscala :: Escala -> [(Grado, Int)]
 dameNotasYPesosDeEscala escala
   | elem escala escalas7Notas   = map (filtraNotasAEvitar notasAEvitar) (zip listaGrados (map peso7Notas [1..numGrados]))
   | escala == MixolidiaB9B13AU9 = map (filtraNotasAEvitar notasAEvitar) (zip listaGrados (map pesoMixB9B13AU9 [1..numGrados]))
+  | escala == Disminuida        = map (filtraNotasAEvitar notasAEvitar) (zip listaGrados (map pesoDisminuida [1..numGrados]))
                 where escalas7Notas = [Jonica,Dorica, Frigia, Lidia, Mixolidia, Eolia, Locria, MixolidiaB13]
                       (_,listaGrados,notasAEvitar) = dameInfoEscala escala
                       numGrados = length listaGrados
@@ -117,10 +119,16 @@ dameNotasYPesosDeEscala escala
                       peso7Notas 6 = 65
                       peso7Notas 2 = 30
                       peso7Notas 7 = 30
+                      -- dameInfoEscala MixolidiaB9B13AU9 = ([BIX,BXIII],[I,BII,AUII,III,IV,V,BVI,BVII],[IV])
+                      -- dameInfoEscala Disminuida = ([], [I,BII,BIII,III,BV,AUV,VI,VII], [BII]) --Comprobar!!!<
                       pesoMixB9B13AU9 num
                         | num == 1             = peso7Notas 1
                         | (num==2) || (num==3) = peso7Notas 2
                         | num > 3              = peso7Notas (num-1)
+                      pesoDisminuida num
+                        | num < 2              = peso7Notas num
+                        | (num==3) || (num==4) = peso7Notas 3
+                        | num > 4              = peso7Notas (num-1)
                       filtraNotasAEvitar notasAEvitar (grado, peso)
                         | elem grado notasAEvitar = (grado, 10)
                         | otherwise = (grado, peso)
@@ -159,6 +167,7 @@ escalaDelAcorde (V7 VI, Sept) = MixolidiaB9B13AU9
 escalaDelAcorde (V7 (V7 _), Sept) = Mixolidia --dominantes por extension
 escalaDelAcorde (V7 (IIM7 _), Sept) = Mixolidia --dominantes por extension
 escalaDelAcorde (IIM7 _, Men7) = Dorica
+escalaDelAcorde (_, Dis7) = Disminuida
 
 {-
 Para un acorde especificado con un elemento de tipo cifrado da esa informacion,
@@ -199,7 +208,8 @@ registroAgudo = [7..9]
 Registro en al que deber� ajustarse el instrumento que haga la melodia
 -}
 registroSolista :: Registro
-registroSolista = union registroAgudo registroMedio
+--registroSolista = union registroAgudo registroMedio
+registroSolista = [5..8]
 
 {-
 Registro en al que deber� ajustarse el instrumento que haga de bajo

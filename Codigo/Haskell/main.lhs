@@ -75,6 +75,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > diferenciaComandos ( "previsualizaPatron" : restoArgumentos ) = previsualizaPatron restoArgumentos
 > diferenciaComandos ( "generaSubbloqueAcompanamiento" : restoArgumentos ) = generaSubbloqueAcompanamiento restoArgumentos
 > diferenciaComandos ( "generaSubbloqueSilencio" : restoArgumentos ) = generaSubbloqueSilencio restoArgumentos
+> diferenciaComandos ( "generaCurvaMelAleaYMusic" : restoArgumentos ) = generaCurvaMelAleaYMusic restoArgumentos
 > diferenciaComandos ( "generaCurvaMelAlea" : restoArgumentos ) = generaCurvaMelAlea restoArgumentos
 > diferenciaComandos ( "generaMusicConCurva" : restoArgumentos ) = generaMusicConCurva restoArgumentos
 > diferenciaComandos ( "mutaCurva" : restoArgumentos ) = mutaCurva restoArgumentos
@@ -181,20 +182,54 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 
 > dePistaAMidi :: [String] -> IO ()
 > dePistaAMidi ("ruta_destino" : ruta_dest : "negras_por_minuto" : negras_min : "Instrumento" : i : "lista_de_subbloques" : lista_archivo) =
->       do musica <- generaPista lista_archivo
+>       do mensajeGenaro "Comienzo generacion de pistas"
+>          musica <- generaPista lista_archivo
+>          mensajeGenaro "Fin generacion de pistas"
 >          haskoreAMidi2 (Instr i musica) negras_min_int ruta_dest
 >          where negras_min_int = aplicaParser integer negras_min
+> dePistaAMidi _ = errorGenaro "error de encaje de patrones en dePistaAMidi"
+
 
 
 > ------------------------------ GENERA CURVA MELODIA ALEATORIAMENTE ---------------------------------
 
 > generaCurvaMelAlea :: [String] -> IO ()
-> generaCurvaMelAlea ["ruta_progresion", ruta_prog, "ruta_patron" , ruta_patron, "parametros_curva", saltoMax, probSalto, numNotas, numDivisiones, numApsFase2, numApsFase3, numApsFase4, "ruta_dest_music", ruta_dest_music, "ruta_dest_curva", ruta_dest_curva ] = 
->       do progresion <- leeProgresion ruta_prog
->          patron <- leePatronRitmicoC2 ruta_patron
+> generaCurvaMelAlea ["parametros_curva", saltoMax, probSalto, numNotas, "ruta_dest_curva", ruta_dest_curva ] = 
+>       do mensajeGenaro "Comienzo generacion de numeros aleatorios"
 >          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          mensajeGenaro "Fin generacion de numeros aleatorios"
+>          mensajeGenaro "Comienzo escritura del curva"
+>          writeFile ruta_dest_curva (show (curva alea))
+>          mensajeGenaro "Fin escritura del music"
+>          mensajeGenaro "Fin de generacion curva melodia aleatoria"
+>          where saltoMax_int = aplicaParser integer saltoMax
+>                probSalto_int = aplicaParser integer probSalto
+>                numNotas_int = aplicaParser integer numNotas
+>                curva alea = hazCurvaMelodicaAleat (alea, (saltoMax_int, probSalto_int, numNotas_int))
+> generaCurvaMelAlea _ = errorGenaro "error de encaje de patrones en generaCurvaMelAlea"
+
+
+
+> ------------------------------ GENERA CURVA MELODIA ALEATORIAMENTE Y MUSIC ---------------------------------
+
+> generaCurvaMelAleaYMusic :: [String] -> IO ()
+> generaCurvaMelAleaYMusic ["ruta_progresion", ruta_prog, "ruta_patron" , ruta_patron, "parametros_curva", saltoMax, probSalto, numNotas, numDivisiones, numApsFase2, numApsFase3, numApsFase4, "ruta_dest_music", ruta_dest_music, "ruta_dest_curva", ruta_dest_curva ] = 
+>       do mensajeGenaro "Comienzo lectura de progresion"
+>          progresion <- leeProgresion ruta_prog
+>          mensajeGenaro "Fin lectura progresion"
+>          mensajeGenaro "Comienzo lectura patron"
+>          patron <- leePatronRitmicoC2 ruta_patron
+>          mensajeGenaro "Fin lectura patron"
+>          mensajeGenaro "Comienzo generacion de numeros aleatorios"
+>          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          mensajeGenaro "Fin generacion de numeros aleatorios"
+>          mensajeGenaro "Comienzo escritura del music"
 >          writeFile ruta_dest_music (show (musica progresion patron alea))
+>          mensajeGenaro "Fin escritura del music"
+>          mensajeGenaro "Comienzo escritura del curva"
 >          writeFile ruta_dest_curva ((show.concat) (curva progresion patron alea))
+>          mensajeGenaro "Fin escritura del music"
+>          mensajeGenaro "Fin de generacion curva melodia aleatoria"
 >          where saltoMax_int = aplicaParser integer saltoMax
 >                probSalto_int = aplicaParser integer probSalto
 >                numNotas_int = aplicaParser integer numNotas
@@ -206,16 +241,24 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                musicYCurva prog patron alea = snd (musicYCurvaYAlea prog patron alea)
 >                musica prog patron alea = fst (musicYCurva prog patron alea)
 >                curva prog patron alea = snd (musicYCurva prog patron alea)
-
+> generaCurvaMelAleaYMusic _ = errorGenaro "error de encaje de patrones en generaCurvaMelAleaYMusic"
 
 > ------------------------------ GENERA MUSIC A PARTIR DE CURVA ---------------------------------
 
 > generaMusicConCurva :: [String] -> IO()
 > generaMusicConCurva ["ruta_curva", ruta_curva, "ruta_progresion", ruta_prog, "ruta_patron" , ruta_patron, "parametros_curva", numDivisiones, numApsFase2, numApsFase3, numApsFase4, "ruta_dest_music", ruta_dest_music ] = 
->       do cadena <- readFile ruta_curva
+>       do mensajeGenaro "Comienzo lectura curva"
+>          cadena <- readFile ruta_curva
+>          mensajeGenaro "Fin lectura curva"
+>          mensajeGenaro "Comienzo lectura progresion"
 >          progresion <- leeProgresion ruta_prog
+>          mensajeGenaro "Fin lectura progresion"
+>          mensajeGenaro "Comienzo lectura patron"
 >          patron <- leePatronRitmicoC2 ruta_patron
+>          mensajeGenaro "Fin lectura patron"
+>          mensajeGenaro "Comienzo creacion numeros aleatorios"
 >          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          mensajeGenaro "Fin creacion numeros aleatorios"
 >          writeFile ruta_dest_music (show (musica progresion patron alea cadena))
 >          where numDivisiones_int = aplicaParser integer numDivisiones
 >                numApsFase2_int = aplicaParser integer numApsFase2
@@ -225,6 +268,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                musicYCurva prog patron alea cadena = snd (musicYCurvaYAlea prog patron alea cadena)
 >                musica prog patron alea cadena = fst (musicYCurva prog patron alea cadena)
 >                curva prog patron alea cadena = snd (musicYCurva prog patron alea cadena)
+> generaMusicConCurva _ = errorGenaro "error de encaje de patrones en generaMusicConCurva"
 
 
 
@@ -238,6 +282,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >          where desp_max_int = aplicaParser integer desp_max
 >                num_mut_int = aplicaParser integer num_mut
 >                curvaMut cadenaCurva alea = mutaCurvaMelodicaNVeces num_mut_int desp_max_int alea (read cadenaCurva)
+> mutaCurva _ = errorGenaro "error de encaje de patrones en mutaCurva"
 
 > mutaCurvaMelodicaNVeces :: Int -> Int -> [Int] -> CurvaMelodica -> CurvaMelodica
 > mutaCurvaMelodicaNVeces 0 _ _ curva = curva
@@ -268,7 +313,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                musicYCurva prog patron alea cadena = snd (musicYCurvaYAlea prog patron alea cadena)
 >                musica prog patron alea cadena = fst (musicYCurva prog patron alea cadena)
 >                curva prog patron alea cadena = snd (musicYCurva prog patron alea cadena)
-
+> mutaCurvaYMusic _ = errorGenaro "error de encaje de patrones en mutaCurvaYMusic"
 
 
 

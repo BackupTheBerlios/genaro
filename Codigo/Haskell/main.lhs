@@ -205,7 +205,8 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >          where saltoMax_int = aplicaParser integer saltoMax
 >                probSalto_int = aplicaParser integer probSalto
 >                numNotas_int = aplicaParser integer numNotas
->                curva alea = hazCurvaMelodicaAleat (alea, (saltoMax_int, probSalto_int, numNotas_int))
+>                curvaYAlea alea = hazCurvaMelodicaAleat (alea, (saltoMax_int, probSalto_int, numNotas_int))
+>                curva alea = snd(curvaYAlea alea)
 > generaCurvaMelAlea _ = errorGenaro "error de encaje de patrones en generaCurvaMelAlea"
 
 

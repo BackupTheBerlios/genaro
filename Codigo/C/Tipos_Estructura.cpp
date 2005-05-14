@@ -260,7 +260,7 @@ int Procesar_Grado(String &Progresion,String &Salida)
 Salida="";
 int grado=0;
 bool es_grado=true;
-if(Procesar(Progresion,"grado(")!=-1)
+if((Procesar(Progresion,"grado(")!=-1)||(Procesar(Progresion,"(")!=-1))
 {      //o bien es v7 o iim7
       grado=-2;
       Salida=" v7";

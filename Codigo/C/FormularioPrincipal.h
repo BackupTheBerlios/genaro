@@ -224,7 +224,8 @@ public:		// User declarations
   void Progresion_Mutar_Acorde_Progresion();
   void Progresion_Mutar_Progresion_Multiple();
   void Inicializa_Pistas_Acompanamiento();
-  void Genera_Music_Acompanamiento();  
+  void Genera_Music_Acompanamiento();
+  void Progresion_A_Grid();
   __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

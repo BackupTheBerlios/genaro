@@ -509,6 +509,11 @@ else
   Radio_Vertical_Mayor_Saturar->Checked=true;
 }
 
+if (Bloque_A_Manipular.Progresion!=NULL)
+{
+Progresion_A_Grid();
+}
+
 switch (Bloque_A_Manipular.Aplicacion_Vertical_Menor)
 {
   case 0:{Radio_Vertical_Menor_Truncar->Checked=true;break;}
@@ -896,6 +901,7 @@ getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;  */
 Bloque_A_Manipular.Progresion="progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog";
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+Progresion_A_Grid();
 }
 //---------------------------------------------------------------------------
 void TForm1::Progresion_Crear_Progresion()
@@ -1575,6 +1581,23 @@ for (int i=0;i<cadenitas->Count;i++)
 //prueba turbia
 Bloque_A_Manipular.Progresion=fichero;
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+}
+//---------------------------------------------------------------------------
+void TForm1::Progresion_A_Grid()
+{
+Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+String fichero=Bloque_A_Manipular.Progresion;
+if (Es_Progresion_Valida(fichero)==-1){ShowMessage("Progresión no válida");}
+TStringList *cadenitas;
+cadenitas=Come_Progresion(fichero);
+//ShowMessage(IntToStr(cadenitas->Count));
+Grid_Progresion->RowCount=1;//no vamos a aumentar este número
+Grid_Progresion->ColCount=cadenitas->Count;
+for (int i=0;i<cadenitas->Count;i++)
+{
+  Grid_Progresion->Cols[i]->Clear();
+  Grid_Progresion->Cols[i]->Add(cadenitas->Strings[i]);
+}
 }
 //---------------------------------------------------------------------------
 

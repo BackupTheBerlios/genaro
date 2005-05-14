@@ -108,6 +108,9 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo escritura del music"
 >            writeFile rutaDest (show (musica progresion patronR))
 >            mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Comienzo escritura del midi"
+>            haskoreAMidi2  (musica progresion patronR) 100 "./prueba.mid"-- borrame en futuro cercano
+>            mensajeGenaro "Fin escritura del midi"
 >            mensajeGenaro "Completado generaSubbloqueAcompanamiento"
 >            where octavaIniInt = aplicaParser integer octavaIni 
 >                  numNotasInt = aplicaParser integer numNotas
@@ -125,6 +128,9 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo escritura del music"
 >            writeFile rutaDest (show (musica progresion patronR))
 >            mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Comienzo escritura del midi"
+>            haskoreAMidi2  (musica progresion patronR) 100 "./prueba.mid"-- borrame en futuro cercano
+>            mensajeGenaro "Fin escritura del midi"
 >            mensajeGenaro "Completado generaSubbloqueAcompanamiento "
 >            where octavaIniInt = aplicaParser integer octavaIni 
 >                  numNotasInt = aplicaParser integer numNotas
@@ -144,6 +150,9 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo escritura del music"
 >            writeFile rutaDest (show (musica progresion patronR semillaInt))
 >            mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Comienzo escritura del midi"
+>            haskoreAMidi2  (musica progresion patronR semillaInt) 100 "./prueba.mid"-- borrame en futuro cercano
+>            mensajeGenaro "Fin escritura del midi"
 >            mensajeGenaro "Completado generaSubbloqueAcompanamiento "
 >            where octavaIniInt = aplicaParser integer octavaIni 
 >                  numNotasInt = aplicaParser integer numNotas
@@ -260,7 +269,13 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >          mensajeGenaro "Comienzo creacion numeros aleatorios"
 >          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
 >          mensajeGenaro "Fin creacion numeros aleatorios"
+>          mensajeGenaro "Comienzo escritura del music"
 >          writeFile ruta_dest_music (show (musica progresion patron alea cadena))
+>          mensajeGenaro "Fin escritura del music"
+>          mensajeGenaro "Comienzo escritura del midi"
+>          haskoreAMidi2  (musica progresion patron alea cadena) 100 "./prueba.mid"    -- borrame en futuro cercano
+>          mensajeGenaro "Fin escritura del midi"
+>          mensajeGenaro "Fin generacion music con curva"
 >          where numDivisiones_int = aplicaParser integer numDivisiones
 >                numApsFase2_int = aplicaParser integer numApsFase2
 >                numApsFase3_int = aplicaParser integer numApsFase3

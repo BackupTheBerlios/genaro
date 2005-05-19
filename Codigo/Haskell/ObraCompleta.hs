@@ -7,6 +7,7 @@ import Ratio
 import HaskellAHaskell
 import BiblioGenaro 
 import HaskoreAMidi
+import HaskoreALilypond
 
 
 type Tempo = Int
@@ -17,9 +18,9 @@ type Muted = Bool
 type Subbloque = (NumeroCompases, FicheroMusic, Muted)
 
 type Instrumento = String
-data TipoPista = Melodia | Acompanamiento | Bateria
+data TipoPista = Melodia | Acompanamiento | Bateria | Bajo
      deriving (Read, Show, Enum, Eq, Ord)
-type InfoPista = (Instrumento, TipoPista, Muted)
+type InfoPista = (ObraCompleta.Instrumento, TipoPista, Muted)
 
 type Pista = ( InfoPista , [Subbloque])
 
@@ -59,11 +60,37 @@ dePistaAMusic ((instr , _, False), subbloques) =
 
 
 
+
+{-
+Pasa del tipo ObraCompleta a una partitura de lylipond. De momento esta hecho muy por encima
+suponiendo ciertos parametros.
+-}
+deObraCompletaALy :: String -> String -> ObraCompleta -> IO CancionLy
+deObraCompletaALy titulo compositor ((_, armadura), pistas) =
+      do scores <- mapM (dePistasAScore armadura) pistas
+         return (titulo, compositor, scores)
+
+dePistasAScore :: Armadura -> Pista -> IO Score
+dePistasAScore armadura pista@((inst, tipo, muted), subbloques) =
+     do musica <- dePistaAMusic pista
+        return (musica, armadura, (2,4), inst, f tipo)
+        where f Melodia = Sol
+              f Acompanamiento = Sol
+              f Bajo = Fa
+              f ObraCompleta.Bateria = HaskoreALilypond.Bateria
+
+
+
+
+
+
 -- Ejemplo de Obra completa
 
 obraCompleta :: ObraCompleta
 obraCompleta = ((120, (C, Mayor)), [(("piano",Acompanamiento,False),[(9, "./Music_0_0.msc", False)]),
                                     (("violin",Acompanamiento,False),[(9, "./Music_1_0.msc", False)])] )
+
+
 
 
 

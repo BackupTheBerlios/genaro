@@ -28,6 +28,7 @@ type Instrumento = String
 -- 'Clave': Clave del pentagrama
 data Clave = Sol   -- Clave de 'Sol'
              | Fa  -- Clave de 'Fa'
+             | Bateria -- Clave de 'Bateria'
 
 -- 'Score': Todo lo necesario para definir una linea de pentagrama en Lilypond
 type Score = (Music, Armadura, Ritmo, Instrumento, Clave)
@@ -96,6 +97,7 @@ imprimeModo Menor = "minor"
 imprimeClave :: Clave -> String
 imprimeClave Sol = "treble"
 imprimeClave Fa = "bass"
+imprimeClave Bateria = "percussion"
 
 {-
     Funcion central de la traduccion

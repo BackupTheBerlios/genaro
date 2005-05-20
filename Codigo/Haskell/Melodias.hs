@@ -616,6 +616,7 @@ hazMelodiaParaProgresionCurva (aleat, (curvaTotal, progresion, patron, numDivisi
          musicaResul = lineSeguro (map lineSeguro listaDeMusicas) -- cuidado con las lista vacias
 
 
+-- NOTA: FALTA DARLE UN VALOR CORRECTO AL FALSE DEL TRADUCE CIFRADO DE ESTA FUNCION
 pruHazMelodiaParaProgresion :: String -> String -> Int -> IO ()
 pruHazMelodiaParaProgresion rutaProgresion rutaPatron numNotas = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
                                                                     prog <- leeProgresion rutaProgresion
@@ -633,7 +634,7 @@ pruHazMelodiaParaProgresion rutaProgresion rutaPatron numNotas = do aleat <- lis
                                                                           rutaDestSola = "./pruMelodiaParaProgresionSola.mid"
                                                                           rutaDestAcomp = "./pruMelodiaParaProgresionAcomp.mid"
                                                                           paramEjemplo = Paralelo 4 0 1 4
-                                                                          progOrd =  traduceProgresion paramEjemplo
+                                                                          progOrd =  traduceProgresion False paramEjemplo
                                                                           hazMusicaFase1 prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
                                                                           --hazMusica prog patRit = lineSeguro (take numReps (repeat (hazMusicaFase1 prog patRit)))
                                                                           acordes prog patRit = hazMusicaFase1 prog patRit
@@ -794,6 +795,7 @@ pruPeta n
  | otherwise = putStrLn "\n\n\nPrueba superada con exito\n\n"
 
 
+-- NOTA: FALTA DARLE UN VALOR CORRECTO AL FALSE DEL TRADUCE CIFRADO DE ESTA FUNCION
 pruHazMelodiaParaProgresionNoFlush :: String -> String -> Int -> IO ()
 pruHazMelodiaParaProgresionNoFlush rutaProgresion rutaPatron numNotas = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
                                                                            prog <- leeProgresion rutaProgresion
@@ -812,7 +814,7 @@ pruHazMelodiaParaProgresionNoFlush rutaProgresion rutaPatron numNotas = do aleat
                                                                           rutaDestSola = "./pruMelodiaParaProgresionSola.mid"
                                                                           rutaDestAcomp = "./pruMelodiaParaProgresionAcomp.mid"
                                                                           paramEjemplo = Paralelo 4 0 1 4
-                                                                          progOrd =  traduceProgresion paramEjemplo
+                                                                          progOrd =  traduceProgresion False paramEjemplo
                                                                           hazMusicaFase1 prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
                                                                           --hazMusica prog patRit = lineSeguro (take numReps (repeat (hazMusicaFase1 prog patRit)))
                                                                           acordes prog patRit = hazMusicaFase1 prog patRit

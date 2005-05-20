@@ -97,6 +97,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > previsualizaPatron _ = errorGenaro "error de encaje de patrones en previsualizaPatron"             
 
 > ------------------------------ GENERA SUBBLOQUE ACOMPANAMIENTO ----------------------------
+> -- NOTA: FALTA DARLE UN VALOR CORRECTO AL FALSE DEL TRADUCE CIFRADO DE ESTA FUNCION
 > generaSubbloqueAcompanamiento :: [String] -> IO()
 > generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "paralelo", "inversion", inversion, "disposicion", disposicion, "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] =
 >         do mensajeGenaro "Comienzo lectura progresion"
@@ -116,7 +117,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                  numNotasInt = aplicaParser integer numNotas
 >                  inversionInt = toInversion inversion
 >                  disposicionInt = toDisposicion disposicion
->                  ao prog = traduceProgresion (Paralelo octavaIniInt inversionInt disposicionInt numNotasInt) prog
+>                  ao prog = traduceProgresion False (Paralelo octavaIniInt inversionInt disposicionInt numNotasInt) prog
 >                  musica prog patron= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao prog)
 > generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "continuo", "semilla", semilla, "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] = 
 >         do mensajeGenaro "Comienzo lectura progresion"
@@ -135,7 +136,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            where octavaIniInt = aplicaParser integer octavaIni 
 >                  numNotasInt = aplicaParser integer numNotas
 >                  semillaInt = aplicaParser integer semilla
->                  ao prog = traduceProgresion (Continuo semillaInt octavaIniInt numNotasInt) prog
+>                  ao prog = traduceProgresion False (Continuo semillaInt octavaIniInt numNotasInt) prog
 >                  musica prog patron= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao prog)
 > generaSubbloqueAcompanamiento [rutaProgresion, rutaPatron, "octava", octavaIni, "numero_notas", numNotas, "sistema", "continuo", "nosemilla", "horizontal", horizontal, "vertical_mayor", verticalMayor, "vertical_menor", verticalMenor, rutaDest] = 
 >         do mensajeGenaro "Comienzo lectura progresion"
@@ -156,7 +157,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Completado generaSubbloqueAcompanamiento "
 >            where octavaIniInt = aplicaParser integer octavaIni 
 >                  numNotasInt = aplicaParser integer numNotas
->                  ao semilla prog = traduceProgresion (Continuo semilla octavaIniInt numNotasInt) prog
+>                  ao semilla prog = traduceProgresion False (Continuo semilla octavaIniInt numNotasInt) prog
 >                  musica prog patron semilla= deAcordesOrdenadosAMusica (read horizontal) (read verticalMayor, read verticalMenor) (patron) (ao semilla prog)
 > generaSubbloqueAcompanamiento _ = errorGenaro "error de encaje de patrones en generaSubbloqueAcompanamiento"
 
@@ -360,7 +361,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > hazMusicaYPartitura :: Int -> Progresion -> PatronRitmico -> IO()
 > hazMusicaYPartitura numReps prog patRit = do haskoreAMidi musica rutaDestinoMidi
 >                                              writeFile rutaDestinoPartitura partitura
->                                              where progOrd =  traduceProgresion paramEjemplo
+>                                              where progOrd =  traduceProgresion False paramEjemplo
 >                                                    hazMusicaFase1 prog patRit = deAcordesOrdenadosAMusica NoCiclico (Truncar1 , Truncar2) patRit (progOrd prog)
 >                                                    hazMusica prog patRit = line (take numReps (repeat (hazMusicaFase1 prog patRit)))
 >                                                    musica = hazMusica prog patRit

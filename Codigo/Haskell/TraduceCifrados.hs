@@ -29,12 +29,18 @@ data ParametrosTraduceCifrados =
 	| Continuo SemillaInt OctaveIni NumNotasTotal
 
 {-
-Traduce una progresion de cifrados a una lista de acordes ordenados
+Traduce una progresion de cifrados a una lista de acordes ordenados.
+Bool indica si queremos triadas o, por contra, las cuatriadas que ya tenemos
 -}
-traduceProgresion :: ParametrosTraduceCifrados -> Progresion -> [AcordeOrdenado]
-traduceProgresion (Paralelo ocIni inv disp numNotasT ) = traduceProgresionSistemaParalelo ocIni inv disp numNotasT 
-traduceProgresion (Continuo semilla ocIni numNotasT )  = traduceProgresionSistemaContinuo2 semilla ocIni numNotasT
-
+traduceProgresion :: Bool -> ParametrosTraduceCifrados -> Progresion -> [AcordeOrdenado]
+traduceProgresion b (Paralelo ocIni inv disp numNotasT ) prog = traduceProgresionSistemaParalelo ocIni inv disp numNotasT (f b prog)
+      where f2 ((g,matri),d) = ((g,deCuatriadaATriada matri),d)
+            f False p = p
+            f True p = map f2 p
+traduceProgresion b (Continuo semilla ocIni numNotasT )  prog = traduceProgresionSistemaContinuo2 semilla ocIni numNotasT (f b prog)
+      where f2 ((g,matri),d) = ((g,deCuatriadaATriada matri),d)
+            f False p = p
+            f True p = map f2 p
 
 -----------------------------------------------------------
 

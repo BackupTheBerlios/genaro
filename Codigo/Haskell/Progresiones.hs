@@ -175,10 +175,12 @@ sumaVector vector base = map (+ base) vector
 
 matriculaAVector :: Matricula -> Vector
 matriculaAVector m = case m of
+        -- Triadas
 	Mayor -> [0,4,7]
 	Menor -> [0,3,7]
 	Au -> [0,4,8]
 	Dis -> [0,3,6]
+        -- Cuatriadas
 	Sexta -> [0,4,7,9]
 	Men6 -> [0,3,7,9]
 	Men7B5 -> [0,3,6,10]
@@ -188,15 +190,23 @@ matriculaAVector m = case m of
 	MenMaj7 -> [0,3,7,11]
 	Au7 -> [0,4,8,10]
 	Dis7 -> [0,3,6,9]
+        
 
 
 -- Dice cuantas notas diferentes tiene el acorde en funcion de su matricula
 matriculaAInt :: Matricula -> Int
-matriculaAInt m
-	| elem m [Mayor, Menor] = 3
-	| elem m [Au, Dis, Sexta, Men6, Men7B5, Maj7, Sept, Men7, MenMaj7, Au7, Dis7] = 4
+matriculaAInt = length.matriculaAVector
 
 
+{-
+deCuatriadaATriada: dada una matricula de una cuatriada te la conviernte en una triada
+-}
+deCuatriadaATriada :: Matricula -> Matricula
+deCuatriadaATriada m
+    | elem m [Sexta, Maj7, Sept] = Mayor
+    | elem m [Men6, Men7, MenMaj7] = Menor
+    | elem m [Au7] = Au
+    | elem m [Men7B5, Dis7] = Dis
 
 
 

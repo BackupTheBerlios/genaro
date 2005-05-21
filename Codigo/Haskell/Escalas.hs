@@ -168,6 +168,7 @@ escalaDelAcorde (V7 (V7 _), Sept) = Mixolidia --dominantes por extension
 escalaDelAcorde (V7 (IIM7 _), Sept) = Mixolidia --dominantes por extension
 escalaDelAcorde (IIM7 _, Men7) = Dorica
 escalaDelAcorde (_, Dis7) = Disminuida
+escalaDelAcorde (BVII, Maj7) = Lidia
 
 {-
 Para un acorde especificado con un elemento de tipo cifrado da esa informacion,

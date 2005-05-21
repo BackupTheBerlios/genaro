@@ -42,6 +42,13 @@ un link si supiera como ponerlo)
 parserRatioARatio :: Parser Char (Ratio Int)
 parserRatioARatio =  (integer <* tantoPorCien) <*> integer  <@ f
                      where f = \(a,b) -> a%b
+
+{-
+Hace una prueba de un parser cualquiera mostrando por consola la salida del analisis
+-}
+pruParser :: Show a => (Parser Char a) -> String -> IO ()
+pruParser parser ruta = do texto <- readFile ruta
+                           print (parser texto)
 {-
 Dada una funcion/parser de tipo Parser Char a devuelve la función que aplica este parser, es decir,
 una funcion de tipo String -> a que devuelve el primer resultado del parseo o error si falla el
@@ -124,6 +131,10 @@ quitaFormatoDOS = filter (/= '\r')
 parserAceptaTodo :: Parser Char String
 --parserAceptaTodo str = reverse (map (\(a,b) -> (b,a)) [(divideListaPos div str) | div <- [(-1)..((length str) -1)]])
 parserAceptaTodo str = [(drop n str, take n str)| n <- (reverse [0..(length str)])]
+
+parserNoSalto :: Parser Char String
+parserNoSalto str = [(resto ++ sobra, resul) |(resto, resul) <- parserAceptaTodo (takeWhile (/= '\n') str)]
+                where sobra = (dropWhile (/= '\n') str)
 
 {-
 divideListaPos :: Int -> [a] -> ([a], [a])

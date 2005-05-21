@@ -1,14 +1,16 @@
 
 module ObraCompleta where
 
-import HaskoreALilypond(Armadura, Modo(..)) 
+--import HaskoreALilypond(Armadura, CancionLy, Score, Clave)
+import HaskoreALilypond
+import Parsers
+import Parser_library
+import HaskoreALilypond(Armadura, Modo(..))
 import Haskore
 import Ratio
 import HaskellAHaskell
-import BiblioGenaro 
+import BiblioGenaro
 import HaskoreAMidi
-import HaskoreALilypond
-
 
 type Tempo = Int
 type NumeroCompases = Int
@@ -28,6 +30,59 @@ type Pista = ( InfoPista , [Subbloque])
 type InfoObraCompleta = (Tempo, Armadura)
 type ObraCompleta = (InfoObraCompleta, [Pista])
 
+----------------PARSER DE FICHEROS .GEN ---------------------------------------
+{-
+FICHERO DE EJEMPLO
+Pistas: 2
+N 0
+Bloques 1 Tipo Acompanamiento Mute 0 Instrumento 0
+bloque 0
+Compases 9 vacio 0 Tipo_Music 13 Music_0_0.msc FINBLOQUE
+FINPISTA
+N 1
+Bloques 1 Tipo Melodia Mute 0 Instrumento 0
+bloque 0
+Compases 9 vacio 0 Tipo_Music 13 Music_1_0.msc FINBLOQUE
+FINPISTA
+FINCANCION
+-}
+
+{-
+parserObraCompleta = USAR . quitaFormatoDOS!!!!
+-}
+
+{-parserObraCompleta :: Parser Char ObraCompleta
+parserObraCompleta =
+         where info = (100, (C, Mayor))
+-}
+parserPista :: Parser Char Pista
+parserPista = (parserInfoPista <*> subbloques) <* (token "FINBLOQUE\n")
+      where subbloques = listaSeparadaString "FINBLOQUE\n" parserSubbloque
+           -- type Pista = ( InfoPista , [Subbloque])
+
+parserInfoPista :: Parser Char InfoPista
+parserInfoPista = infoPista
+             where inicio = (token "N") <*> espacio <*> natural <*> saltoDLinea
+                   bloques = (token "Bloques") <*> espacio <*> natural <*> espacio
+                   tipo = ((((token "Tipo") <*> espacio) *> parserAceptaTodo) <* espacio) <@ read
+                   muted = ((((token "Mute") <*> espacio) *> natural) <* espacio) <@ (>0)
+                   instrumento = ((((token "Instrumento") <*> espacio) *> natural) <* saltoDLinea) <@ intAInst
+                           where intAInst _ = "piano"
+                   infoPista = ((((inicio <*> bloques) *> tipo) <*> muted) <*> instrumento) <@(\((t, m),i)->(i,t,m))
+                   --(((inicio <*> bloques) *> tipo) <*> muted <*> instrumento) -- <@ (\((t, m),i)->(i,t,m))
+              -- type InfoPista = (Instrumento, TipoPista, Muted)
+              -- data TipoPista = Melodia | Acompanamiento | Bateria
+
+parserSubbloque :: Parser Char Subbloque
+parserSubbloque = (((((inicio *> numComp) <*> muteo) <* intermedio) <*> nombreFich)) <@ formatea
+                  where inicio = (token "bloque") <*> espacio <*> natural <*> saltoDLinea
+                        numComp = (((token "Compases") <*> espacio) *> natural) <* espacio
+                        muteo = (((token "vacio") <*> espacio) *> natural) <* espacio
+                        intermedio = (token "Tipo_Music") <*> espacio <*> natural <*> espacio
+                        nombreFich = parserNoSalto <* espacio
+                        --fin = token "FINBLOQUE"
+                        formatea ((nc, mute), nf) = (nc, nf, mute>0)
+                        -- type Subbloque = (NumeroCompases, FicheroMusic, Muted)
 
 
 
@@ -43,14 +98,15 @@ deObraCompletaAMidi _ ((_, (_, Menor) ), _) = error "No tratamos el modo menor"
 
 
 deSubbloqueAMusic :: Subbloque -> IO Music
+-- deSubbloqueAMusic (_, False) =
 deSubbloqueAMusic (n, _, True) = return (Rest (n%1))
-deSubbloqueAMusic (_, ficheroMusic, False) = 
+deSubbloqueAMusic (_, ficheroMusic, False) =
       do music <- leeMusic ficheroMusic
          return music
 
 
 dePistaAMusic :: Pista -> IO Music
-dePistaAMusic ((_ , _, True), subbloques) = 
+dePistaAMusic ((_ , _, True), subbloques) =
       do musicas <- mapM deSubbloqueAMusic subbloques
          return (Rest (d musicas))
          where d lista = dur (lineSeguro lista)
@@ -89,18 +145,4 @@ dePistasAScore armadura pista@((inst, tipo, muted), subbloques) =
 obraCompleta :: ObraCompleta
 obraCompleta = ((120, (C, Mayor)), [(("piano",Acompanamiento,False),[(9, "./Music_0_0.msc", False)]),
                                     (("violin",Acompanamiento,False),[(9, "./Music_1_0.msc", False)])] )
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

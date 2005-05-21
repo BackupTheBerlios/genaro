@@ -22,6 +22,12 @@ leeMusic :: String -> IO Music
 leeMusic ruta = do texto <- readFile ruta
                    return (((aplicaParser parserMusic) . quitaEspacios) texto)
 
+depLeeMusic :: IO()
+depLeeMusic = do putStrLn ("Leyendo musica de "++rutaPruMus)
+                 texto <- readFile rutaPruMus
+                 putStrLn ("Musica leida: "++(show (r texto)))
+                 where r texto = parserMusic (quitaEspacios texto)
+
 pruLeeMusic :: IO()
 pruLeeMusic = do putStrLn ("Leyendo musica de "++rutaPruMus)
                  musica <- (leeMusic rutaPruMus)

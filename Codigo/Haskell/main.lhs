@@ -24,6 +24,7 @@ Hay q revisar pq importa módulos de más
 > import Ratio
 > import HaskellAHaskell
 > import Melodias
+> import ObraCompleta
 
 
 \end{verbatim}
@@ -80,7 +81,11 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > diferenciaComandos ( "generaMusicConCurva" : restoArgumentos ) = generaMusicConCurva restoArgumentos
 > diferenciaComandos ( "mutaCurva" : restoArgumentos ) = mutaCurva restoArgumentos
 > diferenciaComandos ( "mutaCUrvaYMusic" : restoArgumentos ) = mutaCurvaYMusic restoArgumentos
+> diferenciaComandos ( "generaObraCompleta" : restoArgumentos ) = generaObraCompleta restoArgumentos
+> diferenciaComandos ( "generaLilypond" : restoArgumentos ) = generaLilypond restoArgumentos
 > diferenciaComandos _ = errorGenaro "comando erroneo en diferenciaCommandos"
+
+
 
 > ------------------------------ PREVISUALIZA PATRON ----------------------------
 
@@ -106,11 +111,11 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo lectura patron"
 >            patronR <- leePatronRitmicoC2 rutaPatron
 >            mensajeGenaro "Fin lectura patron"
->            mensajeGenaro "Comienzo escritura del music"
->            writeFile rutaDest (show (musica progresion patronR))
->            mensajeGenaro "Fin escritura del music"
+>            --mensajeGenaro "Comienzo escritura del music"
+>            --writeFile rutaDest (show (musica progresion patronR))
+>            --mensajeGenaro "Fin escritura del music"
 >            mensajeGenaro "Comienzo escritura del midi"
->            haskoreAMidi2  (musica progresion patronR) 100 "./prueba.mid"-- borrame en futuro cercano
+>            haskoreAMidi2  (musica progresion patronR) 120 rutaDest
 >            mensajeGenaro "Fin escritura del midi"
 >            mensajeGenaro "Completado generaSubbloqueAcompanamiento"
 >            where octavaIniInt = aplicaParser integer octavaIni 
@@ -126,11 +131,11 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo lectura patron"
 >            patronR <- leePatronRitmicoC2 rutaPatron
 >            mensajeGenaro "Fin lectura patron"
->            mensajeGenaro "Comienzo escritura del music"
->            writeFile rutaDest (show (musica progresion patronR))
->            mensajeGenaro "Fin escritura del music"
+>            --mensajeGenaro "Comienzo escritura del music"
+>            --writeFile rutaDest (show (musica progresion patronR))
+>            --mensajeGenaro "Fin escritura del music"
 >            mensajeGenaro "Comienzo escritura del midi"
->            haskoreAMidi2  (musica progresion patronR) 100 "./prueba.mid"-- borrame en futuro cercano
+>            haskoreAMidi2  (musica progresion patronR) 120 rutaDest
 >            mensajeGenaro "Fin escritura del midi"
 >            mensajeGenaro "Completado generaSubbloqueAcompanamiento "
 >            where octavaIniInt = aplicaParser integer octavaIni 
@@ -148,11 +153,11 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo generacion semilla"
 >            semillaInt <- numAleatorioIO 1 100        -- No se que numero poner de maximo
 >            mensajeGenaro "Fin generacion semilla"
->            mensajeGenaro "Comienzo escritura del music"
->            writeFile rutaDest (show (musica progresion patronR semillaInt))
->            mensajeGenaro "Fin escritura del music"
+>            --mensajeGenaro "Comienzo escritura del music"
+>            --writeFile rutaDest (show (musica progresion patronR semillaInt))
+>            --mensajeGenaro "Fin escritura del music"
 >            mensajeGenaro "Comienzo escritura del midi"
->            haskoreAMidi2  (musica progresion patronR semillaInt) 100 "./prueba.mid"-- borrame en futuro cercano
+>            haskoreAMidi2  (musica progresion patronR semillaInt) 120 rutaDest
 >            mensajeGenaro "Fin escritura del midi"
 >            mensajeGenaro "Completado generaSubbloqueAcompanamiento "
 >            where octavaIniInt = aplicaParser integer octavaIni 
@@ -176,6 +181,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 
 
 > ------------------------------ GENERA SUBBLOQUE SILENCIO ---------------------------------
+> --DE MOMENTO ESTO NO USAR
 
 > generaSubbloqueSilencio :: [String] -> IO ()
 > generaSubbloqueSilencio ["numero_compases", num_comp, "ruta_destino", ruta_dest] = 
@@ -234,12 +240,15 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >          mensajeGenaro "Comienzo generacion de numeros aleatorios"
 >          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
 >          mensajeGenaro "Fin generacion de numeros aleatorios"
->          mensajeGenaro "Comienzo escritura del music"
->          writeFile ruta_dest_music (show (musica progresion patron alea))
->          mensajeGenaro "Fin escritura del music"
+>          --mensajeGenaro "Comienzo escritura del music"
+>          --writeFile ruta_dest_music (show (musica progresion patron alea))
+>          --mensajeGenaro "Fin escritura del music"
 >          mensajeGenaro "Comienzo escritura del curva"
 >          writeFile ruta_dest_curva ((show.concat) (curva progresion patron alea))
 >          mensajeGenaro "Fin escritura del music"
+>          mensajeGenaro "Comienzo escritura del midi"
+>          haskoreAMidi2  (musica progresion patron alea) 120 ruta_dest_music
+>          mensajeGenaro "Fin escritura del midi"
 >          mensajeGenaro "Fin de generacion curva melodia aleatoria"
 >          where saltoMax_int = aplicaParser integer saltoMax
 >                probSalto_int = aplicaParser integer probSalto
@@ -270,11 +279,11 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >          mensajeGenaro "Comienzo creacion numeros aleatorios"
 >          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
 >          mensajeGenaro "Fin creacion numeros aleatorios"
->          mensajeGenaro "Comienzo escritura del music"
->          writeFile ruta_dest_music (show (musica progresion patron alea cadena))
->          mensajeGenaro "Fin escritura del music"
+>          --mensajeGenaro "Comienzo escritura del music"
+>          --writeFile ruta_dest_music (show (musica progresion patron alea cadena))
+>          --mensajeGenaro "Fin escritura del music"
 >          mensajeGenaro "Comienzo escritura del midi"
->          haskoreAMidi2  (musica progresion patron alea cadena) 100 "./prueba.mid"    -- borrame en futuro cercano
+>          haskoreAMidi2  (musica progresion patron alea cadena) 120 ruta_dest_music
 >          mensajeGenaro "Fin escritura del midi"
 >          mensajeGenaro "Fin generacion music con curva"
 >          where numDivisiones_int = aplicaParser integer numDivisiones
@@ -318,7 +327,8 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >          progresion <- leeProgresion ruta_prog
 >          patron <- leePatronRitmicoC2 ruta_patron
 >          writeFile ruta_dest_curva (show (curvaMut cadena alea))
->          writeFile ruta_dest_music (show (musica progresion patron alea cadena) )
+>          --writeFile ruta_dest_music (show (musica progresion patron alea cadena) )
+>          haskoreAMidi2  (musica progresion patron alea cadena) 120 ruta_dest_music
 >          where desp_max_int = aplicaParser integer desp_max
 >                num_mut_int = aplicaParser integer num_mut
 >                numDivisiones_int = aplicaParser integer numDivisiones
@@ -332,6 +342,42 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                curva prog patron alea cadena = snd (musicYCurva prog patron alea cadena)
 > mutaCurvaYMusic _ = errorGenaro "error de encaje de patrones en mutaCurvaYMusic"
 
+
+> ----------------------- PASA LA OBRA COMPLETA A MIDI --------------------------------
+
+> generaObraCompleta :: [String] -> IO ()
+> generaObraCompleta ["archivoGen", archivoGen, "ruta_midi", ruta_dest_midi] =
+>        do mensajeGenaro "Comienzo lectura de obra completa"
+>           obraCompleta <- leeObraCompleta archivoGen
+>           print obraCompleta
+>           mensajeGenaro "Fin lectura de obra completa"
+>           mensajeGenaro "Comienzo escritura de midi"
+>           deObraCompletaAMidi ruta_dest_midi obraCompleta
+>           mensajeGenaro "Fin escritura de midi"
+> generaObraCompleta _ = errorGenaro "error de encaje de patrones en generaObraCompleta"
+
+
+
+> ----------------------- PASA LA OBRA COMPLETA A LILYPOND --------------------------------
+
+> generaLilypond :: [String] -> IO ()
+> generaLilypond ["archivoGen", archivoGen, "ruta_ly", ruta_dest_ly] =
+>        do mensajeGenaro "Comienzo lectura de obra completa"
+>           obraCompleta <- leeObraCompleta archivoGen
+>           mensajeGenaro "Fin lectura de obra completa"
+>           mensajeGenaro "Comienzo generacion de tipo cancionLy"
+>           ly <- deObraCompletaALy "Obra Genara" "Genaro" obraCompleta
+>           mensajeGenaro "Fin generacion de tipo cancionLy"
+>           mensajeGenaro "Comienzo escritura de partitura lilypond"
+>           haskoreALilypond ly ruta_dest_ly
+>           mensajeGenaro "Fin escritura de partitura lilypond"
+> generaLilypond _ = errorGenaro "error de encaje de patrones en generaObraCompleta"
+
+
+
+> -- BORRAME
+> borrame :: IO ()
+> borrame = mainArgumentos ["C:/SuperGenaro/Codigo/Haskell","generaObraCompleta" , "archivoGen", "./Fichero_Indice.gen", "ruta_midi", "./salida.mid"]
 
 
 

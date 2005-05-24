@@ -41,6 +41,10 @@ struct Bloque
     //String Octava_Inicial
     //?? tipo enlace voces
     String Progresion;
+    int N_Divisiones;
+    int Fase2;
+    int Fase3;
+    int Fase4;
     void Inicializa();
 };
 //---------------------------------------------------------------------------
@@ -83,6 +87,6 @@ public:
   int Dame_Numero_Pistas(){return Pistas.size();};
   Pista* Dame_Pista(int N_Pista){return Pistas[N_Pista];};
   void Guarda_Archivo();
-  void Guarda_Archivo_Haskell();  
+  void Guarda_Archivo_Haskell(String Fichero_Gen,int tempo,String tonalidad);  
 };
 #endif

@@ -28,6 +28,13 @@ void Cancion::Nueva_Pista(Tipo_Pista tipopista)
     {
       temporal=Pistas[0]->Dame_Bloque(i);
       temporal.Vacio=true;
+      temporal.Curva_Melodica=NULL;
+      temporal.Tipo_Music=NULL;
+      temporal.Progresion=NULL;
+      temporal.N_Divisiones=2;
+      temporal.Fase2=2;
+      temporal.Fase3=2;
+      temporal.Fase4=2;
       Pista_Nueva->Inserta_Bloque(temporal);
     }
   }
@@ -42,6 +49,10 @@ Bloque_Vacio.Num_Compases=Num_Compases;
 Bloque_Vacio.Patron_Ritmico=P_Ritmico;
 Bloque_Vacio.Disposicion=Disposicion;
 Bloque_Vacio.Inversion=Inversion;
+Bloque_Vacio.N_Divisiones=2;
+Bloque_Vacio.Fase2=2;
+Bloque_Vacio.Fase3=2;
+Bloque_Vacio.Fase4=2;
 
 for (int i=0;i<Pistas.size();i++)
  {
@@ -119,6 +130,10 @@ for (int i=0;i<Pistas.size();i++)
     }
     fichero_salida<<" ";
     fichero_salida<<"Pista_Acomp "<<bloque_temp.N_Pista_Acomp<<" ";
+    fichero_salida<<"Num_Divisiones "<<bloque_temp.N_Divisiones;
+    fichero_salida<<"Fase2 "<<bloque_temp.Fase2;
+    fichero_salida<<"Fase3 "<<bloque_temp.Fase3;
+    fichero_salida<<"Fase4 "<<bloque_temp.Fase4;
     fichero_salida<<"Progresion "<<bloque_temp.Progresion.Length()<<" ";
     for (int k=0;k<bloque_temp.Progresion.Length();k++)
     {
@@ -143,8 +158,8 @@ void Bloque::Inicializa()
 {
 Notas_Totales=0;
 Vacio=true;
-Curva_Melodica="";
-Tipo_Music="";
+Curva_Melodica=NULL;
+Tipo_Music=NULL;
 N_Pista_Acomp=-1;
 Octava_Inicial=1;
 Tipo_Melodia=0;
@@ -152,6 +167,10 @@ Progresion=NULL;
 Aplicacion_Horizontal=0;
 Aplicacion_Vertical_Mayor=0;
 Aplicacion_Vertical_Menor=0;
+N_Divisiones=0;
+Fase2=0;
+Fase3=0;
+Fase4=0;
 }
 //---------------------------------------------------------------------------
 int Es_Progresion_Valida(String fichero_Progresion)
@@ -422,13 +441,20 @@ if (Procesar(Progresion,"]).")==-1){ShowMessage("ERROR comiendo progresión");ret
 return Cadenas;
 }
 //------------------------------------------------------------------------------
-void Cancion::Guarda_Archivo_Haskell()
+void Cancion::Guarda_Archivo_Haskell(String Fichero_Gen,int tempo,String tonalidad)
 {
 ofstream fichero_salida;
-fichero_salida.open("Fichero_Indice.gen");
+fichero_salida.open(Fichero_Gen.c_str());
 //guardamos datos de cancion
 Bloque bloque_temp;
 fichero_salida<<"Pistas: "<<Pistas.size()<<"\n";
+fichero_salida<<"Tempo: "<<tempo<<"\n";
+fichero_salida<<"Tonalidad: ";
+for (int o=0;o<tonalidad.Length();o++)
+{
+  fichero_salida<<tonalidad[o+1];
+}
+fichero_salida<<"\n";
 for (int i=0;i<Pistas.size();i++)
  {
  //Escribimos los datos de pista
@@ -461,7 +487,8 @@ for (int i=0;i<Pistas.size();i++)
   }
  fichero_salida<<"FINPISTA"<<"\n";
  }
-fichero_salida<<"FINCANCION";
+fichero_salida<<"FINCANCION"<<"\n";
 fichero_salida.close();
 }
+
 

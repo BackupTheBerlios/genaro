@@ -14,6 +14,7 @@
 #include <ComCtrls.hpp>
 #include "Tipos_Estructura.h"
 #include <Grids.hpp>
+#include <jpeg.hpp>
 //---------------------------------------------------------------------------
 class TForm1 : public TForm
 {
@@ -155,6 +156,29 @@ __published:	// IDE-managed Components
   TLabel *Label9;
   TComboBox *ComboBox1;
   TLabel *Label10;
+  TTabSheet *Tab_Parametros_Melodia;
+  TTrackBar *Barra_Numero_Divisiones;
+  TTrackBar *Barra_Fase2;
+  TTrackBar *Barra_Fase3;
+  TTrackBar *Barra_Fase4;
+  TLabel *Label11;
+  TLabel *Label17;
+  TLabel *Label18;
+  TLabel *Label19;
+  TLabel *Label20;
+  TLabel *Label21;
+  TLabel *Label22;
+  TLabel *Label23;
+  TTrackBar *Barra_Prob_Salto;
+  TTrackBar *Barra_Salto_Maximo;
+  TTrackBar *Barra_Numero_Puntos;
+  TLabel *Label24;
+  TLabel *Label25;
+  TLabel *Label26;
+  TLabel *Label27;
+  TLabel *Label28;
+  TLabel *Label29;
+  TImage *Image1;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -204,6 +228,14 @@ __published:	// IDE-managed Components
   void __fastcall Button11Click(TObject *Sender);
   void __fastcall Button13Click(TObject *Sender);
   void __fastcall Barra_TempoChange(TObject *Sender);
+  void __fastcall Barra_Numero_DivisionesChange(TObject *Sender);
+  void __fastcall Barra_Fase3Change(TObject *Sender);
+  void __fastcall Barra_Fase2Change(TObject *Sender);
+  void __fastcall Barra_Fase4Change(TObject *Sender);
+  void __fastcall Barra_Prob_SaltoChange(TObject *Sender);
+  void __fastcall Barra_Salto_MaximoChange(TObject *Sender);
+  void __fastcall Barra_Numero_PuntosChange(TObject *Sender);
+  void __fastcall Image1Click(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;

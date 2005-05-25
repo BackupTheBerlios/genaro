@@ -39,6 +39,9 @@ Ancho_Columnas=25;
 Numero_Filas_A_Dibujar=0;
 Numero_Bloques=0;
 Ancho_Espacio_Estatico=50;
+Barra_Tipo_Pista->Brush->Style=bsClear;
+Barra_N_Compases_Bloque->Brush->Style=bsClear;
+Barra_Tempo->Brush->Style=bsClear;
 }
 //---------------------------------------------------------------------------
 void TForm1::Inicializa_Patrones_Ritmicos()
@@ -492,6 +495,10 @@ Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(C
 Etiqueta_Bloque_Numero_Compases->Caption="Nº Compases de su bloque: "+IntToStr(Bloque_A_Manipular.Num_Compases);
 Barra_Numero_Acorde_A_Mutar->Max=Bloque_A_Manipular.Num_Compases;
 Lista_8_Inicial->Text=IntToStr(Bloque_A_Manipular.Octava_Inicial);
+Barra_Numero_Divisiones->Position=Bloque_A_Manipular.N_Divisiones;
+Barra_Fase2->Position=Bloque_A_Manipular.Fase2;
+Barra_Fase3->Position=Bloque_A_Manipular.Fase3;
+Barra_Fase4->Position=Bloque_A_Manipular.Fase4;
 if (Bloque_A_Manipular.Aplicacion_Horizontal==0)
 {
   Radio_Horizontal_Ciclico->Checked=true;
@@ -616,6 +623,10 @@ Bloque_A_Manipular.Es_Sistema_Paralelo=Sistema_Paralelo->Checked;
 Bloque_A_Manipular.Inversion=Lista_Inversion->Text;
 Bloque_A_Manipular.Disposicion=Lista_Disposicion->Text;
 Bloque_A_Manipular.Octava_Inicial=StrToInt(Lista_8_Inicial->Text);
+Bloque_A_Manipular.N_Divisiones=Barra_Numero_Divisiones->Position;
+Bloque_A_Manipular.Fase2=Barra_Fase2->Position;
+Bloque_A_Manipular.Fase3=Barra_Fase3->Position;
+Bloque_A_Manipular.Fase4=Barra_Fase4->Position;
 if (Radio_Horizontal_Ciclico->Checked==true)
 {
   Bloque_A_Manipular.Aplicacion_Horizontal=0;
@@ -1393,7 +1404,7 @@ else
   Label_Texto_Muta_Acorde->Enabled=false;
   Label_Mutar_Acorde_N->Enabled=false;
   Barra_Numero_Acorde_A_Mutar->Enabled=false;
-}  
+}
 }
 //---------------------------------------------------------------------------
 
@@ -1504,7 +1515,7 @@ void TForm1::Genera_Music_Acompanamiento()
   if (Radio_Vertical_Menor_Saturar->Checked){Vertical_Menor="Saturar2";}
   if (Radio_Vertical_Menor_Ciclico->Checked){Vertical_Menor="Ciclico2";}
   if (Radio_Vertical_Menor_Modulo->Checked){Vertical_Menor="Modulo2";}
-  String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".msc";
+  String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".mid";
   //caso sistema paralelo
   if (Sistema_Paralelo->Checked)
   {
@@ -1658,9 +1669,9 @@ void TForm1::Crea_Curva_Delegando()
   String Orden="generaCurvaMelAlea";
   String fichero1="CurvaMelodica_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".cm";
   String Pal_Parametros="parametros_curva";
-  String Parametro1=3; //salto maximo
-  String Parametro2=6; //probabilidad de salto
-  String Parametro3=10; //numero de puntos
+  String Parametro1=Barra_Prob_Salto->Position; //salto maximo
+  String Parametro2=Barra_Salto_Maximo->Position; //probabilidad de salto
+  String Parametro3=Barra_Numero_Puntos->Position; //numero de puntos
   String Pal_Ruta="ruta_dest_curva";
   int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Pal_Parametros.c_str(),Parametro1.c_str(),Parametro2.c_str(),Parametro3.c_str(),Pal_Ruta.c_str(),fichero1.c_str(),NULL);
   if (valor_spawn==-1)
@@ -1693,12 +1704,12 @@ void TForm1::Genera_Music_Melodia()
   String Pal_patron="ruta_patron";
   String Ruta_Patron="./PatronesRitmicos/"+Bloque_Acompanamiento.Patron_Ritmico;
   String Pal_Parametros="parametros_curva";
-  String Parametro1=2;//numero de divisiones
-  String Parametro2=2;//numero de aplicaciones de fase 2
-  String Parametro3=2;//numero de aplicaciones de fase 3
-  String Parametro4=2;//numero de aplicaciones de fase 4
+  String Parametro1=Bloque_A_Manipular.N_Divisiones;//numero de divisiones (0-10)
+  String Parametro2=Bloque_A_Manipular.Fase2;//numero de aplicaciones de fase 2 (0-50)
+  String Parametro3=Bloque_A_Manipular.Fase3;//numero de aplicaciones de fase 3 (0-50)
+  String Parametro4=Bloque_A_Manipular.Fase4;//numero de aplicaciones de fase 4 (0-50)
   String Pal_Ruta_Destino="ruta_dest_music";
-  String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".msc";
+  String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".mid";
 
   int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Pal_Rutacurva.c_str(),Ruta_Curva.c_str(),Pal_Rutaprogresion.c_str(),Ruta_Progresion.c_str(),Pal_patron.c_str(),Ruta_Patron.c_str(),Pal_Parametros.c_str(),Parametro1.c_str(),Parametro2.c_str(),Parametro3.c_str(),Parametro4.c_str(),Pal_Ruta_Destino.c_str(),Ruta_Destino_Music.c_str(),NULL);
   if (valor_spawn==-1){ShowMessage("Error creando el music de melodia");}
@@ -1713,7 +1724,24 @@ if (Inicializado)
 {
  if (Comprobar_Si_Generados_Music()!=-1)
  {
-  Musica_Genaro->Guarda_Archivo_Haskell();
+  String Fichero_Gen="Fichero_Indice.gen";
+  String Tonalidad=ComboBox1->Text;
+  Musica_Genaro->Guarda_Archivo_Haskell(Fichero_Gen,Barra_Tempo->Position,Tonalidad);
+  //creamos midi
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+  String Ruta_Codigo_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Codigo_Haskell();
+  String Orden="generaObraCompleta";
+  String Parametro1="archivoGen";
+
+  String Parametro2="ruta_midi";
+  String Midi_salida="musica_genara.mid";
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Parametro1.c_str(),Fichero_Gen.c_str(),Parametro2.c_str(),Midi_salida.c_str(),NULL);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el runhugs de haskell.");}
  }
 }
 }
@@ -1740,4 +1768,52 @@ Etiqueta_Tempo->Caption=IntToStr(Barra_Tempo->Position);
 }
 //---------------------------------------------------------------------------
 
+
+void __fastcall TForm1::Barra_Numero_DivisionesChange(TObject *Sender)
+{
+Label20->Caption=IntToStr(Barra_Numero_Divisiones->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_Fase3Change(TObject *Sender)
+{
+Label22->Caption=StrToInt(Barra_Fase3->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_Fase2Change(TObject *Sender)
+{
+Label21->Caption=StrToInt(Barra_Fase2->Position);  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_Fase4Change(TObject *Sender)
+{
+Label23->Caption=StrToInt(Barra_Fase4->Position);  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_Prob_SaltoChange(TObject *Sender)
+{
+Label27->Caption=StrToInt(Barra_Prob_Salto->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_Salto_MaximoChange(TObject *Sender)
+{
+Label28->Caption=StrToInt(Barra_Salto_Maximo->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_Numero_PuntosChange(TObject *Sender)
+{
+Label29->Caption=StrToInt(Barra_Numero_Puntos->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Image1Click(TObject *Sender)
+{
+this->Click();
+}
+//---------------------------------------------------------------------------
 

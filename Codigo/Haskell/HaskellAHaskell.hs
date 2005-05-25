@@ -1,4 +1,4 @@
--- PARSERS BASADOS EN EL ARTICULO: Jeroen Fokker
+ -- PARSERS BASADOS EN EL ARTICULO: Jeroen Fokker
 -- 				 Functional Parsers
 --				 in: Johan Jeuring and Erik Meijer (eds.)
 --				     Advanced Functional Programming
@@ -13,6 +13,11 @@ import Parsers
 import BiblioGenaro
 import List
 import Maybe
+import Haskore
+import Progresiones      -- Solo para prueba
+import PatronesRitmicos      -- Solo para prueba
+import TraduceCifrados      -- Solo para prueba
+import HaskoreAMidi      -- Solo para prueba
 
 {-
 Esta es la función que deben llamar otros modulos, dada una ruta lee el fichero en ella y realiza todo el
@@ -172,4 +177,75 @@ stringAPitchClass "Bs" = Bs
 
 pitchClassDisponibles :: [PitchClass]
 pitchClassDisponibles = [Cf, C, Cs, Df, D, Ds, Ef, E, Es, Ff, F, Fs, Gf, G, Gs, Af, A, As, Bf, B, Bs]
+
+
+
+--- NUEVO CODIGO PARA HACER LEER MUSIC DE UN ARCHIVO MIDI ---------------
+
+leeMusic2 :: FilePath -> IO Music
+leeMusic2 fich =
+      do midiFile <- loadMidiFile fich
+         return (eliminarPrimerInstr (musica midiFile))
+         where primer (a, _, _) = a
+               musica midiFile = primer (readMidi midiFile)
+
+leeMusic3 :: FilePath -> IO (Music, Context, UserPatchMap)
+leeMusic3 fich =
+      do midiFile <- loadMidiFile fich
+         return (readMidi midiFile)
+
+eliminarPrimerInstr :: Music -> Music
+eliminarPrimerInstr (Instr i m) = m
+eliminarPrimerInstr m = m
+
+
+
+-------- PRUEBA PARA COMPROBAR QUE LA LECTURA MIDI ES CORRECTA -------
+
+progresion :: Progresion
+progresion = [((I,Maj7),1%2),((IV,Maj7),1%2),((V,Sept),1%2),((I,Maj7),1%2)]
+
+
+patronR :: PatronRitmico
+patronR = (4, [([(i,100,False) | i<-[1..4]],1%8)])
+
+
+acordesOrdenados :: [AcordeOrdenado]
+acordesOrdenados = traduceProgresion False (Continuo 10 3 4) progresion 
+
+musicaPru :: Music
+musicaPru = deAcordesOrdenadosAMusica NoCiclico (Truncar1, Truncar2) patronR acordesOrdenados
+
+
+laHoraDeLaVerdad :: IO ()
+laHoraDeLaVerdad = 
+       do haskoreAMidi2 (Tempo 1 (Instr "piano" musicaPru)) 107 "prueba1.mid"
+          musicaPru2 <- leeMusic2 "prueba1.mid"
+          haskoreAMidi2 (Tempo 1 (Instr "piano" musicaPru2)) 120 "prueba2.mid"
+          putStrLn "Primer Music"
+          putStrLn (show musicaPru)
+          putStrLn "Segundo Music"
+          putStrLn (show musicaPru2)
+          putStrLn "¿Son iguales?"
+          putStrLn (show (musicaPru==musicaPru2))
+
+
+laHoraDeLaVerdad2 :: IO ()
+laHoraDeLaVerdad2 = 
+       do haskoreAMidi2 (Rest (1%4)) 120 "prueba1.mid"
+          musicaPru2 <- leeMusic2 "prueba1.mid"
+          haskoreAMidi2 musicaPru2 120 "prueba2.mid"
+          putStrLn "Primer Music"
+          putStrLn ( show (Rest (1%4)) )
+          putStrLn "Segundo Music"
+          putStrLn (show musicaPru2)
+          putStrLn "¿Son iguales?"
+          putStrLn (show ((Rest (1%4))==musicaPru2))
+
+
+
+
+
+
+
 

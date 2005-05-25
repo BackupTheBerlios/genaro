@@ -22,6 +22,7 @@ __published:	// IDE-managed Components
   void __fastcall FormClick(TObject *Sender);
   void __fastcall FormPaint(TObject *Sender);
   void __fastcall Button1Click(TObject *Sender);
+  void __fastcall FormCreate(TObject *Sender);
 private:	// User declarations
   int X_Inicial,Y_Inicial,X_Final,Y_Final;
   int Ancho,Alto;
@@ -29,6 +30,7 @@ private:	// User declarations
   Cancion* Musica_G;
   int Fila_P;
   int Columna_P;
+  int Resolucion;
 public:		// User declarations
   void Dibuja_Curva();
   void Lee_Puntos(Cancion* Musica_Genaro,int Fila_Pulsada,int Columna_Pulsada);

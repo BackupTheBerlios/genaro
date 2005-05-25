@@ -12,6 +12,7 @@ object Form_Melodia: TForm_Melodia
   Font.Style = []
   OldCreateOrder = False
   OnClick = FormClick
+  OnCreate = FormCreate
   OnPaint = FormPaint
   PixelsPerInch = 96
   TextHeight = 13

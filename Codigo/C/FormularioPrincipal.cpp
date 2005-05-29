@@ -347,6 +347,7 @@ void __fastcall TForm1::Boton_Nueva_PistaClick(TObject *Sender)
 {
 if (Inicializado)
 {
+  if ((Barra_Tipo_Pista->Position==2)||(Barra_Tipo_Pista->Position==3)){ShowMessage("No implementado");return;}
   Musica_Genaro->Nueva_Pista(Barra_Tipo_Pista->Position);
   Numero_Filas_A_Dibujar++;
   Dibuja_Cancion();
@@ -493,7 +494,6 @@ Panel_Bloque->Visible=true;
 
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 Etiqueta_Bloque_Numero_Compases->Caption="Nº Compases de su bloque: "+IntToStr(Bloque_A_Manipular.Num_Compases);
-Barra_Numero_Acorde_A_Mutar->Max=Bloque_A_Manipular.Num_Compases;
 Lista_8_Inicial->Text=IntToStr(Bloque_A_Manipular.Octava_Inicial);
 Barra_Numero_Divisiones->Position=Bloque_A_Manipular.N_Divisiones;
 Barra_Fase2->Position=Bloque_A_Manipular.Fase2;
@@ -860,6 +860,8 @@ switch (Barra_Tipo_Pista->Position)
 {
   case 0:Etiqueta_Tipo_Pista->Caption="Acompañamiento";break;
   case 1:Etiqueta_Tipo_Pista->Caption="Melodía";break;
+  case 2:Etiqueta_Tipo_Pista->Caption="Bajo";break;
+  case 3:Etiqueta_Tipo_Pista->Caption="Batería";break;
 }
 }
 //---------------------------------------------------------------------------
@@ -882,11 +884,6 @@ else
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando el MainArgs de prolog.");}
 }
-void __fastcall TForm1::Barra_Numero_Acorde_A_MutarChange(TObject *Sender)
-{
-Label_Mutar_Acorde_N->Caption=IntToStr(Barra_Numero_Acorde_A_Mutar->Position);
-}
-//---------------------------------------------------------------------------
 
 void __fastcall TForm1::Button12Click(TObject *Sender)
 {
@@ -1344,14 +1341,10 @@ void __fastcall TForm1::Radio_Crear_ProgresionClick(TObject *Sender)
 if (Radio_Mutar_Acorde_Progresion->Checked)
 {
   Label_Texto_Muta_Acorde->Enabled=true;
-  Label_Mutar_Acorde_N->Enabled=true;
-  Barra_Numero_Acorde_A_Mutar->Enabled=true;
 }
 else
 {
   Label_Texto_Muta_Acorde->Enabled=false;
-  Label_Mutar_Acorde_N->Enabled=false;
-  Barra_Numero_Acorde_A_Mutar->Enabled=false;
 }
 }
 //---------------------------------------------------------------------------
@@ -1361,14 +1354,10 @@ void __fastcall TForm1::Radio_Mutar_ProgresionClick(TObject *Sender)
 if (Radio_Mutar_Acorde_Progresion->Checked)
 {
   Label_Texto_Muta_Acorde->Enabled=true;
-  Label_Mutar_Acorde_N->Enabled=true;
-  Barra_Numero_Acorde_A_Mutar->Enabled=true;
 }
 else
 {
   Label_Texto_Muta_Acorde->Enabled=false;
-  Label_Mutar_Acorde_N->Enabled=false;
-  Barra_Numero_Acorde_A_Mutar->Enabled=false;
 }  
 }
 //---------------------------------------------------------------------------
@@ -1378,14 +1367,10 @@ void __fastcall TForm1::Radio_Mutar_Acorde_ProgresionClick(TObject *Sender)
 if (Radio_Mutar_Acorde_Progresion->Checked)
 {
   Label_Texto_Muta_Acorde->Enabled=true;
-  Label_Mutar_Acorde_N->Enabled=true;
-  Barra_Numero_Acorde_A_Mutar->Enabled=true;
 }
 else
 {
   Label_Texto_Muta_Acorde->Enabled=false;
-  Label_Mutar_Acorde_N->Enabled=false;
-  Barra_Numero_Acorde_A_Mutar->Enabled=false;
 }  
 }
 //---------------------------------------------------------------------------
@@ -1396,14 +1381,10 @@ void __fastcall TForm1::Radio_Mutar_Progresion_MultipleClick(
 if (Radio_Mutar_Acorde_Progresion->Checked)
 {
   Label_Texto_Muta_Acorde->Enabled=true;
-  Label_Mutar_Acorde_N->Enabled=true;
-  Barra_Numero_Acorde_A_Mutar->Enabled=true;
 }
 else
 {
   Label_Texto_Muta_Acorde->Enabled=false;
-  Label_Mutar_Acorde_N->Enabled=false;
-  Barra_Numero_Acorde_A_Mutar->Enabled=false;
 }
 }
 //---------------------------------------------------------------------------
@@ -1627,35 +1608,7 @@ for (int i=0;i<cadenitas->Count;i++)
 //---------------------------------------------------------------------------
 
 
-void __fastcall TForm1::Button7Click(TObject *Sender)
-{
-Grid_Progresion->RowCount=1;//no vamos a aumentar este número
-Grid_Progresion->ColCount=1;
-Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("sde");
-Grid_Progresion->ColCount++;
-Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("2");
-Grid_Progresion->ColCount++;
-Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("3");
-Grid_Progresion->ColCount++;
-Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("4");
-Grid_Progresion->ColCount++;
-Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("4");
-Grid_Progresion->ColCount++;
-Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("34");
-Grid_Progresion->ColCount++;
-Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("f");
-Grid_Progresion->ColCount++;
-Grid_Progresion->Cols[Grid_Progresion->ColCount-1]->Add("df4");
-ShowMessage(IntToStr(Grid_Progresion->ColCount));
-}
-//---------------------------------------------------------------------------
 
-void __fastcall TForm1::Button11Click(TObject *Sender)
-{
-ShowMessage(IntToStr(Grid_Progresion->Col));
-ShowMessage(Grid_Progresion->Cols[Grid_Progresion->Col]->Strings[0]);
-}
-//---------------------------------------------------------------------------
 //------------------------------------------------------------------------------
 void TForm1::Crea_Curva_Delegando()
 {
@@ -1755,8 +1708,11 @@ for (int i=0;i<Musica_Genaro->Dame_Numero_Pistas();i++)
   {
     if(Musica_Genaro->Dame_Pista(i)->Dame_Bloque(j).Tipo_Music==NULL)
     {
+      if (Musica_Genaro->Dame_Pista(i)->Dame_Bloque(j).Vacio==false)
+      {
       ShowMessage("No están generados todos los tipos music");
       return -1;
+      }
     }
   }
 }

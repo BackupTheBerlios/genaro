@@ -3483,6 +3483,7 @@ object Form1: TForm1
       FA87C55A7DBF56BF07D183AA34BC9E4A9E9F33FDE7E396B92AA69DAB4EFCB015
       687A3DF8E2ABCFD4683A604BA5FAA7B532252856FA8D4D720555A0FA853B6424
       90FF00FFD9}
+    Visible = False
     OnClick = Image1Click
   end
   object Etiqueta_Numero_Compases: TLabel
@@ -3769,7 +3770,7 @@ object Form1: TForm1
     Top = 24
     Width = 73
     Height = 25
-    Max = 1
+    Max = 3
     Orientation = trHorizontal
     PageSize = 1
     Frequency = 1
@@ -4008,7 +4009,7 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_Melodia
+    ActivePage = Tab_Crear_Progresion
     TabOrder = 13
     Visible = False
     object Tab_General: TTabSheet
@@ -4795,21 +4796,6 @@ object Form1: TForm1
     object Tab_Crear_Progresion: TTabSheet
       Caption = 'Crear Progresión'
       ImageIndex = 4
-      object Label_Mutar_Acorde_N: TLabel
-        Left = 488
-        Top = 112
-        Width = 11
-        Height = 20
-        Caption = '1'
-        Enabled = False
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -16
-        Font.Name = 'MS Sans Serif'
-        Font.Style = [fsBold]
-        ParentFont = False
-        Visible = False
-      end
       object Label_Texto_Muta_Acorde: TLabel
         Left = 264
         Top = 8
@@ -4879,32 +4865,13 @@ object Form1: TForm1
           OnClick = Radio_Mutar_Progresion_MultipleClick
         end
       end
-      object Barra_Numero_Acorde_A_Mutar: TTrackBar
-        Left = 440
-        Top = 104
-        Width = 33
-        Height = 25
-        Enabled = False
-        Max = 1
-        Min = 1
-        Orientation = trHorizontal
-        Frequency = 1
-        Position = 1
-        SelEnd = 0
-        SelStart = 0
-        TabOrder = 2
-        TickMarks = tmBottomRight
-        TickStyle = tsAuto
-        Visible = False
-        OnChange = Barra_Numero_Acorde_A_MutarChange
-      end
       object Boton_Cargar_Progresion: TButton
         Left = 16
         Top = 104
         Width = 97
         Height = 25
         Caption = 'Cargar Progresion'
-        TabOrder = 3
+        TabOrder = 2
         OnClick = Boton_Cargar_ProgresionClick
       end
       object Grid_Progresion: TStringGrid
@@ -4919,25 +4886,7 @@ object Form1: TForm1
         RowCount = 1
         FixedRows = 0
         ScrollBars = ssHorizontal
-        TabOrder = 4
-      end
-      object Button7: TButton
-        Left = 368
-        Top = 104
-        Width = 41
-        Height = 25
-        Caption = 'Button7'
-        TabOrder = 5
-        OnClick = Button7Click
-      end
-      object Button11: TButton
-        Left = 408
-        Top = 104
-        Width = 41
-        Height = 25
-        Caption = 'Button11'
-        TabOrder = 6
-        OnClick = Button11Click
+        TabOrder = 3
       end
     end
     object Tab_Melodia: TTabSheet

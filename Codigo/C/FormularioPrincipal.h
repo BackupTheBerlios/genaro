@@ -123,9 +123,7 @@ __published:	// IDE-managed Components
   TRadioButton *Radio_Mutar_Progresion;
   TRadioButton *Radio_Mutar_Acorde_Progresion;
   TRadioButton *Radio_Mutar_Progresion_Multiple;
-  TTrackBar *Barra_Numero_Acorde_A_Mutar;
   TOpenDialog *Dialogo_Origen_Progresion;
-  TLabel *Label_Mutar_Acorde_N;
   TLabel *Label_Texto_Muta_Acorde;
   TComboBox *Selector_Pista_Acompanamiento;
   TMenuItem *Guardar1;
@@ -148,8 +146,6 @@ __published:	// IDE-managed Components
   TEdit *Edit_Semilla;
   TButton *Boton_Cargar_Progresion;
   TStringGrid *Grid_Progresion;
-  TButton *Button7;
-  TButton *Button11;
   TButton *Button13;
   TTrackBar *Barra_Tempo;
   TLabel *Etiqueta_Tempo;
@@ -212,7 +208,6 @@ __published:	// IDE-managed Components
   void __fastcall Barra_Mutaciones_2M7Change(TObject *Sender);
   void __fastcall Barra_N_Compases_BloqueChange(TObject *Sender);
   void __fastcall Barra_Tipo_PistaChange(TObject *Sender);
-  void __fastcall Barra_Numero_Acorde_A_MutarChange(TObject *Sender);
   void __fastcall Button12Click(TObject *Sender);
   void __fastcall Radio_Crear_ProgresionClick(TObject *Sender);
   void __fastcall Radio_Mutar_ProgresionClick(TObject *Sender);
@@ -224,8 +219,6 @@ __published:	// IDE-managed Components
   void __fastcall Button10Click(TObject *Sender);
   void __fastcall Edit_SemillaChange(TObject *Sender);
   void __fastcall Boton_Cargar_ProgresionClick(TObject *Sender);
-  void __fastcall Button7Click(TObject *Sender);
-  void __fastcall Button11Click(TObject *Sender);
   void __fastcall Button13Click(TObject *Sender);
   void __fastcall Barra_TempoChange(TObject *Sender);
   void __fastcall Barra_Numero_DivisionesChange(TObject *Sender);

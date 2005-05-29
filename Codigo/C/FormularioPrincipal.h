@@ -178,6 +178,15 @@ __published:	// IDE-managed Components
   TButton *Boton_Edicion;
   TButton *Boton_Cargar_Curva;
   TOpenDialog *Open_Curva;
+  TButton *Boton_Mutar_Curva;
+  TLabel *Label30;
+  TComboBox *Lista_Patrones_Melodia;
+  TTrackBar *Barra_Mutaciones_Curva;
+  TTrackBar *Barra_Salto_Maximo_Mutaciones;
+  TLabel *Label31;
+  TLabel *Label32;
+  TLabel *Label33;
+  TLabel *Label34;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -234,6 +243,9 @@ __published:	// IDE-managed Components
   void __fastcall Image1Click(TObject *Sender);
   void __fastcall Boton_EdicionClick(TObject *Sender);
   void __fastcall Boton_Cargar_CurvaClick(TObject *Sender);
+  void __fastcall Barra_Salto_Maximo_MutacionesChange(TObject *Sender);
+  void __fastcall Barra_Mutaciones_CurvaChange(TObject *Sender);
+  void __fastcall Boton_Mutar_CurvaClick(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;

@@ -4009,7 +4009,7 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_Melodia
+    ActivePage = Tab_General
     TabOrder = 13
     Visible = False
     object Tab_General: TTabSheet
@@ -4903,10 +4903,10 @@ object Form1: TForm1
       ImageIndex = 2
       object Label7: TLabel
         Left = 224
-        Top = 16
-        Width = 166
+        Top = 0
+        Width = 139
         Height = 19
-        Caption = 'Pista de Acompañamiento:'
+        Caption = 'Pista Acompañamiento'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
         Font.Height = -13
@@ -4915,11 +4915,11 @@ object Form1: TForm1
         ParentFont = False
       end
       object Label24: TLabel
-        Left = 408
+        Left = 392
         Top = 0
-        Width = 98
+        Width = 83
         Height = 13
-        Caption = 'Probabilidad de salto'
+        Caption = 'Probabilidad salto'
       end
       object Label25: TLabel
         Left = 408
@@ -4929,14 +4929,14 @@ object Form1: TForm1
         Caption = 'Salto máximo'
       end
       object Label26: TLabel
-        Left = 408
+        Left = 392
         Top = 96
         Width = 87
         Height = 13
         Caption = 'Número de puntos'
       end
       object Label27: TLabel
-        Left = 520
+        Left = 512
         Top = 16
         Width = 9
         Height = 16
@@ -4949,7 +4949,7 @@ object Form1: TForm1
         ParentFont = False
       end
       object Label28: TLabel
-        Left = 520
+        Left = 512
         Top = 64
         Width = 9
         Height = 16
@@ -4962,7 +4962,7 @@ object Form1: TForm1
         ParentFont = False
       end
       object Label29: TLabel
-        Left = 520
+        Left = 512
         Top = 112
         Width = 17
         Height = 16
@@ -4974,11 +4974,64 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentFont = False
       end
+      object Label30: TLabel
+        Left = 240
+        Top = 48
+        Width = 102
+        Height = 16
+        Caption = 'Patrón Rítmico'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label31: TLabel
+        Left = 16
+        Top = 96
+        Width = 55
+        Height = 13
+        Caption = 'Mutaciones'
+      end
+      object Label32: TLabel
+        Left = 120
+        Top = 96
+        Width = 62
+        Height = 13
+        Caption = 'Salto máximo'
+      end
+      object Label33: TLabel
+        Left = 88
+        Top = 112
+        Width = 9
+        Height = 16
+        Caption = '1'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label34: TLabel
+        Left = 192
+        Top = 112
+        Width = 17
+        Height = 16
+        Caption = '1'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
       object RadioGroup2: TRadioGroup
         Left = 8
-        Top = 16
+        Top = 8
         Width = 201
-        Height = 105
+        Height = 81
         Caption = 'Elige como crear la melodía:'
         Font.Charset = ANSI_CHARSET
         Font.Color = clWindowText
@@ -4990,7 +5043,7 @@ object Form1: TForm1
       end
       object Radio_Editor_Midi: TRadioButton
         Left = 16
-        Top = 48
+        Top = 32
         Width = 153
         Height = 17
         Caption = 'Usar el editor MIDI'
@@ -5005,7 +5058,7 @@ object Form1: TForm1
       end
       object Radio_Curva_Melodia: TRadioButton
         Left = 16
-        Top = 72
+        Top = 48
         Width = 185
         Height = 17
         Caption = 'Crear la curva melódica '
@@ -5019,7 +5072,7 @@ object Form1: TForm1
       end
       object Radio_Delegar_Haskell: TRadioButton
         Left = 16
-        Top = 96
+        Top = 64
         Width = 161
         Height = 17
         Caption = 'Delegar en Haskell'
@@ -5033,37 +5086,19 @@ object Form1: TForm1
         TabOrder = 3
         TabStop = True
       end
-      object Button8: TButton
-        Left = 208
-        Top = 88
-        Width = 65
-        Height = 33
-        Caption = 'Editor Midi'
-        Enabled = False
-        TabOrder = 4
-      end
-      object Button9: TButton
-        Left = 272
-        Top = 88
-        Width = 65
-        Height = 33
-        Caption = 'Crear Curva'
-        TabOrder = 5
-        OnClick = Button9Click
-      end
       object Selector_Pista_Acompanamiento: TComboBox
         Left = 224
-        Top = 48
-        Width = 177
+        Top = 24
+        Width = 137
         Height = 21
         ItemHeight = 13
         TabOrder = 6
         Text = 'Elige Pista de acompañamiento'
       end
       object Barra_Prob_Salto: TTrackBar
-        Left = 400
+        Left = 368
         Top = 16
-        Width = 121
+        Width = 137
         Height = 25
         Min = 1
         Orientation = trHorizontal
@@ -5077,9 +5112,9 @@ object Form1: TForm1
         OnChange = Barra_Prob_SaltoChange
       end
       object Barra_Salto_Maximo: TTrackBar
-        Left = 400
+        Left = 368
         Top = 64
-        Width = 121
+        Width = 137
         Height = 25
         Min = 1
         Orientation = trHorizontal
@@ -5093,9 +5128,9 @@ object Form1: TForm1
         OnChange = Barra_Salto_MaximoChange
       end
       object Barra_Numero_Puntos: TTrackBar
-        Left = 400
+        Left = 368
         Top = 112
-        Width = 121
+        Width = 137
         Height = 25
         Max = 100
         Min = 2
@@ -5109,14 +5144,81 @@ object Form1: TForm1
         TickStyle = tsAuto
         OnChange = Barra_Numero_PuntosChange
       end
+      object Button9: TButton
+        Left = 216
+        Top = 104
+        Width = 73
+        Height = 17
+        Caption = 'Crear Curva'
+        TabOrder = 5
+        OnClick = Button9Click
+      end
       object Boton_Cargar_Curva: TButton
-        Left = 336
-        Top = 88
-        Width = 65
-        Height = 33
+        Left = 288
+        Top = 104
+        Width = 73
+        Height = 17
         Caption = 'Cargar Curva'
         TabOrder = 10
         OnClick = Boton_Cargar_CurvaClick
+      end
+      object Boton_Mutar_Curva: TButton
+        Left = 216
+        Top = 120
+        Width = 73
+        Height = 17
+        Caption = 'Mutar Curva'
+        TabOrder = 11
+        OnClick = Boton_Mutar_CurvaClick
+      end
+      object Button8: TButton
+        Left = 288
+        Top = 120
+        Width = 73
+        Height = 17
+        Caption = 'Editor Midi'
+        Enabled = False
+        TabOrder = 4
+      end
+      object Lista_Patrones_Melodia: TComboBox
+        Left = 224
+        Top = 64
+        Width = 137
+        Height = 21
+        ItemHeight = 13
+        TabOrder = 12
+        Text = 'Lista_Patrones_Melodia'
+      end
+      object Barra_Mutaciones_Curva: TTrackBar
+        Left = 8
+        Top = 112
+        Width = 73
+        Height = 25
+        Max = 20
+        Orientation = trHorizontal
+        Frequency = 1
+        Position = 0
+        SelEnd = 0
+        SelStart = 0
+        TabOrder = 13
+        TickMarks = tmBottomRight
+        TickStyle = tsAuto
+        OnChange = Barra_Mutaciones_CurvaChange
+      end
+      object Barra_Salto_Maximo_Mutaciones: TTrackBar
+        Left = 112
+        Top = 112
+        Width = 73
+        Height = 25
+        Orientation = trHorizontal
+        Frequency = 1
+        Position = 0
+        SelEnd = 0
+        SelStart = 0
+        TabOrder = 14
+        TickMarks = tmBottomRight
+        TickStyle = tsAuto
+        OnChange = Barra_Salto_Maximo_MutacionesChange
       end
     end
     object Tab_Parametros_Melodia: TTabSheet
@@ -5375,11 +5477,11 @@ object Form1: TForm1
     Top = 456
   end
   object Dialogo_Origen_Progresion: TOpenDialog
-    Left = 412
-    Top = 136
+    Left = 732
+    Top = 104
   end
   object Open_Curva: TOpenDialog
-    Left = 476
-    Top = 136
+    Left = 740
+    Top = 64
   end
 end

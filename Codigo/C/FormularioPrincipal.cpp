@@ -56,6 +56,7 @@ void TForm1::Inicializa_Patrones_Ritmicos()
   else
   {
     Selector_Patron_Ritmico->Items->Clear();
+    Lista_Patrones_Melodia->Items->Clear();
     while ((ent = readdir(dir)) != NULL)
     {
       //1- comprueba que es válido para añadir a la lista
@@ -72,7 +73,9 @@ void TForm1::Inicializa_Patrones_Ritmicos()
       {
       //2- añade a la lista de patrones rítmicos.
       Selector_Patron_Ritmico->Items->Add(ent->d_name);
+      Lista_Patrones_Melodia->Items->Add(ent->d_name);
       Selector_Patron_Ritmico->Text=ent->d_name;
+      Lista_Patrones_Melodia->Text=ent->d_name;
       }
     }
 
@@ -594,6 +597,7 @@ else
  }
 
 Selector_Patron_Ritmico->Text=Bloque_A_Manipular.Patron_Ritmico;
+Lista_Patrones_Melodia->Text=Bloque_A_Manipular.Patron_Ritmico;
 Barra_Notas_Totales->Position=Bloque_A_Manipular.Notas_Totales;
 if (Bloque_A_Manipular.Es_Sistema_Paralelo)
 {
@@ -645,7 +649,14 @@ void __fastcall TForm1::Boton_Guardar_Cambios_BloqueClick(TObject *Sender)
 {
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 Bloque_A_Manipular.Vacio=Bloque_Vacio->Checked;
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)!=1)
+{
 Bloque_A_Manipular.Patron_Ritmico=Selector_Patron_Ritmico->Text;
+}
+else
+{
+Bloque_A_Manipular.Patron_Ritmico=Lista_Patrones_Melodia->Text;
+}
 Bloque_A_Manipular.Notas_Totales=Barra_Notas_Totales->Position;
 Bloque_A_Manipular.Es_Sistema_Paralelo=Sistema_Paralelo->Checked;
 Bloque_A_Manipular.Inversion=Lista_Inversion->Text;
@@ -1555,7 +1566,7 @@ void TForm1::Genera_Music_Acompanamiento()
     if (Check_Semilla->Checked)
     {
       Pal_Semilla="nosemilla";
-      int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
+      int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),borrame1.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
       Pal_Octava.c_str(),O_Inicial.c_str(),Pal_Notas.c_str(),N_Notas.c_str(),Pal_Sistema.c_str(),Sistem.c_str(),Pal_Semilla.c_str(),
       Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Ruta_Destino_Music.c_str(),NULL);
       if (valor_spawn==-1)
@@ -1690,7 +1701,8 @@ void TForm1::Genera_Music_Melodia()
   if (Bloque_Acompanamiento.Progresion==NULL){ShowMessage("El bloque de acompañamiento no tiene progresión asignada");return;}
   String Ruta_Progresion=Bloque_Acompanamiento.Progresion;
   String Pal_patron="ruta_patron";
-  String Ruta_Patron="./PatronesRitmicos/"+Bloque_Acompanamiento.Patron_Ritmico;
+//  String Ruta_Patron="./PatronesRitmicos/"+Bloque_Acompanamiento.Patron_Ritmico;
+  String Ruta_Patron="./PatronesRitmicos/"+Bloque_A_Manipular.Patron_Ritmico;
   String Pal_Parametros="parametros_curva";
   String Parametro1=Bloque_A_Manipular.N_Divisiones;//numero de divisiones (0-10)
   String Parametro2=Bloque_A_Manipular.Fase2;//numero de aplicaciones de fase 2 (0-50)
@@ -2040,6 +2052,38 @@ String Copy="copy";
   origen.close();
   destino.close();
 }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_Salto_Maximo_MutacionesChange(
+      TObject *Sender)
+{
+Label34->Caption=IntToStr(Barra_Salto_Maximo_Mutaciones->Position);  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Barra_Mutaciones_CurvaChange(TObject *Sender)
+{
+Label33->Caption=IntToStr(Barra_Mutaciones_Curva->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Boton_Mutar_CurvaClick(TObject *Sender)
+{
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+  String Ruta_Codigo_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Codigo_Haskell();
+  String Orden="mutaCurva";
+  Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+  String curva=Bloque_A_Manipular.Curva_Melodica;
+  String num_mut=IntToStr(Barra_Mutaciones_Curva->Position);
+  String salto_max=IntToStr(Barra_Salto_Maximo_Mutaciones->Position);
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),num_mut.c_str(),salto_max.c_str(),curva.c_str(),curva.c_str(),NULL);
+  if (valor_spawn==-1){ShowMessage("Error creando el music de melodia");}
+
 }
 //---------------------------------------------------------------------------
 

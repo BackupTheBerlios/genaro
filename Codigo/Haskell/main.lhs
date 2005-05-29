@@ -115,9 +115,9 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo lectura patron"
 >            patronR <- leePatronRitmicoC2 rutaPatron
 >            mensajeGenaro "Fin lectura patron"
->            --mensajeGenaro "Comienzo escritura del music"
->            --writeFile rutaDest (show (musica progresion patronR))
->            --mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Comienzo mostrando el music"
+>            print (musica progresion patronR)
+>            mensajeGenaro "Fin mostrando el music"
 >            mensajeGenaro "Comienzo escritura del midi"
 >            haskoreAMidi2  (musica progresion patronR) 120 rutaDest
 >            mensajeGenaro "Fin escritura del midi"
@@ -135,9 +135,9 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo lectura patron"
 >            patronR <- leePatronRitmicoC2 rutaPatron
 >            mensajeGenaro "Fin lectura patron"
->            --mensajeGenaro "Comienzo escritura del music"
->            --writeFile rutaDest (show (musica progresion patronR))
->            --mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Comienzo mostrando el music"
+>            print (musica progresion patronR)
+>            mensajeGenaro "Fin mostrando el music"
 >            mensajeGenaro "Comienzo escritura del midi"
 >            haskoreAMidi2  (musica progresion patronR) 120 rutaDest
 >            mensajeGenaro "Fin escritura del midi"
@@ -157,9 +157,9 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >            mensajeGenaro "Comienzo generacion semilla"
 >            semillaInt <- numAleatorioIO 1 100        -- No se que numero poner de maximo
 >            mensajeGenaro "Fin generacion semilla"
->            --mensajeGenaro "Comienzo escritura del music"
->            --writeFile rutaDest (show (musica progresion patronR semillaInt))
->            --mensajeGenaro "Fin escritura del music"
+>            mensajeGenaro "Comienzo mostrando el music"
+>            print (musica progresion patronR semillaInt)
+>            mensajeGenaro "Fin mostrando el music"
 >            mensajeGenaro "Comienzo escritura del midi"
 >            haskoreAMidi2  (musica progresion patronR semillaInt) 120 rutaDest
 >            mensajeGenaro "Fin escritura del midi"

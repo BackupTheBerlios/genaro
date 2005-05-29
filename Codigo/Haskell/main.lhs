@@ -86,6 +86,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > diferenciaComandos ( "generaObraCompleta" : restoArgumentos ) = generaObraCompleta restoArgumentos
 > diferenciaComandos ( "generaLilypond" : restoArgumentos ) = generaLilypond restoArgumentos
 > diferenciaComandos ( "generaBateria" : restoArgumentos ) = generaBateria restoArgumentos
+> diferenciaComandos ( "generaBajo" : restoArgumentos ) = generaBajo restoArgumentos
 > diferenciaComandos _ = errorGenaro "comando erroneo en diferenciaCommandos"
 
 
@@ -409,6 +410,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                 int2 = aplicaParser integer entero2
 >                 int3 = aplicaParser integer entero3
 >                 musica prog int1 int2 int3 alea = snd ( hazWalkingParaProgresion (alea,(prog, int1, int2, int3)) )
+> generaBajo _ = errorGenaro "error de encaje de patrones en generaBajo"
 
 
 > -- BORRAME: PRUEBA LY

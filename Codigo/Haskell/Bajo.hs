@@ -14,8 +14,9 @@ import Ratio          --para pruebas
 --import CAHaskell      --para pruebas solo??????????
 --import TraduceCifrados --para pruebas
 
-hazWalkingParaProgresion :: FuncAleatoria Progresion Music
-hazWalkingParaProgresion (aleat@(a1:restoAleat1), (prog)) = ([1], musica) --(listaCifrados, listaEscalas, listaTonicas, octavaIni)
+
+hazWalkingParaProgresion :: FuncAleatoria (Progresion, Int, Int, Int) Music
+hazWalkingParaProgresion (aleat@(a1:restoAleat1), (prog, _, _, _)) = ([1], musica) --(listaCifrados, listaEscalas, listaTonicas, octavaIni)
          where listaCifrados = map fst prog
                listaDurs = map snd prog
                listaGrados = map fst listaCifrados
@@ -49,7 +50,7 @@ pruHazWalkingParaProgresion rutaProg = do aleat <- listaInfNumsAleatoriosIO 1 re
                                           --putStr ("\nResultado: "++(show (resul aleat prog))++"\n")
                                           haskoreAMidi (resul aleat prog) rutaBajo
                                           putStr ("Escrito midi en "++ rutaBajo ++ "\n")
-                                          where resul aleat prog = snd (hazWalkingParaProgresion (aleat, prog))
+                                          where resul aleat prog = snd (hazWalkingParaProgresion (aleat, (prog, 1,2,3)))
                                                 rutaBajo = "./pruWalking.mid"
 
 hazMelodiaEntreNotas :: FuncAleatoria (Int, Int, Int, Int,  Escala, Dur, Pitch, Pitch) [Music]

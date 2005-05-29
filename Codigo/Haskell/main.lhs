@@ -422,6 +422,12 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > borrame2 = do setCurrentDirectory "C:/SuperGenaro"
 >               generaBateria ["num_compases", "1", "patron_ritmico", "C:/SuperGenaro/PatronesRitmicos/arpegio_6_voces_corcheas.txt", "ruta_midi", "C:/SuperGenaro/Fichero_Indice.mid"]
 
+> -- BORRAME: PRUEBA BATERIA
+> borrame3 :: IO ()
+> borrame3 = do setCurrentDirectory "C:/SuperGenaro"
+>               generaSubbloqueAcompanamiento ["progresion_0_0.prog", "PatronesRitmicos/arpegio_flamenco_medio_rapido_ascendente.txt", "octava", "10", "numero_notas", "10", "sistema", "continuo", "nosemilla", "horizontal", "Ciclico", "vertical_mayor", "Truncar1", "vertical_menor", "Truncar1", "salida.mid"] 
+
+
 
 > {-
 > mainArgumentos :: [String] -> IO()

@@ -469,6 +469,14 @@ for (int i=0;i<Pistas.size();i++)
  {
     fichero_salida<<"Melodia"<<" ";
  }
+ if (Pistas[i]->Dame_Tipo()==2)
+ {
+    fichero_salida<<"Bajo"<<" ";
+ }
+ if (Pistas[i]->Dame_Tipo()==3)
+ {
+    fichero_salida<<"Bateria"<<" ";
+ }
  fichero_salida<<"Mute "<<Pistas[i]->Dame_Mute()<<" ";
  fichero_salida<<"Instrumento "<<Pistas[i]->Dame_Instrumento()<<"\n";
  for (int j=0;j<Pistas[i]->Dame_Numero_Bloques();j++)

@@ -13,6 +13,7 @@
 #include "FormParametrosTimidity.h"
 #include "Interfaz_Timidity.h";
 #include "UForm_Melodia.h";
+#include "Form_Editar_Progresion.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
 #pragma resource "*.dfm"
@@ -347,7 +348,6 @@ void __fastcall TForm1::Boton_Nueva_PistaClick(TObject *Sender)
 {
 if (Inicializado)
 {
-  if ((Barra_Tipo_Pista->Position==2)||(Barra_Tipo_Pista->Position==3)){ShowMessage("No implementado");return;}
   Musica_Genaro->Nueva_Pista(Barra_Tipo_Pista->Position);
   Numero_Filas_A_Dibujar++;
   Dibuja_Cancion();
@@ -467,6 +467,8 @@ for (int i=0;((i<Numero_Filas)&&(i<Numero_Filas_A_Dibujar));i++)
   {
     case 0:this->Canvas->Brush->Color=clWhite;break;
     case 1:this->Canvas->Brush->Color=clGreen;break;
+    case 2:this->Canvas->Brush->Color=clAqua;break;
+    case 3:this->Canvas->Brush->Color=clYellow;break;
   }
   this->Canvas->FillRect(Rect(X_Inicial,Y_Inicial+i*Alto_Fila,X_Inicial+Ancho_Espacio_Estatico,Y_Inicial+(i+1)*Alto_Fila));
   //recorremos las distintas posiciones de bloques de la fila
@@ -491,7 +493,7 @@ Panel1->Visible=false;
 Panel_Tipo_Pista->Visible=false;
 //2- pon este a visiible
 Panel_Bloque->Visible=true;
-
+Bloquea_Elementos(Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada));
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 Etiqueta_Bloque_Numero_Compases->Caption="Nº Compases de su bloque: "+IntToStr(Bloque_A_Manipular.Num_Compases);
 Lista_8_Inicial->Text=IntToStr(Bloque_A_Manipular.Octava_Inicial);
@@ -545,10 +547,36 @@ switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
     {
       Tab_General->Enabled=true;
       Tab_Patron_Ritmico->Enabled=false;
-      Tab_Aplicacion_Patron->Enabled=false;      
+      Tab_Aplicacion_Patron->Enabled=false;
       Tab_Progresion->Enabled=false;
       Tab_Crear_Progresion->Enabled=false;
       Tab_Melodia->Enabled=true;
+      Inicializa_Pistas_Acompanamiento();
+      //Pista de acompañamiento=X;
+      Selector_Pista_Acompanamiento->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
+      break;
+    }
+  case 2:
+    {
+      Tab_General->Enabled=true;
+      Tab_Patron_Ritmico->Enabled=false;
+      Tab_Aplicacion_Patron->Enabled=false;
+      Tab_Progresion->Enabled=false;
+      Tab_Crear_Progresion->Enabled=false;
+      Tab_Melodia->Enabled=true;
+      Inicializa_Pistas_Acompanamiento();
+      //Pista de acompañamiento=X;
+      Selector_Pista_Acompanamiento->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
+      break;
+    }
+  case 3:
+    {
+      Tab_General->Enabled=true;
+      Tab_Patron_Ritmico->Enabled=false;
+      Tab_Aplicacion_Patron->Enabled=false;
+      Tab_Progresion->Enabled=false;
+      Tab_Crear_Progresion->Enabled=false;
+      Tab_Melodia->Enabled=false;
       Inicializa_Pistas_Acompanamiento();
       //Pista de acompañamiento=X;
       Selector_Pista_Acompanamiento->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
@@ -1447,7 +1475,14 @@ if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==1)
 {
   Genera_Music_Melodia();
 }
-
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==2)
+{
+  Genera_Music_Bajo();
+}
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==3)
+{
+  Genera_Music_Bateria();
+}
 //si es pista de melodía hacemos la llamada con los parámetros de la pista de acompañamiento asociada. si no hay pista de acompañamiento asociada, esto peta.
 }
 //---------------------------------------------------------------------------
@@ -1563,7 +1598,7 @@ Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(C
 
 //nos quedamos con el nombre del fichero
 if (Dialogo_Origen_Progresion->Execute()==false)
-{ShowMessage("Operación Cancelada, esto parece la seguridad social");}
+{ShowMessage("Operación Cancelada, esto parece la seguridad social");return;}
 String Progre=Dialogo_Origen_Progresion->FileName;
 String fichero="";
 for (int i=0;i<Progre.Length();i++)
@@ -1724,7 +1759,6 @@ Etiqueta_Tempo->Caption=IntToStr(Barra_Tempo->Position);
 }
 //---------------------------------------------------------------------------
 
-
 void __fastcall TForm1::Barra_Numero_DivisionesChange(TObject *Sender)
 {
 Label20->Caption=IntToStr(Barra_Numero_Divisiones->Position);
@@ -1770,6 +1804,242 @@ Label29->Caption=StrToInt(Barra_Numero_Puntos->Position);
 void __fastcall TForm1::Image1Click(TObject *Sender)
 {
 this->Click();
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Boton_EdicionClick(TObject *Sender)
+{
+Form3->StringGrid1->ColCount=Grid_Progresion->ColCount;
+for (int i=0;i<Grid_Progresion->ColCount;i++)
+{
+Form3->StringGrid1->Cols[i]=Grid_Progresion->Cols[i];
+}
+Form3->Show();
+}
+//---------------------------------------------------------------------------
+void TForm1::Bloquea_Elementos(int TipoPista)
+{
+switch (TipoPista)
+{
+  case 0:
+  {
+    Cambia_Tab_General(true);
+    Cambia_Tab_Patron_Ritmico(true);
+    Cambia_Tab_Aplicacion_Patron(true);
+    break;
+  }
+  case 1:
+  {
+    Cambia_Tab_General(true);
+    Cambia_Tab_Patron_Ritmico(false);
+    Cambia_Tab_Aplicacion_Patron(false);
+    break;
+  }
+  case 2:
+  {
+    Cambia_Tab_General(true);
+    Cambia_Tab_Patron_Ritmico(false);
+    Cambia_Tab_Aplicacion_Patron(false);
+    break;
+  }
+  case 3:
+  {
+    Cambia_Tab_General(true);
+    //    Cambia_Tab_Patron_Ritmico(true);
+    //    Cambia_Tab_Aplicacion_Patron(true);
+    break;
+  }
+}
+
+}
+//--------------------------------------------------------
+void TForm1::Cambia_Tab_General(bool condicion)
+{
+    Tab_General->Enabled=condicion;
+    Label8->Enabled=condicion;
+    Bloque_Vacio->Enabled=condicion;
+    Etiqueta_Bloque_Numero_Compases->Enabled=condicion;
+    Boton_Guardar_Cambios_Bloque->Enabled=condicion;
+}
+//-----------------------------------------------
+void TForm1::Cambia_Tab_Patron_Ritmico(bool condicion)
+{
+Tab_Patron_Ritmico->Enabled=condicion;
+Label6->Enabled=condicion;
+Label4->Enabled=condicion;
+Etiqueta_Inversion->Enabled=condicion;
+Lista_8_Inicial->Enabled=condicion;
+Selector_Patron_Ritmico->Enabled=condicion;
+Lista_Inversion->Enabled=condicion;
+Label5->Enabled=condicion;
+Barra_Notas_Totales->Enabled=condicion;
+Etiqueta_Numero_Total_De_Notas->Enabled=condicion;
+RadioGroup1->Enabled=condicion;
+Sistema_Paralelo->Enabled=condicion;
+Sistema_Continuo->Enabled=condicion;
+Etiqueta_Disposicion->Enabled=condicion;
+Lista_Disposicion->Enabled=condicion;
+Check_Semilla->Enabled=condicion;
+Edit_Semilla->Enabled=false;
+}
+//-----------------------------------------------
+void TForm1::Cambia_Tab_Aplicacion_Patron(bool condicion)
+{
+Tab_Aplicacion_Patron->Enabled=condicion;
+GroupBox2->Enabled=condicion;
+Radio_Horizontal_Ciclico->Enabled=condicion;
+Radio_Horizontal_No_Ciclico->Enabled=condicion;
+GroupBox3->Enabled=condicion;
+GroupBox4->Enabled=condicion;
+GroupBox5->Enabled=condicion;
+Radio_Vertical_Mayor_Truncar->Enabled=condicion;
+Radio_Vertical_Mayor_Saturar->Enabled=condicion;
+Radio_Vertical_Menor_Truncar->Enabled=condicion;
+Radio_Vertical_Menor_Saturar->Enabled=condicion;
+Radio_Vertical_Menor_Ciclico->Enabled=condicion;
+Radio_Vertical_Menor_Modulo->Enabled=condicion;
+}
+//-----------------------------------------------
+void TForm1::Cambia_Tab_Mutar_Progresion(bool condicion)
+{
+Tab_Progresion->Enabled=condicion;
+Radio_Mutaciones_Totales->Enabled=true;
+Radio_Especificas->Enabled=false;
+Barra_Mutaciones_Totales->Enabled=true;
+Etiqueta_Mutaciones_Totales->Enabled=true;
+Grupo_TipoA->Enabled=false;
+Grupo_TipoB->Enabled=false;
+Radio_TipoA_Generales->Enabled=false;
+Radio_TipoA_Especificas->Enabled=false;
+Etiqueta_TipoA_Generales->Enabled=false;
+Barra_TipoA_Generales->Enabled=false;
+Label13->Enabled=false;
+Label12->Enabled=false;
+Label14->Enabled=false;
+Barra_Mutaciones_Junta_Acordes->Enabled=false;
+Barra_Mutaciones_Separa_Acordes->Enabled=false;
+Barra_Mutaciones_Cambia_Acordes->Enabled=false;
+Radio_TipoB_Generales->Enabled=false;
+Radio_TipoB_Especificas->Enabled=false;
+Barra_TipoB_Generales->Enabled=false;
+Etiqueta_TipoB_Generales->Enabled=false;
+Label16->Enabled=false;
+Label15->Enabled=false;
+Barra_Mutaciones_Dominante_Sencundario->Enabled=false;
+Etiqueta_Tipo4->Enabled=false;
+Barra_Mutaciones_2M7->Enabled=false;
+Etiqueta_Tipo5->Enabled=false;
+}
+//------------------------------------------------------------------------------
+void TForm1::Genera_Music_Bajo()
+{
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+  String Ruta_Codigo_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Codigo_Haskell();
+  String Orden="generaBajo";
+  Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+/*  //si no hay curva asignada, se avisa y se sale
+  if (Bloque_A_Manipular.Curva_Melodica==NULL){ShowMessage("No tiene curva melódica asignada");return;}
+  String Pal_Rutacurva="ruta_curva";
+  String Ruta_Curva=Bloque_A_Manipular.Curva_Melodica;    */
+  String Pal_Rutaprogresion="progresion";
+  //Hay que coger la progresion de la pista de acompañamiento asignada
+  if(Bloque_A_Manipular.N_Pista_Acomp==-1){ShowMessage("No has asignado pista de acompañamiento para este subbloque");return;}
+  Bloque Bloque_Acompanamiento=Musica_Genaro->Dame_Pista(Bloque_A_Manipular.N_Pista_Acomp)->Dame_Bloque(Columna_Pulsada);
+  if (Bloque_Acompanamiento.Progresion==NULL){ShowMessage("El bloque de acompañamiento no tiene progresión asignada");return;}
+  String Ruta_Progresion=Bloque_Acompanamiento.Progresion;
+/*  String Pal_patron="ruta_patron";
+  String Ruta_Patron="./PatronesRitmicos/"+Bloque_Acompanamiento.Patron_Ritmico;*/
+  String Pal_Parametros="parametros";
+  String Parametro1=Bloque_A_Manipular.N_Divisiones;//numero de divisiones (0-10)
+  String Parametro2=Bloque_A_Manipular.Fase2;//numero de aplicaciones de fase 2 (0-50)
+  String Parametro3=Bloque_A_Manipular.Fase3;//numero de aplicaciones de fase 3 (0-50)
+/*  String Parametro4=Bloque_A_Manipular.Fase4;//numero de aplicaciones de fase 4 (0-50)*/
+  String Pal_Ruta_Destino="ruta_midi";
+  String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".mid";
+
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),/*Pal_Rutacurva.c_str(),Ruta_Curva.c_str(),*/Pal_Rutaprogresion.c_str(),Ruta_Progresion.c_str(),/*Pal_patron.c_str(),Ruta_Patron.c_str(),*/Pal_Parametros.c_str(),Parametro1.c_str(),Parametro2.c_str(),Parametro3.c_str(),/*Parametro4.c_str(),*/Pal_Ruta_Destino.c_str(),Ruta_Destino_Music.c_str(),NULL);
+  if (valor_spawn==-1){ShowMessage("Error creando el music de melodia");}
+
+  Bloque_A_Manipular.Tipo_Music=Ruta_Destino_Music;
+  Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+}
+//------------------------------------------------------------------------------
+void TForm1::Genera_Music_Bateria()
+{
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+  String Ruta_Codigo_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Codigo_Haskell();
+  String Orden="generaBateria";
+  Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+/*  //si no hay curva asignada, se avisa y se sale
+  if (Bloque_A_Manipular.Curva_Melodica==NULL){ShowMessage("No tiene curva melódica asignada");return;}
+  String Pal_Rutacurva="ruta_curva";
+  String Ruta_Curva=Bloque_A_Manipular.Curva_Melodica;    */
+/*  String Pal_Rutaprogresion="ruta_progresion";
+  //Hay que coger la progresion de la pista de acompañamiento asignada
+  if(Bloque_A_Manipular.N_Pista_Acomp==-1){ShowMessage("No has asignado pista de acompañamiento para este subbloque");return;}
+  Bloque Bloque_Acompanamiento=Musica_Genaro->Dame_Pista(Bloque_A_Manipular.N_Pista_Acomp)->Dame_Bloque(Columna_Pulsada);
+  if (Bloque_Acompanamiento.Progresion==NULL){ShowMessage("El bloque de acompañamiento no tiene progresión asignada");return;}
+  String Ruta_Progresion=Bloque_Acompanamiento.Progresion;*/
+  String Pal_patron="ruta_patron";
+  String Ruta_Patron="./PatronesRitmicos/"+Bloque_A_Manipular.Patron_Ritmico;
+  String Pal_Parametros="num_compases";
+  String Parametro1=Bloque_A_Manipular.Num_Compases;//numero de divisiones (0-10)
+/*  String Parametro2=Bloque_A_Manipular.Fase2;//numero de aplicaciones de fase 2 (0-50)
+  String Parametro3=Bloque_A_Manipular.Fase3;//numero de aplicaciones de fase 3 (0-50)*/
+/*  String Parametro4=Bloque_A_Manipular.Fase4;//numero de aplicaciones de fase 4 (0-50)*/
+  String Pal_Ruta_Destino="ruta_midi";
+  String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".mid";
+
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),/*Pal_Rutacurva.c_str(),Ruta_Curva.c_str(),Pal_Rutaprogresion.c_str(),Ruta_Progresion.c_str(),*/Pal_Parametros.c_str(),Parametro1.c_str(),Pal_patron.c_str(),Ruta_Patron.c_str(),/*Parametro2.c_str(),Parametro3.c_str(),*//*Parametro4.c_str(),*/Pal_Ruta_Destino.c_str(),Ruta_Destino_Music.c_str(),NULL);
+  if (valor_spawn==-1){ShowMessage("Error creando el music de melodia");}
+
+  Bloque_A_Manipular.Tipo_Music=Ruta_Destino_Music;
+  Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Boton_Cargar_CurvaClick(TObject *Sender)
+{
+if (Open_Curva->Execute())
+{
+String Progre=Open_Curva->FileName;
+String fichero="";
+for (int i=0;i<Progre.Length();i++)
+ {
+  if (Progre[i+1]=='\\'){fichero="";}
+  else{fichero+=Progre[i+1];}
+ }
+String Copy="copy";
+  String fichero1="CurvaMelodica_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".cm";
+  //abrimos fichero
+  ifstream origen;
+  origen.open(fichero.c_str());
+  ofstream destino;
+  destino.open(fichero1.c_str());
+  char temp;
+  while (true)
+  {
+    origen>>temp;
+    if(origen.eof()!=true)
+    {destino<<temp;}
+    else{break;}
+  }
+
+
+  Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+  Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+  Bloque_A_Manipular.Curva_Melodica=fichero1;
+  Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
+  origen.close();
+  destino.close();
+}
 }
 //---------------------------------------------------------------------------
 

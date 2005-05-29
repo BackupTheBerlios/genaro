@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 192
-  Top = 122
+  Left = 133
+  Top = 118
   Width = 800
   Height = 546
   Caption = 'Interfaz Genaro'
@@ -4009,7 +4009,7 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_Crear_Progresion
+    ActivePage = Tab_Melodia
     TabOrder = 13
     Visible = False
     object Tab_General: TTabSheet
@@ -4888,6 +4888,15 @@ object Form1: TForm1
         ScrollBars = ssHorizontal
         TabOrder = 3
       end
+      object Boton_Edicion: TButton
+        Left = 312
+        Top = 96
+        Width = 97
+        Height = 33
+        Caption = 'Boton_Edicion'
+        TabOrder = 4
+        OnClick = Boton_EdicionClick
+      end
     end
     object Tab_Melodia: TTabSheet
       Caption = 'Melodía'
@@ -5025,18 +5034,18 @@ object Form1: TForm1
         TabStop = True
       end
       object Button8: TButton
-        Left = 224
+        Left = 208
         Top = 88
-        Width = 89
+        Width = 65
         Height = 33
         Caption = 'Editor Midi'
         Enabled = False
         TabOrder = 4
       end
       object Button9: TButton
-        Left = 312
+        Left = 272
         Top = 88
-        Width = 89
+        Width = 65
         Height = 33
         Caption = 'Crear Curva'
         TabOrder = 5
@@ -5099,6 +5108,15 @@ object Form1: TForm1
         TickMarks = tmBottomRight
         TickStyle = tsAuto
         OnChange = Barra_Numero_PuntosChange
+      end
+      object Boton_Cargar_Curva: TButton
+        Left = 336
+        Top = 88
+        Width = 65
+        Height = 33
+        Caption = 'Cargar Curva'
+        TabOrder = 10
+        OnClick = Boton_Cargar_CurvaClick
       end
     end
     object Tab_Parametros_Melodia: TTabSheet
@@ -5358,6 +5376,10 @@ object Form1: TForm1
   end
   object Dialogo_Origen_Progresion: TOpenDialog
     Left = 412
+    Top = 136
+  end
+  object Open_Curva: TOpenDialog
+    Left = 476
     Top = 136
   end
 end

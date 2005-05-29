@@ -175,6 +175,9 @@ __published:	// IDE-managed Components
   TLabel *Label28;
   TLabel *Label29;
   TImage *Image1;
+  TButton *Boton_Edicion;
+  TButton *Boton_Cargar_Curva;
+  TOpenDialog *Open_Curva;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -229,6 +232,8 @@ __published:	// IDE-managed Components
   void __fastcall Barra_Salto_MaximoChange(TObject *Sender);
   void __fastcall Barra_Numero_PuntosChange(TObject *Sender);
   void __fastcall Image1Click(TObject *Sender);
+  void __fastcall Boton_EdicionClick(TObject *Sender);
+  void __fastcall Boton_Cargar_CurvaClick(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;
@@ -262,6 +267,13 @@ public:		// User declarations
   void Crea_Curva_Delegando();
   void Genera_Music_Melodia();
   int Comprobar_Si_Generados_Music();
+  void Bloquea_Elementos(int TipoPista);
+  void Cambia_Tab_General(bool condicion);
+  void Cambia_Tab_Patron_Ritmico(bool condicion);
+  void Cambia_Tab_Aplicacion_Patron(bool condicion);
+  void Cambia_Tab_Mutar_Progresion(bool condicion);  
+  void Genera_Music_Bajo();
+  void TForm1::Genera_Music_Bateria();    
   __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

@@ -382,7 +382,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > ----------------------- GENERA BATERIA --------------------------------------
 
 > generaBateria :: [String] -> IO ()
-> generaBateria ["num_compases", num_compases, "patron_ritmico", ruta_patron, "ruta_midi", ruta_dest_midi] = 
+> generaBateria ["num_compases", num_compases, "ruta_patron", ruta_patron, "ruta_midi", ruta_dest_midi] = 
 >        do mensajeGenaro "Comienzo lectura patron"
 >           patron <- leePatronRitmicoC2 ruta_patron
 >           mensajeGenaro "Fin lectura patron"

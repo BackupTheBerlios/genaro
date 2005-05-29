@@ -25,6 +25,8 @@ Hay q revisar pq importa módulos de más
 > import HaskellAHaskell
 > import Melodias
 > import ObraCompleta
+> import Bateria
+> import Bajo
 
 
 \end{verbatim}
@@ -83,6 +85,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > diferenciaComandos ( "mutaCUrvaYMusic" : restoArgumentos ) = mutaCurvaYMusic restoArgumentos
 > diferenciaComandos ( "generaObraCompleta" : restoArgumentos ) = generaObraCompleta restoArgumentos
 > diferenciaComandos ( "generaLilypond" : restoArgumentos ) = generaLilypond restoArgumentos
+> diferenciaComandos ( "generaBateria" : restoArgumentos ) = generaBateria restoArgumentos
 > diferenciaComandos _ = errorGenaro "comando erroneo en diferenciaCommandos"
 
 
@@ -375,11 +378,47 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 
 
 
-> -- BORRAME
-> borrame :: IO ()
-> borrame = mainArgumentos ["C:/SuperGenaro/Codigo/Haskell","generaObraCompleta" , "archivoGen", "./Fichero_Indice.gen", "ruta_midi", "./salida.mid"]
+> ----------------------- GENERA BATERIA --------------------------------------
+
+> generaBateria :: [String] -> IO ()
+> generaBateria ["num_compases", num_compases, "patron_ritmico", ruta_patron, "ruta_midi", ruta_dest_midi] = 
+>        do mensajeGenaro "Comienzo lectura patron"
+>           patron <- leePatronRitmicoC2 ruta_patron
+>           mensajeGenaro "Fin lectura patron"
+>           mensajeGenaro "Comienzo escritura midi"
+>           haskoreAMidi2  (musica patron) 120 ruta_dest_midi
+>           mensajeGenaro "Fin escritura midi"
+>           where num_compases_int = aplicaParser integer num_compases
+>                 musica patron = Instr "Drums" (encajaBateria (num_compases_int%1) patron)
+> generaBateria _ = errorGenaro "error de encaje de patrones en generaBateria"
 
 
+> generaBajo :: [String] -> IO ()
+> generaBajo ["progresion", ruta_prog, "parametros", entero1, entero2, entero3, "ruta_midi", ruta_dest_midi] = 
+>        do mensajeGenaro "Comienzo lectura progresion"
+>           progresion <- leeProgresion ruta_prog
+>           mensajeGenaro "Fin lectura progresion"
+>           mensajeGenaro "Comienzo generacion numero aleatorios"
+>           alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>           mensajeGenaro "Fin generacion numero aleatorios"
+>           mensajeGenaro "Comienzo generacion walking"
+>           haskoreAMidi2  (musica progresion int1 int2 int3 alea) 120 ruta_dest_midi
+>           mensajeGenaro "Fin generacion walking"
+>           mensajeGenaro "Fin de generacion del Bajo"
+>           where int1 = aplicaParser integer entero1
+>                 int2 = aplicaParser integer entero2
+>                 int3 = aplicaParser integer entero3
+>                 musica prog int1 int2 int3 alea = snd ( hazWalkingParaProgresion (alea,(prog, int1, int2, int3)) )
+
+
+> -- BORRAME: PRUEBA LY
+> borrame1 :: IO ()
+> borrame1 = do setCurrentDirectory "C:/SuperGenaro"
+>               generaLilypond ["archivoGen", "C:/SuperGenaro/Fichero_Indice.gen", "ruta_ly", "C:/SuperGenaro/Fichero_Indice.ly"]
+> -- BORRAME: PRUEBA BATERIA
+> borrame2 :: IO ()
+> borrame2 = do setCurrentDirectory "C:/SuperGenaro"
+>               generaBateria ["num_compases", "1", "patron_ritmico", "C:/SuperGenaro/PatronesRitmicos/arpegio_6_voces_corcheas.txt", "ruta_midi", "C:/SuperGenaro/Fichero_Indice.mid"]
 
 
 > {-

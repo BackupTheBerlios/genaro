@@ -1,20 +1,19 @@
 module Bajo where
---import List
 import Basics
 import BiblioGenaro
 import Progresiones
 import Escalas
 import Melodias
 import HaskoreAMidi
---import PatronesRitmicos
---import Maybe
 import PrologAHaskell --para pruebas
 import Ratio          --para pruebas
---import Directory      --para pruebas
---import CAHaskell      --para pruebas solo??????????
---import TraduceCifrados --para pruebas
 
 
+
+{-
+Simplemente pone las fundamentales de los acordes, durando lo mismo q cada acorde. Intentar
+que esto sea un caso degenrado del walking
+-}
 hazWalkingParaProgresion :: FuncAleatoria (Progresion, Int, Int, Int) Music
 hazWalkingParaProgresion (aleat@(a1:restoAleat1), (prog, _, _, _)) = ([1], musica) --(listaCifrados, listaEscalas, listaTonicas, octavaIni)
          where listaCifrados = map fst prog
@@ -53,9 +52,17 @@ pruHazWalkingParaProgresion rutaProg = do aleat <- listaInfNumsAleatoriosIO 1 re
                                           where resul aleat prog = snd (hazWalkingParaProgresion (aleat, (prog, 1,2,3)))
                                                 rutaBajo = "./pruWalking.mid"
 
-hazMelodiaEntreNotas :: FuncAleatoria (Int, Int, Int, Int,  Escala, Dur, Pitch, Pitch) [Music]
-hazMelodiaEntreNotas (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, escala, dur, pitchPrim@(tonicaPrim,_), pitchSeg@(tonicaSeg,_))) = (restoAleat1, musicaResul)
---hazMelodiaEntreNotas (aleat, numAlarga) = (restoAleat1, musicaResul)--(restoAleat1, (musicaAux1, musicaAux2, musicaAux3, musicaResul))
+
+-- hazMelodiaEntreNotasWalking
+hazMelodiaEntreNotasWalking (aleat, (escala, dur, pitchPrim@(tPrim,_), pitchSeg@(tSeg,_))) = distancia
+    where  distancia =  if (tPrim<= tSeg)
+                           then dameDistanciaEnEscala escala tPrim pitchPrim pitchSeg
+                           else negate (dameDistanciaEnEscala escala tPrim pitchSeg pitchPrim)
+
+
+
+hazMelodiaEntreNotasAphex :: FuncAleatoria (Int, Int, Int, Int,  Escala, Dur, Pitch, Pitch) [Music]
+hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, escala, dur, pitchPrim@(tonicaPrim,_), pitchSeg@(tonicaSeg,_))) = (restoAleat1, musicaResul)
   where musicaIni = [(Note pitchPrim dur [Volume 50]), (Note pitchSeg (1%4) [Volume 50])]
         repiteMutar (aleat, (n2,n3,n4,numDivisiones,escala, tonica, musica))
             | n2==0 && n3 ==0 && n4 ==0      = (aleat, musica)
@@ -92,14 +99,6 @@ hazMelodiaEntreNotas (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDi
         musicaResul = take ((length musicaAux3) -1) musicaAux3
 -}
 
-mutaBajoAl :: FuncAleatoria (Int, Escala, PitchClass, [Music]) [Music]
-mutaBajoAl (aleat@(a1:restoAleat1), (numDivisiones, escala, tonica, musica)) = resul
-  where aplicaMut 0 = aplicaCurvaMelodicaFase2 (restoAleat1, (escala, tonica, musica))
-        aplicaMut 1 = aplicaCurvaMelodicaFase3 (restoAleat1, (escala, tonica, musica))
-        aplicaMut 2 = aplicaCurvaMelodicaFase4 (restoAleat1, (numDivisiones, escala, tonica, musica))
-        mutacion =  a1 `mod` 3
-        resul = aplicaMut mutacion
-
 
 mutaBajoAlMult :: FuncAleatoria (Int,Int,Int,Int, Escala, PitchClass, [Music]) ([Music],Int,Int,Int)
 mutaBajoAlMult (aleat@(a1:restoAleat1), (n2,n3,n4,numDivisiones, escala, tonica, musica)) = (restoAl, (musicaMut, nn2,nn3,nn4) )
@@ -129,18 +128,21 @@ mutaBajoAlMult (aleat@(a1:restoAleat1), (n2,n3,n4,numDivisiones, escala, tonica,
                                                         1 -> (fst(aplicaMut 3), (snd(aplicaMut 3), 0,n3-1,0))
                                                         2 -> (fst(aplicaMut 4), (snd(aplicaMut 4), 0,0,n4-1))
 
-pruHazMelodiaEntreNotas :: Int -> Int -> Int -> Int -> IO ()
-pruHazMelodiaEntreNotas numMutaIntermedias numAlarga numMutaTrino numDivisiones = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                                                                     putStr ("\nmusica resultado: " ++ show(musicaResul aleat)++"\n")
-                                                                                     haskoreAMidi (musicaResul aleat) rutaMusResul
-                                                                                     putStr ("Escrita midi de prueba en "++rutaMusResul++"\n")
-                                                                                     where resAux aleat = snd (hazMelodiaEntreNotas (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, Jonica, (4%1), (C, 3), (G,3))))
-                                                                                           musicaResul aleat = Instr "bass" (lineSeguro ((resAux aleat)))
-                                                                                           rutaMus1 = "./pruBajoFase1.mid"
-                                                                                           rutaMus2 = "./pruBajoFase2.mid"
-                                                                                           rutaMus3 = "./pruBajoFase3.mid"
-                                                                                           rutaMusResul = "./pruBajoResul.mid"
-                                                                                            --(musicaAux1, musicaAux2, musicaAux3, musicaResul)
+pruHazMelodiaEntreNotasAphex :: Int -> Int -> Int -> Int -> IO ()
+pruHazMelodiaEntreNotasAphex numMutaIntermedias numAlarga numMutaTrino numDivisiones = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                                                          --putStr ("\nmusica resultado: " ++ show(musicaResul aleat)++"\n")
+                                                                                          putStr ("\nmusica resultado(sin repeticiones): " ++ show(resAux aleat)++"\n")
+                                                                                          haskoreAMidi (musicaResul aleat) rutaMusResul
+                                                                                          putStr ("Escrita midi de prueba en "++rutaMusResul++"\n")
+                                                                                          where resAux aleat = snd (hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, Jonica, (4%1), (C, 3), (G,3))))
+                                                                                                preMus aleat = concat (take 4 (repeat (resAux aleat)))
+                                                                                                -- musicaResul aleat = Instr "bass" (lineSeguro ((resAux aleat)))
+                                                                                                musicaResul aleat = Instr "bass" (lineSeguro (preMus aleat))
+                                                                                                rutaMus1 = "./pruBajoFase1.mid"
+                                                                                                rutaMus2 = "./pruBajoFase2.mid"
+                                                                                                rutaMus3 = "./pruBajoFase3.mid"
+                                                                                                rutaMusResul = "./pruBajoResul.mid"
+                                                                                                --(musicaAux1, musicaAux2, musicaAux3, musicaResul)
 
 {-
 pruHazMelodiaEntreNotas :: Int -> Int -> Int -> Int -> IO ()

@@ -673,7 +673,9 @@ dameParteDchaComa f = f - (fromIntegral (floor f))
 
 lineSeguro :: [Music] -> Music
 -- line  = foldr1 (:+:)
-lineSeguro = foldl (:+:) (Rest (0%1))
+--lineSeguro = foldl (:+:) (Rest (0%1))
+lineSeguro [] = Rest (0%1)
+lineSeguro m@(m1:ms) = line m
 
 chordSeguro :: [Music] -> Music
 -- chord = foldr1 (:=:)

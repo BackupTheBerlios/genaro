@@ -61,7 +61,8 @@ dameIntervaloPitch tonica p = grado
 {-
 dameDistanciaEnEscala escala tonica pitchAbajo pitchArriba
  -devuelve el numero de grados de distancia entre los dos pitch en la escala. No tiene pq ser
-diatonicos ninguno, pero si debe ocurrir q pitchAbajo sea mas grave q pitchArriba
+diatonicos ninguno, pero si debe ocurrir q el pitch Class de pitchAbajo sea mas grave o igual
+q el pitch Class de pitchArriba
   -ejemplos:
     .dameDistanciaEnEscala Jonica C (C,0) (C,0) = 0
     .dameDistanciaEnEscala Jonica C (C,0) (C,2) = 0

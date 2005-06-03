@@ -315,6 +315,9 @@ pruAjustaCurvaMelodicaConListaAcentos ruta numPuntos = do aleat <- listaInfNumsA
                                                                 longAcFin aleat p = length (snd (resul aleat p))
                                                                 longCurFin aleat p = length (fst (resul aleat p))
 
+
+limpiaMusica :: [Music] -> [Music]
+limpiaMusica = filter (not.esNotaVacia)
 {-
 aplicaCurvaMelodicaFase2  :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
 aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, musica))
@@ -323,7 +326,12 @@ para hacer melodias con notas mas largas. La curva melodcia no se necesita
   -liga varias notas, un numero aleatorio de ellas
 -}
 aplicaCurvaMelodicaFase2  :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
-aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, musica))
+aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, musica)) = aplicaCurvaMelodicaFase2Rev (aleat, (escala, tonica, musLimpia))
+      where musLimpia = limpiaMusica musica
+-- CUIDADIN!! (cambio de penultima hora)
+
+aplicaCurvaMelodicaFase2Rev  :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
+aplicaCurvaMelodicaFase2Rev (aleat, (escala, tonica, musica))
  | numCand <= 0 = (aleat, musica)
  | otherwise = (restoAleat1, musicaLarga)
       where posCand = dameCandidatosFase2 musica
@@ -354,7 +362,7 @@ dameCandidatosFase2 musica  = sacaCandidatosPos 0 musicaLimpia
 
 {-
 Dada una lista de posiciones y una lista de Music alarga las notas de la lista de Music cuyas posiciones esten en la lista de
-posiciones, para ello les añade la duracion de la nota de su derecha, q debe ser un silencio
+posiciones, para ello les aï¿½ade la duracion de la nota de su derecha, q debe ser un silencio
 -}
 alargaMusicaFase2 :: [Int] -> [Music] -> [Music]
 alargaMusicaFase2 = alargaElemTalPos 0
@@ -374,12 +382,17 @@ mete una nota de paso intermedia, para ello interpola:
 por dos, pq suponemos binario, ej: entre dos notas Note (C,6) (1%2) [] y Note (E,6) (1%8) [] pondrï¿½a un
 Note (D,6) (1%4) [] diviendo en dos el primer do para q queden entre medias, es decir:
 (Note (C,6) (1%4) []) :+: Note (D,6) (1%4) [] :+: Note (E,6) (1%8) []
- -¡¡¡CAMBIADO CRITERIO!!!: ahora tiende a elegir notas largas para poner despues de estas notas intermedias
+ -ï¿½ï¿½ï¿½CAMBIADO CRITERIO!!!: ahora tiende a elegir notas largas para poner despues de estas notas intermedias
  -la nota intermedia dura la mitad
 -}
 
 aplicaCurvaMelodicaFase3 :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
-aplicaCurvaMelodicaFase3 (aleat@(a1:restoAleat1), (escala, tonica, musica))
+aplicaCurvaMelodicaFase3 (aleat, (escala, tonica, musica)) = aplicaCurvaMelodicaFase3Rev (aleat, (escala, tonica, musLimpia))
+      where musLimpia = limpiaMusica musica
+-- CUIDADIN!! (cambio de penultima hora)
+
+aplicaCurvaMelodicaFase3Rev :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
+aplicaCurvaMelodicaFase3Rev (aleat@(a1:restoAleat1), (escala, tonica, musica))
  | numCandidatos <= 0 = (aleat, musica)
  | otherwise          = (restoAleat3, musicaResul)
                  where posCandidatos = dameCandidatosFase3 musica
@@ -421,19 +434,23 @@ mete una nota de paso intermedia, para ello interpola:
 por dos, pq suponemos binario, ej: entre dos notas Note (C,6) (1%2) [] y Note (E,6) (1%8) [] pondrï¿½a un
 Note (D,6) (1%4) [] diviendo en dos el primer do para q queden entre medias, es decir:
 (Note (C,6) (1%4) []) :+: Note (D,6) (1%4) [] :+: Note (E,6) (1%8) []
- -¡¡¡CAMBIADO CRITERIO!!!: ahora tiende a elegir notas largas para poner despues de estas notas intermedias
+ -ï¿½ï¿½ï¿½CAMBIADO CRITERIO!!!: elije las notas dando la misma probabilidad de ser divididas a todas
  -elije la duracion de la nota internedia al azar
  -numDivisiones: numero de veces q se divide por dos la duracion de la nota intermedia, entre ellas se elije
 -}
-
 aplicaCurvaMelodicaFase4 :: FuncAleatoria (Int, Escala, PitchClass, [Music]) [Music]
-aplicaCurvaMelodicaFase4 (aleat@(a1:restoAleat1), (numDivisiones, escala, tonica, musica))
+aplicaCurvaMelodicaFase4 (aleat, (numDivisiones, escala, tonica, musica)) = aplicaCurvaMelodicaFase4Rev (aleat, (numDivisiones, escala, tonica, musLimpia))
+      where musLimpia = limpiaMusica musica
+-- CUIDADIN!! (cambio de penultima hora)
+
+aplicaCurvaMelodicaFase4Rev :: FuncAleatoria (Int, Escala, PitchClass, [Music]) [Music]
+aplicaCurvaMelodicaFase4Rev (aleat@(a1:restoAleat1), (numDivisiones, escala, tonica, musica))
  | numCandidatos <= 0 = (aleat, musica)
  | otherwise          = (restoAleat3, musicaResul)
                  where posCandidatos = dameCandidatosFase3 musica
                        numCandidatos = length posCandidatos
-                       --listaPesosNotas = zip posCandidatos (replicate numCandidatos 1)
-                       listaPesosNotas = zip posCandidatos [valorDeFraccion (dur (musica !! p)) | p <- posCandidatos]
+                       listaPesosNotas = zip posCandidatos (replicate numCandidatos 1)
+                       --listaPesosNotas = zip posCandidatos [valorDeFraccion (dur (musica !! p)) | p <- posCandidatos]
                        posElegida = fst (dameElemAleatListaPesosFloat a1 listaPesosNotas)
                        -- nunca se se elije la ultima nota, pq no tiene ninguna a su derecha
                        -- esto tb ocurre si solo hay una nota

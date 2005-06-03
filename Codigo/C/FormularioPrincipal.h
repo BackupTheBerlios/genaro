@@ -31,7 +31,7 @@ __published:	// IDE-managed Components
   TMenuItem *Edicin1;
   TMenuItem *Insertar1;
   TMenuItem *Salir1;
-  TOpenDialog *OpenDialog;
+  TOpenDialog *Cargar_Genaro;
   TMenuItem *EditordePianola1;
   TMenuItem *Reproduccin1;
   TPanel *Panel1;
@@ -187,6 +187,7 @@ __published:	// IDE-managed Components
   TLabel *Label32;
   TLabel *Label33;
   TLabel *Label34;
+  TMenuItem *Cargar1;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -246,6 +247,7 @@ __published:	// IDE-managed Components
   void __fastcall Barra_Salto_Maximo_MutacionesChange(TObject *Sender);
   void __fastcall Barra_Mutaciones_CurvaChange(TObject *Sender);
   void __fastcall Boton_Mutar_CurvaClick(TObject *Sender);
+  void __fastcall Cargar1Click(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;

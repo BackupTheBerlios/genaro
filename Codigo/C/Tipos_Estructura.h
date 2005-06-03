@@ -11,6 +11,7 @@ int Es_Progresion_Valida(String fichero_Progresion);
 TStringList* Come_Progresion(String fichero_Progresion);
 String Come_Azucar(String Fichero);
 int Procesar(String &Total,String A_Eliminar);
+String Procesar2(String &Total,int A_Eliminar);
 int Procesar_Grado(String &Progresion,String &Salida);
 int Procesar_Matricula(String &Progresion);
 int Procesa_Num_Natural(String &Progresion);
@@ -78,6 +79,7 @@ class Cancion
 private:
   Pistas_Cancion Pistas;
 public:
+  ~Cancion();
   Cancion(){Pistas.clear();};
   void Nueva_Pista(Tipo_Pista tipopista=ACOMP);//Hay que poner tantos bloques como haya en las demás pistas
   //inserta mete un bloque y pone a vacio los demás, y cambia cambia el bloque actual.
@@ -87,6 +89,9 @@ public:
   int Dame_Numero_Pistas(){return Pistas.size();};
   Pista* Dame_Pista(int N_Pista){return Pistas[N_Pista];};
   void Guarda_Archivo();
-  void Guarda_Archivo_Haskell(String Fichero_Gen,int tempo,String tonalidad);  
+  void Guarda_Archivo_Haskell(String Fichero_Gen,int tempo,String tonalidad);
+  void Limpia();
+  int Cargar(String fichero);
 };
 #endif
+

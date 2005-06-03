@@ -327,6 +327,13 @@ void __fastcall TForm1::NuevoClick(TObject *Sender)
 
 if (Inicializado)
 {
+  Musica_Genaro->Limpia();
+  Numero_Filas_A_Dibujar=0;
+  Numero_Bloques=0;
+  Dibuja_Cancion();
+//  TBrushStyle estilo_temp=this->Canvas->Brush->Style;
+  this->Canvas->Brush->Color=clGray;
+  this->Canvas->FillRect(Rect(X_Inicial,Y_Inicial,X_Final,Y_Final));
   Dibuja_Cancion();
 }
 else
@@ -1566,7 +1573,7 @@ void TForm1::Genera_Music_Acompanamiento()
     if (Check_Semilla->Checked)
     {
       Pal_Semilla="nosemilla";
-      int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),borrame1.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
+      int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
       Pal_Octava.c_str(),O_Inicial.c_str(),Pal_Notas.c_str(),N_Notas.c_str(),Pal_Sistema.c_str(),Sistem.c_str(),Pal_Semilla.c_str(),
       Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Ruta_Destino_Music.c_str(),NULL);
       if (valor_spawn==-1)
@@ -1739,7 +1746,8 @@ if (Inicializado)
 
   String Parametro2="ruta_midi";
   String Midi_salida="musica_genara.mid";
-  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Parametro1.c_str(),Fichero_Gen.c_str(),Parametro2.c_str(),Midi_salida.c_str(),NULL);
+  String Chapucilla="+h300000";
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Chapucilla.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Parametro1.c_str(),Fichero_Gen.c_str(),Parametro2.c_str(),Midi_salida.c_str(),NULL);
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando el runhugs de haskell.");}
  }
@@ -2083,6 +2091,60 @@ void __fastcall TForm1::Boton_Mutar_CurvaClick(TObject *Sender)
   String salto_max=IntToStr(Barra_Salto_Maximo_Mutaciones->Position);
   int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),num_mut.c_str(),salto_max.c_str(),curva.c_str(),curva.c_str(),NULL);
   if (valor_spawn==-1){ShowMessage("Error creando el music de melodia");}
+
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Cargar1Click(TObject *Sender)
+{
+if(Cargar_Genaro->Execute()==false)
+{
+  ShowMessage("Operación cancelada por el usuario");return;
+}
+String fichero_genaro=Cargar_Genaro->FileName;
+
+if (Inicializado)
+{
+  Musica_Genaro->Limpia();
+  Musica_Genaro->Cargar(fichero_genaro);
+  Numero_Filas_A_Dibujar=Musica_Genaro->Dame_Numero_Pistas();
+  if (Numero_Filas_A_Dibujar>0)
+  {
+    Numero_Bloques=Musica_Genaro->Dame_Pista(0)->Dame_Numero_Bloques();
+  }
+  else
+  {
+    Numero_Bloques=0;
+  }
+  Dibuja_Cancion();
+//  TBrushStyle estilo_temp=this->Canvas->Brush->Style;
+  this->Canvas->Brush->Color=clGray;
+  this->Canvas->FillRect(Rect(X_Inicial,Y_Inicial,X_Final,Y_Final));
+  Dibuja_Cancion();
+}
+else
+{
+  String Ruta_codigo_haskell;
+  String Ruta_haskell;
+  String Ruta_prolog;
+  Ruta_prolog=".\\Codigo\\Prolog\\mainArgs.exe";  //"..\\Prolog\\mainArgs.exe";
+  Ruta_haskell=".\\Codigo\\Haskell\\runhugs.exe";  //"..\\Haskell\\runhugs.exe";
+  Ruta_codigo_haskell=".\\Codigo\\Haskell\\main.lhs";  //"..\\Haskell\\main.lhs";
+  unidad_de_union->Inicializacion(Ruta_prolog,Ruta_haskell,Ruta_codigo_haskell);
+  Inicializado=true;
+  Musica_Genaro=new Cancion;
+  Musica_Genaro->Cargar(fichero_genaro);
+  Numero_Filas_A_Dibujar=Musica_Genaro->Dame_Numero_Pistas();
+  if (Numero_Filas_A_Dibujar>0)
+  {
+    Numero_Bloques=Musica_Genaro->Dame_Pista(0)->Dame_Numero_Bloques();
+  }
+  else
+  {
+    Numero_Bloques=0;
+  }
+  Dibuja_Cancion();
+}
 
 }
 //---------------------------------------------------------------------------

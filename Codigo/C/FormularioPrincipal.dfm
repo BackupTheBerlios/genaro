@@ -4172,7 +4172,7 @@ object Form1: TForm1
         Top = 32
         Width = 145
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 0
         Text = 'Elige el patrón rítmico'
       end
@@ -5017,7 +5017,7 @@ object Form1: TForm1
       object Label34: TLabel
         Left = 192
         Top = 112
-        Width = 17
+        Width = 9
         Height = 16
         Caption = '1'
         Font.Charset = DEFAULT_CHARSET
@@ -5091,7 +5091,7 @@ object Form1: TForm1
         Top = 24
         Width = 137
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 6
         Text = 'Elige Pista de acompañamiento'
       end
@@ -5185,7 +5185,7 @@ object Form1: TForm1
         Top = 64
         Width = 137
         Height = 21
-        ItemHeight = 13
+        ItemHeight = 0
         TabOrder = 12
         Text = 'Lista_Patrones_Melodia'
       end
@@ -5449,6 +5449,10 @@ object Form1: TForm1
         Caption = '&Guardar'
         OnClick = Guardar1Click
       end
+      object Cargar1: TMenuItem
+        Caption = '&Cargar'
+        OnClick = Cargar1Click
+      end
       object N1: TMenuItem
         Caption = '-'
       end
@@ -5472,7 +5476,8 @@ object Form1: TForm1
       end
     end
   end
-  object OpenDialog: TOpenDialog
+  object Cargar_Genaro: TOpenDialog
+    Filter = 'Archivos de proyecto Genaro|*.gnr'
     Left = 304
     Top = 456
   end

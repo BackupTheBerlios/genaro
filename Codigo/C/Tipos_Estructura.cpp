@@ -130,10 +130,10 @@ for (int i=0;i<Pistas.size();i++)
     }
     fichero_salida<<" ";
     fichero_salida<<"Pista_Acomp "<<bloque_temp.N_Pista_Acomp<<" ";
-    fichero_salida<<"Num_Divisiones "<<bloque_temp.N_Divisiones;
-    fichero_salida<<"Fase2 "<<bloque_temp.Fase2;
-    fichero_salida<<"Fase3 "<<bloque_temp.Fase3;
-    fichero_salida<<"Fase4 "<<bloque_temp.Fase4;
+    fichero_salida<<"Num_Divisiones "<<bloque_temp.N_Divisiones<<" ";
+    fichero_salida<<"Fase2 "<<bloque_temp.Fase2<<" ";
+    fichero_salida<<"Fase3 "<<bloque_temp.Fase3<<" ";
+    fichero_salida<<"Fase4 "<<bloque_temp.Fase4<<" ";
     fichero_salida<<"Progresion "<<bloque_temp.Progresion.Length()<<" ";
     for (int k=0;k<bloque_temp.Progresion.Length();k++)
     {
@@ -251,6 +251,23 @@ for (int j=0;j<Total.Length()-A_Eliminar.Length();j++)
 }
 Total=nuevo_total;
 return 0;
+}
+//---------------------------------------------------------------------------
+String Procesar2(String &Total,int A_Eliminar)
+{
+String salida="";
+for (int i=0;i<A_Eliminar;i++)
+{
+  salida+=Total[i+1];
+}
+String nuevo_total="";
+//buscar el nuevo total
+for (int j=0;j<Total.Length()-A_Eliminar;j++)
+{
+  nuevo_total+=Total[j+A_Eliminar+1];
+}
+Total=nuevo_total;
+return salida;
 }
 //-----------------------------------------------------------------------------
 int Num_Inter_Simple(String &Progresion)
@@ -498,5 +515,207 @@ for (int i=0;i<Pistas.size();i++)
 fichero_salida<<"FINCANCION"<<"\n";
 fichero_salida.close();
 }
+//---------------------------------------------------------------------------
+void Cancion::Limpia()
+{
+
+for (int i=0;i<Pistas.size();i++)
+ {
+  delete Pistas[i];
+ }
+Pistas.clear();
+}
+//---------------------------------------------------------------------------
+Cancion::~Cancion()
+{
+
+for (int i=0;i<Pistas.size();i++)
+ {
+  delete Pistas[i];
+ }
+Pistas.clear();
+}
+//---------------------------------------------------------------------------
+int Cancion::Cargar(String fichero)
+{
+ifstream archivo;
+archivo.open(fichero.c_str(),ios::binary);
+char agua;
+String Total="";
+archivo.read((char*)&agua,sizeof(char));
+while(!archivo.eof())
+{
+  Total+=agua;
+  archivo.read((char*)&agua,sizeof(char));
+}
+//ya tenemos en Total el archivo que buscamos;
+//procesamos palabra pistas
+if (Procesar(Total,"Pistas: ")==-1){ShowMessage("Error cargando fichero, leyendo palabra \"Pistas: \"");return -1;}
+int Total_Pistas=Procesa_Num_Natural(Total);
+int Total_Bloques;
+int Tipo_De_Pista;
+int Mute_Pista;
+int Instrumento_Pista;
+if (Total_Pistas==-1){ShowMessage("Error cargando fichero, leyendo número de pistas");return -1;}
+if (Procesar(Total,"\r\n")==-1){ShowMessage("Error cargando fichero, procesando salto de línea");return -1;}
+//para cada pista procesamos los datos
+for (int Pista_Actual=0;Pista_Actual<Total_Pistas;Pista_Actual++)
+ {
+  if (Procesar(Total,"Nº ")==-1){ShowMessage("Error cargando fichero, procesando palabra \"Nº \"");return -1;}
+  if (Procesa_Num_Natural(Total)!=Pista_Actual){ShowMessage("Error, las pistas no están en orden, o faltan pistas");return -1;}
+  if (Procesar(Total,"\r\n")==-1){ShowMessage("Error cargando fichero, procesando salto de línea");return -1;}
+  if (Procesar(Total,"Bloques ")==-1){ShowMessage("Error cargando fichero, procesando palabra \"Bloques \"");return -1;}
+  Total_Bloques=Procesa_Num_Natural(Total);
+  if (Total_Bloques==-1){ShowMessage("Error cargando fichero, leyendo número de bloques");return -1;}
+  if (Procesar(Total," Tipo ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Tipo \"");return -1;}
+  Tipo_De_Pista=Procesa_Num_Natural(Total);
+  if (Tipo_De_Pista==-1){ShowMessage("Error carganda tipo de pista");return -1;}
+  if (Procesar(Total," Mute ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Tipo \"");return -1;}
+  Mute_Pista=Procesa_Num_Natural(Total);
+  if (Mute_Pista==-1){ShowMessage("Error carganda mute pista");return -1;}
+  if (Procesar(Total," Instrumento ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Tipo \"");return -1;}
+  Instrumento_Pista=Procesa_Num_Natural(Total);
+  if (Instrumento_Pista==-1){ShowMessage("Error carganda instrumento pista");return -1;}
+  if (Procesar(Total,"\r\n")==-1){ShowMessage("Error cargando fichero, procesando salto de línea");return -1;}
+  //ahora creamos una pista y le metemos los bloques
+  Pista* Pista_Temporal;
+  Pista_Temporal=new Pista((Tipo_Pista)Tipo_De_Pista);
+  Pista_Temporal->Cambia_Mute(Mute_Pista);
+  Pista_Temporal->Cambia_Instrumento(Instrumento_Pista);
+  Bloque Bloque_Temporal;
+  for (int SubBloque_Actual=0;SubBloque_Actual<Total_Bloques;SubBloque_Actual++)
+   {//ahora por cada bloque tenemos que procesar
+    int Numero_Compases;
+    int vacio;
+    String Patron_Ritmico;
+    int Aplicacion_Horizontal;
+    int Aplicacion_Vertical_Mayor;
+    int Aplicacion_Vertical_Menor;
+    int Octava_Inicial;
+    int Sistema;
+    int Notas;
+    String Inversion;
+    String Disposicion;
+    int Tipo_Melodia;
+    String Curva_Melodica;
+    int Pista_Acomp;
+    int Num_Divisiones;
+    int Fase2,Fase3,Fase4;
+    String Progresion;
+    String Tipo_Music;
+    int ent_temp;
+    if (Procesar(Total,"bloque ")==-1){ShowMessage("Error cargando fichero, procesando palabra \"bloque \"");return -1;}
+    if (Procesa_Num_Natural(Total)!=SubBloque_Actual){ShowMessage("Error, loss bloques no están en orden, o faltan bloques");return -1;}
+    if (Procesar(Total,"\r\n")==-1){ShowMessage("Error cargando fichero, procesando salto de línea");return -1;}
+    Bloque Bloque_Temporal;
+    if (Procesar(Total,"Compases ")==-1){ShowMessage("Error cargando fichero, procesando palabra \"Compases \"");return -1;}
+    Numero_Compases=Procesa_Num_Natural(Total);
+    if (Numero_Compases==-1){ShowMessage("Error procesando el número de compases");return -1;}
+    if (Procesar(Total," vacio ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" vacio \"");return -1;}
+    vacio=Procesa_Num_Natural(Total);
+    if (vacio==-1){ShowMessage("Error procesando el mute del bloque");return -1;}
+    if (Procesar(Total," Patron ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Patron \"");return -1;}
+    ent_temp=Procesa_Num_Natural(Total);
+    if (ent_temp==-1){ShowMessage("Error leyendo el tamaño del patrón rítmico");return -1;}
+    if (Procesar(Total," ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" \"");return -1;}
+    if (ent_temp==0){Patron_Ritmico=NULL;}
+    else{Patron_Ritmico=Procesar2(Total,ent_temp);}
+    if (Procesar(Total," Aplicacion_Horizontal ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Aplicacion_Horizontal \"");return -1;}
+    Aplicacion_Horizontal=Procesa_Num_Natural(Total);
+    if (Aplicacion_Horizontal==-1){ShowMessage("Error leyendo Aplicacion_Horizontal");return -1;}
+    if (Procesar(Total," Aplicacion_Vertical_Mayor ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Aplicacion_Vertical_Mayor \"");return -1;}
+    Aplicacion_Vertical_Mayor=Procesa_Num_Natural(Total);
+    if (Aplicacion_Vertical_Mayor==-1){ShowMessage("Error leyendo Aplicacion_Vertical_Mayor");return -1;}
+    if (Procesar(Total," Aplicacion_Vertical_Menor ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Aplicacion_Vertical_Menor \"");return -1;}
+    Aplicacion_Vertical_Menor=Procesa_Num_Natural(Total);
+    if (Aplicacion_Vertical_Menor==-1){ShowMessage("Error leyendo Aplicacion_Vertical_Menor");return -1;}
+    if (Procesar(Total," Octava_Inicial ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Octava_Inicial \"");return -1;}
+    Octava_Inicial=Procesa_Num_Natural(Total);
+    if (Octava_Inicial==-1){ShowMessage("Error leyendo Octava_Inicial");return -1;}
+    if (Procesar(Total," Sistema ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Sistema \"");return -1;}
+    Sistema=Procesa_Num_Natural(Total);
+    if (Sistema==-1){ShowMessage("Error leyendo Sistema");return -1;}
+    if (Procesar(Total," Notas ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Notas \"");return -1;}
+    Notas=Procesa_Num_Natural(Total);
+    if (Notas==-1){ShowMessage("Error leyendo Notas");return -1;}
+    if (Procesar(Total," Inversion ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Inversion \"");return -1;}
+    ent_temp=Procesa_Num_Natural(Total);
+    if (ent_temp==-1){ShowMessage("Error leyendo el tamaño delInversion");return -1;}
+    if (Procesar(Total," ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" \"");return -1;}
+    if (ent_temp==0){Inversion=NULL;}
+    else{Inversion=Procesar2(Total,ent_temp);}
+    if (Procesar(Total," Disposicion ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Disposicion \"");return -1;}
+    ent_temp=Procesa_Num_Natural(Total);
+    if (ent_temp==-1){ShowMessage("Error leyendo el tamaño de la disposición");return -1;}
+    if (Procesar(Total," ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" \"");return -1;}
+    if (ent_temp==0){Disposicion=NULL;}
+    else{Disposicion=Procesar2(Total,ent_temp);}
+    if (Procesar(Total," Tipo_Melodia ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Tipo_Melodia \"");return -1;}
+    Tipo_Melodia=Procesa_Num_Natural(Total);
+    if (Tipo_Melodia==-1){ShowMessage("Error leyendo Tipo_Melodia");return -1;}
+    if (Procesar(Total," Curva_Melodica ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Curva_Melodica \"");return -1;}
+    ent_temp=Procesa_Num_Natural(Total);
+    if (ent_temp==-1){ShowMessage("Error leyendo el tamaño de la curva melódica");return -1;}
+    if (Procesar(Total," ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" \"");return -1;}
+    if (ent_temp==1){Curva_Melodica=NULL;Procesar(Total,"0");}
+    else{Curva_Melodica=Procesar2(Total,ent_temp);}
+    if (Procesar(Total," Pista_Acomp ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Curva_Melodica \"");return -1;}
+    Pista_Acomp=1;
+    if (Total[1]=='-'){Procesar(Total,"-");Pista_Acomp=-1;}
+    Pista_Acomp*=Procesa_Num_Natural(Total);
+    if (Procesar(Total," Num_Divisiones ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Num_Divisiones \"");return -1;}
+    Num_Divisiones=Procesa_Num_Natural(Total);
+    if (Num_Divisiones==-1){ShowMessage("Error leyendo Num_Divisiones");return -1;}
+    if (Procesar(Total," Fase2 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Fase2 \"");return -1;}
+    Fase2=Procesa_Num_Natural(Total);
+    if (Fase2==-1){ShowMessage("Error leyendo Fase2");return -1;}
+    if (Procesar(Total," Fase3 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Fase3 \"");return -1;}
+    Fase3=Procesa_Num_Natural(Total);
+    if (Fase3==-1){ShowMessage("Error leyendo Fase3");return -1;}
+    if (Procesar(Total," Fase4 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Fase4 \"");return -1;}
+    Fase4=Procesa_Num_Natural(Total);
+    if (Fase4==-1){ShowMessage("Error leyendo Fase4");return -1;}
+    if (Procesar(Total," Progresion ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Progresion \"");return -1;}
+    ent_temp=Procesa_Num_Natural(Total);
+    if (ent_temp==-1){ShowMessage("Error leyendo el tamaño de la curva melódica");return -1;}
+    if (Procesar(Total," ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" \"");return -1;}
+    if (ent_temp==1){Progresion=NULL;Procesar(Total,"0");}
+    else{Progresion=Procesar2(Total,ent_temp);}
+    if (Procesar(Total," Tipo_Music ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Tipo_Music \"");return -1;}
+    ent_temp=Procesa_Num_Natural(Total);
+    if (ent_temp==-1){ShowMessage("Error leyendo el tamaño de la curva melódica");return -1;}
+    if (Procesar(Total," ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" \"");return -1;}
+    if (ent_temp==1){Tipo_Music=NULL;Procesar(Total,"0");}
+    else{Tipo_Music=Procesar2(Total,ent_temp);}
+    if (Procesar(Total," FINBLOQUE\r\n")==-1){ShowMessage("Error finalizando lectura bloque");return -1;}
+    Bloque_Temporal.Num_Compases=Numero_Compases;
+    Bloque_Temporal.Vacio=vacio;
+    Bloque_Temporal.Patron_Ritmico=Patron_Ritmico;
+    Bloque_Temporal.Aplicacion_Horizontal=Aplicacion_Horizontal;
+    Bloque_Temporal.Aplicacion_Vertical_Mayor=Aplicacion_Vertical_Mayor;
+    Bloque_Temporal.Aplicacion_Vertical_Menor=Aplicacion_Vertical_Menor;
+    Bloque_Temporal.Octava_Inicial=Octava_Inicial;
+    Bloque_Temporal.Es_Sistema_Paralelo=Sistema;
+    Bloque_Temporal.Notas_Totales=Notas;
+    Bloque_Temporal.Inversion=Inversion;
+    Bloque_Temporal.Disposicion=Disposicion;
+    Bloque_Temporal.Tipo_Melodia=Tipo_Melodia;
+    Bloque_Temporal.Curva_Melodica=Curva_Melodica;
+    Bloque_Temporal.N_Pista_Acomp=Pista_Acomp;
+    Bloque_Temporal.N_Divisiones=Num_Divisiones;
+    Bloque_Temporal.Fase2=Fase2;
+    Bloque_Temporal.Fase3=Fase3;
+    Bloque_Temporal.Fase4=Fase4;
+    Bloque_Temporal.Progresion=Progresion;
+    Bloque_Temporal.Tipo_Music=Tipo_Music;
+    Pista_Temporal->Inserta_Bloque(Bloque_Temporal);
+   }
+  if (Procesar(Total,"FINPISTA\r\n")==-1){ShowMessage("Error finalizando lectura Pista");return -1;}
+  //una vez introducidos los bloques, metemos la pista en la canción
+  Pistas.push_back(Pista_Temporal);
+ }
+ if (Procesar(Total,"FINCANCION")==-1){ShowMessage("Error finalizando lectura fichero");return -1;}
+}
+//---------------------------------------------------------------------------
 
 

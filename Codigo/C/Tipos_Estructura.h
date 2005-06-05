@@ -15,6 +15,7 @@ String Procesar2(String &Total,int A_Eliminar);
 int Procesar_Grado(String &Progresion,String &Salida);
 int Procesar_Matricula(String &Progresion);
 int Procesa_Num_Natural(String &Progresion);
+String Dame_Token(String &Total);
 const Tam_Inter_Simples=23;
 String Inter_Simples[Tam_Inter_Simples]={"i", "bii", "ii", "biii", "iii", "iv", "bv", "v", "auv", "vi", "bvii", "vii", "bbii", "bbiii", "auii", "biv", "auiii", "auiv", "bbvi", "bvi", "auvi", "bviii", "auviii"};
 const Tam_Matriculas=13;

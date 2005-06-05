@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 133
-  Top = 118
+  Left = 95
+  Top = 101
   Width = 800
   Height = 546
   Caption = 'Interfaz Genaro'
@@ -4009,7 +4009,7 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_General
+    ActivePage = Tab_Crear_Progresion
     TabOrder = 13
     Visible = False
     object Tab_General: TTabSheet
@@ -4057,9 +4057,9 @@ object Form1: TForm1
         OnClick = Bloque_VacioClick
       end
       object Boton_Guardar_Cambios_Bloque: TButton
-        Left = 184
+        Left = 112
         Top = 88
-        Width = 113
+        Width = 121
         Height = 33
         Caption = 'Guardar Cambios'
         Font.Charset = ANSI_CHARSET
@@ -4072,10 +4072,10 @@ object Form1: TForm1
         OnClick = Boton_Guardar_Cambios_BloqueClick
       end
       object Button10: TButton
-        Left = 344
+        Left = 288
         Top = 88
-        Width = 97
-        Height = 25
+        Width = 121
+        Height = 33
         Caption = 'Generar Notas'
         Font.Charset = DEFAULT_CHARSET
         Font.Color = clWindowText
@@ -4889,11 +4889,11 @@ object Form1: TForm1
         TabOrder = 3
       end
       object Boton_Edicion: TButton
-        Left = 312
+        Left = 328
         Top = 96
         Width = 97
         Height = 33
-        Caption = 'Boton_Edicion'
+        Caption = 'Editar Progresión'
         TabOrder = 4
         OnClick = Boton_EdicionClick
       end

@@ -438,7 +438,7 @@ while (true)
     Cadena_Temporal+=" "+IntToStr(entero);
     //procesamos ,
     if(Procesar(Progresion,",")==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
-    Cadena_Temporal+="/";
+    Cadena_Temporal+=" /";
     //procesamos otro entero natural
     entero=Procesa_Num_Natural(Progresion);
     if (entero==-1){ShowMessage("ERROR comiendo progresión");return NULL;}
@@ -549,6 +549,7 @@ while(!archivo.eof())
   archivo.read((char*)&agua,sizeof(char));
 }
 //ya tenemos en Total el archivo que buscamos;
+archivo.close();
 //procesamos palabra pistas
 if (Procesar(Total,"Pistas: ")==-1){ShowMessage("Error cargando fichero, leyendo palabra \"Pistas: \"");return -1;}
 int Total_Pistas=Procesa_Num_Natural(Total);
@@ -717,5 +718,25 @@ for (int Pista_Actual=0;Pista_Actual<Total_Pistas;Pista_Actual++)
  if (Procesar(Total,"FINCANCION")==-1){ShowMessage("Error finalizando lectura fichero");return -1;}
 }
 //---------------------------------------------------------------------------
-
-
+String Dame_Token(String &Total)
+{
+String salida="";
+String NuevoTotal="";
+int i=1;
+if (Total.Length()<=1){return "FIN";}
+while (((Total[i]==' ')||(Total[i]=='\t')||(Total[i]=='\n')||(Total[i]=='\r'))&&(i<=Total.Length()))
+{
+i++;
+}
+while ((i<=Total.Length())&&(Total[i]!=' ')&&(Total[i]!='\t')&&(Total[i]!='\n')&&(Total[i]!='\r'))
+{
+salida+=Total[i];
+i++;
+}
+for (int j=i;j<=Total.Length();j++)
+{
+NuevoTotal+=Total[j];
+}
+Total=NuevoTotal;
+return salida;
+}

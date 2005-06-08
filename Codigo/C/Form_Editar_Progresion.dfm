@@ -212,4 +212,9 @@ object Form3: TForm3
     TabOrder = 12
     OnClick = Button7Click
   end
+  object Salvar_Progresion: TSaveDialog
+    Filter = 'Archivos de Progresion|*.prog|Todos los archivos|*.*'
+    Left = 424
+    Top = 344
+  end
 end

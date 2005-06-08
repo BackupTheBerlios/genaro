@@ -930,42 +930,56 @@ else
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando el MainArgs de prolog.");}
 }
-
+//---------------------------------------------------------------------------
 void __fastcall TForm1::Button12Click(TObject *Sender)
 {
+
+if(Salvar_Progresion->Execute()==false)
+{ShowMessage("Operación Cancelada por el usuario");return;}
+String Nombre=Salvar_Progresion->FileName;
+String fichero="";
+for (int i=0;i<Nombre.Length();i++)
+ {
+  if (Nombre[i+1]=='\\'){fichero="";}
+  else{fichero+=Nombre[i+1];}
+ }
+int temp=fichero.Length();
+if ((temp>=5)&&(fichero[temp]!='g')&&(fichero[temp]!='o')&&(fichero[temp-2]!='r')&&(fichero[temp-3]!='p')&&(fichero[temp-4]!='.'))
+{fichero+=".prog";}
+
 if (Radio_Crear_Progresion->Checked)
 {
-  Progresion_Crear_Progresion();
+  Progresion_Crear_Progresion(fichero);
 }
 if (Radio_Mutar_Progresion->Checked)
 {
-  Progresion_Mutar_Progresion();
+  Progresion_Mutar_Progresion(fichero);
 }
 if (Radio_Mutar_Acorde_Progresion->Checked)
 {
-  Progresion_Mutar_Acorde_Progresion();
+  Progresion_Mutar_Acorde_Progresion(fichero);
 }
 if (Radio_Mutar_Progresion_Multiple->Checked)
 {
-  Progresion_Mutar_Progresion_Multiple();
+  Progresion_Mutar_Progresion_Multiple(fichero);
 }
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 /*char work_dir[255];
 getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;  */
-Bloque_A_Manipular.Progresion="progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog";
+Bloque_A_Manipular.Progresion=fichero;//"progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog";
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
 Progresion_A_Grid();
 }
 //---------------------------------------------------------------------------
-void TForm1::Progresion_Crear_Progresion()
+void TForm1::Progresion_Crear_Progresion(String fichero)
 {
 char work_dir[255];
 getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="crea_progresion";
-String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
+String Ruta_Destino="\""+directorio_trabajo1+"\\"+fichero+"\"";//progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 String NAcordes=IntToStr(Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada).Num_Compases);
 String MT="mt";
 String V1;
@@ -1055,7 +1069,7 @@ else
 Crea_Progresion(Ruta_Prolog,argv,valor);
 }
 //---------------------------------------------------------------------------
-void TForm1::Progresion_Mutar_Progresion()
+void TForm1::Progresion_Mutar_Progresion(String fichero)
 {
 //de momento creamos progresión y punto
 //Guardamos la progresión con un nombre temporal y al guardar cambios lo cambiamos y ponemos
@@ -1064,7 +1078,7 @@ getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="muta_progresion";
-String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
+String Ruta_Destino="\""+directorio_trabajo1+"\\"+fichero+"\"";//progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 String Progresion_Bloque=Bloque_A_Manipular.Progresion;
@@ -1163,7 +1177,7 @@ else
 Crea_Progresion(Ruta_Prolog,argv,valor);
 }
 //---------------------------------------------------------------------------
-void TForm1::Progresion_Mutar_Acorde_Progresion()
+void TForm1::Progresion_Mutar_Acorde_Progresion(String fichero)
 {
 //de momento creamos progresión y punto
 //Guardamos la progresión con un nombre temporal y al guardar cambios lo cambiamos y ponemos
@@ -1172,7 +1186,7 @@ getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="muta_progresion_acorde";
-String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
+String Ruta_Destino="\""+directorio_trabajo1+"\\"+fichero+"\"";//Progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 String Progresion_Bloque=Bloque_A_Manipular.Progresion;
 String Ruta_Origen="\""+directorio_trabajo1+"\\"+Progresion_Bloque+"\"";
@@ -1273,7 +1287,7 @@ else
 Crea_Progresion(Ruta_Prolog,argv,valor);
 }
 //---------------------------------------------------------------------------
-void TForm1::Progresion_Mutar_Progresion_Multiple()
+void TForm1::Progresion_Mutar_Progresion_Multiple(String fichero)
 {
 //de momento creamos progresión y punto
 //Guardamos la progresión con un nombre temporal y al guardar cambios lo cambiamos y ponemos
@@ -1282,7 +1296,7 @@ getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;
 String directorio_trabajo="\""+directorio_trabajo1+"\"";
 String Orden="crea_con_semilla";
-String Ruta_Destino="\""+directorio_trabajo1+"\\progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
+String Ruta_Destino="\""+directorio_trabajo1+"\\"+fichero+"\"";//progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 String Progresion_Bloque=Bloque_A_Manipular.Progresion;
 String Ruta_Origen="\""+directorio_trabajo1+"\\"+Progresion_Bloque+"\"";
@@ -1466,7 +1480,19 @@ void __fastcall TForm1::Guardar1Click(TObject *Sender)
 {
 if (Inicializado)
 {
-Musica_Genaro->Guarda_Archivo();
+if(Salvar_Genaro->Execute()==false)
+{ShowMessage("Operación Cancelada por el usuario");return;}
+String Nombre=Salvar_Genaro->FileName;
+String fichero="";
+for (int i=0;i<Nombre.Length();i++)
+ {
+  if (Nombre[i+1]=='\\'){fichero="";}
+  else{fichero+=Nombre[i+1];}
+ }
+int temp=fichero.Length();
+if ((temp>=4)&&(fichero[temp]!='r')&&(fichero[temp]!='n')&&(fichero[temp-2]!='g')&&(fichero[temp-3]!='.'))
+{fichero+=".gnr";}
+Musica_Genaro->Guarda_Archivo(fichero);
 }
 }
 //---------------------------------------------------------------------------
@@ -1518,7 +1544,8 @@ void TForm1::Genera_Music_Acompanamiento()
   if (Bloque_A_Manipular.Progresion==NULL)
   {
     ShowMessage("No hay ninguna progresión asociada a esta pista, se crea una por defecto");
-    Progresion_Crear_Progresion();
+    String automatica="progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog";
+    Progresion_Crear_Progresion(automatica);
     String directorio_trabajo1=work_dir;
     Bloque_A_Manipular.Progresion="\""+directorio_trabajo1+"/progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog"+"\"";
     Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
@@ -2148,4 +2175,8 @@ else
 
 }
 //---------------------------------------------------------------------------
+
+
+
+
 

@@ -20,9 +20,7 @@ class TForm1 : public TForm
 {
 __published:	// IDE-managed Components
   TPanel *Panel_Musica;
-  TButton *Button2;
   TButton *Button3;
-  TButton *Button5;
   TButton *Button1;
   TButton *Button4;
   TButton *Button6;
@@ -188,6 +186,8 @@ __published:	// IDE-managed Components
   TLabel *Label33;
   TLabel *Label34;
   TMenuItem *Cargar1;
+  TSaveDialog *Salvar_Genaro;
+  TSaveDialog *Salvar_Progresion;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -271,10 +271,10 @@ public:		// User declarations
   void Cuadro_Bloque_Pista();  
   void Dibuja_Musica();
   void Crea_Progresion(String Ruta_Prolog,String argv[],int total_args);
-  void Progresion_Crear_Progresion();
-  void Progresion_Mutar_Progresion();
-  void Progresion_Mutar_Acorde_Progresion();
-  void Progresion_Mutar_Progresion_Multiple();
+  void Progresion_Crear_Progresion(String fichero);
+  void Progresion_Mutar_Progresion(String fichero);
+  void Progresion_Mutar_Acorde_Progresion(String fichero);
+  void Progresion_Mutar_Progresion_Multiple(String fichero);
   void Inicializa_Pistas_Acompanamiento();
   void Genera_Music_Acompanamiento();
   void Progresion_A_Grid();

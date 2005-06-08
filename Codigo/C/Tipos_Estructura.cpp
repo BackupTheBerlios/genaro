@@ -77,10 +77,10 @@ void Cancion::Inserta_Bloque(Bloque Nuevo_Bloque, int Num_Pista)
   }
 }
 //---------------------------------------------------------------------------
-void Cancion::Guarda_Archivo()
+void Cancion::Guarda_Archivo(String nombre_archivo)
 {
 ofstream fichero_salida;
-fichero_salida.open("prueba_rara.txt");
+fichero_salida.open(nombre_archivo.c_str());
 //guardamos datos de cancion
 Bloque bloque_temp;
 fichero_salida<<"Pistas: "<<Pistas.size()<<"\n";

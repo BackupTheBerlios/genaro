@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 95
-  Top = 101
+  Left = 96
+  Top = 115
   Width = 800
   Height = 546
   Caption = 'Interfaz Genaro'
@@ -3557,7 +3557,7 @@ object Form1: TForm1
     Width = 81
     Height = 25
     Caption = 'Exportar Midi'
-    TabOrder = 14
+    TabOrder = 12
     OnClick = Button13Click
   end
   object Panel_Musica: TPanel
@@ -3568,30 +3568,14 @@ object Form1: TForm1
     TabOrder = 0
     Visible = False
   end
-  object Button2: TButton
-    Left = 336
-    Top = 460
-    Width = 33
-    Height = 25
-    Caption = '[_]'
-    TabOrder = 1
-  end
   object Button3: TButton
     Left = 368
     Top = 460
     Width = 33
     Height = 25
     Caption = '|>'
-    TabOrder = 2
+    TabOrder = 1
     OnClick = Button3Click
-  end
-  object Button5: TButton
-    Left = 400
-    Top = 460
-    Width = 33
-    Height = 25
-    Caption = '| |'
-    TabOrder = 3
   end
   object Button1: TButton
     Left = 40
@@ -3599,7 +3583,7 @@ object Form1: TForm1
     Width = 73
     Height = 25
     Caption = 'Exportar Midi'
-    TabOrder = 4
+    TabOrder = 2
     Visible = False
     OnClick = Button1Click
   end
@@ -3609,7 +3593,7 @@ object Form1: TForm1
     Width = 81
     Height = 25
     Caption = 'Exportar Wav'
-    TabOrder = 5
+    TabOrder = 3
     OnClick = Button4Click
   end
   object Button6: TButton
@@ -3618,7 +3602,7 @@ object Form1: TForm1
     Width = 81
     Height = 25
     Caption = 'Exportar PDF'
-    TabOrder = 6
+    TabOrder = 4
   end
   object Panel1: TPanel
     Left = 224
@@ -3626,7 +3610,7 @@ object Form1: TForm1
     Width = 513
     Height = 153
     BorderStyle = bsSingle
-    TabOrder = 7
+    TabOrder = 5
     Visible = False
     object Label1: TLabel
       Left = 49
@@ -3762,7 +3746,7 @@ object Form1: TForm1
     Width = 73
     Height = 17
     Caption = 'Nueva Pista'
-    TabOrder = 8
+    TabOrder = 6
     OnClick = Boton_Nueva_PistaClick
   end
   object Barra_Tipo_Pista: TTrackBar
@@ -3777,7 +3761,7 @@ object Form1: TForm1
     Position = 0
     SelEnd = 0
     SelStart = 0
-    TabOrder = 9
+    TabOrder = 7
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = Barra_Tipo_PistaChange
@@ -3788,7 +3772,7 @@ object Form1: TForm1
     Width = 513
     Height = 153
     BorderStyle = bsSingle
-    TabOrder = 10
+    TabOrder = 8
     Visible = False
     object Nombre_Pista: TLabel
       Left = 184
@@ -3990,7 +3974,7 @@ object Form1: TForm1
     Position = 1
     SelEnd = 0
     SelStart = 0
-    TabOrder = 11
+    TabOrder = 9
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = Barra_N_Compases_BloqueChange
@@ -4001,7 +3985,7 @@ object Form1: TForm1
     Width = 73
     Height = 17
     Caption = 'Nuevo Bloque'
-    TabOrder = 12
+    TabOrder = 10
     OnClick = Boton_Nuevo_BloqueClick
   end
   object Panel_Bloque: TPageControl
@@ -4009,8 +3993,8 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_Crear_Progresion
-    TabOrder = 13
+    ActivePage = Tab_General
+    TabOrder = 11
     Visible = False
     object Tab_General: TTabSheet
       Caption = 'General'
@@ -4172,7 +4156,7 @@ object Form1: TForm1
         Top = 32
         Width = 145
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 0
         Text = 'Elige el patrón rítmico'
       end
@@ -5091,7 +5075,7 @@ object Form1: TForm1
         Top = 24
         Width = 137
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 6
         Text = 'Elige Pista de acompañamiento'
       end
@@ -5185,7 +5169,7 @@ object Form1: TForm1
         Top = 64
         Width = 137
         Height = 21
-        ItemHeight = 0
+        ItemHeight = 13
         TabOrder = 12
         Text = 'Lista_Patrones_Melodia'
       end
@@ -5406,7 +5390,7 @@ object Form1: TForm1
     Position = 100
     SelEnd = 0
     SelStart = 0
-    TabOrder = 15
+    TabOrder = 13
     TickMarks = tmBottomRight
     TickStyle = tsAuto
     OnChange = Barra_TempoChange
@@ -5417,7 +5401,7 @@ object Form1: TForm1
     Width = 81
     Height = 21
     ItemHeight = 13
-    TabOrder = 16
+    TabOrder = 14
     Text = 'C'
     Items.Strings = (
       'C'
@@ -5477,16 +5461,27 @@ object Form1: TForm1
     end
   end
   object Cargar_Genaro: TOpenDialog
-    Filter = 'Archivos de proyecto Genaro|*.gnr'
+    Filter = 'Archivos de proyecto Genaro|*.gnr|Todos los archivos|*.*'
     Left = 304
     Top = 456
   end
   object Dialogo_Origen_Progresion: TOpenDialog
-    Left = 732
-    Top = 104
+    Filter = 'Archivos de Progresion|*.prog|Todos los archivos|*.*'
+    Left = 740
+    Top = 96
   end
   object Open_Curva: TOpenDialog
     Left = 740
     Top = 64
+  end
+  object Salvar_Genaro: TSaveDialog
+    Filter = 'Archivos de proyecto Genaro|*.gnr|Todos los archivos|*.*'
+    Left = 272
+    Top = 456
+  end
+  object Salvar_Progresion: TSaveDialog
+    Filter = 'Archivos de Progresion|*.prog|Todos los archivos |*.*'
+    Left = 740
+    Top = 128
   end
 end

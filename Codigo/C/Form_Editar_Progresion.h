@@ -8,6 +8,7 @@
 #include <StdCtrls.hpp>
 #include <Forms.hpp>
 #include <Grids.hpp>
+#include <Dialogs.hpp>
 //---------------------------------------------------------------------------
 class TForm3 : public TForm
 {
@@ -29,6 +30,7 @@ __published:	// IDE-managed Components
   TLabel *Label3;
   TLabel *Label4;
   TButton *Button7;
+  TSaveDialog *Salvar_Progresion;
   void __fastcall Button2Click(TObject *Sender);
   void __fastcall Button1Click(TObject *Sender);
   void __fastcall Button4Click(TObject *Sender);

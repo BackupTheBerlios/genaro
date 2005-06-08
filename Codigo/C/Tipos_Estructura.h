@@ -89,7 +89,7 @@ public:
   int Dame_Tipo_Pista(int N_Pista){return Pistas[N_Pista]->Dame_Tipo();};
   int Dame_Numero_Pistas(){return Pistas.size();};
   Pista* Dame_Pista(int N_Pista){return Pistas[N_Pista];};
-  void Guarda_Archivo();
+  void Guarda_Archivo(String nombre_archivo);
   void Guarda_Archivo_Haskell(String Fichero_Gen,int tempo,String tonalidad);
   void Limpia();
   int Cargar(String fichero);

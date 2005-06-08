@@ -211,7 +211,21 @@ StringGrid1->Cols[StringGrid1->Col]->Strings[0]=Cadena_Acorde;
 void __fastcall TForm3::Button7Click(TObject *Sender)
 {
 ofstream salida_progresion;
-salida_progresion.open("prueba_progre.txt");
+
+if(Salvar_Progresion->Execute()==false)
+{ShowMessage("Operación Cancelada por el usuario");return;}
+String Nombre=Salvar_Progresion->FileName;
+String fichero="";
+for (int i=0;i<Nombre.Length();i++)
+ {
+  if (Nombre[i+1]=='\\'){fichero="";}
+  else{fichero+=Nombre[i+1];}
+ }
+int temp=fichero.Length();
+if ((temp>=5)&&(fichero[temp]!='g')&&(fichero[temp]!='o')&&(fichero[temp-2]!='r')&&(fichero[temp-3]!='p')&&(fichero[temp-4]!='.'))
+{fichero+=".prog";}
+
+salida_progresion.open(fichero.c_str());
 salida_progresion<<"progresion([ ";
 String Total;
 String Token;
@@ -273,4 +287,5 @@ salida_progresion<<"]).";
 salida_progresion.close();
 }
 //---------------------------------------------------------------------------
+
 

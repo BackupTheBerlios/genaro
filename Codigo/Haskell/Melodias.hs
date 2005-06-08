@@ -504,11 +504,13 @@ damePitchIntermedioAleatFase3 (aleat@(a1:restoAleat1), (escala, tonica, notaIzda
   | (notaIzda < notaDcha) = (restoAleat1, pitchMenor)
   | (notaIzda > notaDcha) = (restoAleat1, pitchMayor)
   | otherwise             = (aleat, notaIzda)
-                      where distanciaMenor = (dameDistanciaEnEscala escala tonica notaIzda notaDcha) + 7*(od-oi)
+                      where -- distanciaMenor = (dameDistanciaEnEscala escala tonica notaIzda notaDcha) + 7*(od-oi)
+                            distanciaMenor = (dameDistanciaEnEscala escala tonica pci pcd) + 7*(od-oi)
                             listaPesosMenor = (0, pesoExtremos):((distanciaMenor,pesoExtremos):(zip [1..(distanciaMenor-1)] [1.0 | p <- [1..(distanciaMenor-1)]]))
                             saltoMenor = fst (dameElemAleatListaPesosFloat a1 listaPesosMenor)
                             pitchMenor = saltaIntervaloPitch escala tonica saltoMenor notaIzda
-                            distanciaMayor = (dameDistanciaEnEscala escala tonica notaDcha notaIzda) + 7*(oi-od)
+                            -- distanciaMayor = (dameDistanciaEnEscala escala tonica notaDcha notaIzda) + 7*(oi-od)
+                            distanciaMayor = (dameDistanciaEnEscala escala tonica pcd pci) + 7*(oi-od)
                             listaPesosMayor = (0, pesoExtremos):((distanciaMayor,pesoExtremos):(zip [1..(distanciaMayor-1)] [1.0 | p <- [1..(distanciaMayor-1)]]))
                             saltoMayor = fst (dameElemAleatListaPesosFloat a1 listaPesosMayor)
                             pitchMayor = saltaIntervaloPitch escala tonica saltoMayor notaDcha
@@ -802,6 +804,36 @@ saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
                                          then numOctavasPorNumGrados + 1
                                          else numOctavasPorNumGrados
 
+
+saltaIntervalo2Diatonico :: Escala -> PitchClass -> Int -> Pitch -> Pitch
+saltaIntervalo2Diatonico escala tonica num notaPartida@(clase, oct)
+ | num == 0  = notaPartida
+ | otherwise = notaDestino
+         where (_,gradosEscala,_)  = dameInfoEscala escala
+               gradoPartida        = dameIntervaloPitch tonica notaPartida
+               posGradoPartida     = fromJust (elemIndex gradoPartida gradosEscala)
+               listaSaltos         = escalaAListaSaltos escala
+               listaSaltosInf      = concat (repeat listaSaltos)
+               listaSaltosIniAjustado = drop posGradoPartida listaSaltosInf
+               listaSaltosDef      = take num listaSaltosIniAjustado
+               salto               = foldl1' (+) listaSaltosDef
+               notaDestino         = pitch ((absPitch notaPartida) + salto)
+
+
+
+
+{-
+Dada una escala devuelve la lista de saltos de semitonos entre cada grado de la escala y el que le sigue
+, empezando por el primer grado. Es decir, devuelve su estructura intervalica como dice Enric Herrera
+-}
+escalaAListaSaltos :: Escala -> [Int]
+escalaAListaSaltos escala = resul
+              where (_,listaGradosEscala,_)  = dameInfoEscala escala
+                    listaAbsGrados = map gradoAInt listaGradosEscala
+                    dameSaltosRec (n1:(n2:ns)) = (n2-n1):(dameSaltosRec (n2:ns))
+                    dameSaltosRec (n1:[])    = [12 - n1] -- pq se supone que son todos grados simples (no salen de la octava)
+                                                       -- y tras este ultimo grado de la escala salta a la octava, que es 12 semitonos
+                    resul = dameSaltosRec listaAbsGrados
 
 pruPeta :: Int -> IO ()
 pruPeta n

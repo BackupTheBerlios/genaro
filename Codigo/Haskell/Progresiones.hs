@@ -26,7 +26,7 @@ es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
 
 -}
 
-data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII
+data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII|VIII
              |BBII|BBIII|AUII|BIV|AUIII|AUIV|BBVI|BVI|AUVI|BVIII|AUVIII
              |BIX|IX|BX|X|BXI|XI|AUXI|BXII|XII|AUXII|BXIII|XIII|AUXIII
              |V7 Grado
@@ -60,16 +60,17 @@ gradoAInt grado = case grado of
 	BV -> 6
 	AUV -> 8
 	BVII -> 10
-	BBII -> 1
+	BBII -> 0
 	BBIII -> 2
 	AUII -> 3
 	BIV -> 4
 	AUIII -> 5
-	AUIV -> 10
+	AUIV -> 6
 	BBVI -> 7
 	BVI -> 8
 	AUVI -> 10
 	BVIII -> 11
+        VIII -> 12
 	AUVIII -> gradoAInt BII
         BIX -> gradoAInt BII
         IX -> gradoAInt II
@@ -131,11 +132,12 @@ gradoAIntAbs grado = case grado of
 	AUII -> 3
 	BIV -> 4
 	AUIII -> 5
-	AUIV -> 10
+	AUIV -> 6
 	BBVI -> 7
 	BVI -> 8
 	AUVI -> 10
 	BVIII -> 11
+        VIII -> 12
 	AUVIII -> 13
         BIX -> 13
         IX -> 14
@@ -190,7 +192,7 @@ matriculaAVector m = case m of
 	MenMaj7 -> [0,3,7,11]
 	Au7 -> [0,4,8,10]
 	Dis7 -> [0,3,6,9]
-        
+
 
 
 -- Dice cuantas notas diferentes tiene el acorde en funcion de su matricula

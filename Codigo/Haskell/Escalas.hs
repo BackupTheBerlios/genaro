@@ -72,7 +72,23 @@ q el pitch Class de pitchArriba
     .dameDistanciaEnEscala Jonica C (Cs,0) (E,0) = 2
     .dameDistanciaEnEscala Jonica C (Cs,0) (Gs,0) = 5 (1 de Cs a D, 3 de D a G y 1 de G a Gs)
 -}
-dameDistanciaEnEscala :: Escala -> PitchClass -> Pitch -> Pitch -> Int
+dameDistanciaEnEscala :: Escala -> PitchClass -> PitchClass -> PitchClass -> Int
+dameDistanciaEnEscala escala tonica pc1 pc2
+  | pc1 == pc2 = 0
+  | otherwise  = distancia
+      where pitchAbajo = (pc1, 0)
+            pitchArriba = (pc2, 0)
+            gradoAbajoIni = dameIntervaloPitch tonica pitchAbajo
+            gradoArribaIni = dameIntervaloPitch tonica pitchArriba
+            gradoAbajoCorregido = dameGradoDiatonicoCercano True escala gradoAbajoIni
+            gradoArribaCorregido = dameGradoDiatonicoCercano False escala gradoArribaIni
+            correccionAbajo = if (gradoAbajoIni == gradoAbajoCorregido) then 0 else 1
+            correccionArriba = if (gradoArribaIni == gradoArribaCorregido) then 0 else 1
+            (_,gradosEscala,_)  = dameInfoEscala escala
+            posGradoAbajo = fromJust (elemIndex gradoAbajoCorregido gradosEscala)
+            posGradoArriba = fromJust (elemIndex gradoArribaCorregido gradosEscala)
+            distancia = correccionAbajo + correccionArriba + abs (posGradoAbajo - posGradoArriba)
+{-dameDistanciaEnEscala :: Escala -> PitchClass -> Pitch -> Pitch -> Int
 dameDistanciaEnEscala escala tonica pitchAbajo@(pc1,_) pitchArriba@(pc2,_)
   | pc1 == pc2 = 0
   | otherwise  = distancia
@@ -86,6 +102,7 @@ dameDistanciaEnEscala escala tonica pitchAbajo@(pc1,_) pitchArriba@(pc2,_)
             posGradoAbajo = fromJust (elemIndex gradoAbajoCorregido gradosEscala)
             posGradoArriba = fromJust (elemIndex gradoArribaCorregido gradosEscala)
             distancia = correccionAbajo + correccionArriba + abs (posGradoAbajo - posGradoArriba)
+-}
 {-
 dameGradoDiatonicoCercano subir escala gradoPartida devuelve el grado diat�nico m�s cercano al
 indicado. En el caso de que haya dos grados diat�nicos a la misma distancia devuelve el superior

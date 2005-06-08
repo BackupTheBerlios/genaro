@@ -52,13 +52,13 @@ pruHazWalkingParaProgresion rutaProg = do aleat <- listaInfNumsAleatoriosIO 1 re
                                           where resul aleat prog = snd (hazWalkingParaProgresion (aleat, (prog, 1,2,3)))
                                                 rutaBajo = "./pruWalking.mid"
 
-
+{-
 -- hazMelodiaEntreNotasWalking
 hazMelodiaEntreNotasWalking (aleat, (escala, dur, pitchPrim@(tPrim,_), pitchSeg@(tSeg,_))) = distancia
     where  distancia =  if (tPrim<= tSeg)
                            then dameDistanciaEnEscala escala tPrim pitchPrim pitchSeg
                            else negate (dameDistanciaEnEscala escala tPrim pitchSeg pitchPrim)
-
+-}
 
 
 hazMelodiaEntreNotasAphex :: FuncAleatoria (Int, Int, Int, Int,  Escala, Dur, Pitch, Pitch) [Music]

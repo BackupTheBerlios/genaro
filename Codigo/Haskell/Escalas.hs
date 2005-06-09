@@ -47,6 +47,19 @@ dameInfoEscala MixolidiaB9B13AU9 = ([BIX,BXIII],[I,BII,AUII,III,IV,V,BVI,BVII],[
 dameInfoEscala Disminuida = ([], [I,BII,BIII,III,BV,AUV,VI,VII], [BII]) --Comprobar!!!
 
 {-
+Dada una escala devuelve la lista de saltos de semitonos entre cada grado de la escala y el que le sigue
+, empezando por el primer grado. Es decir, devuelve su estructura intervalica como dice Enric Herrera
+-}
+escalaAListaSaltos :: Escala -> [Int]
+escalaAListaSaltos escala = resul
+              where (_,listaGradosEscala,_)  = dameInfoEscala escala
+                    listaAbsGrados = map gradoAInt listaGradosEscala
+                    dameSaltosRec (n1:(n2:ns)) = (n2-n1):(dameSaltosRec (n2:ns))
+                    dameSaltosRec (n1:[])    = [12 - n1] -- pq se supone que son todos grados simples (no salen de la octava)
+                                                       -- y tras este ultimo grado de la escala salta a la octava, que es 12 semitonos
+                    resul = dameSaltosRec listaAbsGrados
+
+{-
 dameIntervaloPitch :: PitchClass -> Pitch -> Grado
 dameIntervaloPitch tonica pitch devuelve que grado es la nota indicada por pitch respecto
 a tonica

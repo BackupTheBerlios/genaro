@@ -753,8 +753,16 @@ saltaIntervaloGrado escala num gradoPartida
 
 {-
 saltaIntervaloPitch escala num gradoPartida, devuelve el Pitch correspondiente a saltar en la escala indicada
-tantos grados como num, contando desde gradoPartida. USA dameGradoDiatonicoCercano PARA LOS CASOS EN QUE SE
-PARTA DE UNA NOTA NO DIATÓNICA
+tantos grados como num, contando desde gradoPartida. HACE LO QUE INDICA dameGradoDiatonicoCercano PARA LOS CASOS
+EN QUE SE PARTA DE UNA NOTA NO DIATÓNICA
+- NO FUNCIONA BIEN PARA OCTAVAS NEGATIVAS PQ PITCH ES EXTRAÑA:
+    Melodias> zip (map pitch [-20..20]) [-20..20]
+[((E,-1),-20),((F,-1),-19),((Fs,-1),-18),((G,-1),-17),((Gs,-1),-16),((A,-1),-15),((As,-1),-14),((B,-1),-13),
+((C,-1),-12),((Cs,0),-11),((D,0),-10),((Ds,0),-9),((E,0),-8),((F,0),-7),((Fs,0),-6),((G,0),-5),((Gs,0),-4),
+((A,0),-3),((As,0),-2),((B,0),-1),((C,0),0),((Cs,0),1),((D,0),2),((Ds,0),3),((E,0),4),((F,0),5),((Fs,0),6),
+((G,0),7),((Gs,0),8),((A,0),9),((As,0),10),((B,0),11),((C,1),12),((Cs,1),13),((D,1),14),((Ds,1),15),((E,1),16),
+((F,1),17),((Fs,1),18),((G,1),19),((Gs,1),20)]
+, pero da igual pq evitamos trabajar con octavas negativas
 -}
 saltaIntervaloPitch :: Escala -> PitchClass -> Int -> Pitch -> Pitch
 saltaIntervaloPitch escala tonica num notaPartida@(clase, oct)
@@ -762,51 +770,28 @@ saltaIntervaloPitch escala tonica num notaPartida@(clase, oct)
  | otherwise = pitchResul
             where (_,gradosEscala,_)  = dameInfoEscala escala
                   gradoPartida        = dameIntervaloPitch tonica notaPartida
-                  pitchResul = case (elemIndex gradoPartida gradosEscala) of
-                                      Just posGradoPartida -> saltaIntervaloPitchDiatonico escala tonica num notaPartida  --salto desde grado diatonico
-                                      Nothing              -> saltaIntervaloPitchDiatonico escala tonica numAux (claseCercano, octavaCercano)
-                                                                  where subir = num > 0
-                                                                        gradoCercano = dameGradoDiatonicoCercano subir escala gradoPartida
-                                                                        claseCercano = gradoAPitchClassTonica tonica gradoCercano
-                                                                        octavaCercano = if num>0
-                                                                                           then if (posPartida < posCercano) -- subiendo
-                                                                                                then oct     -- no ha cambiado de octava
-                                                                                                else oct + 1 -- ha subido una octava
-                                                                                           else if (posPartida > posCercano) -- bajando
-                                                                                                then oct     -- no ha cambiado de octava
-                                                                                                else oct - 1 -- ha bajado una octava
-                                                                                              where posPartida = absPitch (gradoAPitchClassTonica tonica gradoPartida,0)
-                                                                                                    posCercano = absPitch (gradoAPitchClassTonica tonica gradoCercano,0)
+                  pitchResul = case (elem gradoPartida gradosEscala) of
+                                      True  -> saltaIntervaloPitchDiatonico escala tonica num notaPartida  --salto desde grado diatonico
+                                      False -> saltaIntervaloPitchDiatonico escala tonica numAux notaAux
+                                                                  where buscaGradoDiatonicoCercano arriba nota
+                                                                         | pertenece = nota
+                                                                         | otherwise = buscaGradoDiatonicoCercano arriba sigNota
+                                                                                  where grado = dameIntervaloPitch tonica nota
+                                                                                        pertenece = elem grado gradosEscala
+                                                                                        sigNota = if arriba
+                                                                                                     then pitch ((absPitch nota) + 1)
+                                                                                                     else pitch ((absPitch nota) - 1)
+                                                                        notaAux = buscaGradoDiatonicoCercano (num>0) notaPartida
                                                                         numAux = if num>0
                                                                                     then num - 1
                                                                                     else num + 1
+
 
 {-
 Como saltaIntervaloPitch pero suponiendo que se parte de una nota diatonica
 -}
 saltaIntervaloPitchDiatonico :: Escala -> PitchClass -> Int -> Pitch -> Pitch
 saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
- | num == 0  = notaPartida
- | num > 0   = (claseResul, oct + octavaResulSube)
- | num < 0   = (claseResul, oct - octavaResulBaja)
-              where (_,gradosEscala,_)  = dameInfoEscala escala
-                    gradoPartida        = dameIntervaloPitch tonica notaPartida
-                    gradoSalida         = saltaIntervaloGrado escala num gradoPartida
-                    claseResul          = gradoAPitchClassTonica tonica gradoSalida
-                    posGradoPartida     = fromJust (elemIndex gradoPartida gradosEscala)
-                    posGradoSalida      = fromJust (elemIndex gradoSalida gradosEscala)
-                    numGrados           = length gradosEscala
-                    numOctavasPorNumGrados = div (abs num) numGrados
-                    octavaResulSube = if (posGradoSalida < posGradoPartida)
-                                         then numOctavasPorNumGrados + 1
-                                         else numOctavasPorNumGrados
-                    octavaResulBaja = if (posGradoSalida > posGradoPartida)
-                                         then numOctavasPorNumGrados + 1
-                                         else numOctavasPorNumGrados
-
-
-saltaIntervalo2Diatonico :: Escala -> PitchClass -> Int -> Pitch -> Pitch
-saltaIntervalo2Diatonico escala tonica num notaPartida@(clase, oct)
  | num == 0  = notaPartida
  | num>0     = notaDestinoSube
  | num<0     = notaDestinoBaja
@@ -820,31 +805,16 @@ saltaIntervalo2Diatonico escala tonica num notaPartida@(clase, oct)
                listaSaltosDefSube   = take num listaSaltosIniAjSube
                saltoSube            = foldl1' (+) listaSaltosDefSube
                notaDestinoSube      = pitch ((absPitch notaPartida) + saltoSube)
-               posGradoPartidaBaja  = (numNotasEscala -1) - posGradoPartidaSube
+               posGradoPartidaBaja  = numNotasEscala - posGradoPartidaSube -- en realidad
+               -- es (numNotasEscala - 1) - posGradoPartidaSube + 1, pq
+               -- . (numNotasEscala - 1): con -1 pq elemIndex cuenta desde cero
+               -- . - posGradoPartidaSube: al hacer esto situamos el mismo elemento en la lista dada la vuelta
+               -- . +1 pq ahora miramos la distancia en la otra direccion, la de bajada, por eso cambia la orientacion
                listaSaltosInfBaja   = concat (repeat (reverse listaSaltos))
                listaSaltosIniAjBaja = drop posGradoPartidaBaja listaSaltosInfBaja
                listaSaltosDefBaja   = take (abs num) listaSaltosIniAjBaja
                saltoBaja            = foldl1' (+) listaSaltosDefBaja
                notaDestinoBaja      = pitch ((absPitch notaPartida) - saltoBaja)
-
-
-
-
-
-
-
-{-
-Dada una escala devuelve la lista de saltos de semitonos entre cada grado de la escala y el que le sigue
-, empezando por el primer grado. Es decir, devuelve su estructura intervalica como dice Enric Herrera
--}
-escalaAListaSaltos :: Escala -> [Int]
-escalaAListaSaltos escala = resul
-              where (_,listaGradosEscala,_)  = dameInfoEscala escala
-                    listaAbsGrados = map gradoAInt listaGradosEscala
-                    dameSaltosRec (n1:(n2:ns)) = (n2-n1):(dameSaltosRec (n2:ns))
-                    dameSaltosRec (n1:[])    = [12 - n1] -- pq se supone que son todos grados simples (no salen de la octava)
-                                                       -- y tras este ultimo grado de la escala salta a la octava, que es 12 semitonos
-                    resul = dameSaltosRec listaAbsGrados
 
 pruPeta :: Int -> IO ()
 pruPeta n

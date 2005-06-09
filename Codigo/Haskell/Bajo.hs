@@ -52,18 +52,58 @@ pruHazWalkingParaProgresion rutaProg = do aleat <- listaInfNumsAleatoriosIO 1 re
                                           where resul aleat prog = snd (hazWalkingParaProgresion (aleat, (prog, 1,2,3)))
                                                 rutaBajo = "./pruWalking.mid"
 
-{-
--- hazMelodiaEntreNotasWalking
-hazMelodiaEntreNotasWalking (aleat, (escala, dur, pitchPrim@(tPrim,_), pitchSeg@(tSeg,_))) = distancia
-    where  distancia =  if (tPrim<= tSeg)
-                           then dameDistanciaEnEscala escala tPrim pitchPrim pitchSeg
-                           else negate (dameDistanciaEnEscala escala tPrim pitchSeg pitchPrim)
--}
+
+hazMelodiaEntreNotasWalking :: FuncAleatoria (Dur, Int, Escala, Dur, Pitch, Pitch) ([Music])
+hazMelodiaEntreNotasWalking (aleat, (durNotas, despCurva, escala, durTotal, p1@(pc1,o1), p2)) = (restoAleat1, listaNotas)
+    where  aP1 = (absPitch p1)
+           aP2 = (absPitch p2)
+           distanciaAbs = dameDistanciaEnEscalaPitch escala pc1 p1 p2
+           distancia =  if (aP1<= aP2)
+                           then distanciaAbs
+                           else negate (distanciaAbs)
+           curvaIni = [distancia]
+           n1 = floor (valorDeFraccion (durTotal/durNotas))
+           (numPuntos, caso)  = if durTotal <= durNotas
+                                       then (1, 1)
+                                       else if ((fromIntegral n1)*durNotas < durTotal)
+                                            then (n1 + 1, 2)
+                                            else (n1, 3)  -- n1*durNotas == durTotal
+           aplicaMutaCurva aleat c n
+             | n <= 0 = (aleat, c)
+             | otherwise = aplicaMutaCurva restoAlAux curvaAux (n-1)
+                             where (restoAlAux, curvaAux) = mutaCurvaMelodica2 (aleat, (despCurva, c))
+           (a1:restoAleat1, curvaAux) = aplicaMutaCurva aleat curvaIni (numPuntos - 1)
+           curvaDef =  0:(take ((length curvaAux) -1) curvaAux)
+           listaGradosPitch = curvaMelodicaAGradosPitch registroDelBajo escala pc1 curvaDef p1
+           listaPitch = map snd listaGradosPitch
+           listaDurs = case caso of
+                          1 -> [durTotal]
+                          2 -> listaResul
+                               where nuevaDur = durTotal - ((fromIntegral n1)*durNotas)
+                                     listaIni = replicate n1 durNotas
+                                     candidatos = zip listaIni (replicate n1 1)
+                                     (_,posElegidaMasUno) = dameElemAleatListaPesos a1 candidatos
+                                     listaResul = insertaSublista (posElegidaMasUno -1) [nuevaDur] listaIni
+                          3 -> replicate numPuntos durNotas
+           listaNotas = zipWith (\p -> \d -> Note p d []) listaPitch listaDurs
+
+pruHazMelodiaEntreNotasWalking :: Dur -> Dur -> Int -> IO ()
+pruHazMelodiaEntreNotasWalking durTotal durNotas desp = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                           putStr ("\nmusica resultado(sin repeticiones): " ++ show(resAux aleat)++"\n")
+                                                           haskoreAMidi (musicaResul aleat) rutaMusResul
+                                                           putStr ("Escrita midi de prueba en "++rutaMusResul++"\n")
+                                                           where resAux aleat = snd (hazMelodiaEntreNotasWalking (aleat, (durNotas, desp, Dorica, durTotal, (D,2), (B,2))))
+                                                                 preMus aleat = concat (take 4 (repeat (resAux aleat)))
+                                                                 musicaResul aleat = Instr "bass" (lineSeguro (preMus aleat))
+                                                                 rutaMusResul = "./pruBajoWalk.mid"
+
+
 
 
 hazMelodiaEntreNotasAphex :: FuncAleatoria (Int, Int, Int, Int,  Escala, Dur, Pitch, Pitch) [Music]
 hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, escala, dur, pitchPrim@(tonicaPrim,_), pitchSeg@(tonicaSeg,_))) = (restoAleat1, musicaResul)
-  where musicaIni = [(Note pitchPrim dur [Volume 50]), (Note pitchSeg (1%4) [Volume 50])]
+  where musicaIni = [(Note pitchPrim dur [Volume 50]), (Note pitchSeg (1%4) [Volume 50])] -- la segudna nota es solo
+        -- para interpolar alturas, luego se quita y su duracion no importa
         repiteMutar (aleat, (n2,n3,n4,numDivisiones,escala, tonica, musica))
             | n2==0 && n3 ==0 && n4 ==0      = (aleat, musica)
             | otherwise = repiteMutar (restoAlAux, (nn2,nn3,nn4,numDivisiones, escala, tonica, musicaAux))

@@ -63,6 +63,37 @@ pruMutaCurvaMelodica curva despMax = do aleat <- listaInfNumsAleatoriosIO 1 reso
                                         putStr ("Curva original: "++(show curva)++"\n")
                                         putStr ("Curva mutada: "++(show (curvaMut aleat))++"\n")
                                         where curvaMut aleat = snd (mutaCurvaMelodica (aleat ,(despMax, curva)))
+
+{-
+mutaCurvaMelodica2 :: FuncAleatoria (Int, CurvaMelodica) CurvaMelodica
+mutaCurvaMelodica2 (aleat, (despMax, curva))
+   -cambia un solo punto de la curva melodica elegido al azar, moviendolo entre (-despMax) y despMax,
+  excepto cero, (al azar tb). Luego inserta otro punto en la curva de signo contrario en un lugar al
+  azar tb, con ello conseguimos: .la curva melodica tiene un punto mas
+                                 .la curva melodica tiene un desplazamiento absoluto igual, por
+                                 tanto representa un desplazamiento intervalico relativo igual al anterior
+-}
+mutaCurvaMelodica2 :: FuncAleatoria (Int, CurvaMelodica) CurvaMelodica
+mutaCurvaMelodica2 (aleat, (_, [])) = (aleat, [])
+mutaCurvaMelodica2 (aleat@(a1:a2:a3:a4:restoAleat1), (despMax, curva@(c:cs))) = (restoAleat1, curvaResul)
+    where  tamCurva = length curva
+           candidatos = zip curva (replicate tamCurva 1)
+           (puntoElegido,posElegidaMasUno) = dameElemAleatListaPesos a1 candidatos
+           --como minimo se desplaza una unidad
+           despElegido = max 1 (floor ((fromIntegral a2/(fromIntegral resolucionRandom))*(fromIntegral despMax)))
+           signo = if ((fromIntegral a3) > (fromIntegral resolucionRandom)/2) then 1 else (-1)
+           nuevoPunto = puntoElegido + signo*despElegido
+           curvaResulParcial = sustituyeElemPos (posElegidaMasUno-1) nuevoPunto curva
+           antiPunto = negate (signo*despElegido)
+           (_,posInsercionMasUno) = dameElemAleatListaPesos a4 candidatos
+           curvaResul = insertaSublista (posInsercionMasUno -1) [antiPunto] curvaResulParcial
+
+
+pruMutaCurvaMelodica2 :: [Int] ->Int ->  IO ()
+pruMutaCurvaMelodica2 curva despMax = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                         putStr ("Curva original: "++(show curva)++"\n")
+                                         putStr ("Curva mutada: "++(show (curvaMut aleat))++"\n")
+                                         where curvaMut aleat = snd (mutaCurvaMelodica2 (aleat ,(despMax, curva)))
 {-
 Resultado de procesar un PatronRitmico, da los acentos fuertes que se consideraran para una melodia. Para ello
 calcula la lista que tiene para cada columna de un patron ritmico la media de acentos de cada voz, y la media
@@ -131,9 +162,10 @@ hazCurvaMelodicaAleatAcu aleat sube saltoMax probSalto numPuntos durTotal movAcu
         .movAcumulado  : numero de grados que se llevan movidos en el sentido (ascendente o descendente) actual de la curva
 -}
 hazCurvaMelodicaAleatAcu :: [Int] -> Bool -> Int -> Int -> Int -> Int -> (CurvaMelodica, [Int])
-hazCurvaMelodicaAleatAcu aleat _ _ _ 0 _ = ([],aleat)
+-- hazCurvaMelodicaAleatAcu aleat _ _ _ 0 _ = ([],aleat)
 hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n movAcumulado
-  | n > 0 = (nuevoPunto:restoCurva, aleatSobran)
+  | n <= 0 = ([],aleat)
+  | n > 0  = (nuevoPunto:restoCurva, aleatSobran)
                where salta        = (fromIntegral a1/fromIntegral resolucionRandom) <= (fromIntegral movAcumulado * fromIntegral ps/20)
                      candsNoSalto =  map (\x -> if (x /= 0) then (x,(1/ fromIntegral x)) else (x,0.8::Float)) [0..sm]
                      candsSalto   =  map (\(val,peso)-> (val,peso + fromIntegral val* fromIntegral movAcumulado)) candsNoSalto
@@ -149,6 +181,10 @@ hazCurvaMelodicaAleatAcu aleat@(a1:a2:as) sube sm ps n movAcumulado
                      nuevoPunto    = salto
                      (restoCurva,aleatSobran)    = hazCurvaMelodicaAleatAcu as nuevoSube sm ps (n-1) (movAcumulado + saltoAbs)
 
+
+-- fase 2: alarga
+-- fase 3: notas intermedias
+-- fase 4: trinos
 
 aplicaCurvaMelodica :: FuncAleatoria (Registro, Escala, PitchClass, Pitch, Dur, Int, Int, Int, Int, ListaAcentos, CurvaMelodica) [Music]
 aplicaCurvaMelodica (aleat, (_, _, _, _, _, _, _, _, _, _, [])) = (aleat, [])
@@ -362,7 +398,13 @@ dameCandidatosFase2 musica  = sacaCandidatosPos 0 musicaLimpia
 
 {-
 Dada una lista de posiciones y una lista de Music alarga las notas de la lista de Music cuyas posiciones esten en la lista de
-posiciones, para ello les a�ade la duracion de la nota de su derecha, q debe ser un silencio
+posiciones, para ello les a�ade la duracion de la nota de su derecha, q "se supone" que debe ser un silencio. Si no
+es un silencio sino una nota alarga la nota indicada en la lista de posiciones y la otra (la de su derecha) desaparece
+Bajo> alargaMusicaFase2 [0] [Note (C,0) (1%2) [], Rest (1%2), Rest (1%4)]
+[Note (C,0) (1 % 1) [],Rest (1 % 4)]
+Bajo> alargaMusicaFase2 [0] [Note (C,0) (1%2) [], Note (D,1)(1%2) [], Rest (1%4)]
+[Note (C,0) (1 % 1) [],Rest (1 % 4)]
+
 -}
 alargaMusicaFase2 :: [Int] -> [Music] -> [Music]
 alargaMusicaFase2 = alargaElemTalPos 0
@@ -499,6 +541,7 @@ dameCandidatosFase3 musica = buscaCandsAcu False (numNotas -1) (reverse musica)
            | (esNotaSuena nota) = pos:(buscaCandsAcu True (pos -1) ns)
            | otherwise          = buscaCandsAcu True (pos -1) ns
 
+{-
 damePitchIntermedioAleatFase3 :: FuncAleatoria (Escala, PitchClass, Pitch, Pitch) Pitch
 damePitchIntermedioAleatFase3 (aleat@(a1:restoAleat1), (escala, tonica, notaIzda@(pci,oi), notaDcha@(pcd,od)))
   | (notaIzda < notaDcha) = (restoAleat1, pitchMenor)
@@ -515,7 +558,37 @@ damePitchIntermedioAleatFase3 (aleat@(a1:restoAleat1), (escala, tonica, notaIzda
                             saltoMayor = fst (dameElemAleatListaPesosFloat a1 listaPesosMayor)
                             pitchMayor = saltaIntervaloPitch escala tonica saltoMayor notaDcha
                             pesoExtremos = 0.05
+-}
+damePitchIntermedioAleatFase3 :: FuncAleatoria (Escala, PitchClass, Pitch, Pitch) Pitch
+damePitchIntermedioAleatFase3 (aleat@(a1:restoAleat1), (escala, tonica, notaIzda@(pci,oi), notaDcha@(pcd,od)))
+  | absPitchIzda == absPitchDcha = (aleat, notaIzda)
+  | absPitchIzda < absPitchDcha = (restoAleat1, pitchMenor)
+  | absPitchIzda > absPitchDcha = (restoAleat1, pitchMayor)
+                      where absPitchIzda = (absPitch notaIzda)
+                            absPitchDcha = (absPitch notaDcha)
+                            distancia = dameDistanciaEnEscalaPitch escala tonica notaIzda notaDcha
+                            pesoExtremos = 0.05
+                            listaPesos = (0, pesoExtremos):((distancia,pesoExtremos):(zip [1..(distancia-1)] [1.0 | p <- [1..(distancia-1)]]))
+                            salto = fst (dameElemAleatListaPesosFloat a1 listaPesos)
+                            pitchMenor = saltaIntervaloPitch escala tonica salto notaIzda
+                            pitchMayor = saltaIntervaloPitch escala tonica salto notaDcha
+                      {-
+                      where absPitchIzda = (absPitch notaIzda)
+                            absPitchDcha = (absPitch notaDcha)
+                            distanciaMenor = (dameDistanciaEnEscalaPitch escala tonica notaIzda notaDcha)
+                            -- distanciaMenor = (dameDistanciaEnEscala escala tonica pci pcd) + 7*(od-oi)
+                            listaPesosMenor = (0, pesoExtremos):((distanciaMenor,pesoExtremos):(zip [1..(distanciaMenor-1)] [1.0 | p <- [1..(distanciaMenor-1)]]))
+                            saltoMenor = fst (dameElemAleatListaPesosFloat a1 listaPesosMenor)
+                            pitchMenor = saltaIntervaloPitch escala tonica saltoMenor notaIzda
+                            distanciaMayor = (dameDistanciaEnEscalaPitch escala tonica notaDcha notaIzda)
+                            -- distanciaMayor = (dameDistanciaEnEscala escala tonica pcd pci) + 7*(oi-od)
+                            listaPesosMayor = (0, pesoExtremos):((distanciaMayor,pesoExtremos):(zip [1..(distanciaMayor-1)] [1.0 | p <- [1..(distanciaMayor-1)]]))
+                            saltoMayor = fst (dameElemAleatListaPesosFloat a1 listaPesosMayor)
+                            pitchMayor = saltaIntervaloPitch escala tonica saltoMayor notaDcha
+                            pesoExtremos = 0.05
+                        -}
 
+--dameDistanciaEnEscalaPitch escala tonica pitchAbajo@(pcAb,oAb) pitchArriba@(pcArr,oArr)
 
 pruDamePitchIntermedioAleatFase3 :: Pitch -> Pitch -> IO()
 pruDamePitchIntermedioAleatFase3 notaIzda notaDcha= do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
@@ -726,95 +799,6 @@ pruDamePitchIniAleat acorde = do aleat <- listaInfNumsAleatoriosIO 1 resolucionR
                                  putStr ("Acorde de entrada: "++(show acorde)++"\n")
                                  putStr ("Pitch inicial aleatorio: "++(show (pitchIni aleat))++"\n")
                                  where pitchIni aleat = snd (damePitchIniAleat (aleat, acorde))
-
-{-
-saltaIntervaloGrado escala num gradoPartida, devuelve el grado correspondiente a saltar en la escala indicada
-tantos grados como num, sin contar desde gradoPartida. Por ejemplo:
-  -saltaIntervalo jonica 1 I devuelve II
-  -saltaIntervalo jonica (-1) I devuelve VII
-  -saltaIntervalo jonica 0 I devuelve I
--}
-saltaIntervaloGrado :: Escala -> Int -> Grado -> Grado
-saltaIntervaloGrado escala num gradoPartida
-  | num == 0 = gradoPartida
-  | otherwise = gradoDestino
-            where (_,gradosEscala,_)  = dameInfoEscala escala
-                  gradoDestino = case (elemIndex gradoPartida gradosEscala) of
-                                      Just posGradoPartida -> gradoSalida
-                                                                  where numGrados      = length gradosEscala
-                                                                        posGradoSalida = (posGradoPartida + num) `mod` numGrados
-                                                                        gradoSalida    = gradosEscala !! posGradoSalida
-                                      Nothing              -> saltaIntervaloGrado escala numAux gradoCercano
-                                                                  where subir = num > 0
-                                                                        gradoCercano = dameGradoDiatonicoCercano subir escala gradoPartida
-                                                                        numAux = if num>0
-                                                                                    then num - 1
-                                                                                    else num + 1
-
-{-
-saltaIntervaloPitch escala num gradoPartida, devuelve el Pitch correspondiente a saltar en la escala indicada
-tantos grados como num, contando desde gradoPartida. HACE LO QUE INDICA dameGradoDiatonicoCercano PARA LOS CASOS
-EN QUE SE PARTA DE UNA NOTA NO DIATÓNICA
-- NO FUNCIONA BIEN PARA OCTAVAS NEGATIVAS PQ PITCH ES EXTRAÑA:
-    Melodias> zip (map pitch [-20..20]) [-20..20]
-[((E,-1),-20),((F,-1),-19),((Fs,-1),-18),((G,-1),-17),((Gs,-1),-16),((A,-1),-15),((As,-1),-14),((B,-1),-13),
-((C,-1),-12),((Cs,0),-11),((D,0),-10),((Ds,0),-9),((E,0),-8),((F,0),-7),((Fs,0),-6),((G,0),-5),((Gs,0),-4),
-((A,0),-3),((As,0),-2),((B,0),-1),((C,0),0),((Cs,0),1),((D,0),2),((Ds,0),3),((E,0),4),((F,0),5),((Fs,0),6),
-((G,0),7),((Gs,0),8),((A,0),9),((As,0),10),((B,0),11),((C,1),12),((Cs,1),13),((D,1),14),((Ds,1),15),((E,1),16),
-((F,1),17),((Fs,1),18),((G,1),19),((Gs,1),20)]
-, pero da igual pq evitamos trabajar con octavas negativas
--}
-saltaIntervaloPitch :: Escala -> PitchClass -> Int -> Pitch -> Pitch
-saltaIntervaloPitch escala tonica num notaPartida@(clase, oct)
- | num == 0  = notaPartida
- | otherwise = pitchResul
-            where (_,gradosEscala,_)  = dameInfoEscala escala
-                  gradoPartida        = dameIntervaloPitch tonica notaPartida
-                  pitchResul = case (elem gradoPartida gradosEscala) of
-                                      True  -> saltaIntervaloPitchDiatonico escala tonica num notaPartida  --salto desde grado diatonico
-                                      False -> saltaIntervaloPitchDiatonico escala tonica numAux notaAux
-                                                                  where buscaGradoDiatonicoCercano arriba nota
-                                                                         | pertenece = nota
-                                                                         | otherwise = buscaGradoDiatonicoCercano arriba sigNota
-                                                                                  where grado = dameIntervaloPitch tonica nota
-                                                                                        pertenece = elem grado gradosEscala
-                                                                                        sigNota = if arriba
-                                                                                                     then pitch ((absPitch nota) + 1)
-                                                                                                     else pitch ((absPitch nota) - 1)
-                                                                        notaAux = buscaGradoDiatonicoCercano (num>0) notaPartida
-                                                                        numAux = if num>0
-                                                                                    then num - 1
-                                                                                    else num + 1
-
-
-{-
-Como saltaIntervaloPitch pero suponiendo que se parte de una nota diatonica
--}
-saltaIntervaloPitchDiatonico :: Escala -> PitchClass -> Int -> Pitch -> Pitch
-saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
- | num == 0  = notaPartida
- | num>0     = notaDestinoSube
- | num<0     = notaDestinoBaja
-         where (_,gradosEscala,_)   = dameInfoEscala escala
-               numNotasEscala       = length gradosEscala
-               gradoPartida         = dameIntervaloPitch tonica notaPartida
-               listaSaltos          = escalaAListaSaltos escala
-               posGradoPartidaSube  = fromJust (elemIndex gradoPartida gradosEscala)
-               listaSaltosInfSube   = concat (repeat listaSaltos)
-               listaSaltosIniAjSube = drop posGradoPartidaSube listaSaltosInfSube
-               listaSaltosDefSube   = take num listaSaltosIniAjSube
-               saltoSube            = foldl1' (+) listaSaltosDefSube
-               notaDestinoSube      = pitch ((absPitch notaPartida) + saltoSube)
-               posGradoPartidaBaja  = numNotasEscala - posGradoPartidaSube -- en realidad
-               -- es (numNotasEscala - 1) - posGradoPartidaSube + 1, pq
-               -- . (numNotasEscala - 1): con -1 pq elemIndex cuenta desde cero
-               -- . - posGradoPartidaSube: al hacer esto situamos el mismo elemento en la lista dada la vuelta
-               -- . +1 pq ahora miramos la distancia en la otra direccion, la de bajada, por eso cambia la orientacion
-               listaSaltosInfBaja   = concat (repeat (reverse listaSaltos))
-               listaSaltosIniAjBaja = drop posGradoPartidaBaja listaSaltosInfBaja
-               listaSaltosDefBaja   = take (abs num) listaSaltosIniAjBaja
-               saltoBaja            = foldl1' (+) listaSaltosDefBaja
-               notaDestinoBaja      = pitch ((absPitch notaPartida) - saltoBaja)
 
 pruPeta :: Int -> IO ()
 pruPeta n

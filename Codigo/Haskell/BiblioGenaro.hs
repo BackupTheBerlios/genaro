@@ -110,6 +110,18 @@ sustituyeSublistaPosIniFin ini fin sublista lista = nuevaLista
                           listaDcha = [lista !! i | i <- [(fin+1)..((length lista)-1)] ]
                           nuevaLista = listaIzda ++ sublista ++ listaDcha
 
+{-
+insertaSublista :: Int -> [a] -> [a] ->[a]
+insertaSublista pos inserto lista = resultado de intercalar "inserto" en "lista" despues de el elemento
+en la posicion pos. Pos cuenta empezando por 0
+BiblioGenaro> insertaSublista 2 "lola" "manuel"
+"manlolauel"
+-}
+insertaSublista :: Int -> [a] -> [a] ->[a]
+insertaSublista pos inserto lista = nuevaLista
+                    where listaIzda = [lista !! i | i <- [0..pos]]
+                          listaDcha = [lista !! i | i <- [(pos+1)..((length lista)-1)] ]
+                          nuevaLista = listaIzda ++ inserto ++ listaDcha
 -- permutacion: encontrada en la pagina http://polaris.lcc.uma.es/~pacog/apuntes/pd/cap06.pdf, en la pagina 25
 {-
 Inserta un elemento en todas las posiciones posiblesde una lista.

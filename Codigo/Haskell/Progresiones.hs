@@ -127,7 +127,7 @@ gradoAIntAbs grado = case grado of
 	BV -> 6
 	AUV -> 8
 	BVII -> 10
-	BBII -> 1
+	BBII -> 0
 	BBIII -> 2
 	AUII -> 3
 	BIV -> 4

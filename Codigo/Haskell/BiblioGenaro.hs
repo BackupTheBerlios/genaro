@@ -679,7 +679,10 @@ lineSeguro m@(m1:ms) = line m
 
 chordSeguro :: [Music] -> Music
 -- chord = foldr1 (:=:)
-chordSeguro = foldl (:=:) (Rest (0%1))
+-- chordSeguro = foldl (:=:) (Rest (0%1))
+chordSeguro [] = Rest (0%1)
+chordSeguro m@(m1:ms) = chord m
+
 
 
 esNotaSuena :: Music -> Bool

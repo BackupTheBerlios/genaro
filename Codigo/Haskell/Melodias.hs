@@ -808,16 +808,27 @@ saltaIntervaloPitchDiatonico escala tonica num notaPartida@(clase, oct)
 saltaIntervalo2Diatonico :: Escala -> PitchClass -> Int -> Pitch -> Pitch
 saltaIntervalo2Diatonico escala tonica num notaPartida@(clase, oct)
  | num == 0  = notaPartida
- | otherwise = notaDestino
-         where (_,gradosEscala,_)  = dameInfoEscala escala
-               gradoPartida        = dameIntervaloPitch tonica notaPartida
-               posGradoPartida     = fromJust (elemIndex gradoPartida gradosEscala)
-               listaSaltos         = escalaAListaSaltos escala
-               listaSaltosInf      = concat (repeat listaSaltos)
-               listaSaltosIniAjustado = drop posGradoPartida listaSaltosInf
-               listaSaltosDef      = take num listaSaltosIniAjustado
-               salto               = foldl1' (+) listaSaltosDef
-               notaDestino         = pitch ((absPitch notaPartida) + salto)
+ | num>0     = notaDestinoSube
+ | num<0     = notaDestinoBaja
+         where (_,gradosEscala,_)   = dameInfoEscala escala
+               numNotasEscala       = length gradosEscala
+               gradoPartida         = dameIntervaloPitch tonica notaPartida
+               listaSaltos          = escalaAListaSaltos escala
+               posGradoPartidaSube  = fromJust (elemIndex gradoPartida gradosEscala)
+               listaSaltosInfSube   = concat (repeat listaSaltos)
+               listaSaltosIniAjSube = drop posGradoPartidaSube listaSaltosInfSube
+               listaSaltosDefSube   = take num listaSaltosIniAjSube
+               saltoSube            = foldl1' (+) listaSaltosDefSube
+               notaDestinoSube      = pitch ((absPitch notaPartida) + saltoSube)
+               posGradoPartidaBaja  = (numNotasEscala -1) - posGradoPartidaSube
+               listaSaltosInfBaja   = concat (repeat (reverse listaSaltos))
+               listaSaltosIniAjBaja = drop posGradoPartidaBaja listaSaltosInfBaja
+               listaSaltosDefBaja   = take (abs num) listaSaltosIniAjBaja
+               saltoBaja            = foldl1' (+) listaSaltosDefBaja
+               notaDestinoBaja      = pitch ((absPitch notaPartida) - saltoBaja)
+
+
+
 
 
 

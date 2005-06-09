@@ -134,7 +134,7 @@ pruHazMelodiaEntreNotasAphex numMutaIntermedias numAlarga numMutaTrino numDivisi
                                                                                           putStr ("\nmusica resultado(sin repeticiones): " ++ show(resAux aleat)++"\n")
                                                                                           haskoreAMidi (musicaResul aleat) rutaMusResul
                                                                                           putStr ("Escrita midi de prueba en "++rutaMusResul++"\n")
-                                                                                          where resAux aleat = snd (hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, Jonica, (4%1), (C, 3), (G,3))))
+                                                                                          where resAux aleat = snd (hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, Dorica, (4%1), (D, 3), (A,3))))
                                                                                                 preMus aleat = concat (take 4 (repeat (resAux aleat)))
                                                                                                 -- musicaResul aleat = Instr "bass" (lineSeguro ((resAux aleat)))
                                                                                                 musicaResul aleat = Instr "bass" (lineSeguro (preMus aleat))

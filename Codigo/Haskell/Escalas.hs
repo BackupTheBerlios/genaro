@@ -89,7 +89,31 @@ dameDistanciaEnEscala :: Escala -> PitchClass -> PitchClass -> PitchClass -> Int
 dameDistanciaEnEscala escala tonica pc1 pc2
   | pc1 == pc2 = 0
   | otherwise  = distancia
-      where pitchAbajo = (pc1, 0)
+      where buscaGradoDiatonicoCercano arriba nota
+             | pertenece = nota
+             | otherwise = buscaGradoDiatonicoCercano arriba sigNota
+                     where grado = dameIntervaloPitch tonica nota
+                           pertenece = elem grado gradosEscala
+                           sigNota = if arriba
+                                        then pitch ((absPitch nota) + 1)
+                                             else pitch ((absPitch nota) - 1)
+            pitchAbajo = (pc1, 0)
+            pitchArriba = (pc2, 0)
+            gradoAbajoIni = dameIntervaloPitch tonica pitchAbajo
+            gradoArribaIni = dameIntervaloPitch tonica pitchArriba
+            gradoAbajoCorregido = dameGradoDiatonicoCercano True escala gradoAbajoIni
+            gradoArribaCorregido = dameGradoDiatonicoCercano False escala gradoArribaIni
+            correccionAbajo = if (gradoAbajoIni == gradoAbajoCorregido) then 0 else 1
+            correccionArriba = if (gradoArribaIni == gradoArribaCorregido) then 0 else 1
+            (_,gradosEscala,_)  = dameInfoEscala escala
+            posGradoAbajo = fromJust (elemIndex gradoAbajoCorregido gradosEscala)
+            listaGradosDesdeAbajo = drop posGradoAbajo (concat (repeat gradosEscala))
+            listaGradosDesdeAbajoYArriba = takeWhile (/=gradoArribaCorregido) listaGradosDesdeAbajo
+            distancia = correccionAbajo + correccionArriba + (length listaGradosDesdeAbajoYArriba)
+
+{-
+
+pitchAbajo = (pc1, 0)
             pitchArriba = (pc2, 0)
             gradoAbajoIni = dameIntervaloPitch tonica pitchAbajo
             gradoArribaIni = dameIntervaloPitch tonica pitchArriba
@@ -101,11 +125,14 @@ dameDistanciaEnEscala escala tonica pc1 pc2
             posGradoAbajo = fromJust (elemIndex gradoAbajoCorregido gradosEscala)
             posGradoArriba = fromJust (elemIndex gradoArribaCorregido gradosEscala)
             distancia = correccionAbajo + correccionArriba + abs (posGradoAbajo - posGradoArriba)
-{-dameDistanciaEnEscala :: Escala -> PitchClass -> Pitch -> Pitch -> Int
-dameDistanciaEnEscala escala tonica pitchAbajo@(pc1,_) pitchArriba@(pc2,_)
+  -}
+{-dameDistanciaEnEscala :: Escala -> PitchClass -> PitchClass -> PitchClass -> Int
+dameDistanciaEnEscala escala tonica pc1 pc2
   | pc1 == pc2 = 0
   | otherwise  = distancia
-      where gradoAbajoIni = dameIntervaloPitch tonica pitchAbajo
+      where pitchAbajo = (pc1, 0)
+            pitchArriba = (pc2, 0)
+            gradoAbajoIni = dameIntervaloPitch tonica pitchAbajo
             gradoArribaIni = dameIntervaloPitch tonica pitchArriba
             gradoAbajoCorregido = dameGradoDiatonicoCercano True escala gradoAbajoIni
             gradoArribaCorregido = dameGradoDiatonicoCercano False escala gradoArribaIni

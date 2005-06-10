@@ -205,7 +205,7 @@ aplicaCurvaMelodica (aleat, (registro, escala, tonica, pitchPartida, dur, numApl
             | n<=0      = (aleat, musica)
             | otherwise = repiteFase4 (n-1) (restoAlAux, (numDivisiones, escala, tonica, musicaAux))
                        where (restoAlAux, musicaAux) = aplicaCurvaMelodicaFase4 (aleat ,(numDivisiones,escala, tonica, musica))
-          (restoAleat4, musicaFase4) = repiteFase4 numAplicacionesFase4 (restoAleat3, (numDivisiones, escala, tonica, musicaFase2))
+          (restoAleat4, musicaFase4) = repiteFase4 numAplicacionesFase4 (restoAleat3, (numDivisiones, escala, tonica, musicaFase3))
 
 -- aplicaCurvaMelodicaFase3 (aleat@(a1:restoAleat1), (escala, tonica, musica)) = (aleat, musicaResul)
 -- aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, acentos, musica)) = (aleat, (musica, acentos))
@@ -360,6 +360,7 @@ aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, musica))
   -se ligan las notas con el acento de su derecha para alargarlos: es un proceso que se puede repetir varias veces
 para hacer melodias con notas mas largas. La curva melodcia no se necesita
   -liga varias notas, un numero aleatorio de ellas
+  -sola alarga notas que tengan un silencio a su derecha, para no tachar notas
 -}
 aplicaCurvaMelodicaFase2  :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
 aplicaCurvaMelodicaFase2 (aleat, (escala, tonica, musica)) = aplicaCurvaMelodicaFase2Rev (aleat, (escala, tonica, musLimpia))
@@ -376,18 +377,18 @@ aplicaCurvaMelodicaFase2Rev (aleat, (escala, tonica, musica))
             --tienen mas probabilidad de alargarse las notas q corresponden a grados mas estables
             (restoAleat1, (lPosElegidos, lRech)) = dameSublistaAleatListaPesosRestoFloat (aleat, listaPesos)
             --FuncAleatoria [(a, Float)] ([(a, Int)], [((a,Float), Int)])
-            ordena x y = compare (snd x) (snd y)
             musicaLarga = alargaMusicaFase2 (map fst lPosElegidos) musica
 
 {-
 dameCandidatosFase2 :: ListaAcentos -> [Int]
 Devuelve la lista de posiciones dentro de la lista de entrada de las notas candidatas a ser alargadas. Las notas candidatas
-deben cumplir que su acento sea negativo y el de su derecha positivo, por tanto son notas no silencios con silencios a su derecha
+deben cumplir que sean notas no silencios con silencios a su derecha
 -}
+-- CAMBIO DE ULTIMA HORA, QUITO LO DE LIMPIAR LA MUSICA PQ SOLO
+-- LO LLAMA aplicaCurvaMelodicaFase2 Q YA LO LIMPIO
 dameCandidatosFase2 :: [Music] -> [Int]
-dameCandidatosFase2 musica  = sacaCandidatosPos 0 musicaLimpia
-        where musicaLimpia = filter (not.esNotaVacia) musica
-              numNotas = length musica
+dameCandidatosFase2 musica  = sacaCandidatosPos 0 musica -- sacaCandidatosPos 0 musicaLimpia
+        where --musicaLimpia = filter (not.esNotaVacia) musica
               sacaCandidatosPos _ []     = []
               sacaCandidatosPos _ (_:[]) = []
               sacaCandidatosPos pos (m1:m2:ms)
@@ -541,24 +542,6 @@ dameCandidatosFase3 musica = buscaCandsAcu False (numNotas -1) (reverse musica)
            | (esNotaSuena nota) = pos:(buscaCandsAcu True (pos -1) ns)
            | otherwise          = buscaCandsAcu True (pos -1) ns
 
-{-
-damePitchIntermedioAleatFase3 :: FuncAleatoria (Escala, PitchClass, Pitch, Pitch) Pitch
-damePitchIntermedioAleatFase3 (aleat@(a1:restoAleat1), (escala, tonica, notaIzda@(pci,oi), notaDcha@(pcd,od)))
-  | (notaIzda < notaDcha) = (restoAleat1, pitchMenor)
-  | (notaIzda > notaDcha) = (restoAleat1, pitchMayor)
-  | otherwise             = (aleat, notaIzda)
-                      where -- distanciaMenor = (dameDistanciaEnEscala escala tonica notaIzda notaDcha) + 7*(od-oi)
-                            distanciaMenor = (dameDistanciaEnEscala escala tonica pci pcd) + 7*(od-oi)
-                            listaPesosMenor = (0, pesoExtremos):((distanciaMenor,pesoExtremos):(zip [1..(distanciaMenor-1)] [1.0 | p <- [1..(distanciaMenor-1)]]))
-                            saltoMenor = fst (dameElemAleatListaPesosFloat a1 listaPesosMenor)
-                            pitchMenor = saltaIntervaloPitch escala tonica saltoMenor notaIzda
-                            -- distanciaMayor = (dameDistanciaEnEscala escala tonica notaDcha notaIzda) + 7*(oi-od)
-                            distanciaMayor = (dameDistanciaEnEscala escala tonica pcd pci) + 7*(oi-od)
-                            listaPesosMayor = (0, pesoExtremos):((distanciaMayor,pesoExtremos):(zip [1..(distanciaMayor-1)] [1.0 | p <- [1..(distanciaMayor-1)]]))
-                            saltoMayor = fst (dameElemAleatListaPesosFloat a1 listaPesosMayor)
-                            pitchMayor = saltaIntervaloPitch escala tonica saltoMayor notaDcha
-                            pesoExtremos = 0.05
--}
 damePitchIntermedioAleatFase3 :: FuncAleatoria (Escala, PitchClass, Pitch, Pitch) Pitch
 damePitchIntermedioAleatFase3 (aleat@(a1:restoAleat1), (escala, tonica, notaIzda@(pci,oi), notaDcha@(pcd,od)))
   | absPitchIzda == absPitchDcha = (aleat, notaIzda)
@@ -572,21 +555,6 @@ damePitchIntermedioAleatFase3 (aleat@(a1:restoAleat1), (escala, tonica, notaIzda
                             salto = fst (dameElemAleatListaPesosFloat a1 listaPesos)
                             pitchMenor = saltaIntervaloPitch escala tonica salto notaIzda
                             pitchMayor = saltaIntervaloPitch escala tonica salto notaDcha
-                      {-
-                      where absPitchIzda = (absPitch notaIzda)
-                            absPitchDcha = (absPitch notaDcha)
-                            distanciaMenor = (dameDistanciaEnEscalaPitch escala tonica notaIzda notaDcha)
-                            -- distanciaMenor = (dameDistanciaEnEscala escala tonica pci pcd) + 7*(od-oi)
-                            listaPesosMenor = (0, pesoExtremos):((distanciaMenor,pesoExtremos):(zip [1..(distanciaMenor-1)] [1.0 | p <- [1..(distanciaMenor-1)]]))
-                            saltoMenor = fst (dameElemAleatListaPesosFloat a1 listaPesosMenor)
-                            pitchMenor = saltaIntervaloPitch escala tonica saltoMenor notaIzda
-                            distanciaMayor = (dameDistanciaEnEscalaPitch escala tonica notaDcha notaIzda)
-                            -- distanciaMayor = (dameDistanciaEnEscala escala tonica pcd pci) + 7*(oi-od)
-                            listaPesosMayor = (0, pesoExtremos):((distanciaMayor,pesoExtremos):(zip [1..(distanciaMayor-1)] [1.0 | p <- [1..(distanciaMayor-1)]]))
-                            saltoMayor = fst (dameElemAleatListaPesosFloat a1 listaPesosMayor)
-                            pitchMayor = saltaIntervaloPitch escala tonica saltoMayor notaDcha
-                            pesoExtremos = 0.05
-                        -}
 
 --dameDistanciaEnEscalaPitch escala tonica pitchAbajo@(pcAb,oAb) pitchArriba@(pcArr,oArr)
 

@@ -776,6 +776,11 @@ pruPeta n
                   pruPeta (n -1)
  | otherwise = putStrLn "\n\n\nPrueba superada con exito\n\n"
 
+dameOctavaIniAleat :: Registro -> [Int] -> ([Int], Octave)
+dameOctavaIniAleat registro aleat@(a1:restoAleat1) = (restoAleat1, octEleg)
+     where candidatos   = zip registro (repeat 1)
+           (octEleg, _) = dameElemAleatListaPesos a1 candidatos
+
 
 -- NOTA: FALTA DARLE UN VALOR CORRECTO AL FALSE DEL TRADUCE CIFRADO DE ESTA FUNCION
 pruHazMelodiaParaProgresionNoFlush :: String -> String -> Int -> IO ()

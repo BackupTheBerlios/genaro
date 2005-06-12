@@ -12,10 +12,7 @@ import Ratio          --para pruebas
 data TipoBajista = Aphex | Walking
      deriving(Enum,Read,Show,Eq,Ord,Bounded)
 
-{-
-Simplemente pone las fundamentales de los acordes, durando lo mismo q cada acorde. Intentar
-que esto sea un caso degenrado del walking
--}
+
 hazWalkingParaProgresion :: FuncAleatoria (Progresion, Int, Int, Int) Music
 hazWalkingParaProgresion (aleat@(a1:restoAleat1), (prog, _, _, _)) = ([1], musica) --(listaCifrados, listaEscalas, listaTonicas, octavaIni)
          where listaCifrados = map fst prog
@@ -44,15 +41,82 @@ hazWalkingParaProgresion (aleat@(a1:restoAleat1), (prog, _, _, _)) = ([1], music
                musica = lineSeguro (concat (construyeListaLineas listaTonicas listaDurs))
                -- musica = lineSeguro (concat (construyeListaLineas numAcs (aleat, (listaTonicas, octavaIni, 2,2,2,2, listaEscalas, listaDurs))))
 
-pruHazWalkingParaProgresion :: String -> IO ()
-pruHazWalkingParaProgresion rutaProg = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                          prog <- leeProgresion rutaProg
-                                          putStr ("\nProgresion de entrada: "++(show prog)++"\n")
-                                          --putStr ("\nResultado: "++(show (resul aleat prog))++"\n")
-                                          haskoreAMidi (resul aleat prog) rutaBajo
-                                          putStr ("Escrito midi en "++ rutaBajo ++ "\n")
-                                          where resul aleat prog = snd (hazWalkingParaProgresion (aleat, (prog, 1,2,3)))
-                                                rutaBajo = "./pruWalking.mid"
+
+
+distribuyeNumEntreDurs :: FuncAleatoria (Int, [Dur]) [Int]
+distribuyeNumEntreDurs (aleat, (cantidad, duraciones)) = (restoAleat, listaResul)
+	where listaInt                    = (replicate cantidad 1)
+              (restoAleat, listaListaInt) = distribuyeCurvaEntreDurs (aleat, (listaInt, duraciones))
+              listaResul = map length listaListaInt
+
+pruDistribuyeNumEntreDurs :: Int -> [Dur] -> IO ()
+pruDistribuyeNumEntreDurs ent duraciones = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                              putStrLn (show (resul aleat))
+                                              putStr ""
+                                              where resul aleat = snd (distribuyeNumEntreDurs (aleat, (ent, duraciones)))
+
+construyeListaLineasWalking :: FuncAleatoria ([(PitchClass,Dur,Int,Int,Int,Escala)],Dur ,Int,Int,Int,Pitch) [[Music]]
+construyeListaLineasWalking (aleat, ([], _, _, _, _, _)) = (aleat, [[Rest 0]])
+construyeListaLineasWalking (aleat, ([(ton1, durTotal, numAlarga, numInter, numTrina, escala)], durNotas, despCurva, numDivisiones, octavaPartida, primerPitch)) = (restoAleat1, [musAux])
+    where p1 = (ton1, octavaPartida)
+          (restoAleat1, musAux) = hazMelodiaEntreNotasWalking (aleat, (durNotas, despCurva, numAlarga, numInter, numTrina, numDivisiones, escala, durTotal, p1, primerPitch))
+construyeListaLineasWalking (aleat, (listaMutsDursTonicas@((ton1, durTotal, numAlarga, numInter, numTrina, escala):(ton2,d,nA,nI,nT,e):ls), durNotas, despCurva, numDivisiones, octavaPartida, primerPitch))= (restoAleat3, musAux:restoMus)
+    where p1 = (ton1, octavaPartida)
+          (restoAleat1, oct2) = dameOctavaIniAleat registroDelBajo aleat
+          p2 = (ton2, oct2)
+          (restoAleat2, musAux) = hazMelodiaEntreNotasWalking (restoAleat1, (durNotas, despCurva, numAlarga, numInter, numTrina, numDivisiones, escala, durTotal, p1, p2))
+          (restoAleat3, restoMus) = construyeListaLineasWalking (restoAleat2, (((ton2,d,nA,nI,nT,e):ls), durNotas, despCurva, numDivisiones, oct2, primerPitch) )
+{-
+construyeListaLineasWalking (aleat, ((tonicas@(t1:t2:ts), octavaActual, nn2,nn3,nn4,ndivs, escala@(e1:es), durs@(d1:ds)))
+  | n<=0      = [[Rest 0]]
+  | otherwise = musAux:(construyeListaLineas (n-1) (restoAlAux, ((t2:ts),nuevaOctava,nn2,nn3,nn4,ndivs, es, ds)))
+                   where (restoAlAux, musAux) = hazMelodiaEntreNotas (aleat, (nn2,nn3,nn4,ndivs, e1, d1, (t1,octavaActual), (t2,octavaActual)))
+                         buscaPrimerPitch ((Note p _ _):_) = p
+                         buscaPrimerPitch ((Rest _): ms) = buscaPrimerPitch ms
+                         ultimoPitch = buscaPrimerPitch (reverse musAux)
+                         (ultimaTonica, ultimaOctava) = ultimoPitch
+                         nuevaOctava = if (absPitch (ultimaTonica, 0)) <= (absPitch (t2, 0))
+                                          then ultimaOctava
+                                          else ultimaOctava +1
+
+hazMelodiaEntreNotasWalking :: FuncAleatoria (Dur, Int, Int, Int, Int, Int, Escala, Dur, Pitch, Pitch) ([Music])
+hazMelodiaEntreNotasWalking (aleat, (durNotas, despCurva, numAlarga, numInter, numTrina, numDivisiones, escala, durTotal, p1@(pc1,o1), p2)) = (restoAleat4, musicaFase4)
+-}
+{-
+version buena del walking
+-}
+
+hazWalkingParaProgresion2 :: FuncAleatoria (TipoBajista, Progresion, Dur, Int, Int, Int, Int, Int) Music
+hazWalkingParaProgresion2 (aleat, (bajista, prog, durNotas, despCurva, numAlarga, numInter, numTrina, numDivisiones)) = (restoAleat6, musica) --(listaCifrados, listaEscalas, listaTonicas, octavaIni)
+         where listaCifrados = map fst prog
+               listaDurs = map snd prog
+               listaGrados = map fst listaCifrados
+               listaEscalas = map escalaDelAcorde listaCifrados
+               listaTonicas = map (\g -> fst (pitch (gradoAIntAbs g + 0))) listaGrados
+               (restoAleat1, octavaIni) = dameOctavaIniAleat registroDelBajo aleat
+               (restoAleat2, listaDistAlarga) = distribuyeNumEntreDurs (restoAleat1, (numAlarga, listaDurs))
+               (restoAleat3, listaDistInter) = distribuyeNumEntreDurs (restoAleat2, (numInter, listaDurs))
+               (restoAleat4, listaDistTrina) = distribuyeNumEntreDurs (restoAleat3, (numTrina, listaDurs))
+               listaDatosWalk = map (\(((((x,y),z),k),l),m) -> (x,y,z,k,l,m)) (zip (zip (zip (zip (zip listaTonicas listaDurs) listaDistAlarga) listaDistInter) listaDistTrina) listaEscalas)
+               (restoAleat5, octavaPartida) = dameOctavaIniAleat registroDelBajo restoAleat4
+               primerPitch = (head listaTonicas, octavaPartida)
+               (restoAleat6, lineas) = case bajista of
+                          Walking -> construyeListaLineasWalking(restoAleat5, (listaDatosWalk, durNotas, despCurva, numDivisiones, octavaPartida, primerPitch))
+               musica = lineSeguro (concat (lineas))
+               --musica = lineSeguro (concat (construyeListaLineas listaTonicas listaDurs))
+
+pruHazWalkingParaProgresion2 :: String -> IO ()
+pruHazWalkingParaProgresion2 rutaProg = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                           prog <- leeProgresion rutaProg
+                                           putStr ("\nProgresion de entrada: "++(show prog)++"\n")
+                                           putStr ("\nmusica resultado(sin repeticiones): " ++ show(resAux aleat prog)++"\n")
+                                           --putStr ("\nResultado: "++(show (resul aleat prog))++"\n")
+                                           haskoreAMidi (musicaResul aleat prog) rutaBajo
+                                           putStr ("Escrito midi en "++ rutaBajo ++ "\n")
+                                           where -- resAux aleat prog = snd (hazWalkingParaProgresion (aleat, (Walking,prog, (1%8),2,6,4,2,2)))
+                                                 resAux aleat prog = snd (hazWalkingParaProgresion2 (aleat, (Walking,prog, (1%8),0,0,0,0,0)))
+                                                 rutaBajo = "./pruWalkingTotal.mid"
+                                                 musicaResul aleat prog = Instr "bass" ((resAux aleat prog))
 
 {-
 Muy similar a Melodias.aplicaCurvaMelodicaFase2, lo que hace es alargar UNA SOLA NOTA elegida al azar, sin importar

@@ -66,22 +66,19 @@ construyeListaLineasWalking (aleat, (listaMutsDursTonicas@((ton1, durTotal, numA
           p2 = (ton2, oct2)
           (restoAleat2, musAux) = hazMelodiaEntreNotasWalking (restoAleat1, (durNotas, despCurva, numAlarga, numInter, numTrina, numDivisiones, escala, durTotal, p1, p2))
           (restoAleat3, restoMus) = construyeListaLineasWalking (restoAleat2, (((ton2,d,nA,nI,nT,e):ls), durNotas, despCurva, numDivisiones, oct2, primerPitch) )
-{-
-construyeListaLineasWalking (aleat, ((tonicas@(t1:t2:ts), octavaActual, nn2,nn3,nn4,ndivs, escala@(e1:es), durs@(d1:ds)))
-  | n<=0      = [[Rest 0]]
-  | otherwise = musAux:(construyeListaLineas (n-1) (restoAlAux, ((t2:ts),nuevaOctava,nn2,nn3,nn4,ndivs, es, ds)))
-                   where (restoAlAux, musAux) = hazMelodiaEntreNotas (aleat, (nn2,nn3,nn4,ndivs, e1, d1, (t1,octavaActual), (t2,octavaActual)))
-                         buscaPrimerPitch ((Note p _ _):_) = p
-                         buscaPrimerPitch ((Rest _): ms) = buscaPrimerPitch ms
-                         ultimoPitch = buscaPrimerPitch (reverse musAux)
-                         (ultimaTonica, ultimaOctava) = ultimoPitch
-                         nuevaOctava = if (absPitch (ultimaTonica, 0)) <= (absPitch (t2, 0))
-                                          then ultimaOctava
-                                          else ultimaOctava +1
 
-hazMelodiaEntreNotasWalking :: FuncAleatoria (Dur, Int, Int, Int, Int, Int, Escala, Dur, Pitch, Pitch) ([Music])
-hazMelodiaEntreNotasWalking (aleat, (durNotas, despCurva, numAlarga, numInter, numTrina, numDivisiones, escala, durTotal, p1@(pc1,o1), p2)) = (restoAleat4, musicaFase4)
--}
+construyeListaLineasAphex :: FuncAleatoria ([(PitchClass,Dur,Int,Int,Int,Escala)],Int ,Int,Pitch) [[Music]]
+construyeListaLineasAphex (aleat, ([], _, _, _ )) = (aleat, [[Rest 0]])
+construyeListaLineasAphex (aleat, ([(ton1, durTotal, numAlarga, numInter, numTrina, escala)], numDivisiones, octavaPartida, primerPitch)) = (restoAleat1, [musAux])
+    where p1 = (ton1, octavaPartida)
+          (restoAleat1, musAux) = hazMelodiaEntreNotasAphex (aleat, (numInter, numAlarga, numTrina, numDivisiones, escala, durTotal, p1, primerPitch))
+construyeListaLineasAphex (aleat, (listaMutsDursTonicas@((ton1, durTotal, numAlarga, numInter, numTrina, escala):(ton2,d,nA,nI,nT,e):ls), numDivisiones, octavaPartida, primerPitch))= (restoAleat3, musAux:restoMus)
+    where p1 = (ton1, octavaPartida)
+          (restoAleat1, oct2) = dameOctavaIniAleat registroDelBajo aleat
+          p2 = (ton2, oct2)
+          (restoAleat2, musAux) = hazMelodiaEntreNotasAphex (restoAleat1, (numInter, numAlarga, numTrina, numDivisiones, escala, durTotal, p1, p2))
+          (restoAleat3, restoMus) = construyeListaLineasAphex (restoAleat2, (((ton2,d,nA,nI,nT,e):ls), numDivisiones, oct2, primerPitch) )
+
 {-
 version buena del walking
 -}
@@ -101,22 +98,24 @@ hazWalkingParaProgresion2 (aleat, (bajista, prog, durNotas, despCurva, numAlarga
                (restoAleat5, octavaPartida) = dameOctavaIniAleat registroDelBajo restoAleat4
                primerPitch = (head listaTonicas, octavaPartida)
                (restoAleat6, lineas) = case bajista of
-                          Walking -> construyeListaLineasWalking(restoAleat5, (listaDatosWalk, durNotas, despCurva, numDivisiones, octavaPartida, primerPitch))
+                          Walking -> construyeListaLineasWalking (restoAleat5, (listaDatosWalk, durNotas, despCurva, numDivisiones, octavaPartida, primerPitch))
+                          Aphex -> construyeListaLineasAphex (restoAleat5, (listaDatosWalk, numDivisiones, octavaPartida, primerPitch))
                musica = lineSeguro (concat (lineas))
                --musica = lineSeguro (concat (construyeListaLineas listaTonicas listaDurs))
 
-pruHazWalkingParaProgresion2 :: String -> IO ()
-pruHazWalkingParaProgresion2 rutaProg = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
-                                           prog <- leeProgresion rutaProg
-                                           putStr ("\nProgresion de entrada: "++(show prog)++"\n")
-                                           putStr ("\nmusica resultado(sin repeticiones): " ++ show(resAux aleat prog)++"\n")
-                                           --putStr ("\nResultado: "++(show (resul aleat prog))++"\n")
-                                           haskoreAMidi (musicaResul aleat prog) rutaBajo
-                                           putStr ("Escrito midi en "++ rutaBajo ++ "\n")
-                                           where -- resAux aleat prog = snd (hazWalkingParaProgresion (aleat, (Walking,prog, (1%8),2,6,4,2,2)))
-                                                 resAux aleat prog = snd (hazWalkingParaProgresion2 (aleat, (Walking,prog, (1%8),0,0,0,0,0)))
-                                                 rutaBajo = "./pruWalkingTotal.mid"
-                                                 musicaResul aleat prog = Instr "bass" ((resAux aleat prog))
+pruHazWalkingParaProgresion2 :: TipoBajista -> String -> IO ()
+pruHazWalkingParaProgresion2 bajista rutaProg = do aleat <- listaInfNumsAleatoriosIO 1 resolucionRandom
+                                                   prog <- leeProgresion rutaProg
+                                                   putStr ("\nProgresion de entrada: "++(show prog)++"\n")
+                                                   putStr ("\nmusica resultado(sin repeticiones): " ++ show(resAux aleat prog)++"\n")
+                                                   --putStr ("\nResultado: "++(show (resul aleat prog))++"\n")
+                                                   haskoreAMidi (musicaResul aleat prog) rutaBajo
+                                                   putStr ("Escrito midi en "++ rutaBajo ++ "\n")
+                                                   where -- resAux aleat prog = snd (hazWalkingParaProgresion (aleat, (Walking,prog, (1%8),2,6,4,2,2)))
+                                                         resAux aleat prog = snd (hazWalkingParaProgresion2 (aleat, (bajista,prog, (1%8),2,3,6,5,2)))
+                                                         preMus aleat prog = lineSeguro (replicate 3 (resAux aleat prog))
+                                                         rutaBajo = "./pruWalkingTotal.mid"
+                                                         musicaResul aleat prog = Instr "bass" ((preMus aleat prog))
 
 {-
 Muy similar a Melodias.aplicaCurvaMelodicaFase2, lo que hace es alargar UNA SOLA NOTA elegida al azar, sin importar

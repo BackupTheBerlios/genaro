@@ -9,7 +9,7 @@ import PrologAHaskell --para pruebas
 import Ratio          --para pruebas
 
 
-data TipoBajista = Aphex | Walking
+data TipoBajista = Aphex | Walking | Fundamentalista
      deriving(Enum,Read,Show,Eq,Ord,Bounded)
 
 
@@ -40,8 +40,6 @@ hazWalkingParaProgresion (aleat@(a1:restoAleat1), (prog, _, _, _)) = ([1], music
                          where restoMus = construyeListaLineas ts ds
                musica = lineSeguro (concat (construyeListaLineas listaTonicas listaDurs))
                -- musica = lineSeguro (concat (construyeListaLineas numAcs (aleat, (listaTonicas, octavaIni, 2,2,2,2, listaEscalas, listaDurs))))
-
-
 
 distribuyeNumEntreDurs :: FuncAleatoria (Int, [Dur]) [Int]
 distribuyeNumEntreDurs (aleat, (cantidad, duraciones)) = (restoAleat, listaResul)
@@ -79,6 +77,15 @@ construyeListaLineasAphex (aleat, (listaMutsDursTonicas@((ton1, durTotal, numAla
           (restoAleat2, musAux) = hazMelodiaEntreNotasAphex (restoAleat1, (numInter, numAlarga, numTrina, numDivisiones, escala, durTotal, p1, p2))
           (restoAleat3, restoMus) = construyeListaLineasAphex (restoAleat2, (((ton2,d,nA,nI,nT,e):ls), numDivisiones, oct2, primerPitch) )
 
+
+{-
+Seria la suyo hacerlo algun dia independiente del bajo de aphex
+-}
+construyeListaLineasFundamentalista :: FuncAleatoria ([(PitchClass, Dur, Escala)], Int, Pitch) [[Music]]
+construyeListaLineasFundamentalista (aleat, (listaPcD, octavaPartida, primerPitch)) = resul
+   where listaDatos = [(ton, dur, 0, 0, 0, esc) | (ton, dur, esc) <- listaPcD]
+         resul = construyeListaLineasAphex (aleat, (listaDatos, 0, octavaPartida, primerPitch))
+
 {-
 version buena del walking
 -}
@@ -90,16 +97,19 @@ hazWalkingParaProgresion2 (aleat, (bajista, prog, durNotas, despCurva, numAlarga
                listaGrados = map fst listaCifrados
                listaEscalas = map escalaDelAcorde listaCifrados
                listaTonicas = map (\g -> fst (pitch (gradoAIntAbs g + 0))) listaGrados
-               (restoAleat1, octavaIni) = dameOctavaIniAleat registroDelBajo aleat
+               -- (restoAleat1, octavaIni) = dameOctavaIniAleat registroDelBajo aleat
+               restoAleat1 = aleat
                (restoAleat2, listaDistAlarga) = distribuyeNumEntreDurs (restoAleat1, (numAlarga, listaDurs))
                (restoAleat3, listaDistInter) = distribuyeNumEntreDurs (restoAleat2, (numInter, listaDurs))
                (restoAleat4, listaDistTrina) = distribuyeNumEntreDurs (restoAleat3, (numTrina, listaDurs))
                listaDatosWalk = map (\(((((x,y),z),k),l),m) -> (x,y,z,k,l,m)) (zip (zip (zip (zip (zip listaTonicas listaDurs) listaDistAlarga) listaDistInter) listaDistTrina) listaEscalas)
+               listaDatosFundamentalista = map (\((t,d),e) -> (t,d,e)) (zip (zip listaTonicas listaDurs) listaEscalas)
                (restoAleat5, octavaPartida) = dameOctavaIniAleat registroDelBajo restoAleat4
                primerPitch = (head listaTonicas, octavaPartida)
                (restoAleat6, lineas) = case bajista of
                           Walking -> construyeListaLineasWalking (restoAleat5, (listaDatosWalk, durNotas, despCurva, numDivisiones, octavaPartida, primerPitch))
                           Aphex -> construyeListaLineasAphex (restoAleat5, (listaDatosWalk, numDivisiones, octavaPartida, primerPitch))
+                          Fundamentalista -> construyeListaLineasFundamentalista (aleat, (listaDatosFundamentalista, octavaPartida, primerPitch))
                musica = lineSeguro (concat (lineas))
                --musica = lineSeguro (concat (construyeListaLineas listaTonicas listaDurs))
 
@@ -133,6 +143,22 @@ alargaNotasDestructivo (aleat@(a1:restoAleat1), (escala, tonica, musicaIn))
             --tienen mas probabilidad de alargarse las notas q corresponden a grados mas estables
             (posElegida, _) = dameElemAleatListaPesos a1 listaPesos
             musicaLarga = alargaMusicaFase2 [posElegida] musica
+
+alargaUnaNota :: FuncAleatoria (Escala, PitchClass, [Music]) [Music]
+alargaUnaNota (aleat@(a1:restoAleat1), (escala, tonica, musicaIn))
+ | numCand <= 0 = (aleat, musica)
+ | otherwise = (restoAleat1, musicaLarga)
+      where musica =  limpiaMusica musicaIn
+            posCand = dameCandidatosFase2 musica
+            numCand = length posCand
+            listaPesos = zip posCand [fromIntegral (valoraGrado escala (dameIntervaloPitch tonica (damePitch(musica!!pos))))|pos <- posCand]
+            --tienen mas probabilidad de alargarse las notas q corresponden a grados mas estables
+            --(restoAleat1, (lPosElegidos, lRech)) = dameSublistaAleatListaPesosRestoFloat (aleat, listaPesos)
+            (posElegida, _) = dameElemAleatListaPesosFloat a1 listaPesos
+            --FuncAleatoria [(a, Float)] ([(a, Int)], [((a,Float), Int)])
+            --musicaLarga = alargaMusicaFase2 (map fst lPosElegidos) musica
+            musicaLarga = alargaMusicaFase2 [posElegida] musica
+
 
 {-
 Dado un music devuelve la lista de posiciones de las notas candidatas a alargarse, contando desde cero en
@@ -215,7 +241,7 @@ pruHazMelodiaEntreNotasWalking durTotal durNotas desp numAlarga numInter numTrin
 
 
 
-
+{-
 hazMelodiaEntreNotasAphex :: FuncAleatoria (Int, Int, Int, Int,  Escala, Dur, Pitch, Pitch) [Music]
 hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, escala, dur, pitchPrim@(tonicaPrim,_), pitchSeg@(tonicaSeg,_))) = (restoAleat1, musicaResul)
   where musicaIni = [(Note pitchPrim dur [Volume 50]), (Note pitchSeg (1%4) [Volume 50])] -- la segudna nota es solo
@@ -226,10 +252,54 @@ hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, 
                        where (restoAlAux, (musicaAux,nn2,nn3,nn4)) = mutaBajoAlMult (aleat ,(n2,n3,n4,numDivisiones,escala, tonica, musica))
         (restoAleat1, musicaAux) = repiteMutar (aleat, (numAlarga, numMutaIntermedias, numMutaTrino, numDivisiones, escala, tonicaPrim, musicaIni))
         musicaResul = take ((length musicaAux) -1) musicaAux
+-}
+
+hazMelodiaEntreNotasAphex :: FuncAleatoria (Int, Int, Int, Int,  Escala, Dur, Pitch, Pitch) [Music]
+hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, escala, dur, pitchPrim@(tonicaPrim,_), pitchSeg@(tonicaSeg,_))) = (restoAleat2, musicaResul)
+  where musicaIni = [(Note pitchPrim dur [Volume 50]), (Note pitchSeg (1%4) [Volume 50])] -- la segunda nota es solo
+        -- para interpolar alturas, luego se quita y su duracion no importa
+        repiteMutarInter (aleat, (n3,n4,numDivisiones,escala, tonica, musica))
+            | n3 ==0 && n4 ==0      = (aleat, musica)
+            | otherwise = repiteMutarInter (restoAlAux, (nn3,nn4,numDivisiones, escala, tonica, musicaAux))
+                       where (restoAlAux, (musicaAux,nn3,nn4)) = mutaBajoIntermedias (aleat ,(n3,n4,numDivisiones,escala, tonica, musica))
+        (restoAleat1, musicaAux) = repiteMutarInter (aleat, (numMutaIntermedias, numMutaTrino, numDivisiones, escala, tonicaPrim, musicaIni))
+        musicaConInter = take ((length musicaAux) -1) musicaAux
+        repiteMutarAlarga (aleat, (n, escala, tonica, musica))
+            | n<=0      = (aleat, musica)
+            | otherwise = repiteMutarAlarga (restoAlAux, ((n-1), escala, tonica, musicaAux))
+                       where (restoAlAux, musicaAux) = alargaNotasDestructivo (aleat ,(escala, tonica, musica))
+        (restoAleat2, musicaResul) = repiteMutarAlarga (restoAleat1, (numAlarga, escala, tonicaPrim, musicaConInter))
+
+repiteMutarInter :: FuncAleatoria (Int, Int, Int, Escala, PitchClass, [Music]) ([Music])
+repiteMutarInter (aleat, (n3,n4,numDivisiones,escala, tonica, musica))
+            | n3 ==0 && n4 ==0      = (aleat, musica)
+            | otherwise = repiteMutarInter (restoAlAux, (nn3,nn4,numDivisiones, escala, tonica, musicaAux))
+                       where (restoAlAux, (musicaAux,nn3,nn4)) = mutaBajoIntermedias (aleat ,(n3,n4,numDivisiones,escala, tonica, musica))
+
+
+
+mutaBajoIntermedias :: FuncAleatoria (Int,Int,Int, Escala, PitchClass, [Music]) ([Music],Int,Int)
+mutaBajoIntermedias (aleat@(a1:restoAleat1), (numInter,numTrino,numDivisiones, escala, tonica, musica)) = (restoAl, (musicaMut, nuevoNumInter, nuevoNumTrino))
+-- mutaBajoIntermedias (_, (numInter,numTrino,numDivisiones, escala, tonica, musica)) = (restoAl, (musicaMut, nuevoNumInter, nuevoNumTrino))
+ where --aleat = repeat 3
+       aplicaMut 3 = aplicaCurvaMelodicaFase3 (restoAleat1, (escala, tonica, musica))
+       aplicaMut 4 = aplicaCurvaMelodicaFase4 (restoAleat1, (numDivisiones, escala, tonica, musica))
+       alMod2 = a1 `mod` 2
+       mayZ x = if (x >0) then 1 else 0
+       entradaFormat = (mayZ numInter)*10 + (mayZ numTrino)
+       (restoAl, (musicaMut, nuevoNumInter, nuevoNumTrino)) = case entradaFormat of
+                                                               00 -> (aleat, (musica, 0,0))
+                                                               01 -> (fst(aplicaMut 4), (snd(aplicaMut 4), 0,numTrino-1))
+                                                               10 -> (fst(aplicaMut 3), (snd(aplicaMut 3), numInter-1, 0))
+                                                               11 -> case alMod2 of
+                                                                      0 -> (fst(aplicaMut 4), (snd(aplicaMut 4), numInter,numTrino-1))
+                                                                      1 -> (fst(aplicaMut 3), (snd(aplicaMut 3), numInter-1, numTrino))
+
 
 mutaBajoAlMult :: FuncAleatoria (Int,Int,Int,Int, Escala, PitchClass, [Music]) ([Music],Int,Int,Int)
 mutaBajoAlMult (aleat@(a1:restoAleat1), (n2,n3,n4,numDivisiones, escala, tonica, musica)) = (restoAl, (musicaMut, nn2,nn3,nn4) )
-  where aplicaMut 2 = aplicaCurvaMelodicaFase2 (restoAleat1, (escala, tonica, musica))
+  where -- aplicaMut 2 = aplicaCurvaMelodicaFase2 (restoAleat1, (escala, tonica, musica))
+        aplicaMut 2 = alargaNotasDestructivo (restoAleat1, (escala, tonica, musica))
         aplicaMut 3 = aplicaCurvaMelodicaFase3 (restoAleat1, (escala, tonica, musica))
         aplicaMut 4 = aplicaCurvaMelodicaFase4 (restoAleat1, (numDivisiones, escala, tonica, musica))
         mayZ x = if (x >0) then 1 else 0

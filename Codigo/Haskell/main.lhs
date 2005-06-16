@@ -27,6 +27,8 @@ Hay q revisar pq importa módulos de más
 > import ObraCompleta
 > import Bateria
 > import Bajo
+> import ArmonizaMelodia
+> import Random
 
 
 \end{verbatim}
@@ -87,6 +89,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > diferenciaComandos ( "generaLilypond" : restoArgumentos ) = generaLilypond restoArgumentos
 > diferenciaComandos ( "generaBateria" : restoArgumentos ) = generaBateria restoArgumentos
 > diferenciaComandos ( "generaBajo" : restoArgumentos ) = generaBajo restoArgumentos
+> diferenciaComandos ( "armonizaMelodia" : restoArgumentos ) = armonizaMelodia restoArgumentos
 > diferenciaComandos _ = errorGenaro "comando erroneo en diferenciaCommandos"
 
 
@@ -420,7 +423,28 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > generaBajo _ = errorGenaro "error de encaje de patrones en generaBajo"
 
 
+> ----------------------- ARMONIZA MELODIA --------------------------------------
 
+> armonizaMelodia :: [String] -> IO ()
+> armonizaMelodia [ "parametros", tipo_armonizacion, modo_acordes_Str, tipo_notas_principales, durMinNum, durMinDen, tipo_asigna_acordes, durMaxNum, durMaxDen, "ruta_melodia_midi", ruta_melodia, "ruta_prog_dest", ruta_prog  ] = 
+>       do alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          melodia <- leeMusic2 ruta_melodia
+>          escribeProgresionComoProlog (armonizaMusicSecuencial ((mkStdGen.head) alea) (modo_acordes, aTipoNotasPrincipales tipo_notas_principales durMinNumInt durMinDenInt, aTipoAsignaAcordes tipo_asigna_acordes durMaxNumInt durMaxDenInt) melodia) 
+>          where durMinNumInt = aplicaParser integer durMinNum
+>                durMinDenInt = aplicaParser integer durMinDen
+>                durMaxNumInt = aplicaParser integer durMaxNum
+>                durMaxDenInt = aplicaParser integer durMinDen
+>                aTipoNotasPrincipales "SoloNotasLargas" num den = SoloNotasLargas (num % den) 
+>                aTipoNotasPrincipales "MasRefinado" num den = SoloNotasLargas (num % den)
+>                aTipoAsignaAcordes "UnoPorNotaPrinc" _ _     = UnoPorNotaPrinc 
+>                aTipoAsignaAcordes "MasLargoPosible" num den = MasLargoPosible (num % den)
+>                modo_acordes = read modo_acordes_Str
+> --             musica alea (modo_acordes, tipo) melodia
+> armonizaMelodia _ = errorGenaro "error de encaje de patrones en armonizaMelodia"
+
+
+> escribeProgresionComoProlog :: Progresion -> IO ()
+> escribeProgresionComoProlog = print
 
 
 

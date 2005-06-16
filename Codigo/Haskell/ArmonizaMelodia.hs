@@ -19,7 +19,7 @@ data HaskoreSimple = Nota Pitch Dur
 type NotaPrincipal = (PitchClass, Dur)
 
 type DurMin = Dur   -- Todas las notas mayores o iguales a esa duracion se consideran como notas principales
-type DurMaxA = Dur  -- Los acordes que produce tienen como duracion maxima DUrMaxA
+type DurMaxA = Dur  -- Los acordes que produce tienen como duracion maxima DurMaxA
 
 ------- OPCIONES DE ARMONIZACION ---------------
 
@@ -30,7 +30,7 @@ type TipoArmonizacion = (ModoAcordes, TipoNotasPrincipales, TipoAsignaAcordes)
 -- Los acordes que usa
 data ModoAcordes = Triadas            -- Solo usa triadas para las notas diatonicas
                  | TriadasYCuatriadas -- Usa todos los acordes
-     deriving (Eq, Ord, Enum)
+     deriving (Eq, Ord, Enum, Show, Read)
 
 -- Como encuentra las notas principales o notas del acorde
 data TipoNotasPrincipales = SoloNotasLargas DurMin  -- Usa solamente las notas largas (mayores de DurMin) como notas principales

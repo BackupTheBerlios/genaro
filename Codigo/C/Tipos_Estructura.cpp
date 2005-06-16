@@ -800,3 +800,57 @@ NuevoTotal+=Total[j];
 Total=NuevoTotal;
 return salida;
 }
+//----------------------------------------------------------------------------
+void Bloque::Copia(Bloque Original, int bloque)
+{
+Vacio=Original.Vacio;
+Patron_Ritmico=Original.Patron_Ritmico;
+Es_Sistema_Paralelo=Original.Es_Sistema_Paralelo;
+Notas_Totales=Original.Notas_Totales;
+Inversion=Original.Inversion;
+Disposicion=Original.Disposicion;
+ifstream curva_origen;
+curva_origen.open(Original.Curva_Melodica.c_str(),ios::binary);
+ifstream Music_origen;
+Music_origen.open(Original.Tipo_Music.c_str(),ios::binary);
+Curva_Melodica="copia_"+IntToStr(bloque)+"_"+Original.Curva_Melodica;
+Tipo_Music="copia_"+IntToStr(bloque)+"_"+Original.Curva_Melodica;
+ofstream curva_salida;
+curva_salida.open(Curva_Melodica.c_str(),ios::binary);
+ofstream Music_salida;
+Music_salida.open(Tipo_Music.c_str(),ios::binary);
+
+char agua;
+//copiamos
+curva_origen.read((char*)&agua,sizeof(char));
+while(!curva_origen.eof())
+{
+  curva_salida.write((char*)&agua,sizeof(char));
+  curva_origen.read((char*)&agua,sizeof(char));
+}
+
+Music_origen.read((char*)&agua,sizeof(char));
+while(!Music_origen.eof())
+{
+  Music_salida.write((char*)&agua,sizeof(char));
+  Music_origen.read((char*)&agua,sizeof(char));
+}
+
+curva_origen.close();
+Music_origen.close();
+curva_salida.close();
+Music_salida.close();
+//copiar curva-melodica en otro archivo y lo mismo cobn music //Curva_Melodica;
+ // Tipo_Music;
+Octava_Inicial=Original.Octava_Inicial;
+N_Pista_Acomp=Original.N_Pista_Acomp;
+Tipo_Melodia=Original.Tipo_Melodia;
+Aplicacion_Horizontal=Original.Aplicacion_Horizontal;
+Aplicacion_Vertical_Mayor=Original.Aplicacion_Vertical_Mayor;
+Aplicacion_Vertical_Menor=Original.Aplicacion_Vertical_Menor;
+N_Divisiones=Original.N_Divisiones;
+Fase2=Original.Fase2;
+Fase3=Original.Fase3;
+Fase4=Original.Fase4;
+}
+

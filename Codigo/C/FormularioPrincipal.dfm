@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 167
-  Top = 73
+  Left = 163
+  Top = 163
   BorderStyle = bsSingle
   Caption = 'Interfaz Genaro'
   ClientHeight = 500
@@ -3994,7 +3994,7 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_Bajo
+    ActivePage = Tab_General
     TabOrder = 11
     Visible = False
     object Tab_General: TTabSheet
@@ -4810,7 +4810,7 @@ object Form1: TForm1
       end
       object Button12: TButton
         Left = 120
-        Top = 104
+        Top = 112
         Width = 105
         Height = 25
         Caption = 'Crear Progresión'
@@ -4821,7 +4821,7 @@ object Form1: TForm1
         Left = 16
         Top = 8
         Width = 209
-        Height = 89
+        Height = 105
         Caption = 'Opciones de Creación'
         TabOrder = 1
         object Radio_Crear_Progresion: TRadioButton
@@ -4862,10 +4862,18 @@ object Form1: TForm1
           TabOrder = 3
           OnClick = Radio_Mutar_Progresion_MultipleClick
         end
+        object Radio_Armonizar_Melodia: TRadioButton
+          Left = 16
+          Top = 80
+          Width = 145
+          Height = 17
+          Caption = 'Armonizar Melodia'
+          TabOrder = 4
+        end
       end
       object Boton_Cargar_Progresion: TButton
         Left = 16
-        Top = 104
+        Top = 112
         Width = 97
         Height = 25
         Caption = 'Cargar Progresion'
@@ -5070,8 +5078,8 @@ object Form1: TForm1
         TabOrder = 0
       end
       object Radio_Editor_Midi: TRadioButton
-        Left = 16
-        Top = 32
+        Left = 32
+        Top = 72
         Width = 153
         Height = 17
         Caption = 'Usar el editor MIDI'
@@ -5083,6 +5091,7 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentFont = False
         TabOrder = 1
+        Visible = False
       end
       object Radio_Curva_Melodia: TRadioButton
         Left = 16
@@ -5205,6 +5214,7 @@ object Form1: TForm1
         Width = 73
         Height = 17
         Caption = 'Editor Midi'
+        Default = True
         Enabled = False
         TabOrder = 4
       end
@@ -5247,6 +5257,21 @@ object Form1: TForm1
         TickMarks = tmBottomRight
         TickStyle = tsAuto
         OnChange = Barra_Salto_Maximo_MutacionesChange
+      end
+      object Radio_Copiar_Melodia: TRadioButton
+        Left = 16
+        Top = 32
+        Width = 153
+        Height = 17
+        Caption = 'Copiar Melodía'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        TabOrder = 15
+        OnClick = Radio_Copiar_MelodiaClick
       end
     end
     object Tab_Parametros_Melodia: TTabSheet

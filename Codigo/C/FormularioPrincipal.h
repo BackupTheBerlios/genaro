@@ -214,6 +214,8 @@ __published:	// IDE-managed Components
   TTrackBar *TrackBar5;
   TComboBox *Selector_Pista_Acompanamiento2;
   TLabel *Label50;
+  TRadioButton *Radio_Armonizar_Melodia;
+  TRadioButton *Radio_Copiar_Melodia;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -279,6 +281,7 @@ __published:	// IDE-managed Components
   void __fastcall TrackBar1Change(TObject *Sender);
   void __fastcall TrackBar4Change(TObject *Sender);
   void __fastcall TrackBar5Change(TObject *Sender);
+  void __fastcall Radio_Copiar_MelodiaClick(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;
@@ -292,6 +295,7 @@ private:	// User declarations
   int Columna_Pulsada;
   int X_Inicial,X_Final,Y_Inicial,Y_Final;
   bool Inicializado;
+  bool Eligiendo_Subbloque;
   Cancion* Musica_Genaro;
 public:		// User declarations
   void Inicializa_Patrones_Ritmicos();

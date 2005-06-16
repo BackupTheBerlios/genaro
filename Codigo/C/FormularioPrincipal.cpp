@@ -27,6 +27,7 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
+Eligiendo_Subbloque=false;
 unidad_de_union=new Unidad_Nexo();
 Inicializa_Patrones_Ritmicos();
 //FIXME DIR de trabajo
@@ -296,20 +297,37 @@ if ((X<X_Final)&&(X>X_Inicial)&&(Y<Y_Final)&&(Y>Y_Inicial))
 void TForm1::Accion_Click(int X, int Y)
 {
 int Y_Relativo=Y-Y_Inicial;
+int columna_pulsada2;
+int fila_pulsada2;
+if (Eligiendo_Subbloque==false)//si no, no nos interesa actualizar estos
+{
 Columna_Pulsada=0;
 Fila_Pulsada=Y_Relativo/Alto_Fila;
+}
+else
+{
+ columna_pulsada2=0;
+ fila_pulsada2=Y_Relativo/Alto_Fila;
+}
+
 //ShowMessage(Fila_Pulsada);
 int X_Relativo=X-X_Inicial-Ancho_Espacio_Estatico;
 if (X_Relativo<0)
  {
+  if(Eligiendo_Subbloque==false)
+  {
   //Activar cuadro de cabecera de pista
   if (Fila_Pulsada<Numero_Filas_A_Dibujar)
   {
     Cuadro_Cabecera_Pista();
   }
+  }
  }
 else
  {
+
+  if (Eligiendo_Subbloque==false)
+  {
   Columna_Pulsada=X_Relativo/Ancho_Columnas;
   if ((Fila_Pulsada<Numero_Filas_A_Dibujar)&&(Columna_Pulsada<(Numero_Bloques)))
    {
@@ -319,12 +337,43 @@ else
    {
     Panel_Bloque->Visible=false;
    }
+  }
+  else
+  {
+    if ((fila_pulsada2<Numero_Filas_A_Dibujar)&&(columna_pulsada2<Numero_Bloques))
+    {
+    columna_pulsada2=X_Relativo/Ancho_Columnas;
+    //tenemos en fila_pulsada2 y columna_pulsada2 la dirección del bloque que queremos
+    //comprobamos que sea del tipo melodía
+    if (Musica_Genaro->Dame_Tipo_Pista(fila_pulsada2)!=1)
+    {
+      ShowMessage("Elige pista de melodía, por favor");
+      return;
+    }
+    Bloque bloque_A=Musica_Genaro->Dame_Pista(fila_pulsada2)->Dame_Bloque(columna_pulsada2);
+    Bloque bloque_Trabajo=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+    if (bloque_A.Tipo_Music==NULL){ShowMessage("No tiene midi creado, Acción anulada");Eligiendo_Subbloque=false;return;}
+    if (bloque_A.Num_Compases!=bloque_Trabajo.Num_Compases){ShowMessage("No tienen el mismo número de compases. Acción anulada");Eligiendo_Subbloque=false;return;}
+    //en caso de que podamos copiarlo, lo copiamos
+    bloque_Trabajo.Copia(bloque_A,Columna_Pulsada*100+Fila_Pulsada);
+    //hacemos la copia
+    Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(bloque_Trabajo,Columna_Pulsada);
+    Dibuja_Cancion();
+    Eligiendo_Subbloque=false;
+    ShowMessage("Copia finalizada");
+    Cuadro_Bloque_Pista();
+    }
+    else
+    {
+      ShowMessage("Has de pinchar sobre un bloque válido, operación cancelada");return;
+    }
+  }
  }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::NuevoClick(TObject *Sender)
 {
-
+Eligiendo_Subbloque=false;
 if (Inicializado)
 {
   Musica_Genaro->Limpia();
@@ -773,7 +822,7 @@ seleccion_pista=Selector_Pista_Acompanamiento->Items->IndexOf(Selector_Pista_Aco
 }
 if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==2)
 {
-seleccion_pista=Selector_Pista_Acompanamiento2->Items->IndexOf(Selector_Pista_Acompanamiento->Text);
+seleccion_pista=Selector_Pista_Acompanamiento2->Items->IndexOf(Selector_Pista_Acompanamiento2->Text);
 }
 
 if (seleccion_pista!=-1)
@@ -1016,6 +1065,10 @@ if (Radio_Mutar_Acorde_Progresion->Checked)
 if (Radio_Mutar_Progresion_Multiple->Checked)
 {
   Progresion_Mutar_Progresion_Multiple(fichero);
+}
+if (Radio_Armonizar_Melodia->Checked)
+{
+ // Progresion_Mutar_Progresion_Multiple(fichero);
 }
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 /*char work_dir[255];
@@ -2393,6 +2446,16 @@ Label47->Caption=IntToStr(TrackBar4->Position);
 void __fastcall TForm1::TrackBar5Change(TObject *Sender)
 {
 Label49->Caption=IntToStr(TrackBar5->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Radio_Copiar_MelodiaClick(TObject *Sender)
+{
+if (Radio_Copiar_Melodia->Checked==true)
+{
+ShowMessage("Elige subBloque para copiar melodía");
+Eligiendo_Subbloque=true;
+}
 }
 //---------------------------------------------------------------------------
 

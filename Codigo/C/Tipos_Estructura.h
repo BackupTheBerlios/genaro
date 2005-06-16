@@ -56,6 +56,7 @@ struct Bloque
     int Bajo_Parametro4;
     int Bajo_Parametro5;
     void Inicializa();
+    void Copia(Bloque Original,int bloque);
 };
 //---------------------------------------------------------------------------
 typedef vector<Bloque> Bloques_Pista;

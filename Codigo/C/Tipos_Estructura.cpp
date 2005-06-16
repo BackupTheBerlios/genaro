@@ -134,6 +134,14 @@ for (int i=0;i<Pistas.size();i++)
     fichero_salida<<"Fase2 "<<bloque_temp.Fase2<<" ";
     fichero_salida<<"Fase3 "<<bloque_temp.Fase3<<" ";
     fichero_salida<<"Fase4 "<<bloque_temp.Fase4<<" ";
+    fichero_salida<<"Bajo_Numerador "<<bloque_temp.Bajo_Duracion_Numerador<<" ";
+    fichero_salida<<"Bajo_Denominador "<<bloque_temp.Bajo_Duracion_Denominador<<" ";
+    fichero_salida<<"Bajo_Tipo "<<bloque_temp.Bajo_Tipo<<" ";
+    fichero_salida<<"Bajo_Parametro1 "<<bloque_temp.Bajo_Parametro1<<" ";
+    fichero_salida<<"Bajo_Parametro2 "<<bloque_temp.Bajo_Parametro2<<" ";
+    fichero_salida<<"Bajo_Parametro3 "<<bloque_temp.Bajo_Parametro3<<" ";
+    fichero_salida<<"Bajo_Parametro4 "<<bloque_temp.Bajo_Parametro4<<" ";
+    fichero_salida<<"Bajo_Parametro5 "<<bloque_temp.Bajo_Parametro5<<" ";
     fichero_salida<<"Progresion "<<bloque_temp.Progresion.Length()<<" ";
     for (int k=0;k<bloque_temp.Progresion.Length();k++)
     {
@@ -171,6 +179,14 @@ N_Divisiones=0;
 Fase2=0;
 Fase3=0;
 Fase4=0;
+Bajo_Duracion_Numerador=1;
+Bajo_Duracion_Denominador=4;
+Bajo_Tipo=0;
+Bajo_Parametro1=2;
+Bajo_Parametro2=2;
+Bajo_Parametro3=2;
+Bajo_Parametro4=2;
+Bajo_Parametro5=2;
 }
 //---------------------------------------------------------------------------
 int Es_Progresion_Valida(String fichero_Progresion)
@@ -602,6 +618,15 @@ for (int Pista_Actual=0;Pista_Actual<Total_Pistas;Pista_Actual++)
     int Pista_Acomp;
     int Num_Divisiones;
     int Fase2,Fase3,Fase4;
+    int Bajo_Numera;
+    int Bajo_Denomina;
+    int Bajo_Tip;
+    int Bajo_Param1;
+    int Bajo_Param2;
+    int Bajo_Param3;
+    int Bajo_Param4;
+    int Bajo_Param5;
+
     String Progresion;
     String Tipo_Music;
     int ent_temp;
@@ -676,6 +701,32 @@ for (int Pista_Actual=0;Pista_Actual<Total_Pistas;Pista_Actual++)
     if (Procesar(Total," Fase4 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Fase4 \"");return -1;}
     Fase4=Procesa_Num_Natural(Total);
     if (Fase4==-1){ShowMessage("Error leyendo Fase4");return -1;}
+
+    if (Procesar(Total," Bajo_Numerador ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Bajo_Numerador \"");return -1;}
+    Bajo_Numera=Procesa_Num_Natural(Total);
+    if (Bajo_Numera==-1){ShowMessage("Error leyendo Bajo_Numerador");return -1;}
+    if (Procesar(Total," Bajo_Denominador ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Bajo_Denominador \"");return -1;}
+    Bajo_Denomina=Procesa_Num_Natural(Total);
+    if (Bajo_Denomina==-1){ShowMessage("Error leyendo Bajo_Denominador");return -1;}
+    if (Procesar(Total," Bajo_Tipo ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Bajo_Tipo \"");return -1;}
+    Bajo_Tip=Procesa_Num_Natural(Total);
+    if (Bajo_Tip==-1){ShowMessage("Error leyendo Bajo_Tipo");return -1;}
+    if (Procesar(Total," Bajo_Parametro1 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Bajo_Parametro1 \"");return -1;}
+    Bajo_Param1=Procesa_Num_Natural(Total);
+    if (Bajo_Param1==-1){ShowMessage("Error leyendo Bajo_Parametro1");return -1;}
+    if (Procesar(Total," Bajo_Parametro2 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Bajo_Parametro2 \"");return -1;}
+    Bajo_Param2=Procesa_Num_Natural(Total);
+    if (Bajo_Param2==-1){ShowMessage("Error leyendo Bajo_Parametro3");return -1;}
+    if (Procesar(Total," Bajo_Parametro3 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Bajo_Parametro3 \"");return -1;}
+    Bajo_Param3=Procesa_Num_Natural(Total);
+    if (Bajo_Param3==-1){ShowMessage("Error leyendo Bajo_Parametro4");return -1;}
+    if (Procesar(Total," Bajo_Parametro4 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Bajo_Parametro4 \"");return -1;}
+    Bajo_Param4=Procesa_Num_Natural(Total);
+    if (Bajo_Param4==-1){ShowMessage("Error leyendo Bajo_Parametro4");return -1;}
+    if (Procesar(Total," Bajo_Parametro5 ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Bajo_Parametro5 \"");return -1;}
+    Bajo_Param5=Procesa_Num_Natural(Total);
+    if (Bajo_Param5==-1){ShowMessage("Error leyendo Bajo_Parametro5");return -1;}
+
     if (Procesar(Total," Progresion ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Progresion \"");return -1;}
     ent_temp=Procesa_Num_Natural(Total);
     if (ent_temp==-1){ShowMessage("Error leyendo el tamaño de la curva melódica");return -1;}
@@ -707,6 +758,15 @@ for (int Pista_Actual=0;Pista_Actual<Total_Pistas;Pista_Actual++)
     Bloque_Temporal.Fase2=Fase2;
     Bloque_Temporal.Fase3=Fase3;
     Bloque_Temporal.Fase4=Fase4;
+    Bloque_Temporal.Bajo_Duracion_Numerador=Bajo_Numera;
+    Bloque_Temporal.Bajo_Duracion_Denominador=Bajo_Denomina;
+    Bloque_Temporal.Bajo_Tipo=Bajo_Tip;
+    Bloque_Temporal.Bajo_Parametro1=Bajo_Param1;
+    Bloque_Temporal.Bajo_Parametro2=Bajo_Param2;
+    Bloque_Temporal.Bajo_Parametro3=Bajo_Param3;
+    Bloque_Temporal.Bajo_Parametro4=Bajo_Param4;
+    Bloque_Temporal.Bajo_Parametro5=Bajo_Param5;
+
     Bloque_Temporal.Progresion=Progresion;
     Bloque_Temporal.Tipo_Music=Tipo_Music;
     Pista_Temporal->Inserta_Bloque(Bloque_Temporal);

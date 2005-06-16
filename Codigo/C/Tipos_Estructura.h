@@ -47,6 +47,14 @@ struct Bloque
     int Fase2;
     int Fase3;
     int Fase4;
+    int Bajo_Duracion_Numerador;
+    int Bajo_Duracion_Denominador;
+    int Bajo_Tipo;
+    int Bajo_Parametro1;
+    int Bajo_Parametro2;
+    int Bajo_Parametro3;
+    int Bajo_Parametro4;
+    int Bajo_Parametro5;
     void Inicializa();
 };
 //---------------------------------------------------------------------------

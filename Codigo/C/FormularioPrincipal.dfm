@@ -1,9 +1,10 @@
 object Form1: TForm1
-  Left = 96
-  Top = 115
-  Width = 800
-  Height = 546
+  Left = 167
+  Top = 73
+  BorderStyle = bsSingle
   Caption = 'Interfaz Genaro'
+  ClientHeight = 500
+  ClientWidth = 792
   Color = clBtnFace
   Font.Charset = DEFAULT_CHARSET
   Font.Color = clWindowText
@@ -3993,7 +3994,7 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_General
+    ActivePage = Tab_Bajo
     TabOrder = 11
     Visible = False
     object Tab_General: TTabSheet
@@ -4001,7 +4002,7 @@ object Form1: TForm1
       ImageIndex = 3
       object Etiqueta_Bloque_Numero_Compases: TLabel
         Left = 144
-        Top = 48
+        Top = 32
         Width = 222
         Height = 19
         Caption = 'Etiqueta_Bloque_Numero_Compases'
@@ -4025,6 +4026,19 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentFont = False
       end
+      object Label35: TLabel
+        Left = 144
+        Top = 64
+        Width = 56
+        Height = 16
+        Caption = 'Label35'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
       object Bloque_Vacio: TCheckBox
         Left = 8
         Top = 48
@@ -4042,7 +4056,7 @@ object Form1: TForm1
       end
       object Boton_Guardar_Cambios_Bloque: TButton
         Left = 112
-        Top = 88
+        Top = 96
         Width = 121
         Height = 33
         Caption = 'Guardar Cambios'
@@ -4057,7 +4071,7 @@ object Form1: TForm1
       end
       object Button10: TButton
         Left = 288
-        Top = 88
+        Top = 96
         Width = 121
         Height = 33
         Caption = 'Generar Notas'
@@ -4778,7 +4792,7 @@ object Form1: TForm1
       end
     end
     object Tab_Crear_Progresion: TTabSheet
-      Caption = 'Crear Progresión'
+      Caption = 'Progresión'
       ImageIndex = 4
       object Label_Texto_Muta_Acorde: TLabel
         Left = 264
@@ -4899,25 +4913,43 @@ object Form1: TForm1
         ParentFont = False
       end
       object Label24: TLabel
-        Left = 392
+        Left = 384
         Top = 0
-        Width = 83
+        Width = 102
         Height = 13
         Caption = 'Probabilidad salto'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object Label25: TLabel
-        Left = 408
+        Left = 400
         Top = 48
-        Width = 62
+        Width = 75
         Height = 13
         Caption = 'Salto máximo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object Label26: TLabel
-        Left = 392
+        Left = 384
         Top = 96
-        Width = 87
+        Width = 104
         Height = 13
         Caption = 'Número de puntos'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object Label27: TLabel
         Left = 512
@@ -4974,16 +5006,28 @@ object Form1: TForm1
       object Label31: TLabel
         Left = 16
         Top = 96
-        Width = 55
+        Width = 66
         Height = 13
         Caption = 'Mutaciones'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object Label32: TLabel
         Left = 120
         Top = 96
-        Width = 62
+        Width = 75
         Height = 13
         Caption = 'Salto máximo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
       end
       object Label33: TLabel
         Left = 88
@@ -5206,7 +5250,7 @@ object Form1: TForm1
       end
     end
     object Tab_Parametros_Melodia: TTabSheet
-      Caption = 'Datos Melodía '
+      Caption = 'Info Melodía '
       ImageIndex = 6
       object Label11: TLabel
         Left = 40
@@ -5375,6 +5419,318 @@ object Form1: TForm1
         TickMarks = tmBottomRight
         TickStyle = tsAuto
         OnChange = Barra_Fase4Change
+      end
+    end
+    object Tab_Bajo: TTabSheet
+      Caption = 'Bajo'
+      ImageIndex = 7
+      object Label36: TLabel
+        Left = 16
+        Top = 0
+        Width = 99
+        Height = 13
+        Caption = 'Duración de nota'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label37: TLabel
+        Left = 8
+        Top = 32
+        Width = 3
+        Height = 13
+      end
+      object Label38: TLabel
+        Left = 64
+        Top = 16
+        Width = 7
+        Height = 24
+        Caption = '/'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -19
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label39: TLabel
+        Left = 16
+        Top = 48
+        Width = 86
+        Height = 13
+        Caption = 'Tipo de Bajista'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label40: TLabel
+        Left = 464
+        Top = 16
+        Width = 11
+        Height = 20
+        Caption = '2'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label41: TLabel
+        Left = 344
+        Top = 0
+        Width = 91
+        Height = 16
+        Caption = 'Dividir Notas'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label42: TLabel
+        Left = 152
+        Top = 8
+        Width = 94
+        Height = 16
+        Caption = 'Salto Máximo'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label43: TLabel
+        Left = 288
+        Top = 32
+        Width = 11
+        Height = 20
+        Caption = '2'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label44: TLabel
+        Left = 152
+        Top = 72
+        Width = 97
+        Height = 16
+        Caption = 'Alargar Notas'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label45: TLabel
+        Left = 288
+        Top = 96
+        Width = 11
+        Height = 20
+        Caption = '2'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label46: TLabel
+        Left = 344
+        Top = 48
+        Width = 45
+        Height = 16
+        Caption = 'Trinos'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label47: TLabel
+        Left = 464
+        Top = 64
+        Width = 11
+        Height = 20
+        Caption = '2'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label48: TLabel
+        Left = 344
+        Top = 96
+        Width = 112
+        Height = 16
+        Caption = 'Velocidad Trino'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label49: TLabel
+        Left = 464
+        Top = 112
+        Width = 11
+        Height = 20
+        Caption = '2'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -16
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Label50: TLabel
+        Left = 8
+        Top = 88
+        Width = 118
+        Height = 16
+        Caption = 'Pista Acompañamiento'
+        Font.Charset = ANSI_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -11
+        Font.Name = 'Comic Sans MS'
+        Font.Style = [fsBold]
+        ParentFont = False
+      end
+      object Edit1: TEdit
+        Left = 24
+        Top = 16
+        Width = 33
+        Height = 21
+        BiDiMode = bdLeftToRight
+        ParentBiDiMode = False
+        TabOrder = 0
+        Text = '1'
+      end
+      object Edit2: TEdit
+        Left = 80
+        Top = 16
+        Width = 33
+        Height = 21
+        TabOrder = 1
+        Text = '4'
+      end
+      object ComboBox2: TComboBox
+        Left = 16
+        Top = 64
+        Width = 105
+        Height = 21
+        ItemHeight = 13
+        TabOrder = 2
+        Text = 'Walking'
+        Items.Strings = (
+          'Walking'
+          'Aphex'
+          'Fundamentalista')
+      end
+      object TrackBar1: TTrackBar
+        Left = 336
+        Top = 16
+        Width = 121
+        Height = 25
+        Max = 50
+        Orientation = trHorizontal
+        Frequency = 1
+        Position = 2
+        SelEnd = 0
+        SelStart = 0
+        TabOrder = 3
+        TickMarks = tmBottomRight
+        TickStyle = tsAuto
+        OnChange = TrackBar1Change
+      end
+      object TrackBar2: TTrackBar
+        Left = 144
+        Top = 32
+        Width = 129
+        Height = 25
+        Orientation = trHorizontal
+        PageSize = 1
+        Frequency = 1
+        Position = 2
+        SelEnd = 0
+        SelStart = 0
+        TabOrder = 4
+        TickMarks = tmBottomRight
+        TickStyle = tsAuto
+        OnChange = TrackBar2Change
+      end
+      object TrackBar3: TTrackBar
+        Left = 144
+        Top = 96
+        Width = 129
+        Height = 25
+        Max = 50
+        Orientation = trHorizontal
+        Frequency = 1
+        Position = 2
+        SelEnd = 0
+        SelStart = 0
+        TabOrder = 5
+        TickMarks = tmBottomRight
+        TickStyle = tsAuto
+        OnChange = TrackBar3Change
+      end
+      object TrackBar4: TTrackBar
+        Left = 336
+        Top = 64
+        Width = 121
+        Height = 25
+        Max = 50
+        Orientation = trHorizontal
+        Frequency = 1
+        Position = 2
+        SelEnd = 0
+        SelStart = 0
+        TabOrder = 6
+        TickMarks = tmBottomRight
+        TickStyle = tsAuto
+        OnChange = TrackBar4Change
+      end
+      object TrackBar5: TTrackBar
+        Left = 336
+        Top = 112
+        Width = 121
+        Height = 25
+        Max = 50
+        Orientation = trHorizontal
+        Frequency = 1
+        Position = 2
+        SelEnd = 0
+        SelStart = 0
+        TabOrder = 7
+        TickMarks = tmBottomRight
+        TickStyle = tsAuto
+        OnChange = TrackBar5Change
+      end
+      object Selector_Pista_Acompanamiento2: TComboBox
+        Left = 16
+        Top = 112
+        Width = 105
+        Height = 21
+        ItemHeight = 13
+        TabOrder = 8
+        Text = 'Elige Pista de acompañamiento'
       end
     end
   end

@@ -372,7 +372,14 @@ Panel_Bloque->Visible=false;
 //2- pon este a visiible
 Panel_Tipo_Pista->Visible=true;
 //3- pon los valores que se deban poner
-Tipo_Pista->Caption=IntToStr(Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada));
+switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
+{
+  case 0:{Tipo_Pista->Caption="Acompañamiento";break;}
+  case 1:{Tipo_Pista->Caption="Melodía";break;}
+  case 2:{Tipo_Pista->Caption="Bajo";break;}
+  case 3:{Tipo_Pista->Caption="Batería";break;}
+}
+//Tipo_Pista->Caption=IntToStr(Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada));
 Nombre_Pista->Caption="Pista_"+IntToStr(Fila_Pulsada);
 Mute_Pista->Checked=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Mute();
 Instrumento_Pista->Text=(Instrumento_Pista->Items->Strings[Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Instrumento()]);
@@ -506,6 +513,7 @@ Panel_Bloque->Visible=true;
 Bloquea_Elementos(Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada));
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 Etiqueta_Bloque_Numero_Compases->Caption="Nº Compases de su bloque: "+IntToStr(Bloque_A_Manipular.Num_Compases);
+Label35->Caption="Pista: "+IntToStr(Fila_Pulsada)+"       Bloque: "+IntToStr(Columna_Pulsada);
 Lista_8_Inicial->Text=IntToStr(Bloque_A_Manipular.Octava_Inicial);
 Barra_Numero_Divisiones->Position=Bloque_A_Manipular.N_Divisiones;
 Barra_Fase2->Position=Bloque_A_Manipular.Fase2;
@@ -533,6 +541,20 @@ if (Bloque_A_Manipular.Progresion!=NULL)
 Progresion_A_Grid();
 }
 
+Edit1->Text=IntToStr(Bloque_A_Manipular.Bajo_Duracion_Numerador);
+Edit2->Text=IntToStr(Bloque_A_Manipular.Bajo_Duracion_Denominador);
+ComboBox2->Text=ComboBox2->Items->Strings[Bloque_A_Manipular.Bajo_Tipo];
+TrackBar2->Position=Bloque_A_Manipular.Bajo_Parametro1;
+Label43->Caption=IntToStr(TrackBar2->Position);
+TrackBar3->Position=Bloque_A_Manipular.Bajo_Parametro2;
+Label45->Caption=IntToStr(TrackBar3->Position);
+TrackBar1->Position=Bloque_A_Manipular.Bajo_Parametro3;
+Label40->Caption=IntToStr(TrackBar1->Position);
+TrackBar4->Position=Bloque_A_Manipular.Bajo_Parametro4;
+Label47->Caption=IntToStr(TrackBar4->Position);
+TrackBar5->Position=Bloque_A_Manipular.Bajo_Parametro5;
+Label49->Caption=IntToStr(TrackBar5->Position);
+
 switch (Bloque_A_Manipular.Aplicacion_Vertical_Menor)
 {
   case 0:{Radio_Vertical_Menor_Truncar->Checked=true;break;}
@@ -551,6 +573,7 @@ switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
       Tab_Progresion->Enabled=true;
       Tab_Crear_Progresion->Enabled=true;
       Tab_Melodia->Enabled=false;
+      Tab_Parametros_Melodia->Enabled=false;
       break;
     }
   case 1:
@@ -561,6 +584,7 @@ switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
       Tab_Progresion->Enabled=false;
       Tab_Crear_Progresion->Enabled=false;
       Tab_Melodia->Enabled=true;
+      Tab_Parametros_Melodia->Enabled=true;
       Inicializa_Pistas_Acompanamiento();
       //Pista de acompañamiento=X;
       Selector_Pista_Acompanamiento->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
@@ -574,9 +598,10 @@ switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
       Tab_Progresion->Enabled=false;
       Tab_Crear_Progresion->Enabled=false;
       Tab_Melodia->Enabled=true;
+      Tab_Parametros_Melodia->Enabled=true;
       Inicializa_Pistas_Acompanamiento();
       //Pista de acompañamiento=X;
-      Selector_Pista_Acompanamiento->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
+      Selector_Pista_Acompanamiento2->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
       break;
     }
   case 3:
@@ -587,9 +612,10 @@ switch (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada))
       Tab_Progresion->Enabled=false;
       Tab_Crear_Progresion->Enabled=false;
       Tab_Melodia->Enabled=false;
+      Tab_Parametros_Melodia->Enabled=false;
       Inicializa_Pistas_Acompanamiento();
       //Pista de acompañamiento=X;
-      Selector_Pista_Acompanamiento->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
+      //Selector_Pista_Acompanamiento2->Text="Pista Nº "+IntToStr(Bloque_A_Manipular.N_Pista_Acomp);
       break;
     }
 }
@@ -673,6 +699,25 @@ Bloque_A_Manipular.N_Divisiones=Barra_Numero_Divisiones->Position;
 Bloque_A_Manipular.Fase2=Barra_Fase2->Position;
 Bloque_A_Manipular.Fase3=Barra_Fase3->Position;
 Bloque_A_Manipular.Fase4=Barra_Fase4->Position;
+
+String temp1=Edit1->Text+" ";
+int t1=Procesa_Num_Natural(temp1);
+String temp2=Edit2->Text+" ";
+int t2=Procesa_Num_Natural(temp2);
+if ((t1==-1)||(t2==-1))
+{ShowMessage("Duración de la nota del bajo no válida");}
+else
+{
+Bloque_A_Manipular.Bajo_Duracion_Numerador=t1;
+Bloque_A_Manipular.Bajo_Duracion_Denominador=t2;
+}
+
+Bloque_A_Manipular.Bajo_Tipo=ComboBox2->Items->IndexOf(ComboBox2->Text);
+Bloque_A_Manipular.Bajo_Parametro1=TrackBar2->Position;
+Bloque_A_Manipular.Bajo_Parametro2=TrackBar3->Position;
+Bloque_A_Manipular.Bajo_Parametro3=TrackBar1->Position;
+Bloque_A_Manipular.Bajo_Parametro4=TrackBar4->Position;
+Bloque_A_Manipular.Bajo_Parametro5=TrackBar5->Position;
 if (Radio_Horizontal_Ciclico->Checked==true)
 {
   Bloque_A_Manipular.Aplicacion_Horizontal=0;
@@ -721,7 +766,16 @@ if (Radio_Editor_Midi->Checked)
   Bloque_A_Manipular.Tipo_Melodia=2;
 }
 //mirar a que pista corresponde el selector
-int seleccion_pista=Selector_Pista_Acompanamiento->Items->IndexOf(Selector_Pista_Acompanamiento->Text);
+int seleccion_pista=-1;
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==1)
+{
+seleccion_pista=Selector_Pista_Acompanamiento->Items->IndexOf(Selector_Pista_Acompanamiento->Text);
+}
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==2)
+{
+seleccion_pista=Selector_Pista_Acompanamiento2->Items->IndexOf(Selector_Pista_Acompanamiento->Text);
+}
+
 if (seleccion_pista!=-1)
  {
   int N_P_A=0;
@@ -1474,6 +1528,14 @@ for (int i=0;i<Musica_Genaro->Dame_Numero_Pistas();i++)
     Selector_Pista_Acompanamiento->Items->Add("Pista Nº "+IntToStr(i));
   }
  }
+Selector_Pista_Acompanamiento2->Items->Clear();
+for (int i=0;i<Musica_Genaro->Dame_Numero_Pistas();i++)
+ {
+  if (Musica_Genaro->Dame_Tipo_Pista(i)==0)
+  {
+    Selector_Pista_Acompanamiento2->Items->Add("Pista Nº "+IntToStr(i));
+  }
+ }
 }
 //---------------------------------------------------------------------------
 void __fastcall TForm1::Guardar1Click(TObject *Sender)
@@ -1783,7 +1845,7 @@ if (Inicializado)
 //---------------------------------------------------------------------------
 int TForm1::Comprobar_Si_Generados_Music()
 {
-bool Correcto=true;
+//bool Correcto=true;
 for (int i=0;i<Musica_Genaro->Dame_Numero_Pistas();i++)
 {
   for (int j=0; j<Musica_Genaro->Dame_Pista(i)->Dame_Numero_Bloques();j++)
@@ -1800,6 +1862,7 @@ for (int i=0;i<Musica_Genaro->Dame_Numero_Pistas();i++)
 }
 return 0;
 }
+//---------------------------------------------------------------------------
 void __fastcall TForm1::Barra_TempoChange(TObject *Sender)
 {
 Etiqueta_Tempo->Caption=IntToStr(Barra_Tempo->Position);
@@ -1873,6 +1936,10 @@ switch (TipoPista)
     Cambia_Tab_General(true);
     Cambia_Tab_Patron_Ritmico(true);
     Cambia_Tab_Aplicacion_Patron(true);
+    Cambia_Tab_Progresion(true);
+    Cambia_Tab_Melodia(false);
+    Cambia_Tab_Info_Melodia(false);
+    Cambia_Tab_Bajo(false);
     break;
   }
   case 1:
@@ -1880,6 +1947,10 @@ switch (TipoPista)
     Cambia_Tab_General(true);
     Cambia_Tab_Patron_Ritmico(false);
     Cambia_Tab_Aplicacion_Patron(false);
+    Cambia_Tab_Progresion(false);
+    Cambia_Tab_Melodia(true);
+    Cambia_Tab_Info_Melodia(true);
+    Cambia_Tab_Bajo(false);
     break;
   }
   case 2:
@@ -1887,11 +1958,21 @@ switch (TipoPista)
     Cambia_Tab_General(true);
     Cambia_Tab_Patron_Ritmico(false);
     Cambia_Tab_Aplicacion_Patron(false);
+    Cambia_Tab_Progresion(false);
+    Cambia_Tab_Melodia(false);
+    Cambia_Tab_Info_Melodia(false);
+    Cambia_Tab_Bajo(true);
     break;
   }
   case 3:
   {
-    Cambia_Tab_General(true);
+    Cambia_Tab_General(true);     //tendremos un selector de baterias.. o no...
+    Cambia_Tab_Patron_Ritmico(false);
+    Cambia_Tab_Aplicacion_Patron(false);
+    Cambia_Tab_Progresion(false);
+    Cambia_Tab_Melodia(false);
+    Cambia_Tab_Info_Melodia(false);
+    Cambia_Tab_Bajo(false);
     //    Cambia_Tab_Patron_Ritmico(true);
     //    Cambia_Tab_Aplicacion_Patron(true);
     break;
@@ -1930,6 +2011,82 @@ Check_Semilla->Enabled=condicion;
 Edit_Semilla->Enabled=false;
 }
 //-----------------------------------------------
+void TForm1::Cambia_Tab_Melodia(bool condicion)
+{
+Tab_Melodia->Enabled=condicion;
+RadioGroup2->Enabled=condicion;
+Radio_Editor_Midi->Enabled=false;
+Radio_Curva_Melodia->Enabled=condicion;
+Radio_Delegar_Haskell->Enabled=condicion;
+Label31->Enabled=condicion;
+Label32->Enabled=condicion;
+Barra_Mutaciones_Curva->Enabled=condicion;
+Barra_Salto_Maximo_Mutaciones->Enabled=condicion;
+Label34->Enabled=condicion;
+Label7->Enabled=condicion;
+Selector_Pista_Acompanamiento->Enabled=condicion;
+Label30->Enabled=condicion;
+Lista_Patrones_Melodia->Enabled=condicion;
+Button9->Enabled=condicion;
+Boton_Cargar_Curva->Enabled=condicion;
+Boton_Mutar_Curva->Enabled=condicion;
+Button8->Enabled=false;
+Label24->Enabled=condicion;
+Label27->Enabled=condicion;
+Label28->Enabled=condicion;
+Label25->Enabled=condicion;
+Label26->Enabled=condicion;
+Label29->Enabled=condicion;
+Barra_Prob_Salto->Enabled=condicion;
+Barra_Salto_Maximo->Enabled=condicion;
+Barra_Numero_Puntos->Enabled=condicion;
+}
+//-----------------------------------------------
+void TForm1::Cambia_Tab_Info_Melodia(bool condicion)
+{
+Tab_Parametros_Melodia->Enabled=condicion;
+Label11->Enabled=condicion;
+Label17->Enabled=condicion;
+Label18->Enabled=condicion;
+Label21->Enabled=condicion;
+Label20->Enabled=condicion;
+Label22->Enabled=condicion;
+Label23->Enabled=condicion;
+Label19->Enabled=condicion;
+Barra_Numero_Divisiones->Enabled=condicion;
+Barra_Fase3->Enabled=condicion;
+Barra_Fase2->Enabled=condicion;
+Barra_Fase4->Enabled=condicion;
+}
+//-----------------------------------------------
+void TForm1::Cambia_Tab_Bajo(bool condicion)
+{
+Tab_Bajo->Enabled=condicion;
+Label36->Enabled=condicion;
+Label38->Enabled=condicion;
+Label39->Enabled=condicion;
+Label44->Enabled=condicion;
+Label42->Enabled=condicion;
+Label43->Enabled=condicion;
+Label45->Enabled=condicion;
+Label41->Enabled=condicion;
+Label40->Enabled=condicion;
+Label47->Enabled=condicion;
+Label46->Enabled=condicion;
+Label48->Enabled=condicion;
+Label49->Enabled=condicion;
+Edit1->Enabled=condicion;
+Edit2->Enabled=condicion;
+ComboBox2->Enabled=condicion;
+TrackBar2->Enabled=condicion;
+TrackBar3->Enabled=condicion;
+TrackBar4->Enabled=condicion;
+TrackBar5->Enabled=condicion;
+TrackBar1->Enabled=condicion;
+Selector_Pista_Acompanamiento2->Enabled=condicion;
+Label50->Enabled=condicion;
+}
+//-----------------------------------------------
 void TForm1::Cambia_Tab_Aplicacion_Patron(bool condicion)
 {
 Tab_Aplicacion_Patron->Enabled=condicion;
@@ -1950,10 +2107,10 @@ Radio_Vertical_Menor_Modulo->Enabled=condicion;
 void TForm1::Cambia_Tab_Mutar_Progresion(bool condicion)
 {
 Tab_Progresion->Enabled=condicion;
-Radio_Mutaciones_Totales->Enabled=true;
+Radio_Mutaciones_Totales->Enabled=condicion;
 Radio_Especificas->Enabled=false;
-Barra_Mutaciones_Totales->Enabled=true;
-Etiqueta_Mutaciones_Totales->Enabled=true;
+Barra_Mutaciones_Totales->Enabled=condicion;
+Etiqueta_Mutaciones_Totales->Enabled=condicion;
 Grupo_TipoA->Enabled=false;
 Grupo_TipoB->Enabled=false;
 Radio_TipoA_Generales->Enabled=false;
@@ -1976,6 +2133,21 @@ Barra_Mutaciones_Dominante_Sencundario->Enabled=false;
 Etiqueta_Tipo4->Enabled=false;
 Barra_Mutaciones_2M7->Enabled=false;
 Etiqueta_Tipo5->Enabled=false;
+}
+//------------------------------------------------------------------------------
+void TForm1::Cambia_Tab_Progresion(bool condicion)
+{
+Tab_Crear_Progresion->Enabled=condicion;
+Radio_Crear_Progresion->Enabled=condicion;
+Radio_Mutar_Progresion->Enabled=condicion;
+Radio_Mutar_Acorde_Progresion->Enabled=condicion;
+Radio_Mutar_Progresion_Multiple->Enabled=condicion;
+GroupBox1->Enabled=condicion;
+Boton_Cargar_Progresion->Enabled=condicion;
+Button12->Enabled=condicion;
+Boton_Edicion->Enabled=condicion;
+Grid_Progresion->Enabled=condicion;
+Label_Texto_Muta_Acorde->Enabled=condicion;
 }
 //------------------------------------------------------------------------------
 void TForm1::Genera_Music_Bajo()
@@ -2001,14 +2173,28 @@ void TForm1::Genera_Music_Bajo()
 /*  String Pal_patron="ruta_patron";
   String Ruta_Patron="./PatronesRitmicos/"+Bloque_Acompanamiento.Patron_Ritmico;*/
   String Pal_Parametros="parametros";
-  String Parametro1=Bloque_A_Manipular.N_Divisiones;//numero de divisiones (0-10)
-  String Parametro2=Bloque_A_Manipular.Fase2;//numero de aplicaciones de fase 2 (0-50)
-  String Parametro3=Bloque_A_Manipular.Fase3;//numero de aplicaciones de fase 3 (0-50)
+
+  String temp1=Edit1->Text+" ";
+  int t1=Procesa_Num_Natural(temp1);
+  String temp2=Edit2->Text+" ";
+  int t2=Procesa_Num_Natural(temp2);
+  if ((t1==-1)||(t2==-1))
+  {ShowMessage("Duración de la nota del bajo no válida");return;}
+
+  String Parametro1=ComboBox2->Items->Strings[Bloque_A_Manipular.Bajo_Tipo];
+  String Parametro2=IntToStr(t1);//numero de aplicaciones de fase 2 (0-50)
+  String Parametro3=IntToStr(t2);//numero de aplicaciones de fase 3 (0-50)
+  String Parametro4=IntToStr(TrackBar2->Position);
+  String Parametro5=IntToStr(TrackBar3->Position);
+  String Parametro6=IntToStr(TrackBar1->Position);
+  String Parametro7=IntToStr(TrackBar4->Position);
+  String Parametro8=IntToStr(TrackBar5->Position);
+
 /*  String Parametro4=Bloque_A_Manipular.Fase4;//numero de aplicaciones de fase 4 (0-50)*/
   String Pal_Ruta_Destino="ruta_midi";
   String Ruta_Destino_Music="Music_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".mid";
 
-  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),/*Pal_Rutacurva.c_str(),Ruta_Curva.c_str(),*/Pal_Rutaprogresion.c_str(),Ruta_Progresion.c_str(),/*Pal_patron.c_str(),Ruta_Patron.c_str(),*/Pal_Parametros.c_str(),Parametro1.c_str(),Parametro2.c_str(),Parametro3.c_str(),/*Parametro4.c_str(),*/Pal_Ruta_Destino.c_str(),Ruta_Destino_Music.c_str(),NULL);
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),/*Pal_Rutacurva.c_str(),Ruta_Curva.c_str(),*/Pal_Rutaprogresion.c_str(),Ruta_Progresion.c_str(),/*Pal_patron.c_str(),Ruta_Patron.c_str(),*/Pal_Parametros.c_str(),Parametro1.c_str(),Parametro2.c_str(),Parametro3.c_str(),Parametro4.c_str(),Parametro5.c_str(),Parametro6.c_str(),Parametro7.c_str(),Parametro8.c_str(),/*Parametro4.c_str(),*/Pal_Ruta_Destino.c_str(),Ruta_Destino_Music.c_str(),NULL);
   if (valor_spawn==-1){ShowMessage("Error creando el music de melodia");}
 
   Bloque_A_Manipular.Tipo_Music=Ruta_Destino_Music;
@@ -2179,4 +2365,34 @@ else
 
 
 
+
+void __fastcall TForm1::TrackBar2Change(TObject *Sender)
+{
+Label43->Caption=IntToStr(TrackBar2->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TrackBar3Change(TObject *Sender)
+{
+Label45->Caption=IntToStr(TrackBar3->Position);  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TrackBar1Change(TObject *Sender)
+{
+Label40->Caption=IntToStr(TrackBar1->Position);  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TrackBar4Change(TObject *Sender)
+{
+Label47->Caption=IntToStr(TrackBar4->Position);
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::TrackBar5Change(TObject *Sender)
+{
+Label49->Caption=IntToStr(TrackBar5->Position);
+}
+//---------------------------------------------------------------------------
 

@@ -256,7 +256,7 @@ hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, 
 
 hazMelodiaEntreNotasAphex :: FuncAleatoria (Int, Int, Int, Int,  Escala, Dur, Pitch, Pitch) [Music]
 hazMelodiaEntreNotasAphex (aleat, (numMutaIntermedias, numAlarga, numMutaTrino, numDivisiones, escala, dur, pitchPrim@(tonicaPrim,_), pitchSeg@(tonicaSeg,_))) = (restoAleat2, musicaResul)
-  where musicaIni = [(Note pitchPrim dur [Volume 50]), (Note pitchSeg (1%4) [Volume 50])] -- la segunda nota es solo
+  where musicaIni = [(Note pitchPrim dur []), (Note pitchSeg (1%4) [])] -- la segunda nota es solo
         -- para interpolar alturas, luego se quita y su duracion no importa
         repiteMutarInter (aleat, (n3,n4,numDivisiones,escala, tonica, musica))
             | n3 ==0 && n4 ==0      = (aleat, musica)

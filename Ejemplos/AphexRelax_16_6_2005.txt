@@ -1,0 +1,12 @@
+Bajo> pruHazWalkingParaProgresion2 Aphex "p.prog"
+
+Progresion de entrada: [((I,Maj7),1 % 1),((VI,Men7),1 % 1),((III,Men7),1 % 1),((V,Sept),1 % 1)]
+
+musica resultado(sin repeticiones): Note (C,2) (1 % 8) [Volume 50.0] :+: (Note (C,2) (3 % 16) [Volume 50.0] :+: (Rest (3 % 16) :+: (No
+te (D,2) (1 % 2) [Volume 50.0] :+: (Note (A,4) (1 % 8) [Volume 50.0] :+: (Rest (0 % 1) :+: (Note (G,4) (1 % 32) [Volume 50.0] :+: (Res
+t (3 % 32) :+: (Note (F,4) (1 % 4) [Volume 50.0] :+: (Note (A,3) (1 % 2) [Volume 50.0] :+: (Note (E,3) (1 % 4) [Volume 50.0] :+: (Note
+ (D,3) (1 % 4) [Volume 50.0] :+: (Note (C,3) (1 % 4) [Volume 50.0] :+: (Rest (1 % 4) :+: (Note (G,2) (1 % 4) [Volume 50.0] :+: (Note (
+F,2) (1 % 4) [Volume 50.0] :+: Note (E,2) (1 % 2) [Volume 50.0])))))))))))))))
+Escrito midi en ./pruWalkingTotal.mid         
+
+progresion([ (cifrado(grado(i), matricula(maj7)), figura(1, 1)),(cifrado(grado(vi), matricula(m7)), figura(1, 1)),(cifrado(grado(iii), matricula(m7)), figura(1, 1)),(cifrado(grado(v), matricula(7)), figura(1, 1))]).

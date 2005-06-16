@@ -394,8 +394,10 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > generaBateria _ = errorGenaro "error de encaje de patrones en generaBateria"
 
 
+> ----------------------- GENERA BAJO --------------------------------------
+
 > generaBajo :: [String] -> IO ()
-> generaBajo ["progresion", ruta_prog, "parametros", entero1, entero2, entero3, "ruta_midi", ruta_dest_midi] = 
+> generaBajo ["progresion", ruta_prog, "parametros", tipoBajistaStr, numDur, denDur, despCurva, numAlarga, numInter, numTrina, numDivisiones, "ruta_midi", ruta_dest_midi] = 
 >        do mensajeGenaro "Comienzo lectura progresion"
 >           progresion <- leeProgresion ruta_prog
 >           mensajeGenaro "Fin lectura progresion"
@@ -403,14 +405,23 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >           alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
 >           mensajeGenaro "Fin generacion numero aleatorios"
 >           mensajeGenaro "Comienzo generacion walking"
->           haskoreAMidi2  (musica progresion int1 int2 int3 alea) 120 ruta_dest_midi
+>           haskoreAMidi2  (musica tipoBajista progresion int1 int2 int3 int4 int5 int6 int7 alea) 120 ruta_dest_midi
 >           mensajeGenaro "Fin generacion walking"
 >           mensajeGenaro "Fin de generacion del Bajo"
->           where int1 = aplicaParser integer entero1
->                 int2 = aplicaParser integer entero2
->                 int3 = aplicaParser integer entero3
->                 musica prog int1 int2 int3 alea = snd ( hazWalkingParaProgresion (alea,(prog, int1, int2, int3)) )
+>           where int1 = aplicaParser integer numDur
+>                 int2 = aplicaParser integer denDur
+>                 int3 = aplicaParser integer despCurva
+>                 int4 = aplicaParser integer numAlarga
+>                 int5 = aplicaParser integer numInter
+>                 int6 = aplicaParser integer numTrina
+>                 int7 = aplicaParser integer numDivisiones
+>                 tipoBajista = read tipoBajistaStr
+>                 musica tipoBajista prog int1 int2 int3 int4 int5 int6 int7 alea = snd ( hazWalkingParaProgresion2 (alea,(tipoBajista, prog, (int1 % int2), int3, int4, int5, int6, int7)) )
 > generaBajo _ = errorGenaro "error de encaje de patrones en generaBajo"
+
+
+
+
 
 
 > -- BORRAME: PRUEBA LY

@@ -2,6 +2,7 @@ module Progresiones where
 import Parsers
 import Parser_library
 import Haskore
+import Ratio
 
 {--
 lo de Prolog
@@ -212,6 +213,83 @@ deCuatriadaATriada m
 
 
 
+deProgresionAString :: Progresion -> String
+deProgresionAString prog = "progresion([ " ++ foldr1 faux2 (map faux (zip (map deCifradoAString cifYMat) (map deDurAString duraciones))) ++ "])."
+      where (cifYMat, duraciones) = unzip prog
+            faux (a,b) = "(" ++ a ++ ", " ++ b ++ ")" 
+            faux2 a b = a ++ ", " ++ b
+
+deDurAString :: Dur -> String
+deDurAString d = "figura(" ++ show num ++ ", " ++ show den ++ ")"
+      where num = numerator d
+            den = denominator d
+
+deCifradoAString :: Cifrado -> String
+deCifradoAString (grado, matricula) = "cifrado(" ++ "grado(" ++ deGradoAString grado ++ ")" ++ ", " ++ "matricula(" ++ deMatriculaAString matricula ++ ")" ++ ")"
+
+deMatriculaAString :: Matricula -> String
+deMatriculaAString mat = case mat of
+      Mayor -> "mayor"
+      Menor -> "m"
+      Au -> "au"
+      Dis -> "dis"
+      Sexta -> "6"
+      Men6 -> "m6"
+      Men7B5 -> "m7b5"
+      Maj7 -> "maj7"
+      Sept -> "7"
+      Men7 -> "m7"
+      MenMaj7 -> "mMaj7"
+      Au7 -> "au7"
+      Dis7 -> "dis7"
+
+deGradoAString :: Grado -> String
+deGradoAString (V7 grado) = "v7/" ++ deGradoAString grado
+deGradoAString (IIM7 grado) = "iim7/" ++ deGradoAString grado
+deGradoAString grado = case grado of
+	I -> "i"
+	II -> "ii"
+	III -> "iii"
+	IV -> "iv"
+	V -> "v"
+	VI -> "vi"
+	VII -> "vii"
+	BII -> "bii"
+	BIII -> "biii"
+	BV -> "bv"
+	AUV -> "auv"
+	BVII -> "bvii"
+	BBII -> "bbii"
+	BBIII -> "bbiii"
+	AUII -> "auii"
+	BIV -> "biv"
+	AUIII -> "auiii"
+	AUIV -> "auiv"
+	BBVI -> "bbvi"
+	BVI -> "bvi"
+	AUVI -> "auvi"
+	BVIII -> "bviii"
+        VIII -> "i"
+	AUVIII -> "bii"
+        BIX -> "bii"
+        IX -> "ii"
+        BX -> "biii"
+        X -> "iii"
+        BXI -> "biv"
+        XI -> "iv"
+        AUXI -> "auiv"
+        BXII -> "bv"
+        XII -> "v"
+        AUXII -> "auv"
+        BXIII -> "bvi"
+        XIII -> "vi"
+        AUXIII -> "auvi"
+
+                   
+
+
+escribeProgresionComoProlog :: FilePath -> Progresion -> IO ()
+escribeProgresionComoProlog arch prog = writeFile arch (deProgresionAString prog)
 
 
 

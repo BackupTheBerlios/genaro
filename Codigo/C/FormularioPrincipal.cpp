@@ -361,6 +361,8 @@ else
     Dibuja_Cancion();
     Eligiendo_Subbloque=false;
     ShowMessage("Copia finalizada");
+    Radio_Copiar_Melodia->Checked=false;
+    Radio_Delegar_Haskell->Checked=true;
     Cuadro_Bloque_Pista();
     }
     else
@@ -568,6 +570,7 @@ Barra_Numero_Divisiones->Position=Bloque_A_Manipular.N_Divisiones;
 Barra_Fase2->Position=Bloque_A_Manipular.Fase2;
 Barra_Fase3->Position=Bloque_A_Manipular.Fase3;
 Barra_Fase4->Position=Bloque_A_Manipular.Fase4;
+Label51->Caption=Bloque_A_Manipular.Progresion;
 if (Bloque_A_Manipular.Aplicacion_Horizontal==0)
 {
   Radio_Horizontal_Ciclico->Checked=true;
@@ -1047,9 +1050,9 @@ for (int i=0;i<Nombre.Length();i++)
   else{fichero+=Nombre[i+1];}
  }
 int temp=fichero.Length();
-if ((temp>=5)&&(fichero[temp]!='g')&&(fichero[temp]!='o')&&(fichero[temp-2]!='r')&&(fichero[temp-3]!='p')&&(fichero[temp-4]!='.'))
+if ((temp>=5)&&((fichero[temp]!='g')||(fichero[temp-1]!='o')||(fichero[temp-2]!='r')||(fichero[temp-3]!='p')||(fichero[temp-4]!='.')))
 {fichero+=".prog";}
-
+if (temp<5){fichero+=".prog";}
 if (Radio_Crear_Progresion->Checked)
 {
   Progresion_Crear_Progresion(fichero);
@@ -1075,6 +1078,7 @@ Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(C
 getcwd(work_dir, 255);
 String directorio_trabajo1=work_dir;  */
 Bloque_A_Manipular.Progresion=fichero;//"progresion_"+IntToStr(Fila_Pulsada)+"_"+IntToStr(Columna_Pulsada)+".prog";
+Label51->Caption=Bloque_A_Manipular.Progresion;
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
 Progresion_A_Grid();
 }
@@ -1605,10 +1609,13 @@ for (int i=0;i<Nombre.Length();i++)
   else{fichero+=Nombre[i+1];}
  }
 int temp=fichero.Length();
-if ((temp>=4)&&(fichero[temp]!='r')&&(fichero[temp]!='n')&&(fichero[temp-2]!='g')&&(fichero[temp-3]!='.'))
+if ((temp>=4)&&((fichero[temp]!='r')||(fichero[temp-1]!='n')||(fichero[temp-2]!='g')||(fichero[temp-3]!='.')))
+{fichero+=".gnr";}
+if (temp<4)
 {fichero+=".gnr";}
 Musica_Genaro->Guarda_Archivo(fichero);
 }
+
 }
 //---------------------------------------------------------------------------
 
@@ -1781,6 +1788,7 @@ for (int i=0;i<cadenitas->Count;i++)
 
 //prueba turbia
 Bloque_A_Manipular.Progresion=fichero;
+Label51->Caption=Bloque_A_Manipular.Progresion;
 Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(Bloque_A_Manipular,Columna_Pulsada);
 }
 //---------------------------------------------------------------------------
@@ -2068,6 +2076,7 @@ void TForm1::Cambia_Tab_Melodia(bool condicion)
 {
 Tab_Melodia->Enabled=condicion;
 RadioGroup2->Enabled=condicion;
+Radio_Copiar_Melodia->Enabled=condicion;
 Radio_Editor_Midi->Enabled=false;
 Radio_Curva_Melodia->Enabled=condicion;
 Radio_Delegar_Haskell->Enabled=condicion;
@@ -2201,6 +2210,7 @@ Button12->Enabled=condicion;
 Boton_Edicion->Enabled=condicion;
 Grid_Progresion->Enabled=condicion;
 Label_Texto_Muta_Acorde->Enabled=condicion;
+Radio_Armonizar_Melodia->Enabled=condicion;
 }
 //------------------------------------------------------------------------------
 void TForm1::Genera_Music_Bajo()
@@ -2456,6 +2466,32 @@ if (Radio_Copiar_Melodia->Checked==true)
 ShowMessage("Elige subBloque para copiar melodía");
 Eligiendo_Subbloque=true;
 }
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Button2Click(TObject *Sender)
+{
+Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+if(!Bloque_A_Manipular.Vacio)
+{
+//1- abrir el midi "musica_genara.mid" si da error, salimos
+String midi=Bloque_A_Manipular.Tipo_Music;
+int esta=FileOpen(midi.c_str(), fmOpenRead);
+if  (esta==-1) {return;}
+else {FileClose(esta);}
+//2- coger los parametros de la reproduccion
+String timi_exe=".\\Timidity\\timidity.exe";
+String Amplificacion_Volumen=IntToStr(Form2->Dame_Amplificacion());
+String EFchorus=Form2->Dame_EFchorus();
+String EFreverb=Form2->Dame_EFreverb();
+String EFdelay=Form2->Dame_EFdelay();
+String frecuency=IntToStr(Form2->Dame_Frecuency());
+String Ruta_Patch_File=Form2->Dame_Ruta_Patch_File();
+String Ruta_Midi=midi;
+//3- invocar la reproducción y quedarnos con el número de proceso
+Ejecuta_Timidity_Reproduccion(timi_exe, Amplificacion_Volumen, EFchorus,EFreverb,EFdelay,frecuency, Ruta_Patch_File,Ruta_Midi);
+
+}  
 }
 //---------------------------------------------------------------------------
 

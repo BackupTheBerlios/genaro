@@ -216,6 +216,8 @@ __published:	// IDE-managed Components
   TLabel *Label50;
   TRadioButton *Radio_Armonizar_Melodia;
   TRadioButton *Radio_Copiar_Melodia;
+  TLabel *Label51;
+  TButton *Button2;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -282,6 +284,7 @@ __published:	// IDE-managed Components
   void __fastcall TrackBar4Change(TObject *Sender);
   void __fastcall TrackBar5Change(TObject *Sender);
   void __fastcall Radio_Copiar_MelodiaClick(TObject *Sender);
+  void __fastcall Button2Click(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;

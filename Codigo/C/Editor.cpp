@@ -96,7 +96,7 @@ for (int columna=0;columna<=Columnas_Temporales;columna++)
   }
 
 }
-for (int fila=0;fila<=Numero_Filas_A_Dibujar;fila++)
+for (int fila=0;((fila<=Numero_Filas_A_Dibujar)&&(fila<Numero_Filas));fila++)
 {
   this->Canvas->MoveTo(40,100+(fila*Altura_Columna));
   this->Canvas->LineTo(maximo_final,100+(fila*Altura_Columna));

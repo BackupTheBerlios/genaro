@@ -3994,7 +3994,7 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_General
+    ActivePage = Tab_Crear_Progresion
     TabOrder = 11
     Visible = False
     object Tab_General: TTabSheet
@@ -4083,6 +4083,15 @@ object Form1: TForm1
         ParentFont = False
         TabOrder = 2
         OnClick = Button10Click
+      end
+      object Button2: TButton
+        Left = 240
+        Top = 96
+        Width = 41
+        Height = 33
+        Caption = '|>'
+        TabOrder = 3
+        OnClick = Button2Click
       end
     end
     object Tab_Patron_Ritmico: TTabSheet
@@ -4808,6 +4817,12 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentFont = False
       end
+      object Label51: TLabel
+        Left = 232
+        Top = 88
+        Width = 3
+        Height = 13
+      end
       object Button12: TButton
         Left = 120
         Top = 112
@@ -4896,7 +4911,7 @@ object Form1: TForm1
       end
       object Boton_Edicion: TButton
         Left = 328
-        Top = 96
+        Top = 104
         Width = 97
         Height = 33
         Caption = 'Editar Progresión'
@@ -5078,9 +5093,9 @@ object Form1: TForm1
         TabOrder = 0
       end
       object Radio_Editor_Midi: TRadioButton
-        Left = 32
+        Left = 16
         Top = 72
-        Width = 153
+        Width = 137
         Height = 17
         Caption = 'Usar el editor MIDI'
         Enabled = False

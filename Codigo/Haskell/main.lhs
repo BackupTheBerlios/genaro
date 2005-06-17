@@ -433,9 +433,10 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >          mensajeGenaro "Fin generacion numeros aleatorios"
 >          mensajeGenaro "Comienzo lectura de midi melodico"
 >          melodia <- leeMusic2 ruta_melodia
+>          print melodia
 >          mensajeGenaro "Fin lectura de midi melodico"
 >          mensajeGenaro "Comienzo escritura de progresion"
->          escribeProgresionComoProlog ruta_prog (armonizaMusicSecuencial ((mkStdGen.head) alea) (modo_acordes, aTipoNotasPrincipales tipo_notas_principales durMinNumInt durMinDenInt, aTipoAsignaAcordes tipo_asigna_acordes durMaxNumInt durMaxDenInt) melodia) 
+>          escribeProgresionComoProlog ruta_prog (armonizaMusicSecuencial ((mkStdGen.head) alea) (modo_acordes, aTipoNotasPrincipales tipo_notas_principales durMinNumInt durMinDenInt, aTipoAsignaAcordes tipo_asigna_acordes durMaxNumInt durMaxDenInt) (eliminaQueNoSonNotas melodia)) 
 >          mensajeGenaro "Fin escritura de progresion"
 >          mensajeGenaro "Por fin hemos acabado la mierda de armonizacion"
 >          where durMinNumInt = aplicaParser integer durMinNum
@@ -448,6 +449,15 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                aTipoAsignaAcordes "MasLargoPosible" num den = MasLargoPosible (num % den)
 >                modo_acordes = read modo_acordes_Str
 > armonizaMelodia _ = errorGenaro "error de encaje de patrones en armonizaMelodia"
+
+
+> eliminaQueNoSonNotas :: Music -> Music
+> eliminaQueNoSonNotas (Tempo _ m) = eliminaQueNoSonNotas m
+> eliminaQueNoSonNotas (Trans _ m) = eliminaQueNoSonNotas m
+> eliminaQueNoSonNotas (Instr _ m) = eliminaQueNoSonNotas m
+> eliminaQueNoSonNotas (Player _ m) = eliminaQueNoSonNotas m
+> eliminaQueNoSonNotas (Phrase _ m) = eliminaQueNoSonNotas m
+> eliminaQueNoSonNotas m = m
 
 
 
@@ -464,6 +474,11 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > borrame3 :: IO ()
 > borrame3 = do setCurrentDirectory "C:/SuperGenaro"
 >               generaSubbloqueAcompanamiento ["progresion_0_0.prog", "PatronesRitmicos/arpegio_flamenco_medio_rapido_ascendente.txt", "octava", "10", "numero_notas", "10", "sistema", "continuo", "nosemilla", "horizontal", "Ciclico", "vertical_mayor", "Truncar1", "vertical_menor", "Truncar1", "salida.mid"] 
+
+> -- BORRAME: PRUEBA ARMONIZACION MELODIA
+> borrame4 :: IO ()
+> borrame4 = do setCurrentDirectory "C:/SuperGenaro"
+>               armonizaMelodia ["parametros", "Triadas", "SoloNotasLargas", "1", "4", "MasLargoPosible", "1", "1", "ruta_melodia_midi", "Music_3_0.mid", "ruta_prog_dest", "salida.prog"] 
 
 
 

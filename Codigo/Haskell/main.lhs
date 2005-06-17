@@ -434,6 +434,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >          mensajeGenaro "Comienzo lectura de midi melodico"
 >          melodia <- leeMusic2 ruta_melodia
 >          print melodia
+>          print (eliminaQueNoSonNotas melodia)
 >          mensajeGenaro "Fin lectura de midi melodico"
 >          mensajeGenaro "Comienzo escritura de progresion"
 >          escribeProgresionComoProlog ruta_prog (armonizaMusicSecuencial ((mkStdGen.head) alea) (modo_acordes, aTipoNotasPrincipales tipo_notas_principales durMinNumInt durMinDenInt, aTipoAsignaAcordes tipo_asigna_acordes durMaxNumInt durMaxDenInt) (eliminaQueNoSonNotas melodia)) 
@@ -457,6 +458,8 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > eliminaQueNoSonNotas (Instr _ m) = eliminaQueNoSonNotas m
 > eliminaQueNoSonNotas (Player _ m) = eliminaQueNoSonNotas m
 > eliminaQueNoSonNotas (Phrase _ m) = eliminaQueNoSonNotas m
+> eliminaQueNoSonNotas (m1 :+: m2) = (eliminaQueNoSonNotas m1 :+: eliminaQueNoSonNotas m2)
+> eliminaQueNoSonNotas (m1 :=: m2) = (eliminaQueNoSonNotas m1 :=: eliminaQueNoSonNotas m2)
 > eliminaQueNoSonNotas m = m
 
 
@@ -478,7 +481,7 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 > -- BORRAME: PRUEBA ARMONIZACION MELODIA
 > borrame4 :: IO ()
 > borrame4 = do setCurrentDirectory "C:/SuperGenaro"
->               armonizaMelodia ["parametros", "Triadas", "SoloNotasLargas", "1", "4", "MasLargoPosible", "1", "1", "ruta_melodia_midi", "Music_3_0.mid", "ruta_prog_dest", "salida.prog"] 
+>               armonizaMelodia ["parametros", "Triadas", "SoloNotasLargas", "1", "4", "MasLargoPosible", "1", "1", "ruta_melodia_midi", "copia_101_Music_1_0.mid", "ruta_prog_dest", "salida.prog"] 
 
 
 

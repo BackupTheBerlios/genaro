@@ -427,9 +427,17 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 
 > armonizaMelodia :: [String] -> IO ()
 > armonizaMelodia [ "parametros", tipo_armonizacion, modo_acordes_Str, tipo_notas_principales, durMinNum, durMinDen, tipo_asigna_acordes, durMaxNum, durMaxDen, "ruta_melodia_midi", ruta_melodia, "ruta_prog_dest", ruta_prog  ] = 
->       do alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>       do mensajeGenaro "Comienzo armonizacion melodia"
+>          mensajeGenaro "Comienzo generacion numeros aleatorios"
+>          alea <- listaInfNumsAleatoriosIO 1 resolucionRandom
+>          mensajeGenaro "Fin generacion numeros aleatorios"
+>          mensajeGenaro "Comienzo lectura de midi melodico"
 >          melodia <- leeMusic2 ruta_melodia
+>          mensajeGenaro "Fin lectura de midi melodico"
+>          mensajeGenaro "Comienzo escritura de progresion"
 >          escribeProgresionComoProlog ruta_prog (armonizaMusicSecuencial ((mkStdGen.head) alea) (modo_acordes, aTipoNotasPrincipales tipo_notas_principales durMinNumInt durMinDenInt, aTipoAsignaAcordes tipo_asigna_acordes durMaxNumInt durMaxDenInt) melodia) 
+>          mensajeGenaro "Fin escritura de progresion"
+>          mensajeGenaro "Por fin hemos acabado la mierda de armonizacion"
 >          where durMinNumInt = aplicaParser integer durMinNum
 >                durMinDenInt = aplicaParser integer durMinDen
 >                durMaxNumInt = aplicaParser integer durMaxNum
@@ -439,7 +447,6 @@ Los argumentos son la ruta del patron ritmico (abosoluta o relativa) y el numero
 >                aTipoAsignaAcordes "UnoPorNotaPrinc" _ _     = UnoPorNotaPrinc 
 >                aTipoAsignaAcordes "MasLargoPosible" num den = MasLargoPosible (num % den)
 >                modo_acordes = read modo_acordes_Str
-> --             musica alea (modo_acordes, tipo) melodia
 > armonizaMelodia _ = errorGenaro "error de encaje de patrones en armonizaMelodia"
 
 

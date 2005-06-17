@@ -6,7 +6,7 @@
 #include <math.h>
 #include <dir.h>
 #include <process.h>
-#include "Editor.h"
+#include "EditorB.h"
 
 
 
@@ -109,7 +109,21 @@ for (int fila=0;((fila<=Numero_Filas_A_Dibujar)&&(fila<Numero_Filas));fila++)
       this->Canvas->Font->Style=TFontStyles()<< fsBold;
     }
     this->Canvas->Brush->Style=bsClear;
-    this->Canvas->TextOut(40,100+(Altura_Columna*fila),"Voz "+IntToStr(FilaActual+fila));//falta el fila+desplazamiento_filas
+    String nombre_instrumento="??";
+    switch (fila)
+    {
+      case 0:nombre_instrumento="Crash";break;
+      case 1:nombre_instrumento="Ride";break;
+      case 2:nombre_instrumento="TimGra";break;
+      case 3:nombre_instrumento="TimAgu";break;
+      case 4:nombre_instrumento="CharlC";break;
+      case 5:nombre_instrumento="CharlA";break;
+      case 6:nombre_instrumento="CharlP";break;
+      case 7:nombre_instrumento="CajaSu";break;
+      case 8:nombre_instrumento="CajaFu";break;
+      case 9:nombre_instrumento="Bombo";break;            
+    }
+    this->Canvas->TextOut(40,100+(Altura_Columna*fila),nombre_instrumento);//falta el fila+desplazamiento_filas
     this->Canvas->Brush->Color=color_temporal;
     this->Canvas->Font->Color=clBlack;
     this->Canvas->Font->Style=TFontStyles();
@@ -372,7 +386,7 @@ void __fastcall TForm1::Nuevo1Click(TObject *Sender)
 {
 if (!Inicializado)
 {
-  Partitura=new MatrizNotas(4);
+  Partitura=new MatrizNotas(10);
   Partitura->CambiaResolucion(128);
   Inicializado=true;
   PosicionActual=0;
@@ -387,7 +401,7 @@ else
     Aux2=Partitura;
     Partitura=Aux1;
     delete Aux2;
-    Partitura=new MatrizNotas(4);
+    Partitura=new MatrizNotas(10);
     Partitura->CambiaResolucion(128);
     Inicializado=true;
     PosicionActual=0;
@@ -413,8 +427,9 @@ void __fastcall TForm1::GuardarPatrnRtmico1Click(TObject *Sender)
 
 if (Inicializado)
 {
-    if (Guardar_Patron->Execute()==false){return;}
-    String fichero_destino=Guardar_Patron->FileName;
+  GuardarPB->InitialDir=Dir_Trabajo_Inicial+"\\..\\..\\PatronesBateria";
+  if (GuardarPB->Execute()==false){return;}
+  String fichero_destino=GuardarPB->FileName;
     String fichero="";
     for (int i=0;i<fichero_destino.Length();i++)
      {
@@ -425,7 +440,7 @@ if (Inicializado)
     if ((temp>=4)&&((fichero[temp]!='t')||(fichero[temp-1]!='x')||(fichero[temp-2]!='t')||(fichero[temp-3]!='.')))
     {fichero+=".txt";}
     if (temp<4){fichero+=".txt";}
-  Partitura->CreaFicheroTexto(fichero_destino);
+  Partitura->CreaFicheroTexto(fichero);
 }
 else
 {
@@ -529,9 +544,10 @@ void __fastcall TForm1::CargarPatrnRtmico1Click(TObject *Sender)
 {
 
 String fichero;
-if (Cargar_Patron->Execute()==false)
+CargarPB->InitialDir=Dir_Trabajo_Inicial+"\\..\\..\\PatronesBateria";
+if (CargarPB->Execute()==false)
 {return;}
-fichero=Cargar_Patron->FileName;
+fichero=CargarPB->FileName;
 if (Inicializado)
 {
     MatrizNotas* Aux1;
@@ -539,7 +555,7 @@ if (Inicializado)
     Aux2=Partitura;
     Partitura=Aux1;
     delete Aux2;
-    Partitura=new MatrizNotas(4);
+    Partitura=new MatrizNotas(10);
     Partitura->CambiaResolucion(128);
     Inicializado=true;
     PosicionActual=0;
@@ -752,6 +768,13 @@ valor_spawn=spawnl(P_NOWAIT	,timi_exe.c_str(),timi_exe.c_str(),arg1.c_str(),arg2
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando Timidity");}
 
+}
+//---------------------------------------------------------------------------
+
+
+void __fastcall TForm1::Cerrar1Click(TObject *Sender)
+{
+Close();  
 }
 //---------------------------------------------------------------------------
 

@@ -688,7 +688,7 @@ pruHazMelodiaParaProgresion rutaProgresion rutaPatron numNotas = do aleat <- lis
                                                                     haskoreAMidi (melodia aleat prog pat) rutaDestSola
                                                                     haskoreAMidi (musica aleat prog pat) rutaDestAcomp
                                                                     putStr ("\nEscrito con exito midi de prueba\n")
-                                                                    where preMel aleat prog pat = snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, numNotas,2, 2, 4,1)))
+                                                                    where preMel aleat prog pat = snd (hazMelodiaParaProgresion (aleat, (prog, pat, 3, 4, numNotas,2, 1, 5,5)))
                                                                           melodia aleat prog pat = fst (preMel aleat prog pat)
                                                                           curvaMelodicas aleat prog pat = snd (preMel aleat prog pat)
                                                                           rutaDestSola = "./pruMelodiaParaProgresionSola.mid"

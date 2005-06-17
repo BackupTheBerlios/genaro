@@ -108,6 +108,7 @@ for (int i=0;i<Pistas.size();i++)
     fichero_salida<<"Aplicacion_Vertical_Mayor "<<bloque_temp.Aplicacion_Vertical_Mayor<<" ";
     fichero_salida<<"Aplicacion_Vertical_Menor "<<bloque_temp.Aplicacion_Vertical_Menor<<" ";
     fichero_salida<<"Octava_Inicial "<<bloque_temp.Octava_Inicial<<" ";
+    fichero_salida<<"Triadas "<<bloque_temp.Triadas<<" ";
     fichero_salida<<"Sistema "<<bloque_temp.Es_Sistema_Paralelo<<" ";
     fichero_salida<<"Notas "<<bloque_temp.Notas_Totales<<" ";
     fichero_salida<<"Inversion "<<bloque_temp.Inversion.Length()<<" ";
@@ -187,6 +188,7 @@ Bajo_Parametro2=2;
 Bajo_Parametro3=2;
 Bajo_Parametro4=2;
 Bajo_Parametro5=2;
+Triadas=false;
 }
 //---------------------------------------------------------------------------
 int Es_Progresion_Valida(String fichero_Progresion)
@@ -626,6 +628,7 @@ for (int Pista_Actual=0;Pista_Actual<Total_Pistas;Pista_Actual++)
     int Bajo_Param3;
     int Bajo_Param4;
     int Bajo_Param5;
+    int Triada;
 
     String Progresion;
     String Tipo_Music;
@@ -658,6 +661,11 @@ for (int Pista_Actual=0;Pista_Actual<Total_Pistas;Pista_Actual++)
     if (Procesar(Total," Octava_Inicial ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Octava_Inicial \"");return -1;}
     Octava_Inicial=Procesa_Num_Natural(Total);
     if (Octava_Inicial==-1){ShowMessage("Error leyendo Octava_Inicial");return -1;}
+
+    if (Procesar(Total," Triadas ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Triadas \"");return -1;}
+    Triada=Procesa_Num_Natural(Total);
+    if (Triada==-1){ShowMessage("Error leyendo Triada");return -1;}
+
     if (Procesar(Total," Sistema ")==-1){ShowMessage("Error cargando fichero, procesando palabra \" Sistema \"");return -1;}
     Sistema=Procesa_Num_Natural(Total);
     if (Sistema==-1){ShowMessage("Error leyendo Sistema");return -1;}
@@ -766,6 +774,7 @@ for (int Pista_Actual=0;Pista_Actual<Total_Pistas;Pista_Actual++)
     Bloque_Temporal.Bajo_Parametro3=Bajo_Param3;
     Bloque_Temporal.Bajo_Parametro4=Bajo_Param4;
     Bloque_Temporal.Bajo_Parametro5=Bajo_Param5;
+    Bloque_Temporal.Triadas=Triada;
 
     Bloque_Temporal.Progresion=Progresion;
     Bloque_Temporal.Tipo_Music=Tipo_Music;
@@ -814,7 +823,7 @@ curva_origen.open(Original.Curva_Melodica.c_str(),ios::binary);
 ifstream Music_origen;
 Music_origen.open(Original.Tipo_Music.c_str(),ios::binary);
 Curva_Melodica="copia_"+IntToStr(bloque)+"_"+Original.Curva_Melodica;
-Tipo_Music="copia_"+IntToStr(bloque)+"_"+Original.Curva_Melodica;
+Tipo_Music="copia_"+IntToStr(bloque)+"_"+Original.Tipo_Music;
 ofstream curva_salida;
 curva_salida.open(Curva_Melodica.c_str(),ios::binary);
 ofstream Music_salida;

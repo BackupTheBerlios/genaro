@@ -35,6 +35,7 @@ struct Bloque
     String Tipo_Music;
     int Octava_Inicial;
     int N_Pista_Acomp;
+    bool Triadas;
     int Tipo_Melodia; //0=delegar en haskell, 1= curva melódica ... 2=editor midi
     int Aplicacion_Horizontal;//0=ciclico, 1= no ciclico
     int Aplicacion_Vertical_Mayor;//0=truncar, 1=saturar

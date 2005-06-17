@@ -218,6 +218,13 @@ __published:	// IDE-managed Components
   TRadioButton *Radio_Copiar_Melodia;
   TLabel *Label51;
   TButton *Button2;
+  TButton *Button5;
+  TGroupBox *GroupBox6;
+  TRadioButton *Radio_Triadas;
+  TRadioButton *Radio_Cuatriadas;
+  TLabel *Label52;
+  TComboBox *Combo_Bateria;
+  TMenuItem *EditordeBateria1;
   void __fastcall FormCreate(TObject *Sender);
   void __fastcall Barra_Numero_AcordesChange(TObject *Sender);
   void __fastcall Barra_Numero_MutacionesChange(TObject *Sender);
@@ -285,6 +292,9 @@ __published:	// IDE-managed Components
   void __fastcall TrackBar5Change(TObject *Sender);
   void __fastcall Radio_Copiar_MelodiaClick(TObject *Sender);
   void __fastcall Button2Click(TObject *Sender);
+  void __fastcall Radio_Armonizar_MelodiaClick(TObject *Sender);
+  void __fastcall Button5Click(TObject *Sender);
+  void __fastcall EditordeBateria1Click(TObject *Sender);
 private:	// User declarations
   Unidad_Nexo* unidad_de_union;
   int Alto_Fila;
@@ -299,6 +309,7 @@ private:	// User declarations
   int X_Inicial,X_Final,Y_Inicial,Y_Final;
   bool Inicializado;
   bool Eligiendo_Subbloque;
+  bool Eligiendo_PistaArmonizar;
   Cancion* Musica_Genaro;
 public:		// User declarations
   void Inicializa_Patrones_Ritmicos();
@@ -330,6 +341,8 @@ public:		// User declarations
   void Cambia_Tab_Info_Melodia(bool condicion);
   void Cambia_Tab_Bajo(bool condicion);
   void Genera_Music_Bateria();
+  void Crea_Progresion_Armonizando(String midi_origen,String Prog_destino);
+  void Inicializa_Patrones_Bateria();
   __fastcall TForm1(TComponent* Owner);
 };
 //---------------------------------------------------------------------------

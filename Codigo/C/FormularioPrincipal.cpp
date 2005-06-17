@@ -13,6 +13,7 @@
 #include "FormParametrosTimidity.h"
 #include "Interfaz_Timidity.h";
 #include "UForm_Melodia.h";
+#include "Opciones_Armonizacion.h"
 #include "Form_Editar_Progresion.h"
 //---------------------------------------------------------------------------
 #pragma package(smart_init)
@@ -28,12 +29,15 @@ __fastcall TForm1::TForm1(TComponent* Owner)
 void __fastcall TForm1::FormCreate(TObject *Sender)
 {
 Eligiendo_Subbloque=false;
+Eligiendo_PistaArmonizar=false;
 unidad_de_union=new Unidad_Nexo();
-Inicializa_Patrones_Ritmicos();
+
 //FIXME DIR de trabajo
     String directorio_de_trabajo="..\\..\\";
     if (chdir(directorio_de_trabajo.c_str())==-1)
     {ShowMessage("Error cambiando el directorio de trabajo");};
+    Inicializa_Patrones_Ritmicos();
+    Inicializa_Patrones_Bateria();
 //FIXME DIR DE TRABAJO
 //inicializar valores de columnas y tal
 Alto_Fila=24;
@@ -50,7 +54,7 @@ void TForm1::Inicializa_Patrones_Ritmicos()
 {
   DIR *dir;
   struct dirent *ent;
-  if ((dir = opendir("..\\..\\PatronesRitmicos")) == NULL)
+  if ((dir = opendir("PatronesRitmicos")) == NULL)
   {
     ShowMessage("Error leyendo directorio");
   }
@@ -113,6 +117,9 @@ void __fastcall TForm1::EditordePianola1Click(TObject *Sender)
   int valor_spawn=spawnl(P_WAIT,Editor_Pianola.c_str(),Editor_Pianola.c_str(),NULL);
   if (valor_spawn==-1)
   {ShowMessage("Error ejecutando el editor de pianola.");}
+  //refrescamos los lo que sea
+  Inicializa_Patrones_Ritmicos();
+
 }
 //---------------------------------------------------------------------------
 
@@ -299,7 +306,7 @@ void TForm1::Accion_Click(int X, int Y)
 int Y_Relativo=Y-Y_Inicial;
 int columna_pulsada2;
 int fila_pulsada2;
-if (Eligiendo_Subbloque==false)//si no, no nos interesa actualizar estos
+if ((Eligiendo_Subbloque==false)&&(Eligiendo_PistaArmonizar==false))//si no, no nos interesa actualizar estos
 {
 Columna_Pulsada=0;
 Fila_Pulsada=Y_Relativo/Alto_Fila;
@@ -314,7 +321,7 @@ else
 int X_Relativo=X-X_Inicial-Ancho_Espacio_Estatico;
 if (X_Relativo<0)
  {
-  if(Eligiendo_Subbloque==false)
+  if((Eligiendo_Subbloque==false)&&(Eligiendo_PistaArmonizar==false))
   {
   //Activar cuadro de cabecera de pista
   if (Fila_Pulsada<Numero_Filas_A_Dibujar)
@@ -326,7 +333,7 @@ if (X_Relativo<0)
 else
  {
 
-  if (Eligiendo_Subbloque==false)
+  if ((Eligiendo_Subbloque==false)&&(Eligiendo_PistaArmonizar==false))
   {
   Columna_Pulsada=X_Relativo/Ancho_Columnas;
   if ((Fila_Pulsada<Numero_Filas_A_Dibujar)&&(Columna_Pulsada<(Numero_Bloques)))
@@ -339,6 +346,9 @@ else
    }
   }
   else
+  {
+  // primero subbloque
+  if (Eligiendo_Subbloque)
   {
     if ((fila_pulsada2<Numero_Filas_A_Dibujar)&&(columna_pulsada2<Numero_Bloques))
     {
@@ -367,8 +377,71 @@ else
     }
     else
     {
-      ShowMessage("Has de pinchar sobre un bloque válido, operación cancelada");return;
+      ShowMessage("Has de pinchar sobre un bloque válido, operación cancelada");
+      Eligiendo_Subbloque=false;
+      Radio_Copiar_Melodia->Checked=false;
+      Radio_Delegar_Haskell->Checked=true;
+      return;
     }
+  }
+  //ahora pista
+  if (Eligiendo_PistaArmonizar)
+  {
+    if (fila_pulsada2<Numero_Filas_A_Dibujar)
+    {
+      if (Musica_Genaro->Dame_Tipo_Pista(fila_pulsada2)!=1)
+      {
+        ShowMessage("Has de elegir una pista de melodía válida, operación cancelada");
+        Eligiendo_PistaArmonizar=false;
+        Radio_Armonizar_Melodia->Checked=false;
+        Radio_Crear_Progresion->Checked=true;
+        return;
+      }
+    Bloque bloque_A=Musica_Genaro->Dame_Pista(fila_pulsada2)->Dame_Bloque(Columna_Pulsada);
+    Bloque bloque_Trabajo=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+    if (bloque_A.Tipo_Music==NULL){
+      ShowMessage("No tiene midi asociado");
+      Eligiendo_PistaArmonizar=false;
+      Radio_Armonizar_Melodia->Checked=false;
+      Radio_Crear_Progresion->Checked=true;
+      return;}
+    //llamamos a crear prog_armonizada
+    //1- pedimos nombre de progresión
+    if(Salvar_Progresion->Execute()==false)
+    {ShowMessage("Operación Cancelada por el usuario");return;}
+    String Nombre=Salvar_Progresion->FileName;
+    String fichero="";
+    for (int i=0;i<Nombre.Length();i++)
+     {
+      if (Nombre[i+1]=='\\'){fichero="";}
+      else{fichero+=Nombre[i+1];}
+     }
+    int temp=fichero.Length();
+    if ((temp>=5)&&((fichero[temp]!='g')||(fichero[temp-1]!='o')||(fichero[temp-2]!='r')||(fichero[temp-3]!='p')||(fichero[temp-4]!='.')))
+    {fichero+=".prog";}
+    if (temp<5){fichero+=".prog";}
+    //2- llamamos a crear la progresión con el midi de bloque A y con la progresion nueva
+    Crea_Progresion_Armonizando(bloque_A.Tipo_Music,fichero);
+    //3- actualizamos bloque
+    bloque_Trabajo.Progresion=fichero;
+    //4- quitamos la opción del radio buton armonizar
+    Eligiendo_PistaArmonizar=false;
+    Radio_Armonizar_Melodia->Checked=false;
+    Radio_Crear_Progresion->Checked=true;
+    Musica_Genaro->Dame_Pista(Fila_Pulsada)->Cambia_Bloque(bloque_Trabajo,Columna_Pulsada);
+    Cuadro_Bloque_Pista();    
+    return;
+    }
+    else
+    {
+      ShowMessage("Has de pinchar sobre una pista válido, operación cancelada");
+      Eligiendo_PistaArmonizar=false;
+      Radio_Armonizar_Melodia->Checked=false;
+      Radio_Crear_Progresion->Checked=true;
+      return;
+    }
+
+  }
   }
  }
 }
@@ -571,6 +644,22 @@ Barra_Fase2->Position=Bloque_A_Manipular.Fase2;
 Barra_Fase3->Position=Bloque_A_Manipular.Fase3;
 Barra_Fase4->Position=Bloque_A_Manipular.Fase4;
 Label51->Caption=Bloque_A_Manipular.Progresion;
+
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==3)
+{
+Combo_Bateria->Visible=true;
+Label52->Visible=true;
+}
+else
+{
+Combo_Bateria->Visible=false;
+Label52->Visible=false;
+}
+
+
+if (Bloque_A_Manipular.Triadas){Radio_Triadas->Checked=true;}
+else{Radio_Cuatriadas->Checked=true;}
+
 if (Bloque_A_Manipular.Aplicacion_Horizontal==0)
 {
   Radio_Horizontal_Ciclico->Checked=true;
@@ -683,6 +772,15 @@ else
 
 Selector_Patron_Ritmico->Text=Bloque_A_Manipular.Patron_Ritmico;
 Lista_Patrones_Melodia->Text=Bloque_A_Manipular.Patron_Ritmico;
+
+if(Combo_Bateria->Items->IndexOf(Bloque_A_Manipular.Patron_Ritmico)==-1)
+{
+  Combo_Bateria->Text=Combo_Bateria->Items->Strings[0];
+}
+else
+{Combo_Bateria->Text=Bloque_A_Manipular.Patron_Ritmico;}
+
+
 Barra_Notas_Totales->Position=Bloque_A_Manipular.Notas_Totales;
 if (Bloque_A_Manipular.Es_Sistema_Paralelo)
 {
@@ -734,13 +832,20 @@ void __fastcall TForm1::Boton_Guardar_Cambios_BloqueClick(TObject *Sender)
 {
 Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
 Bloque_A_Manipular.Vacio=Bloque_Vacio->Checked;
-if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)!=1)
+if ((Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)!=1)&&(Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)!=3))
 {
 Bloque_A_Manipular.Patron_Ritmico=Selector_Patron_Ritmico->Text;
 }
 else
 {
-Bloque_A_Manipular.Patron_Ritmico=Lista_Patrones_Melodia->Text;
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==1)
+  {
+  Bloque_A_Manipular.Patron_Ritmico=Lista_Patrones_Melodia->Text;
+  }
+if (Musica_Genaro->Dame_Tipo_Pista(Fila_Pulsada)==3)
+  {
+  Bloque_A_Manipular.Patron_Ritmico=Combo_Bateria->Text;
+  }
 }
 Bloque_A_Manipular.Notas_Totales=Barra_Notas_Totales->Position;
 Bloque_A_Manipular.Es_Sistema_Paralelo=Sistema_Paralelo->Checked;
@@ -751,6 +856,7 @@ Bloque_A_Manipular.N_Divisiones=Barra_Numero_Divisiones->Position;
 Bloque_A_Manipular.Fase2=Barra_Fase2->Position;
 Bloque_A_Manipular.Fase3=Barra_Fase3->Position;
 Bloque_A_Manipular.Fase4=Barra_Fase4->Position;
+Bloque_A_Manipular.Triadas=Radio_Triadas->Checked;
 
 String temp1=Edit1->Text+" ";
 int t1=Procesa_Num_Natural(temp1);
@@ -1694,6 +1800,10 @@ void TForm1::Genera_Music_Acompanamiento()
   {Vertical_Mayor="Saturar1";}
   String Pal_Vertical_Menor="vertical_menor";
   String Vertical_Menor;
+  String Pal_Triadas="Triadas";
+  String Triadas;
+  if (Bloque_A_Manipular.Triadas){Triadas="True";}
+  else{Triadas="False";}
   if (Radio_Vertical_Menor_Truncar->Checked){Vertical_Menor="Truncar2";}
   if (Radio_Vertical_Menor_Saturar->Checked){Vertical_Menor="Saturar2";}
   if (Radio_Vertical_Menor_Ciclico->Checked){Vertical_Menor="Ciclico2";}
@@ -1710,7 +1820,7 @@ void TForm1::Genera_Music_Acompanamiento()
     int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
     Pal_Octava.c_str(),O_Inicial.c_str(),Pal_Notas.c_str(),N_Notas.c_str(),Pal_Sistema.c_str(),Sistem.c_str(),
     Pal_Inversion.c_str(),Inversion.c_str(),Pal_Disposicion.c_str(),Disposicion.c_str(),
-    Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Ruta_Destino_Music.c_str(),NULL);
+    Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Pal_Triadas.c_str(),Triadas.c_str(),Ruta_Destino_Music.c_str(),NULL);
     if (valor_spawn==-1)
     {ShowMessage("Error ejecutando el runhugs de haskell.");}
   }
@@ -1724,7 +1834,7 @@ void TForm1::Genera_Music_Acompanamiento()
       Pal_Semilla="nosemilla";
       int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
       Pal_Octava.c_str(),O_Inicial.c_str(),Pal_Notas.c_str(),N_Notas.c_str(),Pal_Sistema.c_str(),Sistem.c_str(),Pal_Semilla.c_str(),
-      Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Ruta_Destino_Music.c_str(),NULL);
+      Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Pal_Triadas.c_str(),Triadas.c_str(),Ruta_Destino_Music.c_str(),NULL);
       if (valor_spawn==-1)
       {ShowMessage("Error ejecutando el runhugs de haskell.");}
     }
@@ -1734,7 +1844,7 @@ void TForm1::Genera_Music_Acompanamiento()
       String Semilla=Edit_Semilla->Text;
       int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Ruta_Progresion.c_str(),P_Ritmico.c_str(),
       Pal_Octava.c_str(),O_Inicial.c_str(),Pal_Notas.c_str(),N_Notas.c_str(),Pal_Sistema.c_str(),Sistem.c_str(),Pal_Semilla.c_str(),Semilla.c_str(),
-      Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Ruta_Destino_Music.c_str(),NULL);
+      Pal_Horizontal.c_str(),horizontal.c_str(),Pal_Vertical_Mayor.c_str(),Vertical_Mayor.c_str(),Pal_Vertical_Menor.c_str(),Vertical_Menor.c_str(),Pal_Triadas.c_str(),Triadas.c_str(),Ruta_Destino_Music.c_str(),NULL);
       if (valor_spawn==-1)
       {ShowMessage("Error ejecutando el runhugs de haskell.");}
     }
@@ -2164,6 +2274,8 @@ Radio_Vertical_Menor_Truncar->Enabled=condicion;
 Radio_Vertical_Menor_Saturar->Enabled=condicion;
 Radio_Vertical_Menor_Ciclico->Enabled=condicion;
 Radio_Vertical_Menor_Modulo->Enabled=condicion;
+Radio_Triadas->Enabled=condicion;
+Radio_Cuatriadas->Enabled=condicion;
 }
 //-----------------------------------------------
 void TForm1::Cambia_Tab_Mutar_Progresion(bool condicion)
@@ -2204,6 +2316,8 @@ Radio_Crear_Progresion->Enabled=condicion;
 Radio_Mutar_Progresion->Enabled=condicion;
 Radio_Mutar_Acorde_Progresion->Enabled=condicion;
 Radio_Mutar_Progresion_Multiple->Enabled=condicion;
+Radio_Armonizar_Melodia->Enabled=condicion;
+Button5->Enabled=condicion;
 GroupBox1->Enabled=condicion;
 Boton_Cargar_Progresion->Enabled=condicion;
 Button12->Enabled=condicion;
@@ -2285,7 +2399,7 @@ void TForm1::Genera_Music_Bateria()
   if (Bloque_Acompanamiento.Progresion==NULL){ShowMessage("El bloque de acompañamiento no tiene progresión asignada");return;}
   String Ruta_Progresion=Bloque_Acompanamiento.Progresion;*/
   String Pal_patron="ruta_patron";
-  String Ruta_Patron="./PatronesRitmicos/"+Bloque_A_Manipular.Patron_Ritmico;
+  String Ruta_Patron="./PatronesBateria/"+Bloque_A_Manipular.Patron_Ritmico;
   String Pal_Parametros="num_compases";
   String Parametro1=Bloque_A_Manipular.Num_Compases;//numero de divisiones (0-10)
 /*  String Parametro2=Bloque_A_Manipular.Fase2;//numero de aplicaciones de fase 2 (0-50)
@@ -2492,6 +2606,106 @@ String Ruta_Midi=midi;
 Ejecuta_Timidity_Reproduccion(timi_exe, Amplificacion_Volumen, EFchorus,EFreverb,EFdelay,frecuency, Ruta_Patch_File,Ruta_Midi);
 
 }  
+}
+//---------------------------------------------------------------------------
+
+void __fastcall TForm1::Radio_Armonizar_MelodiaClick(TObject *Sender)
+{
+if (Radio_Armonizar_Melodia->Checked==true)
+{
+ShowMessage("Elige Pista para armonizar melodía");
+Eligiendo_PistaArmonizar=true;
+}
+}
+//---------------------------------------------------------------------------
+void TForm1::Crea_Progresion_Armonizando(String midi_origen,String Prog_destino)
+{
+String temp1=FormOpcionesArmonizacion->Edit1->Text+" ";
+int t1=Procesa_Num_Natural(temp1);
+String temp2=FormOpcionesArmonizacion->Edit2->Text+" ";
+int t2=Procesa_Num_Natural(temp2);
+String temp3=FormOpcionesArmonizacion->Edit4->Text+" ";
+int t3=Procesa_Num_Natural(temp3);
+String temp4=FormOpcionesArmonizacion->Edit3->Text+" ";
+int t4=Procesa_Num_Natural(temp4);
+if ((t1==-1)||(t2==-1)||(t1==-1)||(t2==-1))
+{ShowMessage("Duración de la nota del bajo no válida");return;}
+//ahora hacemos la llamada
+
+  Bloque Bloque_A_Manipular=Musica_Genaro->Dame_Pista(Fila_Pulsada)->Dame_Bloque(Columna_Pulsada);
+  char work_dir[255];
+  getcwd(work_dir, 255);
+  String directorio_trabajo=work_dir;
+  directorio_trabajo="\""+directorio_trabajo+"\"";
+  String Ruta_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Haskell();
+  String Ruta_Codigo_Haskell=unidad_de_union->Dame_Interfaz_Haskell()->Dame_Ruta_Codigo_Haskell();
+  String Orden="armonizaMelodia";//
+  String Pal_Parametros="parametros";
+
+  String Modo_Acord=FormOpcionesArmonizacion->ComboBox2->Text;
+  String Tipo_Notas_Principales=FormOpcionesArmonizacion->ComboBox1->Text;
+  String Arm_min_Num=IntToStr(t1);
+  String Arm_min_Den=IntToStr(t2);
+  String Tipo_Asign=FormOpcionesArmonizacion->ComboBox3->Text;
+  String Dur_Max_Num=IntToStr(t3);
+  String Dur_Max_Den=IntToStr(t4);
+  String Pal_Ruta_Melodia="ruta_melodia_midi";
+  //rta del midi
+  String Pal_Ruta_Dest="ruta_prog_dest";
+  //destino
+  int valor_spawn=spawnl(P_WAIT,Ruta_Haskell.c_str(),Ruta_Haskell.c_str(),Ruta_Codigo_Haskell.c_str(),directorio_trabajo.c_str(),Orden.c_str(),Pal_Parametros.c_str(),Modo_Acord.c_str(),Tipo_Notas_Principales.c_str(),Arm_min_Num.c_str(),Arm_min_Den.c_str(),Tipo_Asign.c_str(),Dur_Max_Num.c_str(),Dur_Max_Den.c_str(),Pal_Ruta_Melodia.c_str(),midi_origen.c_str(),Pal_Ruta_Dest.c_str(),Prog_destino.c_str(),NULL);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el runhugs de haskell.");}
+}
+//---------------------------------------------------------------------------
+void __fastcall TForm1::Button5Click(TObject *Sender)
+{
+FormOpcionesArmonizacion->Show();
+}
+//---------------------------------------------------------------------------
+//---------------------------------------------------------------------------
+void TForm1::Inicializa_Patrones_Bateria()
+{
+  DIR *dir;
+  struct dirent *ent;
+  if ((dir = opendir("PatronesBateria")) == NULL)
+  {
+    ShowMessage("Error leyendo directorio");
+  }
+  else
+  {
+    Combo_Bateria->Items->Clear();
+    while ((ent = readdir(dir)) != NULL)
+    {
+      //1- comprueba que es válido para añadir a la lista
+      int tamanio=0;
+      while(ent->d_name[tamanio]!='\0')
+      {
+        tamanio++;
+      }
+      if (tamanio<4)
+      {
+        //este no nos vale
+      }
+      else if (((ent->d_name[tamanio-1]=='t')||(ent->d_name[tamanio-1]=='T'))&&((ent->d_name[tamanio-2]=='x')||(ent->d_name[tamanio-2]=='X'))&&((ent->d_name[tamanio-3]=='t')||(ent->d_name[tamanio-3]=='T')))
+      {
+      //2- añade a la lista de patrones rítmicos.
+      Combo_Bateria->Items->Add(ent->d_name);
+      Combo_Bateria->Text=ent->d_name;
+      }
+    }
+
+  }
+}
+void __fastcall TForm1::EditordeBateria1Click(TObject *Sender)
+{
+  String Editor_Pianola=".\\Codigo\\C\\BEditor.exe";
+  int valor_spawn=spawnl(P_WAIT,Editor_Pianola.c_str(),Editor_Pianola.c_str(),NULL);
+  if (valor_spawn==-1)
+  {ShowMessage("Error ejecutando el editor de bateria.");}
+  //refrescamos los lo que sea
+  Inicializa_Patrones_Bateria();
+
 }
 //---------------------------------------------------------------------------
 

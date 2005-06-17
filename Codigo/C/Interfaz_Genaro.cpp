@@ -13,6 +13,7 @@ USEUNIT("Interfaz_Timidity.cpp");
 USEUNIT("Tipos_Estructura.cpp");
 USEFORM("UForm_Melodia.cpp", Form_Melodia);
 USEFORM("Form_Editar_Progresion.cpp", Form3);
+USEFORM("Opciones_Armonizacion.cpp", FormOpcionesArmonizacion);
 //---------------------------------------------------------------------------
 WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 {
@@ -23,6 +24,7 @@ WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
      Application->CreateForm(__classid(TForm2), &Form2);
      Application->CreateForm(__classid(TForm_Melodia), &Form_Melodia);
      Application->CreateForm(__classid(TForm3), &Form3);
+     Application->CreateForm(__classid(TFormOpcionesArmonizacion), &FormOpcionesArmonizacion);
      Application->Run();
   }
   catch (Exception &exception)

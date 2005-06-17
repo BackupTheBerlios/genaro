@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 74
-  Top = 174
+  Left = 46
+  Top = 83
   BorderStyle = bsSingle
   Caption = 'Form1'
   ClientHeight = 456
@@ -716,10 +716,12 @@ object Form1: TForm1
       000000000000}
   end
   object Cargar_Patron: TOpenDialog
+    Filter = 'Patrón Rítmico|*.txt|Todos los Archivos|*.*'
     Left = 416
     Top = 168
   end
   object Guardar_Patron: TSaveDialog
+    Filter = 'Patrón Rítmico|*.txt|Todos los Archivos|*.*'
     Left = 448
     Top = 168
   end

@@ -423,8 +423,8 @@ if (Inicializado)
      }
     int temp=fichero.Length();
     if ((temp>=4)&&((fichero[temp]!='t')||(fichero[temp-1]!='x')||(fichero[temp-2]!='t')||(fichero[temp-3]!='.')))
-    {fichero+=".txt";}
-    if (temp<4){fichero+=".txt";}
+    {fichero_destino+=".txt";}
+    if (temp<4){fichero_destino+=".txt";}
   Partitura->CreaFicheroTexto(fichero_destino);
 }
 else
@@ -754,5 +754,6 @@ valor_spawn=spawnl(P_NOWAIT	,timi_exe.c_str(),timi_exe.c_str(),arg1.c_str(),arg2
 
 }
 //---------------------------------------------------------------------------
+
 
 

@@ -1,6 +1,6 @@
 object Form1: TForm1
-  Left = 163
-  Top = 163
+  Left = 139
+  Top = 127
   BorderStyle = bsSingle
   Caption = 'Interfaz Genaro'
   ClientHeight = 500
@@ -3994,14 +3994,14 @@ object Form1: TForm1
     Top = 0
     Width = 553
     Height = 169
-    ActivePage = Tab_Crear_Progresion
+    ActivePage = Tab_General
     TabOrder = 11
     Visible = False
     object Tab_General: TTabSheet
       Caption = 'General'
       ImageIndex = 3
       object Etiqueta_Bloque_Numero_Compases: TLabel
-        Left = 144
+        Left = 152
         Top = 32
         Width = 222
         Height = 19
@@ -4014,7 +4014,7 @@ object Form1: TForm1
         ParentFont = False
       end
       object Label8: TLabel
-        Left = 144
+        Left = 152
         Top = 8
         Width = 219
         Height = 20
@@ -4027,7 +4027,7 @@ object Form1: TForm1
         ParentFont = False
       end
       object Label35: TLabel
-        Left = 144
+        Left = 152
         Top = 64
         Width = 56
         Height = 16
@@ -4039,9 +4039,23 @@ object Form1: TForm1
         Font.Style = [fsBold]
         ParentFont = False
       end
-      object Bloque_Vacio: TCheckBox
+      object Label52: TLabel
         Left = 8
-        Top = 48
+        Top = 40
+        Width = 122
+        Height = 16
+        Caption = 'Patrón de Batería'
+        Font.Charset = DEFAULT_CHARSET
+        Font.Color = clWindowText
+        Font.Height = -13
+        Font.Name = 'MS Sans Serif'
+        Font.Style = [fsBold]
+        ParentFont = False
+        Visible = False
+      end
+      object Bloque_Vacio: TCheckBox
+        Left = 16
+        Top = 8
         Width = 105
         Height = 25
         Caption = 'Silencio'
@@ -4092,6 +4106,15 @@ object Form1: TForm1
         Caption = '|>'
         TabOrder = 3
         OnClick = Button2Click
+      end
+      object Combo_Bateria: TComboBox
+        Left = 8
+        Top = 64
+        Width = 121
+        Height = 21
+        ItemHeight = 13
+        TabOrder = 4
+        Visible = False
       end
     end
     object Tab_Patron_Ritmico: TTabSheet
@@ -4327,12 +4350,12 @@ object Form1: TForm1
         Left = 8
         Top = 8
         Width = 161
-        Height = 121
+        Height = 65
         Caption = '         Aplicación Horizontal       '
         TabOrder = 0
         object Radio_Horizontal_Ciclico: TRadioButton
           Left = 16
-          Top = 32
+          Top = 16
           Width = 129
           Height = 25
           Caption = 'Cíclico'
@@ -4342,7 +4365,7 @@ object Form1: TForm1
         end
         object Radio_Horizontal_No_Ciclico: TRadioButton
           Left = 16
-          Top = 80
+          Top = 40
           Width = 121
           Height = 17
           Caption = 'No Cíclico'
@@ -4353,7 +4376,7 @@ object Form1: TForm1
         Left = 176
         Top = 8
         Width = 313
-        Height = 121
+        Height = 129
         Caption = 
           '                              Aplicación Vertical               ' +
           '                         '
@@ -4425,6 +4448,32 @@ object Form1: TForm1
             Caption = 'Módulo'
             TabOrder = 3
           end
+        end
+      end
+      object GroupBox6: TGroupBox
+        Left = 8
+        Top = 72
+        Width = 161
+        Height = 65
+        Caption = '                  Triadas                  '
+        TabOrder = 2
+        object Radio_Triadas: TRadioButton
+          Left = 16
+          Top = 16
+          Width = 97
+          Height = 25
+          Caption = 'Triadas'
+          Checked = True
+          TabOrder = 0
+          TabStop = True
+        end
+        object Radio_Cuatriadas: TRadioButton
+          Left = 16
+          Top = 40
+          Width = 97
+          Height = 17
+          Caption = 'Cuatriadas'
+          TabOrder = 1
         end
       end
     end
@@ -4884,6 +4933,7 @@ object Form1: TForm1
           Height = 17
           Caption = 'Armonizar Melodia'
           TabOrder = 4
+          OnClick = Radio_Armonizar_MelodiaClick
         end
       end
       object Boton_Cargar_Progresion: TButton
@@ -4910,13 +4960,22 @@ object Form1: TForm1
         TabOrder = 3
       end
       object Boton_Edicion: TButton
-        Left = 328
+        Left = 248
         Top = 104
         Width = 97
         Height = 33
         Caption = 'Editar Progresión'
         TabOrder = 4
         OnClick = Boton_EdicionClick
+      end
+      object Button5: TButton
+        Left = 368
+        Top = 104
+        Width = 121
+        Height = 33
+        Caption = 'Opciones Armonización'
+        TabOrder = 5
+        OnClick = Button5Click
       end
     end
     object Tab_Melodia: TTabSheet
@@ -5846,6 +5905,10 @@ object Form1: TForm1
       object EditordePianola1: TMenuItem
         Caption = 'Editor de &Pianola'
         OnClick = EditordePianola1Click
+      end
+      object EditordeBateria1: TMenuItem
+        Caption = 'Editor de &Bateria'
+        OnClick = EditordeBateria1Click
       end
     end
     object Insertar1: TMenuItem

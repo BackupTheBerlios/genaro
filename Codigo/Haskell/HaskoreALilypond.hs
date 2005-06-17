@@ -127,9 +127,18 @@ deMusicALy (Phrase _ m)   = deMusicALy m
 imprimeNota :: Pitch -> Dur -> String
 imprimeNota p dur 
         | numerador == 3 && denominador > 1 = imprimePitch p ++ show (quot denominador 2) ++ "." -- Ponemos puntillo
-        | otherwise      = eliminaUltimos 2 (concat [imprimePitch p ++ show (denominator dur) ++ "~ " | i <- [1..numerador] ] ) -- elimina los dos ultimos para acabar con el ultimo "~"
+        | otherwise      = eliminaUltimos 2 (concat [imprimePitch p ++ show (redondeaAPotenciaDos(denominator dur)) ++ "~ " | i <- [1..numerador] ] ) -- elimina los dos ultimos para acabar con el ultimo "~"
 	where numerador = numerator dur;
               denominador = denominator dur;
+
+redondeaAPotenciaDos :: Int -> Int
+redondeaAPotenciaDos n = elemento
+        where lista = [1,2,4,8,16,32,64]
+              dif = map (abs.(n-)) lista
+              menor = minimum dif
+              indice = fromJust (findIndex (==menor) dif)
+              elemento = lista !! indice
+
 
 {-
    'imprimeSilencio' escribe un silencio en forma lilypond. En caso de que el numerador de la duracion no

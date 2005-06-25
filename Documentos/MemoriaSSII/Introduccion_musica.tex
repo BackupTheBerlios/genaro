@@ -1,0 +1,78 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[spanish,activeacute]{babel}
+%en author tengo que poner los acentos asi pq el activeacute aún no funciona en author
+\author{Juan Rodr\'iguez Hortal\'a}
+\title{Introducci\'on}
+\frenchspacing
+\begin{document}
+\maketitle
+\tableofcontents
+\section{?`Qu'e es una nota?}
+Para intentar formalizar la m'usica consideremos el m'inimo elemento del que se compone cualquier creaci'on musical, una  nota. Una \emph{nota} es un sonido al que se le han aplicado dos restricciones:
+\begin{itemize}
+\item De duraci'on: se espera que el sonido que es la nota permanezca sonando durante una cantidad de tiempo determinada. Esta cantidad de tiempo se especifica mediante una \emph{figura}, que no es sino una fracci'on que expresa la duraci'on de la nota en relaci'on con una medida de tiempo absoluta llamada \emph{tempo}, que se especifica para toda la obra musical o para cada fragmento de 'esta.
+\item De altura: se espera que el sonido tenga una altura determinada en la escala de medida musical, es decir, que sea m'as o menos grave o agudo. Las \emph{alturas musicales} no son sino frecuencias de oscilaci'on de ondas sonoras, se consideran ciertas frecuencias como v'alidas y entonces se dice que una nota est'a \emph{afinada} cuando corresponde a una de estas frecuencias. Por tanto la altura de una nota es una correspondencia con una de estas frecuencias afinadas. Existen varios sistemas de afinaci'on (justa, temperada, ...) que no son sino correspondencias entre nombres de alturas musicales y frecuencias de oscilaci'on.
+\end{itemize}
+
+Por 'ultimo hay que tener en cuenta que en la m'usica la ausencia de sonidos es tan importante como su presencia. Por ello definimos un tipo de notas especiales que son los \emph{silencios}, que son notas con una duraci'on asociada pero sin una frecuencia asociada (o tambi'en podemos considerar que est'an asociadas a una frecuencia especial). Los silencios en una composici'on para un instrumento corresponden con los momentos en que dicho instrumento no emite ning'un sonido.
+
+\section{Dimensiones de la m'usica}
+Habiendo entendido lo que es una nota podemos intentar desarrollar una visi'on m'as amplia de la m'usica. Si entendemos las dos restricciones que se imponen sobre las notas como restricciones sobre dos dimensiones sobre las que se desarrolla la musica.
+\begin{itemize}
+\item Horizontal/Temporal: la m'usica discurre a lo largo del tiempo.
+\item Vertical/Altura: los componentes de la m'usica, las notas, tienen unas alturas definidas, es decir, se disponen a lo largo de un eje vertical.
+\end{itemize}
+
+Por tanto la m'usica se puede representar como una agrupaci'on de `puntos` (las notas), dispuestas en el espacio seg'un dos ejes: el horizontal o temporal, que determina qu'e sonidos suenan o dejan de sonar, antes o despu'es; y el vertical o de alturas, que determina la altura de los sonidos en el momento de su instanciaci'on.
+
+\section{Enfoque Genaro de la m'usica}
+Se puede entender que la m'usica esta formada por tres elementos, \emph{melod'ia}, \emph{armon'ia} y \emph{ritmo}:
+\begin{itemize}
+\item Melod'ia: se refiere a la sucesi'on de notas a lo largo del tiempo. La melod'ia de una composici'on es lo que la gente suele cantar e identificar m'as claramente.
+\item Armon'ia: se refiere a la m'usica considerada seg'un su eje vertical, es decir, a las relaciones de altura entre distintas notas que suenan a la vez. A estos conjuntos de notas simult'aneas los llamamos \emph{acordes}.
+\item Ritmo: se refiere a la repetici'on de patrones de duraciones de notas a lo largo del eje temporal.
+\end{itemize}
+
+Genaro se inspira en una de las formaciones cl'asicas del Jazz, el tr'io base, a la hora de enfocar la composici'on de m'usica. Un tr'io base est'a compuesto por un piano, un contrabajo y una bater'ia. Estos instrumentos tienen unas funciones o papeles bien definidos, para poder dar cobertura a los tres elementos de los que se compone la m'usica:
+\begin{itemize}
+\item \emph{Bater'ia}: se ocupa de dar soporte al ritmo.
+\item \emph{Bajo}: se ocupa de dar apoyo r'itmico a la bateria y sobre todo de sustentar la armon'ia junto con el piano. Ocasionalmente puede realizar funciones mel'odicas en mayor o menor medida.
+\item Piano: el piano se puede entender como dos instrumentos en uno porque cada mano del piano es independiente (si el pianista es bueno). Debido a ello en Genaro consideramos por separado cada mano del piano:
+        \begin{enumerate}
+        \item[(a)] Mano izquierda: esta mano se ocupa de apoyar al ritmo y sobre todo de la armon'ia. En Genaro llamamos \emph{acompa~namiento} a este `instrumento`.
+        \item[(b)] Mano derecha: la mano derecha del piano lleva casi todo el peso mel'odico. En Genaro llamamos \emph{melod'ia} a este `instrumento`.
+        \end{enumerate}
+\end{itemize}
+
+En Genaro llamamos \emph{tipo de pista} a estos `instrumentos` y la m'usica se genera de forma diferente para cada tipo de pista, adecu'andose a sus caracter'isticas. Al final del proyecto no di'o tiempo a terminar el compositor para pistas de bater'ia, pero si quedaron listos los compositores de acompa~namiento, bajo y melod'ia.
+
+\section{?`Qu'e es lo que hace Genaro?}
+Genaro compone fragmentos musicales para los distintos tipos de pista bas'andose en los fragmentos anteriormente compuestos para otras pistas. De esta manera los fragmentos musicales que suenan a la vez est'an relacionados y `suenan bien` al reproducirse simult'aneamente. En la versi'on actual de Genaro hay dos maneras de generar m'usica:
+\begin{enumerate}
+\item El acompa~namiento manda: se genera primero el acompa~namiento y a partir de 'el se genera la melod'ia y el bajo.
+\item Armonizador: a partir de una melod'ia se genera un acompa~namiento a partir del cu'al se puede generar el bajo.
+\end{enumerate}
+
+Genaro permite introducir en sus proyectos cualquier n'umero de pistas de un tipo a elegir entre los tres desarrollados (acompa~namiento, bajo y melod'ia), pudi'endo haber cualquier n'umero de pistas del mismo tipo. Las pistas se corresponden con instrumentos que pertenecen a uno de los tres tipos desarrollados.
+
+El producto 'ultimo que nos proporciona Genaro son archivos midi o wav:
+\begin{itemize}
+\item Midi: es un est'andar en la codificaci'on de partituras por ordenador, permitiendo por tanto al usuario editar y manipular la m'usica compuesta por Genaro con cualquiera de los secuenciadores y programas de edici'on del mercado. Representa la m'usica compuesta como partitura, sin fijar del todo los instrumentos sint'eticos que interpretaran cada pista. Dichos instrumentos se fijar'an definitivamente en el programa que haga de sintetizador del fichero.
+\item Wav: es un est'andar en codificaci'on de audio. Genaro tiene incorporado un sintetizador software, Timidity++ (PONER AQUI LA REFERENCIA, el [1] o lo q sea), que puede realizar el paso a wav del midi generado, asociando a cada pista una fuente de sonido seleccionado de una extensa lista.
+\end{itemize}
+
+Debido a las m'ultiples pistas y a posibilidad de asignar fuentes de sonidos de muchos tipos a cada pista, Genaro es capaz de generar m'usicas muy diversas. En su forma de uso m'as b'asica se puede generar un acompa~namiento de piano y una melodia de piano con un bajo ac'ustico de fondo. Pero pensando un poco surgen m'as opciones, por ejemplo se puede a~nadir otra pista de acompa~namiento que doble a la anterior pero con una fuente de sonido que sean una secci'on de cuerda; o an~adir m'as pistas de melod'ia que se contrapongan a la primera, usando fuentes de sonido distintas; o silenciar todo menos el bajo y an~adir m'as pistas de bajo, con lo que se obtiene una poifon'ia al estilo barroco; o introducir otra pista de acompa~namiento de piano pero con otro ritmo, para obtener ritmos compuestos...
+
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+FALTA:
+-En algun sitio hay q poner herramientas utilizadas: timidity, haskore, lilipond, SWI, ...
+-algun rollo sobre objetivos iniciales y lo conseguido
+-rollo sobre extensiones futuras y errores a solucionar
+-y el manual: creo q lo hace Javi
+-evolución , errores y tal, cambio de Sicstus a SWI (deberia ir en genera_acordes)
+
+QUIEN HACE ESTA PARTE COMUN???????      
+
+\end{document}

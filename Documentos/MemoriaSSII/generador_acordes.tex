@@ -1,0 +1,34 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[spanish,activeacute]{babel}
+%en author tengo que poner los acentos asi pq el activeacute aún no funciona en author
+\author{Juan Rodr\'iguez Hortal\'a}
+\title{Generador de progresiones de acordes}
+\frenchspacing
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Introducci'on}
+El m'odulo generador de acordes se encarga de generar y modificar \emph{progresiones de acordes}. Para comprender como funciona y para que sirve primero debemos entender el concepto de progresi'on de acordes.
+
+\section {Acordes y progresiones de acordes} El concepto de \emph{acorde} se puede entender a distintos niveles de abstracci'on.En el nivel m'as concreto, un acorde es un grupo de dos a m'as notas que suenan a la vez. Pero a un nivel m'as alto de abstracci'on un acorde se puede entender como una agrupaci'on de alturas musicales que se considera que tienen un significado conjunto. Ese ser'a el grado de abstracci'on al que trabajaremos en esta fase de la generaci'on de m'usica, y llamaremos \emph{cifrado} a la representaci'on de los acordes a este nivel de abstracci'on. 
+
+Como este concepto de acorde solamente se refiere a la altura de los sonidos, emparejaremos los cifrados con duraciones (figuras), que expresaran el espacio de tiempo que ocupará la serie de notas, es decir, la m'usica, en la que se concretar'a el acorde. Y a las listas de cifrados emparejados con figuras las llamaremos \emph{progresiones de acordes}. Estas listas expresan la sucesi'on de los acordes a lo largo del tiempo. En una fase posterior de la generaci'on de m'usica se realizar'a la citada correspondencia entre parejas (cifrado, figura) y m'usicas, por tanto entre progresiones de acordes y m'usicas (la m'usica que corresponde a una progresi'on es la que resulta de suceder en el tiempo las m'usicas que corresponden a cada par perteneciente a la progresi'on, desde el primero al 'ultimo). Las diversas maneras en que se puede hacer esta correspondencia permitiran generar m'usicas muy diversas a partir de una misma progresi'on de acordes.
+
+\section {Impacto de los acordes en el resto de la m'usica}
+Seg'un las reglas de la Armon'ia, los acordes establecen una jerarqu'ia de sonidos, definiendo un emph{contexto arm'onico} que a su vez implica una funci'on que valora alturas musicales haci'endole corresponder un entero que llamamos estabilidad de esa altura en ese acorde. Esta funci'on se emplear'a para elegir las notas del bajo y la melod'ia que se compongan a partir de un acompa~namiento, teniendo mayor probabilidad de aparecer en una melod'ia o en un bajo las notas m'as estables.
+
+El contexto arm'onico de un acorde esta determiando no s'olo por el acorde sino tambi'en por su relaci'on con eje o contexto global que llamamos \emph{tonalidad}, y que define la estabilidad del acorde dentro de este contexto global, y cuáles son los acordes que es más probable que le sigan en una progresi'on. Así que las progresiones de acordes siguen una cierta l'ogica, estando determinado en cierto medida un acorde por los acordes anteriores a 'el y por los acordes que le siguen en la progresi'on. Esto es debido a que, seg'un el sistema de armon'ia empleado en Genaro, la m'usica es un juego entre estabilidad e inestabilidad, los acordes inestables generan un movimiento o \emph{tensi'on} que termina por liberarse o \emph{resolverse} sobre acordes m'as estables. La forma en que Genaro simula esto se explica en la secci'on siguiente.
+
+\section {Gram'atica de generaci'on de progresiones de acordes}
+
+\section {Implementaci'on}
+
+El lenguaje de implementaci'on empleado en esta parte de Genaro fu'e SWI-Prolog.
+Contar algo de q no hay restricciones y de q antes usabamos Sicstus
+Contar el diagrama de bloques de el programa y como representamos progresiones, poner los predicados que las especifican (decir q no los ejecutamos!!!!!)
+
+\end{document}
+
+
+
+

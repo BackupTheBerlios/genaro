@@ -1,0 +1,150 @@
+\documentclass[a4paper]{report}
+
+\usepackage[spanish]{babel}
+\usepackage{musixtex}
+\title{Haskore a Lilypond}
+\author{Roberto Torres de Alba}
+\setlength{\hoffset}{-2cm}
+\setlength{\voffset}{-2cm}
+\setlength{\textwidth}{450pt}
+
+\begin{document}
+\maketitle
+\chapter{Haskore a Lilypond}
+
+\section{Introduccion}
+
+%hablar del cygwin
+%hablar de sostenidos y bemoles
+Este modulo pretende ser un traductor que pasa del arbol que representa 
+el tipo Music a un String que sea entendido por lilypond.\\
+Nosotros hemos usado la version 2.4.3 de lilypond para compilar.\\
+En primer lugar ibamos a usar el programa midi2ly que viene junto con 
+lilypond que pasa un archivo midi a formato lilypond. Las pruebas que hicimos
+con ellos nos desilusiono bastante ya que el resultado obtenido estaba lejos
+de ser correcto a pesar de que nuestros ejemplos eran muy simples 
+y hechos con Haskore, es decir, que no estaba la mano de ningun humano
+que podia varia el tiempo en milesimas.\\
+Es por ello que intentamos hacer la traduccion nosotros mismos a algun
+formato que se pudiera compilar a pdf. Vimos que, a diferencia de otros
+como musicTex o musixTex, el formato de lilypond era muy parecido a la
+estructura del tipo Music de Haskore. Esto nos motivo a hacer la conversion 
+de esta forma.
+
+\section{Traduccion}
+En esta seccion no vamos a entrar en como es el proceso de conversion
+completo ni en todas las caracteristicas de lilypond porque, mas que nada,
+ni yo mismo las conozco.\\
+Ya que el tipo Music no posee informacion sobre la obra completa hemos
+tenido que hacer un tipo que lo englobe. Ese tipo se llama CancionLy
+y es muy simple de entender:
+\begin{verbatim}
+type Armadura = (PitchClass, Modo)
+data Modo = Mayor | Menor
+     deriving (Eq, Ord, Show, Read, Enum)
+type Ritmo = (Int  -- Numero de notas del compas
+             ,Int  -- Resolucion del compas
+             )
+type Instrumento = String
+data Clave = Sol   -- Clave de 'Sol'
+             | Fa  -- Clave de 'Fa'
+             | Bateria -- Clave de 'Bateria'
+type Score = (Music, Armadura, Ritmo, Instrumento, Clave)
+type Titulo = String
+type Compositor = String
+
+type CancionLy = (Titulo, Compositor, [Score])
+\end{verbatim}
+Muchas de las cosas anteriores se entienden por lo que no vamos a entrar
+a detallarlas. La parte mas importante es la traduccion del tipo Music
+que es parte de un Score (pentagrama en ingles).
+
+\subsection(Traduccion del tipo Music)
+Como hemos dicho, lilypond y Music tienen varias cosas en comun que
+hace atractiva su conversion. En concreto son dos: ambos poseen
+un operador para secuenciar musica y para paralelizarla.\\
+El operador de musica paralela (que se interpreta a la vez) es el :=:
+en Haskore. En lilypond es todo aquello que va entre $<<$ y $>>$. El 
+operador secuencia en Haskore es el :+: y en lilypond es todo aquello
+que no esta entre $<<$ y $>>$. Lilypond tambien es capad de agrupar
+musica poniendo llaves \{ \}.
+\begin{verbatim}
+deMusicALy :: Music -> String
+deMusicALy (Note p dur _) = imprimeNota p dur
+deMusicALy (Rest dur)     = imprimeSilencio dur
+--   Cambia el operador secuencia de Haskore por el secuencia de Lilypond
+deMusicALy (m1 :+: m2)    = " { " ++ deMusicALy m1 ++ " " ++ deMusicALy m2 ++ " } "
+--   Cambia el operador paralelo de Haskore por el paralelo de Lilypond
+deMusicALy (m1 :=: m2)    = " << " ++ deMusicALy m1 ++ " " ++ deMusicALy m2 ++ " >> " 
+deMusicALy (Tempo d m)    = "\\times " ++ imprimeRatio d ++ " { " ++ deMusicALy m ++ " } "
+--   Elimina la constructora 'Trans'
+deMusicALy (Trans t m)    = deMusicALy (suma t m)
+--   El resto de las constructoras son ignoradas
+deMusicALy (Instr _ m)    = deMusicALy m
+deMusicALy (Player _ m)   = deMusicALy m
+deMusicALy (Phrase _ m)   = deMusicALy m
+\end{verbatim}
+Esta es la funcion central del modulo HaskoreALilypond.hs. Algunas constructoras
+de Music tiene que ser ignoradas porque o no corresponden con nada de
+lilypond o la traduccion seria tan complicada que llevaria mucho tiempo y no 
+mereceria la pena.\\
+Por ultimo hay que se~nalar un apunte sobre la traduccion de duraciones de
+notas o silencios. Lilypond solo entiende duraciones que son potencias de
+dos, es decir, 1 es la redonda, 2 la blanca, etc. Pero las duraciones en
+Haskore son fracciones de enteros. Por ello se ha hecho de la siguiente forma:\\
+1. Si el numerador es mayor que uno entonces se repite tantas veces como diga
+dicho numerador y todas las notas se ligan.\\
+2. Si el denominador no es potencia de 2 se cambia a la potencia de dos mas
+cercana. Este ultimo paso elimina informacion del tipo Music pero no se que
+podriamos hacer si llega algo por el estilo de 1/27. En caso de dejarselo 
+a lilypond este siempre pone una redonda en caso de no entenderlo, cosa que
+es todavia peor.\\
+Esto ha motivado la siguiente funcion:
+\begin{verbatim}
+imprimeNota :: Pitch -> Dur -> String
+imprimeNota p dur 
+   | numerador == 3 && denominador > 1 = imprimePitch p ++ show (quot denominador 2) ++ "." -- Ponemos puntillo
+   | otherwise                         = eliminaUltimos 2 (concat [imprimePitch p ++ show (redondeaAPotenciaDos(denominator dur)) ++ "~ " | i <- [1..numerador] ] ) -- elimina los dos ultimos para acabar con el ultimo "~"
+   where numerador = numerator dur;
+         denominador = denominator dur;
+\end{verbatim}
+
+\section{Problemas}
+El principal problema no ha sido la conversion al formato lilypond. Sabemos
+que muchas veces, sobre todo en melodia y bajo, el denominador de las notas 
+no va a ser potencia de dos. nos hubieramos conformado con que tuvieramos
+una ligera aproximacion a las notas que genera Genaro.\\
+El principal problema es el propio lilypond. La version 2.4.2 estaba mal 
+implementada y no conseguia compilar nada. La version 2.4.3 compilaba
+bien pero solo cosas pequeñas. Cuando la cancion era grande o el Music
+tenia forma de arbol degenerado (es decir, de una lista) que era lo que
+sucedia cuando pasabamos un MIDI a Music con las funciones que proporciona
+Haskore (loadMidiFile y readMidi) entonces daba un error de pila. Suponemos
+que es porque la conversion generaba muchas llaves \{ \} que producirian
+muchas llamadas recursibas en lilypond.
+
+\section{Posibles ampliaciones}
+Una ampliacion muy interesante habria sido introducir los cifrados que
+genera Genaro en la propia partitura y no solo las notas. Lilypond puede
+hacerlo aunque habria que hacer la conversion.\\
+Ya menos interesante aunque posible habria sido introducir caracteristica 
+de articulacion, como puede ser el legato, o cosas como el tempo o 
+la intensidad de la nota (seria traducir el velocity a forte, mezoforte, etc.)
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

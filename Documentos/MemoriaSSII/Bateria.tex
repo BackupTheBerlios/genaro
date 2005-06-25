@@ -1,0 +1,180 @@
+\documentclass[a4paper]{report}
+\usepackage[spanish]{babel}
+\usepackage{musixtex}
+\title{Bateria}
+\author{Roberto Torres de Alba}
+\setlength{\hoffset}{-2cm}
+\setlength{\voffset}{-2cm}
+\setlength{\textwidth}{450pt}
+
+\begin{document}
+
+\tableofcontents
+
+\chapter{Bater\'\i a}
+
+\section{Introducci\'on}
+La parcusi\'on es la parte instrumental que va a marcar el ritmo. Bebe de las ideas
+de los \emph{patrones r\'\i tmicos} y de los \emph{acordes ordenados}, por tanto, si esas partes
+se han entendido no va a costar ning\'un trabajo entender \'esta.
+
+\section{Los instrumentos de la bater\'\i a de Genaro}
+Los intrumentos que va a tener Genaro en su bater\'\i a son los siguientes:
+\small
+\begin{verbatim}
+data PercusionGenaro = Bombo | CajaFuerte | CajaSuave | CharlesPisado | CharlesAbierto
+                       | CharlesCerrado | TimbalAgudo | TimbalGrave | Ride | Crash
+     deriving (Show, Read, Eq, Ord, Enum, Ix)
+\end{verbatim}
+\normalsize
+que son guardados en la lista
+\small
+\begin{verbatim}
+bateriaGenaro :: [PercusionGenaro]
+bateriaGenaro = [ toEnum i | i <- [0..9] ]
+\end{verbatim}
+\normalsize
+
+\section{Implementaci\'on}
+
+\subsection{Percusi\'on en Haskore}
+El Haskore de Hudak posee su propia definici\'on de tipos para la percusion que
+se encuentra en el tipo \emph{PercussionSound}. Dicha asociaci\'on es una biyecci\'on
+con los intrumentos de percusi\'on que posee MIDI. En el estandar MIDI cada
+instrumento de percusi\'on esta asociado a una altura (\emph{Pitch}, es decir, tipo de nota y octava)
+que es tocado por el canal 10.\\
+\indent Nosotros vamos a usar parte de esos instrumentos pero le vamos a dar otro nombre por
+comodidad. Por consiguiente tenemos que hacer una funci\'on de asocie bidireccionalmente
+ambas nomenglaturas.
+
+\small
+\begin{verbatim}
+bateriaHaskore :: [PercussionSound]
+bateriaHaskore = map de_PercusionGenaro_a_PercusionHaskore bateriaGenaro
+
+asociacionPercusion :: [(PercusionGenaro, PercussionSound)]
+asociacionPercusion = [(Bombo, BassDrum1),
+                       (CajaFuerte, LowMidTom ),
+                       (CajaSuave, HiMidTom ),
+                       (CharlesPisado, PedalHiHat ),
+                       (CharlesAbierto, OpenHiHat ),
+                       (CharlesCerrado, ClosedHiHat ),
+                       (TimbalAgudo, LowTimbale ),
+                       (TimbalGrave, HighTimbale ),
+                       (Ride, RideCymbal1 ),
+                       (Crash, CrashCymbal1 )]
+
+
+
+de_PercusionGenaro_a_PercusionHaskore :: PercusionGenaro -> PercussionSound
+de_PercusionGenaro_a_PercusionHaskore pg = ph
+      where (lpg, lph) = unzip asociacionPercusion;
+            Just ind = elemIndex pg lpg;
+            ph = lph !! ind
+
+
+de_PercusionHaskore_a_PercusionHaskore :: PercussionSound -> PercusionGenaro
+de_PercusionHaskore_a_PercusionHaskore ph 
+      | isJust quizas_ind    = lpg !! (fromJust quizas_ind)
+      | isNothing quizas_ind = error ("de_persucionHaskore_a_PercusionHaskore " 
+            ++ show ph ++ ":No se puede traducir a PercusionGenaro")
+      where (lpg, lph) = unzip asociacionPercusion;
+            quizas_ind = elemIndex ph lph
+\end{verbatim}
+\normalsize
+
+\subsection{Usando conocimientos anteriores}
+Vamos a usar aquello que tenemos hecho de patrones r\'\i tmicos y de acordes ordenas
+para formar la bateria.\\
+\indent Como ya hemos dicho antes cada instrumento de percusi\'on de MIDI es representado
+por una altura (pitch). La uni\'on de todos ellos en una lista
+junto con una duraci\'on obtendriamos un acorde ordenado:
+
+\small
+\begin{verbatim}
+acordeOrdenadoBateria :: Dur -> AcordeOrdenado
+acordeOrdenadoBateria d = (map f bateriaHaskore,d)
+       where f = pitch.(+35).fromEnum
+
+acordeOrdenadoBateria' :: Dur -> [AcordeOrdenado]
+acordeOrdenadoBateria' d = [acordeOrdenadoBateria d]
+\end{verbatim}
+\normalsize
+
+Si ahora le aplicamos a ese acorde ordenado un patr\'on r\'\i tmico vamos a repartir
+dichas notas en el tiempo.
+
+\small
+\begin{verbatim}
+encajaBateria :: Dur -> PatronRitmico -> Music
+encajaBateria d pr = deAcordesOrdenadosAMusica Ciclico (Truncar1, Truncar2) 
+                     pr (acordeOrdenadoBateria' d)
+\end{verbatim}
+\normalsize
+
+\indent El patr\'on r\'\i tmico pasado, aunque puede ser cualquiera, debe ser uno que tenga 
+10 voces de altura, es decir, tantas como instrumentos de percusion. Es por
+ello que los patrones de encaje verticales nos son indiferentes ya que encaja
+perfectamente.\\
+\indent Se podria haber hecho que aceptara cualquier patr\'on pero las diferentes formas
+de encaje no tienen aqui tanto sentido como cuando el acorde ordenado representa
+notas de un instrumento. Por tanto se descarto esa posibilidad, no aqui, en Haskell,
+sino en el interfaz gr\'afico.\\
+\indent Por ultimo s\'olo queda que el \emph{Music} de salida sea ejecutado por el instrumento
+''Drums'' de Haskore para que sea enviado al canal 10 cuando se pase a MIDI.
+Pero esta parte no se hace en el m\'odulo \emph{Bateria.hs} sino en el \emph{main.hs} que es
+el m\'odulo con el que se comunica el interfaz.\\
+\indent Veamos un ejemplo:
+
+\small
+\begin{verbatim}
+bateriaMusic :: Music
+bateriaMusic = Instr "Drums" (encajaBateria (2%1) patronRitmicoCualquiera)
+\end{verbatim}
+\normalsize
+
+\section{Resultado final}
+Al final Genaro no tiene bateria por falta de tiempo. Quiz\'as un tiempo
+de dedicaci\'on de una hora o dos hubiera bastado para tenera termina.
+
+\section{Posibles mejoras}
+Como habr\'a observado el avispado lector la bater\'\i a de Genaro no tiene
+nada de aleatoriedad. Hubiera sido interesante meter algo de ello. Las ideas
+que se me ocurrieron a m\'i~con ayuda de companeros de clase son las siguientes:
+
+\begin{enumerate}
+\item Que las partes fuertes de un comp\'s sean tocadas por un instrumento o varios
+(por ejemplo el bombo) y las d\'ebiles por otro. Una vez hecho esto se podr\'\i a
+mutar ligeramente para que se note continuidad a la vez que cambio.\\ 
+Una mutacion que se me ocurre es cambiar un instrumento por otro. Por ejemplo, 
+si el bombo toca la parte fuerte hacer que pase a tocarla el crash.
+\item Hacer que la bater\'\i a se adapte a la duraci\'on de un acorde. Ya que los
+acordes no tienen la misma duraci\'on podr\'\i amos hacer, por ejemplo, que el primer
+tiempo fuerte sea tocado por el bombo y el resto por una caja.
+\item Hacer que la bater\'\i a se adapte a una progresi\'on de acordes. Una t\'ecnica 
+de grupos modernos es intercambiar los intrumentos que tocan en la parte
+fuerte y debil en los \'ultimos compases de la progresi\'on. Por ejemplo, 
+si una caja se golpea en tiempo fuerte que 
+pase golpearse en tiempo d\'ebil. Ello da sensaci\'on de que algo va a cambiar.
+\end{enumerate}
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

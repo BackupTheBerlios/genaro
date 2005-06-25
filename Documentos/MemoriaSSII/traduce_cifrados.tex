@@ -1,0 +1,236 @@
+\documentclass[a4paper]{report}
+\usepackage[spanish]{babel}
+\usepackage{musixtex}
+\title{Traduccion de una lista de cifrados}
+\author{Roberto Torres de Alba}
+\begin{document}
+\maketitle
+\section{Introduccion}
+La finalidad del m\'odulo de traducci\'on de cifrados es que proporcione todas las notas
+exactas que poseer\'a cada cifrado en funci\'on, por supuesto, de ciertas opciones de 
+entrada y, en caso de ambig\"uedad, usara la aleatoriedad para elegir entre las posibles
+opciones.\\
+\indent Cuando nos referimos a las notas exactas de un cifrado musical nos referimos a las
+alturas de las notas, tanto el \emph{PitchClass} como la octava, es decir, aquello que determina la 
+frecuencia de los sonidos. No nos referimos a como esas notas se van a ejecutar en el tiempo 
+porque eso es parte de la siguiente etapa en la que vamos a encajar estas notas con lo que hemos
+llamado patron r\'\i tmico. Por ello no es necesario tener en cuenta la duraci\'on individual de 
+cada nota, que ser\'\i a lo \'unico que nos faltar\'\i a para tener una verdadera nota musical, 
+sino que basta tener la duraci\'on del acorde. Es por ello que la salida de este modulo es el tipo: \\
+\begin{verbatim}
+type AcordeOrdenado = ([Pitch],Dur)
+\end{verbatim}
+es decir, la duracion del acorde junto con las notas que tiene.\\
+\indent Pongamos un ejemplo. El cifrado de C Maj7 (do mayor con s\'eptima mayor), posee las notas
+(C,E,G,B) pero esa informacion esta incompleta para una traduccion verdadera. Supongamos
+que buscamos que ese acorde tenga 7 notas, est\'e en estado fundamental (el C como nota m\'as
+grave) y en primera disposici\'on (el C como nota m\'as aguda). Es obvio que tenemos que 
+duplicar algunas alturas para que se cumpla lo anterior. El programa actuara devolviendo lo
+siguiente: (C,E,G,B,C,G,C). Ahora s\'\i~que se cumple lo anterior pero la traducci\'on sigue 
+siendo incompleta seg\'un lo dicho anteriormente ya que falta la octava. Digamos que ahora queremos que la nota
+m\'as grave est\'e en la cuarta octava y las dem\'as notas sean la menor siguiente m\'as aguda. Entonces el acorde quedar\'\i a como sigue:
+((C,4),(E,4),(G,4),(B,4),(C,5),(G,5),(C,6)) que s\'\i ~es lo que buscamos.\\
+\indent La etapa de traducci\'on se compone de dos fases:\\
+1. Traducci\'on a forma fundamental: simplemente indica los emph{PitchClass} que posee
+el acorde\\
+2. Reparto de las notas en voces: duplica y permuta los emph{PitchClass} de la etapa 1
+para que se ajusten a unos determinados par\'ametros. Vamos adelantando que los par\'ametros
+m\'as importantes son los dos sistemas de traducci\'on: el continuo y el paralelo.\\
+% falta decir que esta hecho en haskell
+
+\section{Traducci\'on a forma fundamental}
+\subsection{Vectores de matr\'\i culas}
+Un cifrado se compone de dos partes: el grado sobre el que se asienta y la especie
+que es. Nosotros hemos llamado a la especie emph{matr\'\i cula}, de esa forma, por ejemplo, 
+el cifrado de emph{C Maj7} posee de matr\'\i cula emph{Maj7} y de vector de emph{PitchClass} [C,E,G,B]; el cifrado
+de emph{C m} (do menor) posee matricula emph{m} y emph{PitchClass} [C,bE,G].\\
+\indent Independientemente del grado del cifrado todos los acordes que son mayores posee
+una tercera mayor y una quinta justa (un m\'usico entender\'\i a esto perfectamente aunque
+no es necesario para lo que nos trata a continuaci\'on). Una tercera mayor est\'a compuesta
+de 4 semitonos (\'o 2 tonos) y una quinta justa de 7 semitonos (\'o 3 tonos y medio). De esa
+forma es f\'acil ver que para obtener un acorde mayor sobre cualquier nota simplemente
+tenemos que sumar 4 semitonos a dicha nota (obteniendo la tercera del acorde) y de nuevo
+7 (para obtener la quinta). M\'as f\'acil es ver todav\'\i a que eso se puede expresar en forma
+de tupla como (0,4,7). Veamos un ejemplo para aclararlo:\\
+Buscamos el acorde de D mayor. El emph{PitchClass} D en emph{Haskore} se representa por el n\'umero 2, 
+cosa que nos facilita la suma. Si sumamos 2 + (0,4,7) nos da (2,6,9) que pas\'andolo otra vez
+a notas nos da (D,Fs,A) (Fs es Fa sostenido). Aqui hay que decir que tanto emph{Haskore} como MIDI usa un sistema
+atemperado, es decir, que las notas Fs y Gf (Sol bemol) representan el mismo sonido.
+Una ver entendido este concepto pasamos a mostrar todos los vectores asociados con
+las matr\'\i culas que maneja Genaro:\\
+Mayor $\to$ [0,4,7]\\
+Menor $\to$ [0,3,7]\\
+Au $\to$ [0,4,8]\\
+Dis $\to$ [0,3,6]\\
+Sexta $\to$ [0,4,7,9]\\
+Men6 $\to$ [0,3,7,9]\\
+Men7B5 $\to$ [0,3,6,10]\\
+Maj7 $\to$ [0,4,7,11]\\
+Sept $\to$ [0,4,7,10]\\
+Men7 $\to$ [0,3,7,10]\\
+MenMaj7 $\to$ [0,3,7,11]\\
+Au7 $\to$ [0,4,8,10]\\
+Dis7 $\to$ [0,3,6,9]\\
+Las funciones de Haskell que encapsulan esto se encuentran en el modulo emph{Progresiones.hs}
+y se llaman emph{matriculaAVector} y emph{sumaVector}.\\
+\subsection{Traducci\'on a forma fundamental}
+Una vez que tenemos a nuestra disposici\'on los vectores de las matr\'\i culas ya podemos
+traducir cualquier cifrado a su forma fundamental:\\
+\begin{verbatim}
+traduceCifrado :: Cifrado -> [PitchClass]
+traduceCifrado (grado, matricula) = map  absPitchAPitchClass (sumaVector (matriculaAVector matricula) (gradoAInt grado))
+\end{verbatim}
+
+\section{Reparto de las voces}
+Existen dos formas principales de ordenas las notas de la etapa anterior: sistema paralelo
+y sistema continuo. Ambas formas han sido inspiradas del libro de Enrik Herrera.\\
+\subsection{Sistema Paralelo}
+El sistema paralelo es el mas simple. Basicamente se encarga de colocar todos los acordes
+en una inversion y una disposicion dada. Los parametros que necesitan que sean pasados 
+por el usuario son los siguientes: \\
+octava inicial: en la octava a partir de la cual empieza a color las notas\\
+inversion: un entero que indica la inversion que es\\
+disposicion: otro entero que indica la disposicion del acorde\\
+numero de notas: numero de notas final del acorde\\
+La inversion de un acorde es simplemente la indicacion de que nota es la mas grave en un acorde.
+Una inversion de 1 indica que el acorde esta en primera inversion (la tercera del acorde 
+como nota mas grave) y asi. La inversion 0 se usa para decir que estamos en estado fundamental
+ (la fundamental del acorde como nota mas baja).\\
+Algo parecido para con la disposicion que unicamente depende de la nota mas aguda.
+Una disposicion de 1 indica que la fundamental del acorde es la nota mas alta y asi.\\
+La inversion como la disposicion depende unicamente de la nota
+mas grave y de la mas aguda y eso implica dos cosas. Primera es que el numero minimo de
+notas que puede tener un acorde es dos (las dos notas extremas). Se podria haber hecho de
+otra forma pero esta es la que vimos que coherente con los parametros. Segundo es que
+no hay informacion sobre la colocacion del resto de las notas. Podriamos haber seguido
+una opcion parecida a la del sistema continuo (como ya veremos) pero pensamos que iba
+mas encaminado con la filosofia de este sistema (segun Enrik Herrera, por supuesto)
+que las notas intermedias se colocaran en el mismo orden que establece sus estado fundamental.\\
+Una nueva abstraccion tenemos que introducir en este momento: el AcordeSimple.\\
+\begin{verbatim}
+type AcordeSimple = [Int] 
+\end{verbatim}
+Un acorde simple es solamente una lista de numeros. Cada numero es un indice sobre la lista de
+notas del acorde que se pasa de la etapa anterior, es decir, sobre un acorde en estado 
+fundamental. Para formar un acorde simple segun los parametros del sistema paralelo usamos\\
+\begin{verbatim}
+formarAcordeSimple :: NumNotasFund -> NumNotasTotal -> Inversion -> Disposicion -> AcordeSimple
+formarAcordeSimple numNotasFund numNotasTotal inv disp = reverse (disp : anadeAcordeSimple numNotasFund (numNotasTotal - 2) [inv + 1])
+\end{verbatim}
+¿Para que nos sirve esto? Simplemente independiza las notas verdaderas del acorde con su
+ordenacion. Esto se entiendo muy facilmente con un ejemplo:\\
+Supongamos el acorde de C Mayor de nuevo cuyo estado fundamental es [C,E,G] que es proporcionado
+por la etapa 1. Queremos este acorde con 10 notas, en primera inversion, y en tercera
+disposicion. Llamando a la funcion formarAcordeSimple tenemos:\\
+\begin{verbatim}
+TraduceCifrados> formarAcordeSimple 3 10 1 3 
+[2,3,1,2,3,1,2,3,1,3] 
+\end{verbatim}
+¿Que significa esto? Significa que el primer elemento es el segundo elemento de [C,E,G],
+el segundo es el tercer elemento de [C,E,G] y asi. La importancia de esto es que lo
+que hemos llamado acorde simple es independiente de las notas concretas.\\
+Ahora simplemente hay que fusionarlas dos cosas pero eso es muy facil ya que son indices
+(recordemos que con el 1 nosotros nos referimos al primer elemento, a diferencia de en
+Haskell que se refiere al primer elemento con el 0)
+\begin{verbatim}
+encajaAcordeSimple :: [PitchClass] -> AcordeSimple -> [PitchClass]
+encajaAcordeSimple lpc [] = []
+encajaAcordeSimple lpc (num : resto) = (lpc !! (num - 1)) : encajaAcordeSimple lpc resto
+\end{verbatim}
+Ahora solo nos queda la parte de anadir la octava.
+
+\subsection{Sistema Continuo}
+La idea principal de este sistema es que las voces de un acorde se muevan lo menos
+posible respecto a las voces del acorde anterior, de esa forma el efecto transitorio entre
+acordes sera mas suave.\\
+Mas detalladamente se busca lo siguiente: si un acorde posee notas en comun respecto del anterior entonces esas notas tienen que 
+ser la misma; el resto de las voces se mueve a la nota mas cercana.\\
+Enrik Herrera propone en la pagina 42 un metodo que nos hace saber cuantas notas en comun 
+poseen esos dos acordes. En primer lugar ese metodo es solo para triadas aunque se podria
+ampliar sin mucha dificultad a cuatriadas. Por otro lado solo tiene en cuenta los acordes
+diatonicos. Eso es un problema si queremos usar algo parecido sobre acordes no diatonicos
+como puede ser los dominantes secundarios. Por tanto este metodo no es suficientemente 
+general para nuestros propositos y tenemos que buscar otro.\\
+El algoritmo se divide en cuatro partes. En la primera traducimos todos los cifrados
+a su estado funtamental sin duplicar ni permutar los PitchClass, es decir, lo que optenemos
+directamente de usar el Vector de la matricula. En la segunda permutamos cada acorde
+hasta que la diferencia de las notas sea la mas pequeña con respecto al acorde anterior. 
+En la tercera duplicamos las notas para que posean el numero de notas deseadas. Y en
+la cuarta insertamos la octava para que la altura de las notas este fijada definitivamente.
+Ahora vamos a verlos en detalle.
+
+\subsubsection(Traduccion a estado fundamental)
+La traduccion a estado fundamental no merece demasiada atencion ya que se realiza de la misma
+forma a la del sistema paralelo, usando la funcion emph{traduceCifrado}.
+
+\subsubsection(Obtencion del acorde mas cercano al anterior)
+Esta es, segun mi criterio, la parte mas importante del algoritmo del sistema continuo.
+La base del algoritmo es bastante facil. En primer lugar necesitamos dos operaciones
+sobre listas de PitchClass: una que nos diga las notas en comun en la misma posicion
+de la lista y otra que nos diga la distancia entre dos listas de PitchClass. Esto nos da
+lo siguiente: \\
+
+\begin{verbatim}
+coincidencias :: [PitchClass] -> [PitchClass] -> Int
+coincidencias lp1 lp2 = foldr1 (+) (map fromEnum [(lp1 !! i) == (lp2 !! i) | i <- [0..(longMen - 1 )]])
+	where longMen = min (length lp1) (length lp2)
+
+distancia :: [PitchClass] -> [PitchClass] -> Int
+distancia lp1 lp2 = foldr1 (+) [abs ( ((map pitchClass lp1) !! i) - ((map pitchClass lp2) !! i) ) | i <- [0..(longMen - 1 )] ]
+	where longMen = min (length lp1) (length lp2)
+\end{verbatim}
+
+Una vez que tenemos estas dos funciones ya podemos sacar el acorde mas cercano a otro de 
+la siguiente forma. Primero hacemos todas las permutaciones de la lista de PitchClass que
+representa el acorde en posicion fundamental. Eso no es tan preocupante computacionalmente 
+hablando ya que nosotros vamos a tener como maximo cuatriadas que forman listas de cuatro
+elementos (4\! combinaciones). Segundo vamos a sacar los acordes cuya funcion coincidencias
+nos de el mayor valor y eliminar los otros. Tercero vamos a sacar los acordes (de los que quedan)
+cuya funcion distancia al anterior sea la menor. Cuarto de los restantes vamos a elegir uno al azar.
+Muy posiblemente ya en la segunda etapa solo nos quede una lista de un elemento aunque
+hay que asegurarse hasta el final.\\
+El primer acorde la progresion es un caso especial ya no tiene ningun acorde anteriormente con
+el que poder compararse. Lo que hacemos es simplemente elegir una inversion aleatoria
+para el.\\
+El algoritmo completo se recoge en la funcion organiza que es: \\
+\begin{verbatim}
+organizar :: RandomGen a => a -> [[PitchClass]] -> [[PitchClass]]
+organizar gen (x:xs) = elegido : organizarRec sigGen elegido xs
+    where lista = [inversion i x | i <- [0..(length x - 1 )]];
+          (elegido, sigGen) = elementoAleatorio gen lista
+
+organizarRec :: RandomGen a => a -> [PitchClass] -> [[PitchClass]] -> [[PitchClass]]
+organizarRec _ _ [] = []
+organizarRec gen referencia (x:xs) = nuevaRef : organizarRec sigGen nuevaRef xs
+    where (nuevaRef, sigGen) = masCoincidente gen referencia x
+
+\end{verbatim} 
+donde inversion es la i-esima inversion de la lista x.
+
+\subsubsection(Duplicacion de notas)
+La idea es la de usar el llamado AcordeSimple para acceder a las notas ya ordenadas de los acordes. Ahora todos
+los acordes simples se van a forman empezando desde el numero 1. Eso no implica que el acorde vaya a estar en forma
+fundamental ya que el indice 1 sobre la lista de PitchClass no corresponde a la fundamental del acorde porque la
+etapa anterior se ha encargado de permutar la lista adecuadamente. El codigo del este algoritmo se encuentra
+integrado en al misma funcion que la del siguiente por lo que se vera despues como es.
+
+\subsubsection(Insercion de octava)
+Ahora solamente falta insertar la octava en las listas de PitchClass para que tengan la altura correspondiente.
+Suponemos que el acorde anterior ya tiene todas las octavas a~nadidas y buscamos introducirlas al actual.
+No podemos hacer que empiecen a añadirse desde la mas grave como se hizo en el sistema paralelo porque eso podria
+darnos alturas diferentes. Hay que hacer lo siguiente: buscar la primera nota coincidente entre los dos acordes, 
+dividir el acorde actual por dos por dicha nota y tomar la octava de esa nota. Una vez dividido la parte mas grave
+del acorde se le asigna octavas de forma descendente y la mas aguda de hace de forma creciente. Como las notas comunes
+estan en la misma posicion dentro de las listas de PitchClass no asegura que dichas notas comunes reciben la misma octava
+
+
+\end{document}
+
+
+
+
+
+
+
+
+

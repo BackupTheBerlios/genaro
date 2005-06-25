@@ -1,0 +1,336 @@
+\documentclass[a4paper]{report}
+
+\usepackage[spanish]{babel}
+\usepackage{musixtex}
+\title{Armonizaci\'on de Melod\'\i a}
+\author{Roberto Torres de Alba}
+\setlength{\hoffset}{-2cm}
+\setlength{\voffset}{-2cm}
+\setlength{\textwidth}{450pt}
+
+\begin{document}
+
+\tableofcontents
+
+\chapter{Armonizaci\'on de Melod\'\i a}
+
+\section{Introducci\'on}
+Armonizar una melod\'\i a consiste, musicalmente hablando, en buscar
+acordes que ''vayan bien'' a una cierta melod\'\i a dada. Como
+veremos, la frase ''vayan bien'' simplemente es que cada nota
+de la melod\'\i a que vamos a armonizar sea parte de las notas que forman el
+acorde.\\
+Por tanto, la entrada de este m\'odulo es una melod\'\i a (puesta en forma
+de \emph{Music} secuencial) y la salida es una progresi\'on que lo armoniza.
+Obviamente el usuario va a poder seleccionar diferentes criterios para
+dicho fin.\\
+\indent El algoritmo completo se compone de dos partes. En una primera parte
+buscamos aquellas notas que vamos a querer que sean armonizadas. A esas
+notas las vamos a llamar \emph{notas principales} y son aquellas que se pueden identificar
+m\'as en un contexto vertical. En la segunda 
+vamos a dar un acorde a una o varias notas principales. La concatenaci\'on
+de todos los acordes nos van saliendo nos proporciona la progresi\'on de salida de este m\'odulo.\\
+\indent Antes de cualquier etapa hay que comprobar que el tipo \emph{Music} que nos
+pasan es realmente una melod\'\i a, es decir, un \emph{Music} exclusivamente 
+secuencial (que s\'olo posea los operadores \emph{:+:}, \emph{Note} y \emph{Rest}) y que adem\'as
+lo transforme en una estructura m\'as manejable:
+\small
+\begin{verbatim}
+type Melodia = [ HaskoreSimple ]
+data HaskoreSimple = Nota Pitch Dur
+                   | Silencio Dur
+     deriving(Eq, Ord, Show, Read)
+
+deHaskoreSecuencialAMelodia :: Music -> Melodia
+deHaskoreSecuencialAMelodia (Note p d _) = [ Nota p d ]
+deHaskoreSecuencialAMelodia (Rest d)     = [ Silencio d ]
+deHaskoreSecuencialAMelodia (m1:+:m2)    = deHaskoreSecuencialAMelodia m1 ++ 
+                                                deHaskoreSecuencialAMelodia m2
+deHaskoreSecuencialAMelodia _            = error "No es un Music solo secuencial"
+\end{verbatim}
+\normalsize
+
+\section{B\'usqueda de notas principales}
+Una vez que tenemos transformado la melod\'\i a (un \emph{Music} secuencial)
+a una lista de notas y silenciones (tipo \emph{Melodia}) tenemos que
+seleccionar exclusivamente las notas que vamos a armonizar
+(notas principales) asegur\'andonos de que la suma de las
+duraciones de las notas principales sea la misma que la de la
+melod\'\i a pasada (para que los acordes duren lo mismo que la
+melod\'\i a).\\
+\indent ?`Qu\'e hacer con las notas que no son principales? Tanto las notas que 
+no son principales como los silencios tiene que ser borrados por no 
+considerarse parte de la armon\'\i a, sin embargo queremos
+que su duraci\'on no se pierda para que la longitud temporal de 
+la melod\'\i a sea la misma que la progresi\'on de acordes. Por consiguiente tienen
+que ceder su duraci\'on a la nota principal que tengan m\'as a la izquierda.\\
+\indent Existe un caso especial: si la primera nota es no principal (es secundaria)
+no tiene ninguna nota principal a su izquierda. En ese caso cedera 
+su duraci\'on a la que est\'a a su derecha.\\
+Como con todo en esta vida existen varias formas de hacerlo. Nosotros
+hemos seleccionado dos:
+
+\subsection{Notas de larga duraci\'on}
+Consideramos que se van a identificar m\'as en un contexto arm\'onico 
+aquellas notas que tengan un duraci\'on larga. Pero, sin embargo,
+no podemos decir c\'omo de larga tiene que ser esa duraci\'on, sino que depender\'a de la
+canci\'on y, por tanto, ser\'a una apreciaci\'on subjetiva. Es por ello
+que tiene que ser pasada como par\'ametro. Por tanto, llegamos a lo siguiente: todas aquellas notas
+cuya duraci\'on sea mayor o igual a la duraci\'on m\'\i nima
+pasada como par\'ametro ser\'an consideradas como notas largas. Lo 
+habitual es que dicha duraci\'on m\'\i nima sea 1/4, que corresponde
+a una negra, aunque pueden darse otros casos.
+
+\small
+\begin{verbatim}
+deMelodiaANotasPrincipales1 :: DurMin -> Melodia -> [NotaPrincipal]
+deMelodiaANotasPrincipales1 durMin melodia = reverse (drop 1 (deMelodiaANotasPrincipales1Rec 
+                                             durMin (C,0%1) (0%1) (reverse melodia) ))
+
+deMelodiaANotasPrincipales1Rec :: DurMin -> NotaPrincipal -> Dur -> Melodia -> [NotaPrincipal]
+deMelodiaANotasPrincipales1Rec durMin (pc, d) durAcumulada [] = [ (pc, d + durAcumulada) ]
+deMelodiaANotasPrincipales1Rec durMin ultNotaP durAcumulada ( (Silencio d) : resto ) = 
+       deMelodiaANotasPrincipales1Rec durMin ultNotaP (durAcumulada + d) resto
+deMelodiaANotasPrincipales1Rec durMin ultNotaP durAcumulada ( (Nota (pc, o) d) : resto ) 
+       | d >= durMin  =  ultNotaP : deMelodiaANotasPrincipales1Rec durMin 
+                         (pc, d + durAcumulada) (0%1) resto
+       | d <  durMin  =  deMelodiaANotasPrincipales1Rec durMin ultNotaP (d + durAcumulada) 
+                         resto
+\end{verbatim}
+\normalsize
+
+\subsection{Un m\'etodo m\'as depurado}
+Este m\'etodo es un poco m\'as depurado que el anterior y selecciona a m\'as
+notas principales. Tambi\'en tiene en cuenta cosas como el ritmo o 
+hacia d\'onde se mueve una nota. Se basa en el criterio que expone
+Enric Herrera en su libro Teor\'\i a Musical y Armon\'\i a Moderna 
+Volument 1 p\'agina 72. Paso a explicar los diferentes casos:
+\begin{enumerate}
+\item Nota de larga duraci\'on. Igual que en la secci\'on anterior
+\item Nota seguida de silencio de, al menos, su misma duraci\'on.
+\item Nota seguida de otra entre las que existe un salto. Suponemos como
+salto la distancia en altura de m\'as (estricto) de 2 semitonos.
+\item Nota corta que resuelve en su inmediata inferior de tiempo fuerte a d\'ebil
+\end{enumerate}
+
+Para saber si el tiempo en el que cae una nota es fuerte o d\'ebil hacemos
+lo siguiente. Necesitamos la duraci\'on de toda la canci\'on anterior a esa nota,
+incluida la nota, y el denominador de la duraci\'on de dicha 
+nota (a lo que hemos llamado \emph{resoluci\'on}). Cambiamos la duraci\'on
+por una fracci\'on equivalente que tenga de denominador la resoluci\'on. 
+Si la nueva fracci\'on tiene un numerador par entonces el tiempo es fuerte,
+si no es d\'ebil.\\
+\small
+\begin{verbatim}
+esTiempoFuerte :: Dur -> Resolucion -> Bool
+esTiempoFuerte du r = even num
+       where (num, den) = cambiaResolucion du r
+
+cambiaResolucion :: Dur -> Resolucion -> (Int, Int)
+cambiaResolucion du r = (newN , newD)
+       where (n, d) = ( numerator du, denominator du);
+             newN = n * (div r d);
+             newD = r
+\end{verbatim}
+\normalsize
+\indent Este procedimiento est\'a pensado y probado para duraciones y resoluciones
+que sean potencia de dos, tal y como est\'an preparadas las notas en m\'usica
+(es decir, 1/2, 1/4, 1/8, etc.). Es dif\'\i cil conocer el acento del tiempo
+si no cumple las condicines ahora dichas y no me comprometo a que sea
+correcto el resultado en caso de que no las cumpla.\\
+\indent La funci\'on completa es la siguiente:\\
+
+\small
+
+\begin{verbatim}
+deMelodiaANotasPrincipales3 :: DurMin -> Melodia -> [NotaPrincipal]
+deMelodiaANotasPrincipales3 durMin melodia = reverse (drop 1 (deMelodiaANotasPrincipales3Rec 
+       durMin (C,0%1) (0%1) (reverse (catalogaNotasPrincipales3 (0%1) durMin melodia)) ))
+
+deMelodiaANotasPrincipales3Rec :: DurMin -> NotaPrincipal -> Dur -> [(HaskoreSimple, Bool)] 
+                                  -> [NotaPrincipal]
+deMelodiaANotasPrincipales3Rec durMin (pc, d) durAcumulada [] = [ (pc, d + durAcumulada) ]
+deMelodiaANotasPrincipales3Rec durMin ultNotaP durAcumulada ( (Silencio d, _) : resto ) = 
+        deMelodiaANotasPrincipales3Rec durMin ultNotaP (durAcumulada + d) resto
+deMelodiaANotasPrincipales3Rec durMin ultNotaP durAcumulada ( (Nota (pc, o) d, b) : resto ) 
+       | b == True  =  ultNotaP : deMelodiaANotasPrincipales3Rec durMin (pc, d + durAcumulada) 
+                                  (0%1) resto
+       | b == False =  deMelodiaANotasPrincipales3Rec durMin ultNotaP (d + durAcumulada) resto
+
+type DurAnt = Dur 
+catalogaNotasPrincipales3 :: DurAnt -> DurMin -> Melodia -> [(HaskoreSimple, Bool)]
+catalogaNotasPrincipales3 _ _ [] = []
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc, o) d : resto )
+       | d >= durMin = ( Nota (pc, o) d, True ) : catalogaNotasPrincipales3 (durAnt+d) durMin 
+                       resto
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc, o) d1 : Silencio d2 : resto) 
+       | d2 >= d1  = ( Nota (pc, o) d1, True ) : ( Silencio d2 , False) : 
+                     catalogaNotasPrincipales3 (durAnt+d1+d2) durMin resto
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc1, o1) d1 : Nota (pc2, o2) d2 : resto)
+       | abs (pitchClass pc1 - pitchClass pc2) > 2 = ( Nota (pc1, o1) d1, True ) : 
+                     catalogaNotasPrincipales3 (durAnt+d1) durMin (Nota (pc2, o2) d2 : resto)
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc1, o1) d1 : Nota (pc2, o2) d2 : resto)
+       | esTiempoFuerte (durAnt + d1) (denominator d1) && ((dist == 1) || (dist == 2)) = 
+                    ( Nota (pc1, o1) d1, True ) : catalogaNotasPrincipales3 (durAnt+d1) 
+                     durMin (Nota (pc2, o2) d2 : resto)
+       where dist = (pitchClass pc1 - pitchClass pc2)
+catalogaNotasPrincipales3 durAnt durMin (Nota (pc, o) d : resto ) = 
+        (Nota (pc, o) d , False) : catalogaNotasPrincipales3 (durAnt+d) durMin resto
+catalogaNotasPrincipales3 durAnt durMin (Silencio d : resto) = 
+        (Silencio d, False) : catalogaNotasPrincipales3 (durAnt+d) durMin resto
+\end{verbatim}
+
+\normalsize
+\indent La funci\'on \emph{catalogaNotasPricipales} tiene la finalidad de
+asignar un booleano a cada nota indicando si es principal o no.
+Esto simplemente tiene la finalidad de hacer el algoritmo un 
+poco m\'as simple.\\
+
+\section{Armonizaci\'on de notas principales}
+Una vez que ya tenemos las notas principales hay que buscar aquellos
+acordes que posean a esas notas principales. Cuando hablamos de
+poseer a las notas principales nos referimos exclusivamente
+a su \emph{PitchClass}.\\
+\indent Hay que tener en cuenta una cosa importante. Suponemos que la 
+melod\'\i a pasado est\'a en la tonalidad de C Mayor, lo que
+significa que las notas C, D, E, F, G, 
+A y B son diat\'onicas a la tonalidad
+y que el resto son notas crom\'aticas. Esto implica que las notas 
+diat\'onicas van a ser armonizadas con acordes diat\'onicos mientras 
+que el resto ser\'an armonizadas con acordes crom\'aticos (dominantes
+secundarios, disminuidos, etc.).\\
+\indent Al igual que antes vamos a tener dos formas de armonizar:
+
+\subsection{Un acorde por nota principal}
+Es el caso m\'as simple y musicalmente suena bien cuando las
+notas principales son relativamente largas.\\
+\indent Como el propio nombre indica a cada nota principal le va a 
+asignar un unico acorde por lo que el procedimiento es bastante simple.
+
+\begin{enumerate}
+\item Para cada nota principal busca todos los acordes que posean a dicha
+noa (en funcion de si es diatonica o no).
+\item De todos los acordes que la pueden armonizar se queda con
+uno aleatoriamente.
+\end{enumerate}
+\small
+\begin{verbatim}
+armonizaNotasPrincipales1 :: RandomGen g => g -> ModoAcordes 
+                             -> [NotaPrincipal] -> Progresion
+armonizaNotasPrincipales1 _   _  [] = []
+armonizaNotasPrincipales1 gen ma (notaP : resto) = cifradoYDur : 
+     armonizaNotasPrincipales1 sigGen ma resto
+           where (cifradoYDur, sigGen) = armonizaNotaPrincipal1 gen ma notaP
+
+armonizaNotaPrincipal1 :: RandomGen g => g -> ModoAcordes -> NotaPrincipal 
+                          -> ((Cifrado, Dur), g)
+armonizaNotaPrincipal1 gen ma (notaP, dur) = ((cifradoAleatorio, dur), sigGen)
+           where cifradosCandidatos = buscaCifradosCandidatosDeCMayor ma notaP
+                 (cifradoAleatorio , sigGen )= elementoAleatorio gen 
+                                               cifradosCandidatos 
+\end{verbatim}
+\normalsize
+
+\subsection{M\'as largo posible}
+La idea de este m\'etodo es tambi\'en bastante sencilla. Consiste en 
+buscar el acorde que englobe el mayor numero de notas principales
+posible. Existe la posibilidad de introducir una duraci\'on m\'axima
+para ese acorde y as\'\i ~evitar que generen acordes demasiado
+largos aunque si buscamos un \'unico acorde para armonizar
+toda una melod\'\i a (que puede no conseguirse) basta con poner esa
+duraci\'on muy grande.\\
+El algoritmo es como sigue:
+\begin{enumerate}
+\item Busca todos los acordes para armonizar una nota y continua
+con el resto de notas.
+\item Para el resto vuelve a buscar los acordes candidatos y 
+realiza la interseccion con la lista del punto 1. De esa
+forma nos vamos quedando con los acordes que armonizan las
+notas anteriores.
+\item Continuamos asi hasta que dicha lista sea vacia o la duracion
+del acorde exceda la duracion maxima. En ese caso elegimos un 
+acorde al azar (de la lista anterior porque la actual esta vacia, claro)
+y volvemos al punto 1.
+\end{enumerate}
+
+\small
+\begin{verbatim}
+type CifradosCandidatos = [Cifrado]
+type DurAcordeAcumulado = Dur
+
+-- Para comenzar con los cifrados condidatos
+armonizaNotasPrincipales3 :: RandomGen g => g -> ModoAcordes -> DurMaxA 
+                             -> [NotaPrincipal] -> Progresion
+armonizaNotasPrincipales3 _  _ durMaxA [] = []
+armonizaNotasPrincipales3 gen ma durMaxA ( (pc, d) : resto)
+     | d == durMaxA  =  (cifradoAleatorio, d ) : armonizaNotasPrincipales3 
+                        newGen ma durMaxA resto   
+     | d >  durMaxA  =  (cifradoAleatorio, durMaxA ) : armonizaNotasPrincipales3 
+                        newGen ma durMaxA ( (pc, d - durMaxA) : resto)
+     | d <  durMaxA  =  armonizaNotasPrincipales3' gen ma durMaxA cifradosCandidatos 
+                        d resto  
+     where cifradosCandidatos = buscaCifradosCandidatosDeCMayor ma pc;
+           (cifradoAleatorio, newGen) = elementoAleatorio gen cifradosCandidatos 
+
+-- Cuando ya tenemos una lista de cifrados candidatos
+armonizaNotasPrincipales3' :: RandomGen g => g -> ModoAcordes -> DurMaxA -> 
+                              CifradosCandidatos -> DurAcordeAcumulado -> [NotaPrincipal] 
+                               -> Progresion
+armonizaNotasPrincipales3' gen ma durMaxA cifCan durA [] = [(cifAlea, durA)]
+    where (cifAlea, newGen) = elementoAleatorio gen cifCan 
+armonizaNotasPrincipales3' gen ma durMaxA cifCan durA ( (pc, d) : resto) 
+    | durA == durMaxA                        = (cifAlea , durMaxA) : 
+            armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d) : resto )
+    | durA + d == durMaxA && newCifCan /= [] = ( newCifAlea , d + durA) : 
+            armonizaNotasPrincipales3 newGen2 ma durMaxA resto        
+    | durA + d == durMaxA && newCifCan == [] = ( cifAlea , durA) : 
+            armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d) : resto)   
+    | durA + d <  durMaxA && newCifCan /= [] = 
+            armonizaNotasPrincipales3' gen ma durMaxA newCifCan (durA + d) resto                 
+    | durA + d <  durMaxA && newCifCan == [] = ( cifAlea , durA) : 
+            armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d) : resto)   
+    | durA + d >  durMaxA && newCifCan /= [] = ( newCifAlea , durMaxA) : 
+            armonizaNotasPrincipales3 newGen2 ma durMaxA ( (pc, d - durMaxA + durA) : resto)
+    | durA + d >  durMaxA && newCifCan == [] = ( cifAlea , durA) : 
+            armonizaNotasPrincipales3 newGen ma durMaxA ( (pc, d) : resto)   
+    where newCifCan = eliminaCifradosNoValidos cifCan (buscaCifradosCandidatosDeCMayor ma pc);
+          (cifAlea, newGen) = elementoAleatorio gen cifCan;
+          (newCifAlea, newGen2) = elementoAleatorio gen newCifCan;
+\end{verbatim}
+
+\normalsize
+
+\section{Salida del m\'odulo}
+La salida de este m\'odulo es una progresi\'on de acordes como ya hemos visto.
+En Genaro consiste en una lista formada por parejas de cifrado m\'as
+duraci\'on. El cifrado indica la especie del acorde (ej, D m, Re menor)
+y la duraci\'on el tiempo que se extiende. Prolog tambi\'en usa las mismas
+progresiones pero con otro formato ya que Prolog no entiende de tipos,
+solamente conoce t\'erminos (funciones y variables).\\
+\indent El interfaz gr\'afico
+est\'a implementado en C++ y en un principio se pens\'o en que parseara
+progresiones en formato Prolog. Ahora que tenemos progresiones en formato
+Haskell podemos hacer dos cosas: que Haskell escriba la progresion haciendo
+un \emph{show} y que se construya otro parser en el interfaz o usar el mismo
+parser pero escribir la progresi\'on en formato Prolog. Se opt\'o por hacerlo
+de esta \'ultima manera porque era la m\'as f\'acil.\\
+\indent Por eso cuando se necesita que Haskell escriba en un fichero la progresi\'on
+que ha generado el armonizador antes tiene que llamar a la funci\'on 
+\emph{deProgresionAString} y \emph{escribeProgresionComoProlog} que se encuentran
+en el m\'odulo \emph{Progresiones.hs}.
+
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -2,6 +2,7 @@
 
 \usepackage[spanish]{babel}
 \usepackage{musixtex}
+
 \title{Haskore a Lilypond}
 \author{Roberto Torres de Alba}
 \setlength{\hoffset}{-2cm}
@@ -9,35 +10,37 @@
 \setlength{\textwidth}{450pt}
 
 \begin{document}
-\maketitle
+
 \chapter{Haskore a Lilypond}
 
-\section{Introduccion}
+\section{Introducci\'on}
 
 %hablar del cygwin
 %hablar de sostenidos y bemoles
-Este modulo pretende ser un traductor que pasa del arbol que representa 
-el tipo Music a un String que sea entendido por lilypond.\\
-Nosotros hemos usado la version 2.4.3 de lilypond para compilar.\\
-En primer lugar ibamos a usar el programa midi2ly que viene junto con 
-lilypond que pasa un archivo midi a formato lilypond. Las pruebas que hicimos
-con ellos nos desilusiono bastante ya que el resultado obtenido estaba lejos
-de ser correcto a pesar de que nuestros ejemplos eran muy simples 
-y hechos con Haskore, es decir, que no estaba la mano de ningun humano
-que podia varia el tiempo en milesimas.\\
-Es por ello que intentamos hacer la traduccion nosotros mismos a algun
-formato que se pudiera compilar a pdf. Vimos que, a diferencia de otros
-como musicTex o musixTex, el formato de lilypond era muy parecido a la
-estructura del tipo Music de Haskore. Esto nos motivo a hacer la conversion 
+Este m\'odulo pretende ser un traductor que pasa del arbol de constructoras que representa 
+el tipo \emph{Music} a un \emph{String} que sea entendido por Lilypond.
+Nosotros hemos usado la version 2.4.3 de Liypond para compilar.\\
+\indent En primer lugar ibamos a usar el programa \emph{midi2ly} que viene junto con 
+Lilypond y que pasa un archivo MIDI a formato Lilypond. Las pruebas que hicimos
+con ellos nos desilusionaron bastante ya que el resultado obtenido estaba lejos
+de ser correcto incluso con ejemplos simples 
+(hechos con Haskore, es decir, que no estaba la mano de ning\'un humano
+que pod\'\i a variar el tiempo en mil\'esimas).\\
+\indent Es por ello que intentamos hacer la traducci\'on nosotros mismos a algun
+formato que se pudiera compilar a pdf. A diferencia de otros lenguajes
+como musicTex o \musixtex, el formato de Lilypond era muy parecido a la
+estructura del tipo Music de Haskore. Esto nos motiv\'o a hacer la conversi\'on 
 de esta forma.
 
-\section{Traduccion}
-En esta seccion no vamos a entrar en como es el proceso de conversion
-completo ni en todas las caracteristicas de lilypond porque, mas que nada,
+\section{Traducci\'on}
+En esta secci\'on no vamos a entrar en c\'omo es el proceso de conversi\'on
+completo ni en todas las caracter\'\i sticas de Lilypond porque, m\'as que nada,
 ni yo mismo las conozco.\\
-Ya que el tipo Music no posee informacion sobre la obra completa hemos
-tenido que hacer un tipo que lo englobe. Ese tipo se llama CancionLy
+\indent Ya que el tipo Music no posee informaci\'on sobre la obra completa hemos
+tenido que hacer un tipo que lo englobe. Ese tipo se llama \emph{CancionLy}
 y es muy simple de entender:
+
+\small
 \begin{verbatim}
 type Armadura = (PitchClass, Modo)
 data Modo = Mayor | Menor
@@ -55,19 +58,23 @@ type Compositor = String
 
 type CancionLy = (Titulo, Compositor, [Score])
 \end{verbatim}
-Muchas de las cosas anteriores se entienden por lo que no vamos a entrar
-a detallarlas. La parte mas importante es la traduccion del tipo Music
-que es parte de un Score (pentagrama en ingles).
+\normalsize
 
-\subsection(Traduccion del tipo Music)
-Como hemos dicho, lilypond y Music tienen varias cosas en comun que
-hace atractiva su conversion. En concreto son dos: ambos poseen
-un operador para secuenciar musica y para paralelizarla.\\
-El operador de musica paralela (que se interpreta a la vez) es el :=:
-en Haskore. En lilypond es todo aquello que va entre $<<$ y $>>$. El 
-operador secuencia en Haskore es el :+: y en lilypond es todo aquello
-que no esta entre $<<$ y $>>$. Lilypond tambien es capad de agrupar
-musica poniendo llaves \{ \}.
+Muchas de las cosas anteriores se comprenden por lo que no vamos a entrar
+a detallarlas. La parte m\'as importante es la traducci\'on de CancionLy
+es la parte del Score (pentagrama en ingl\'es) que contiene al tipo Music.
+
+\subsection(Traducci\'on del tipo Music)
+Como hemos dicho, Lilypond y Music tienen varias cosas en com\'un que
+hacen atractiva su conversi\'on. En concreto son dos: ambos poseen
+un operador para secuenciar m\'usica y para paralelizarla.\\
+\indent El operador de m\'usica paralela (que se interpreta a la vez) es el :=:
+en Haskore. En Lilypond es todo aquello que va entre $<<$ y $>>$. El 
+operador secuencia en Haskore es el :+: y en Lilypond es todo aquello
+que no est\'a entre $<<$ y $>>$. Lilypond tambi\'en es capaz de agrupar
+m\'usica poniendo llaves \{ \}, a lo que llama secuencia.
+
+\small
 \begin{verbatim}
 deMusicALy :: Music -> String
 deMusicALy (Note p dur _) = imprimeNota p dur
@@ -84,52 +91,65 @@ deMusicALy (Instr _ m)    = deMusicALy m
 deMusicALy (Player _ m)   = deMusicALy m
 deMusicALy (Phrase _ m)   = deMusicALy m
 \end{verbatim}
-Esta es la funcion central del modulo HaskoreALilypond.hs. Algunas constructoras
+\normalsize
+
+Esta es la funci\'on central del m\'odulo \emph{HaskoreALilypond.hs}. Algunas constructoras
 de Music tiene que ser ignoradas porque o no corresponden con nada de
-lilypond o la traduccion seria tan complicada que llevaria mucho tiempo y no 
-mereceria la pena.\\
-Por ultimo hay que se~nalar un apunte sobre la traduccion de duraciones de
-notas o silencios. Lilypond solo entiende duraciones que son potencias de
+Lilypond o la traducci\'on ser\'\i a tan complicada que llevar\'\i a mucho tiempo y no 
+merecer\'\i a la pena.\\
+\indent Por \'ultimo hay que se~nalar un apunte sobre la traducci\'on de duraciones de
+notas o silencios. Lilypond s\'olo entiende duraciones que son potencias de
 dos, es decir, 1 es la redonda, 2 la blanca, etc. Pero las duraciones en
-Haskore son fracciones de enteros. Por ello se ha hecho de la siguiente forma:\\
-1. Si el numerador es mayor que uno entonces se repite tantas veces como diga
-dicho numerador y todas las notas se ligan.\\
-2. Si el denominador no es potencia de 2 se cambia a la potencia de dos mas
-cercana. Este ultimo paso elimina informacion del tipo Music pero no se que
-podriamos hacer si llega algo por el estilo de 1/27. En caso de dejarselo 
-a lilypond este siempre pone una redonda en caso de no entenderlo, cosa que
-es todavia peor.\\
+Haskore son fracciones de enteros. Por ello se ha hecho lo siguiente:
+
+\begin{enumerate}
+\item Si el numerador es mayor que uno entonces se repite tantas veces como diga
+dicho numerador y todas las notas se ligan.
+\item Si el denominador no es potencia de 2 se cambia a la potencia de dos m\'as
+cercana. Este \'ultimo paso elimina informacion del tipo Music pero no se qu\'e
+podr\'\i amos hacer si llega algo del estilo de 1/27. En caso de dejarselo 
+a lilypond este siempre pone una redonda cuando no lo entiende, cosa que
+es todav\'\i a peor.
+\end{enumerate}
+
 Esto ha motivado la siguiente funcion:
+
+\small
 \begin{verbatim}
 imprimeNota :: Pitch -> Dur -> String
 imprimeNota p dur 
-   | numerador == 3 && denominador > 1 = imprimePitch p ++ show (quot denominador 2) ++ "." -- Ponemos puntillo
-   | otherwise                         = eliminaUltimos 2 (concat [imprimePitch p ++ show (redondeaAPotenciaDos(denominator dur)) ++ "~ " | i <- [1..numerador] ] ) -- elimina los dos ultimos para acabar con el ultimo "~"
+   -- Ponemos puntillo
+   | numerador == 3 && denominador > 1 = imprimePitch p ++ 
+                                         show (quot denominador 2) ++ "."
+   | otherwise                         = eliminaUltimos 2 (concat [imprimePitch p ++ 
+                                         show (redondeaAPotenciaDos(denominator dur)) ++ 
+                                         "~ " | i <- [1..numerador] ] )
    where numerador = numerator dur;
          denominador = denominator dur;
 \end{verbatim}
+\normalsize
 
 \section{Problemas}
-El principal problema no ha sido la conversion al formato lilypond. Sabemos
-que muchas veces, sobre todo en melodia y bajo, el denominador de las notas 
-no va a ser potencia de dos. nos hubieramos conformado con que tuvieramos
-una ligera aproximacion a las notas que genera Genaro.\\
-El principal problema es el propio lilypond. La version 2.4.2 estaba mal 
-implementada y no conseguia compilar nada. La version 2.4.3 compilaba
-bien pero solo cosas pequeñas. Cuando la cancion era grande o el Music
-tenia forma de arbol degenerado (es decir, de una lista) que era lo que
+El principal problema no ha sido la conversi\'on al formato Lilypond. Sabemos
+que muchas veces, sobre todo en melod\'\i a y bajo, existe mucha probabilidad de que el denominador de las notas
+no sea potencia de dos. Nos hubieramos conformado con que tuvieramos
+una ligera aproximaci\'on a las notas que genera Genaro.\\
+\indent El principal problema es el propio Lilypond. La version 2.4.2 estaba mal 
+implementada y no consegu\'\i a compilar nada. La version 2.4.3 compilaba
+bien pero s\'olo cosas peque~nas. Cuando la canci\'on era grande o el Music
+ten\'\i a forma de \'arbol degenerado (es decir, de una lista) que era lo que
 sucedia cuando pasabamos un MIDI a Music con las funciones que proporciona
-Haskore (loadMidiFile y readMidi) entonces daba un error de pila. Suponemos
-que es porque la conversion generaba muchas llaves \{ \} que producirian
-muchas llamadas recursibas en lilypond.
+Haskore (\emph{loadMidiFile} y \emph{readMidi}) entonces daba un error de pila. Suponemos
+que es porque la conversi\'on generaba muchas llaves \{ \} que produc\'\i an
+muchas llamadas recursivas en Lilypond.
 
 \section{Posibles ampliaciones}
-Una ampliacion muy interesante habria sido introducir los cifrados que
-genera Genaro en la propia partitura y no solo las notas. Lilypond puede
-hacerlo aunque habria que hacer la conversion.\\
-Ya menos interesante aunque posible habria sido introducir caracteristica 
-de articulacion, como puede ser el legato, o cosas como el tempo o 
-la intensidad de la nota (seria traducir el velocity a forte, mezoforte, etc.)
+Una ampliaci\'on muy interesante habr\'\i a sido introducir los cifrados que
+genera Genaro en la propia partitura y no s\'olo las notas. Lilypond puede
+hacerlo aunque habr\'\i a que hacer la conversi\'on e introducir m\'as informaci\'on en CancionLy.\\
+\indent Ya menos interesante, aunque posible, habr\'\i a sido introducir caracter\'\i stica 
+de articulaci\'on, como puede ser el \emph{legato}, o cosas como el \emph{tempo} o 
+la intensidad de la nota (seria traducir el \emph{velocity} a \emph{forte}, \emph{mezoforte}, etc.)
 
 \end{document}
 

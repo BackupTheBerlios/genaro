@@ -11,6 +11,8 @@
 
 \begin{document}
 
+\tableofcontents
+
 \chapter{Haskore a Lilypond}
 
 \section{Introducci\'on}
@@ -64,7 +66,7 @@ Muchas de las cosas anteriores se comprenden por lo que no vamos a entrar
 a detallarlas. La parte m\'as importante es la traducci\'on de CancionLy
 es la parte del Score (pentagrama en ingl\'es) que contiene al tipo Music.
 
-\subsection(Traducci\'on del tipo Music)
+\subsection{Traducci\'on del tipo Music}
 Como hemos dicho, Lilypond y Music tienen varias cosas en com\'un que
 hacen atractiva su conversi\'on. En concreto son dos: ambos poseen
 un operador para secuenciar m\'usica y para paralelizarla.\\
@@ -97,7 +99,21 @@ Esta es la funci\'on central del m\'odulo \emph{HaskoreALilypond.hs}. Algunas co
 de Music tiene que ser ignoradas porque o no corresponden con nada de
 Lilypond o la traducci\'on ser\'\i a tan complicada que llevar\'\i a mucho tiempo y no 
 merecer\'\i a la pena.\\
-\indent Por \'ultimo hay que se~nalar un apunte sobre la traducci\'on de duraciones de
+
+\subsubsection{Traducci\'on de alteraciones}
+Cuando hablamos de alteraciones nos referimos a los sostenidos y bemoles musicales.
+Como el sistema del tipo Music es atemperado no importa si se ejecuta \# C o bC ya
+que son el mismo sonido. Un m\'usico de verdad no usar\'\i a ambos s\'\i mbolos indistintamente
+porque no tienen el mismo significado. El problema es que no sabemos c\'omo se usa
+un s\'\i mbolo u otro por lo que optamos por una soluci\'on simple y elegante: si
+la armadura tiene sostenidos entonces que sean todas las alteraciones sostenidos, e
+\emph{idem} para bemoles.\\
+\indent La partitura final puede que no sea correcta musicalmente hablando pero, al menos,
+es m\'as f\'acil de leer. La funci\'on que lo lleva a cabo es \emph{arreglaAlteraciones}
+que no copio aqu\'\i~por ser demasiado extensa.
+
+\subsubsection{Traducci\'on de duraciones}
+Por \'ultimo hay que se~nalar un apunte sobre la traducci\'on de duraciones de
 notas o silencios. Lilypond s\'olo entiende duraciones que son potencias de
 dos, es decir, 1 es la redonda, 2 la blanca, etc. Pero las duraciones en
 Haskore son fracciones de enteros. Por ello se ha hecho lo siguiente:

@@ -24,6 +24,22 @@ Es un compilador de C++ que posee facilidades para generar una GUI.
 Es un interprete de Haskell. Tiene una licencia que permite la libre distribuci\'on.
 
 \section{Haskore}
-Haskore son unas librer\'\i as de haskell que brindan facilidades para el tratamiento musical.
+Haskore son unas librer\'\i as de haskell que brindan facilidades para el tratamiento musical. Se fundamenta en el tipo \emph{Music}, que es un tipo recursivo que representa la m\'usica. Tambi\'en proporciona funciones para generar archivos midi a partir de elementos de tipo Music, y viceversa. El tipo Music est\'a definido de la siguiente manera:
+\begin{verbatim}
+data Music = Note Pitch Dur [NoteAttribute]   -- a note \ atomic 
+           | Rest Dur                         -- a rest /    objects
+           | Music :+: Music                  -- sequential composition
+           | Music :=: Music                  -- parallel composition
+           | Tempo  (Ratio Int) Music         -- scale the tempo
+           | Trans  Int Music                 -- transposition
+           | Instr  IName Music               -- instrument label
+           | Player PName Music               -- player label
+           | Phrase [PhraseAttribute] Music   -- phrase attributes
+    deriving (Show, Eq)
+type Dur   = Ratio Int                        -- in whole notes
+type IName = String
+type PName = String
+\end{verbatim}
+
 
 \end{document}

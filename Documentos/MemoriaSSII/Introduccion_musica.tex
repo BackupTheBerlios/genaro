@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+﻿\documentclass[a4paper,12pt]{article}
 \usepackage[spanish,activeacute]{babel}
 %en author tengo que poner los acentos asi pq el activeacute aún no funciona en author
 \author{Juan Rodr\'iguez Hortal\'a}
@@ -27,7 +27,19 @@ Habiendo entendido lo que es una nota podemos intentar desarrollar una visi'on m
 Por tanto la m'usica se puede representar como una agrupaci'on de `puntos` (las notas), dispuestas en el espacio seg'un dos ejes: el horizontal o temporal, que determina qu'e sonidos suenan o dejan de sonar, antes o despu'es; y el vertical o de alturas, que determina la altura de los sonidos en el momento de su instanciaci'on.
 
 \section{Otros conceptos b'asicos}
-Que es un acorde, que es tonalidad y comp'as, que es una escala. Contar un poco esto. MAS ABAJO DECIR QUE GENARO ES BINARIO Y MAYOR
+En esta secci\'on introduciremos algunos conceptos que necesitamos manejar para entender el funcionamiento de GENARO
+
+\begin{itemize}
+
+\item [Acorde:] El concepto de \emph{acorde} se puede entender a distintos niveles de abstracci'on. En el nivel m'as concreto, un acorde es un grupo de dos o m'as notas que suenan a la vez. Pero a un nivel m'as alto de abstracci'on un acorde se puede entender como una agrupaci'on de alturas musicales que se considera que tienen un significado conjunto, y llamaremos \emph{cifrado} a la representaci'on de los acordes a este nivel de abstracci'on. 
+
+\item [Tonalidad:] Es un eje o contexto global que define la estabilidad de las notas musicales y la forma en la que se suceden los acordes. GENARO trabaja siempre en tonalidades mayores (en realidad trabaja siempre en Do Mayor y luego traspone el resultado).
+ 
+\item [Comp\'as:] Es una unidad de tiempo en la que se divide una frase u obra musical, cada comp\'as est\'a dividido en periodos de tiempo de igual duraci\'on llamados ''tiempos''. Hay varios tipos de compases, GENARO trabaja siempre en el comp\'as binario de 2/2. Este tipo de comp\'as se caracteriza por ser la sucesi\'on de un tiempo fuerte y un tiempo d\'ebil.
+
+\item [Escala:] Un acorde define una jerarqu\'\i a de sonidos en el intervalo de tiempo en el que este est\'a vigente. Una escala es un conjunto de alturas musicales que se ''permiten'' durante la duraci\'on del acorde. Dentro de las notas de las alturas que pertenecen a la escala, algunas son m\'as estables y otras menos.
+
+\end{itemize}
 
 \section{Enfoque Genaro de la m'usica}
 Se puede entender que la m'usica esta formada por tres elementos, \emph{melod'ia}, \emph{armon'ia} y \emph{ritmo}:

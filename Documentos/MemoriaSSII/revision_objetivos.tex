@@ -1,0 +1,85 @@
+
+\documentclass[a4paper,11pt]{article}
+\usepackage{latexsym}
+\usepackage{graphicx}
+\usepackage[spanish]{babel}
+%\author{Juan Rodr\'\i guez Hortal\'a, Javier G\'omez Santos, Roberto Torres de Alba}
+\title{Revisi\'on final}
+\frenchspacing
+\begin{document}
+\maketitle
+\tableofcontents
+\section{Evaluacion de objetivos}
+La finalidad de esta secci\'on es revisa los objetivos que en su d\'\i a fueron propuestos para GENARO, y revisar cuales de ellos han sido cumplidos, cuales no, y cuales han sido alcanzados s\'olo en parte.
+
+\subsection{Objetivos principales}
+
+\subsubsection{Componer una canci\'on para un tempo, tonalidad, escala y duraci\'on aproximada}
+
+GENARO es capaz de usar estos par\'ametros para generar una canci\'on, a excepci\'on de la tonalidad, para la que nos hemos restringido a tonalidades mayores. Esto es lo que quer\'\i amos obtener con GENARO.
+
+\subsubsection{Posibilidad de reproducir la m\'usica generada a trav\'es de nuestro programa}
+
+Con la ayuda de un programa auxiliar llamado \emph{Timidity}, que es invocado de manera transparente al usuario, somos capaces de reproducir la m\'usica que genarmos a trav\'es de nuestro programa.
+
+\subsubsection{Exportar la m\'usica generada a formatos .wav y .midi}
+
+A trav\'es de las librerias de \emph{Haskore} GENARO crea un midi con la m\'usica que ha compuesto. Este midi puede ser exportado a un fichero .wav mediante la ayuda del \emph{Timidity}, que es invocado nuevamente por el programa principal.
+
+\subsubsection{Interfaz gr\'afica amigable}
+
+El interfaz gr\'afico facilita de manera intuitiva un control absoluto sobre los par\'ametros de uso de GENARO a un usuario. Act\'ua como nexo ante los dem\'as programas para facilitar al usuario el uso de GENARO.
+
+\subsection{Objetivos secundarios}
+
+\subsubsection{Generar un archivo pdf o ps con la partitura del instrumento elegido}
+Objetivo no cumplido. Por problemas de tiempo, de dificultad en el uso de Lilypond y en la traducci\'on
+del tipo \emph{Music} de \emph{Haskore} no se ha podido introducir adecuadamente en Genaro. Hay algo
+hecho pero no es definitivo.
+
+\subsubsection{Edici\'on de la estructura de la canci\'on especificando para cada secci\'on musical su tipo de escala y tonalidad, su tempo y otros atributos}
+Como hemos dicho los parametros de escala, tempo y tonalidad estan establecidos para la canci\'on completa sin que se puedan cambiar en secciones individuales. Sin embargo cada seccion musical tiene propios parametros en funcion del tipo de pista que s\'\i ~que se guardan y se editan separadamente.
+
+\subsubsection {Poder seleccionar qu\'e instrumentos se silencian y cu\'ales no para poder o\'\i r y exportar en \emph{.wav} cada parte por separado}
+
+Objetivo cumplido. Tanto cada secci\'on musical como cada pista se pueden silenciar para que no se tengan
+en cuenta en la exportaci\'on a .wav.
+
+\subsubsection{Incorporar un editor de patrones r\'\i tmicos y otro de secuencias de acordes, y la posibilidad de salvarlos en ficheros. Posibilidad de elegir qu\'e patrones y secuencias se van a considerar en la generaci\'on de la m\'usica}
+Objetivo cumplido. Se desarrollo un editor de patrones r\'\i tmicos independiente del interfaz principal, a diferencia del editor de secuencias de acordes (llamado progresi\'on) que s\'\i ~est\'a ligado al interfaz principal.
+
+\subsubsection{Posibilidad de introducir una melod\'\i a por medio de la interfaz para que nuestro generador la armonice y componga un r\'\i tmo para ella}
+No est\'a implementado del todo. Existe la posibilidad de armonizar una melod\'\i a generada por GENARO 
+pero no la posibilidad de introducir una melod\'\i a por el interfaz. No ser\'\i a muy dif\'\i cil a~nadirlo ya que tenemos formularios para crear editores de pianola.
+
+\subsubsection{Sistema de comandos: se podr\'a invocar al programa a trav\'es de la consola con distintos par\'ametros, ofreciendo acceso a las mismas funcionalidades que la interfaz gr\'afica. El objetivo de esto es facilitar la reutilizaci\'on del software}
+Definitivamente no esta implementado ni se pretendi\'o implementarlo. Se le dio menos prioridad que el resto
+de las tareas ya que se refer\'\i a a versatilidad de uso y no a las propias funciones de GENARO. Por falta
+de tiempo y debido a que su implementaci\'on ser\'\i a bastante complicada no se hizo.
+
+
+\section{Ampliaciones posibles}
+
+Considerando el estado actual del proyecto, GENARO podr\'\i a continuar avanzando en varios puntos. Aqu\'\i ~intentaremos enumerarlas.
+
+\subsection{Bater\'\i a}
+
+Enlazar la bater\'\i a a GENARO, e introduciendole aleatoriedad.
+
+\subsection{Patrones R\'\i tmicos}
+
+Introducir patrones r\'\i tmicos din\'amicos y aleatorios.
+
+\subsection {Acordes}
+
+Introducci\'on de otras tonalidades y ritmos
+
+\subsection {Editor de pianola}
+
+Permitir ligar las notas de una misma voz, y crear un editor de pianola espec\'\i fico para la melod\'\i a.
+
+\subsection {Interfaz principal}
+
+Pulir el interfaz para que goce de mayor intuitividad, y a\~nadirle las opciones de borrar pistas y bloques.
+
+\end{document}

@@ -302,7 +302,15 @@ El usuario puede editar las opciones de reproducci\'on de midi del programa \emp
 
 Exportando a wav es una opci\'on que permite una vez generado el archivo midi, crear un archivo wav. Para ello llama a \emph{timidity} con los par\'ametros de reproducci\'on especificados por el usuario en \emph{Opciones de Reproducci\'on}, y crea un fichero wav con el nombre de \emph{musica-genara.wav}, que se encuentra en el directorio ra\'\i z del programa. Para exportar el fichero midi a wav, tan s\'olo pulsa sobre el bot\'on \emph{Exportar a Wav} que se encuentra debajo del bot\'on \emph{Exportar a Midi}.
 
+\subsection{Guardando y cargando proyectos}
+
+GENARO permite guardar un proyecto para poder trabajar con el posteriormente. Para ello dir\'\i gete al men\'u \emph{Archivo} y escoge la opci\'on \emph{Guardar}. El programa te preguntar\'a por el nombre con el que quieres guardar el proyecto, y posteriormente lo guardar\'a con el nombre proporcionado.\\
+Para cargar un archivo, dir\'\i gete al men\'u \emph{Archivo}, y escoge la opci\'on \emph{Cargar}. Escoge el archivo de proyecto que desees, y contin\'ua trabajando donde lo dejastes.
+
 \section{El editor de pianola}
+
+El editor de pianola es una utilidad que acompa\~na a GENARO para la edici\'on y creaci\'on de patrones r\'\i tmicos. Un patr\'on r\'\i tmico es una estructura capaz de organizar las voces de un acorde en el tiempo. Es un componente no aleatorio.\\
+Para ejecutar el editor de pianola, has de pulsar sobre el men\'u \emph{Edici\'on} del programa principal, escoger la opci\'on \emph{Editor de pianola}, y te aparecer\'a una nueva ventana como la mostrada en la figura \ref{EditorPianola} de la p\'agina \pageref{EditorPianola}.
 
 \begin{figure}
 \centering
@@ -310,6 +318,47 @@ Exportando a wav es una opci\'on que permite una vez generado el archivo midi, c
     \caption{El editor de pianola}
     \label{EditorPianola}
 \end{figure}
+
+\subsection {Creando un nuevo proyecto}
+
+Al igual que con el programa principal, para trabajar con el editor de pianola tenemos que crear un nuevo proyecto, o bien, cargar uno existente. Para crear un nuevo proyecto, sencillamente dir\'\i gete al men\'u \emph{Archivo}, y escoge la opci\'on \emph{Nuevo}. Tras esto ya puedes empezar a trabajar en el patr\'on r\'\i tmico.
+
+\subsection {Creando voces en el editor de pianola}
+
+Para crear una nueva voz en el editor de pianol, tan s\'olo has de pulsar sobre el bot\'on \emph{Nueva Voz} que se encuentra arriba a la izquierda. Cada vez que pulses este bot\'on, una nueva fila aparecer\'a  en el editor. Si creas m\'as filas de las que es capaz de mostrar el editor, podr\'as desplazarte por ellas mediante el uso de la barra de desplazamiento vertical que hay a la izquierda del todo.
+
+\subsection {Aumentando la resoluci\'on del editor}
+
+Como habr\'as observado, el editor de pianola posee una barra de desplazamiento con las palabras \emph{Zoom In} y \emph{Zoom out}. Al desplazar la barra en un sentido o en otro, aumentamos o disminuimos el tama\~no con el que vemos la rejilla.
+
+\subsection {Eligiendo la duraci\'on de la nota que vamos a a\~nadir}
+
+Cuando estemos en \emph{modo edici\'on}, cada vez que pulsemos sobre la rejilla intentaremos a\~nadir una nueva nota. Esta nota tendr\'a la duraci\'on determinada por la barra de desplazamiento \emph{Duraci\'on de la nota}.
+
+\subsection {El grid, divisiones para facilitar la edici\'on}
+
+El editor de pianola permite crear separaciones de la duraci\'on especificada por el usuario, para hacer mas c\'omoda la edici\'on. Para ello debemos desplazar la barra \emph{Ajustar al Grid} .Posee tambi\'en una opci\'on para ajustar la nota al grid, marcando la casilla que hay en \emph{Ajustar al Grid}. Con esta opci\'on marcada, cualquier nota que se a\~nada al patr\'on, se pondr\'a en la zona a la que pertenezca la divisi\'on especificada en \emph{Ajustar al Grid}.
+
+\subsection {El men\'u edici\'on}
+
+Justo debajo del men\'u del editor de pianola, encontramos 4 botones. Su funci\'on es la siguiente:
+
+\begin{itemize}
+\item [L\'apiz:] Es el bot\'on edici\'on, mientras este bot\'on est\'e pulsado, cada vez que pinchemos sobre la rejilla intentaremos insertar una nueva nota
+\item [Papelera:] Es el bot\'on eliminar. Nos permite borrar notas de la rejilla pinchando sobre ellas.
+\item [Escaner:] Es el bot\'on examinar. Nos permite seleccionar una voz sin realizar ning\'un cambio en el sistema. Tambi\'en nos permite modificar el \emph{Velocity} de cada nota.
+\item [Play:] Es el bot\'on reproducir, nos permite escuchar como sonar\'\i a el patr\'on que estamos componiendo. Para cambiar el tempo de esta reproducci\'on debemos mover la barra de desplazamiento llamada \emph{Tempo}
+\end{itemize}
+
+\subsection{El velocity}
+
+El velocity corresponde por ejemplo a la \emph{fuerza} con la que se pulsa una tecla en un piano, podemos modificar el velocity de cada nota escogiendo el \emph{modo examinar}, y pinchando sobre la parte inferior de la rejilla, subiendo o bajando el rect\'angulo que aparece, observese que dependiendo de su altura el color de este rect\'angulo y de la nota a la que pertenece cambian.\\
+Podemos ajustar un velocity por defecto moviendo el selector que hay debajo de la rejilla.
+
+\subsection {Guardando y cargando}
+
+Si queremos guardar el patr\'on, debemos pulsar sobre el men\'u \emph{Archivo}, y en la opci\'on \emph{Guardar}. El programa nos pedir\'a con que nombre queremos guardar este patr\'on. Es importanto que los patrones se guarden en el subdirectorio del programa \emph{PatronesRitmicos}, ya que ah\'\i  es donde los busca GENARO.\\
+Para cargar un patr\'on debemos dirigirnos al men\'u \emph{Archivo}, y escoger la opci\'on \emph{Cargar}.
 
 \end{document}
 

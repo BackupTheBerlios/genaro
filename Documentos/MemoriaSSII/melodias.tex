@@ -1,4 +1,4 @@
-\documentclass[a4paper,12pt]{article}
+﻿\documentclass[a4paper,12pt]{article}
 \usepackage[spanish,activeacute]{babel}
 %en author tengo que poner los acentos asi pq el activeacute aún no funciona en author
 \author{Juan Rodr\'iguez Hortal\'a}
@@ -6,6 +6,7 @@
 \frenchspacing
 
 \begin{document}
+
 \maketitle
 \tableofcontents
 \section{Introducci'on}
@@ -55,17 +56,88 @@ Una vez ya sabemos construir una melod'ia para un acorde construir una melod'ia 
         \begin{enumerate}
         \item Generar la curva mel'odica: Genaro tiene un algoritmo de generaci'on aleatoria de curvas mel'odicas. Se le especifica el n'umero de puntos deseado, el salto m'aximo (valor absoluto m'aximo de un punto de la curva) y un peso para el cambio de direcci'on de la curva (la curva cambia de direcci'on cuando pasa de hacer saltos positivos a hacer saltos negativos o vicecersa). El algoritmo genera una curva que cumple esas restricciones, y para ello parte de un primer punto que vale 0, y de una direcci'on de movimiento (arriba o abajo) elegida aleatoriamente. Para el resto de puntos elige aleatoriamente si cambia de direcci'on o no teniendo en cuenta el peso suministrado y el tiempo que lleva `caminando` en una direcci'on, cuanto m'as rato lleve mayor es la probabilidad de que cambie de direcci'on con un salto mayor. Si no cambia de direcci'on son m'as probables los saltos peque~nos. Seg'un estas probabilidades e intervalos de valores v'alidos va generando aleatoriamente los puntos de la curva.
         \item Distribuir la curva entre los acordes: La curva mel'odica se genera para toda la progresi'on por lo que debe distribuirse entre los acordes de la progresi'on. A cada acorde le corresponde una cantidad de puntos de la curva seg'un su duraci'on, dando m'as puntos a los acordes m'as largos. A cada acorde le corresponde un porcentaje del n'umero de puntos de la curva igual a su duraci'on entre la duraci'on total de la progresi'on. Como esos porcentajes multiplicados por el n'umero de puntos de la curva no suelen dar lugar a enteros se distribuye la parte entera y lo que sobra se reparte resolviendo aleatoriamente los conflictos. Una vez decidido cuantos puntos corresponden a cada acorde estos se reparten en orden, es decir, que si a cada acorde i le corresponden $n_{i}$ puntos, entonces al acorde 1 le corresponden los puntos del 1 al $n_{i}$, al acorde 2 del $n_{i}$ + 1 al 2 * ($n_{i}$), etc...
-
+	\item Construir la lista de acentos a partir del patr'on r'itmico: Esto se hace de forma determin'ista, primero se calcula la lista formada por la media de los acentos de cada columna. Luego se calcula la media de estos acentos medios. Por 'ultimo se procesa la lista de acentos medios de forma que los acentos mayores o iguales que la media se dejan igual, y los menores que la media se dejan a cero. Finalmente se empareja esta 'ultima lista con las duraciones correspondientes a cada columna. Esta lista de acentos ser'a la misma para todos las melod'ias de todos los acordes de la progresi'on, de la misma forma que un patr'on r'itmico es com'un a todos los acordes de una progresi'on.
+	\item Construir las melod'ias para cada acorde: Primero se genera aleatoriamente una altura de partida para el primer acorde, dando una probabilidad mayor de ser elegidas a las notas m´as estables de 'este. Con esta altura de partida, la curva mel'odica que le corresponde, la lista de acentos, el primer acorde y los par'ametros correspondientes se genera la melod'ia para el primer acorde. Las melod'ias de los acordes siguientes se construyen igual, pero tomando como nota de partida la 'ultima nota de la melod'ia del acorde anterior.
+	\item Componer las melod'ias: Las melod'ias resultado se componen secuencialmente.
         \end{enumerate}
 
 
 \section{Implementaci'on}
-El m'odulo generador de melod'ias se apoya en la librer'ia Haskore para Haskell para componer melod'ias sobre un acompa~namiento.
+El m'odulo generador de melod'ias esta desarrollado 'integramente en Haskell, y se apoya en la librer'ia Haskore \cite{hudak} para componer melod'ias sobre un acompa~namiento.
+\newline
+La comunicaci'on de este m'odulo con el generador de progresiones se realiza a trav'es de los ficheros de texto que escribe el generador de progresiones. Estos ficheros son leidos por Haskell y procesados por un parser generado a partir de la librer'ia \cite{fokker}, para obtener elementos de tipo Progresion, un tipo definido en Haskell como sigue:
+        \begin{verbatim}
+data Grado = I|BII|II|BIII|III|IV|BV|V|AUV|VI|BVII|VII|VIII
+             |BBII|BBIII|AUII|BIV|AUIII|AUIV|BBVI|BVI|AUVI|BVIII|AUVIII
+             |BIX|IX|BX|X|BXI|XI|AUXI|BXII|XII|AUXII|BXIII|XIII|AUXIII
+             |V7 Grado
+             |IIM7 Grado
+     deriving(Show,Ord)
 
-contar lo del parser y lo de progresiones q es como en prolog pero traducido
+instance Eq Grado where
+  g1 == g2 = (gradoAInt g1::Int) == (gradoAInt g2::Int)
+
+data Matricula = Mayor|Menor|Au|Dis|Sexta|Men6|Men7B5|Maj7|Sept|Men7
+                |MenMaj7|Au7|Dis7
+     deriving(Enum,Read,Show,Eq,Ord,Bounded)
+
+type Cifrado = (Grado, Matricula)
+
+type Progresion = [(Cifrado, Dur)]
+        \end{verbatim}
+Tambi'en se recurre a la librer'ia \cite{fokker} para leer los ficheros de patr'on r'itmico escritos por el editor de C ++.
+\newline
+
+El resto de manipulaciones se realizan utilizando los tipos de Haskore, las abstracciones anteriormente introducidas, y otros tipos que representan informaci'on sobre escalas y otra serie de informaci'on sobre teor'ia musical. Todos estos conceptos est'an representados en Haskell como sigue:
+        \begin{verbatim}
+type SaltoMelodico = Int
+type CurvaMelodica = [SaltoMelodico]
+type CurvaMelodicaProgresion = [CurvaMelodica]
+type ListaAcentos = [(Acento, Dur)]
+type Acento = Float 
+{-
+Identificadores de cada tipo de escala
+-}
+data Escala = Jonica|Dorica|Frigia|Lidia|Mixolidia|Eolia|Locria
+             |MixolidiaB13|MixolidiaB9B13AU9|Disminuida
+     deriving(Enum,Read,Show,Eq,Ord,Bounded)
+{-
+InfoEscala = (tensiones, lista de notas que la forman, notas a evitar)
+-}
+type InfoEscala = ([Grado], [Grado], [Grado])
+{-
+Indica cuales son las octavas apropiadas para cada instrumento
+-}
+type Registro = [Octave]
+        \end{verbatim}
+
+Las melod'ias como producto 'ultimo se representan con la constructora Music de Haskore. Pero la entrada a las funciones de mutaci'on es una lista de elementos de tipo Music, que representan cada uno notas individuales. Esta representaci'on intermed'ia es m'as f'acil de manipular, y se transforma facilmente a la representaci'on final, aplicando la operaci'on de composici'on secuencial de Haskore.
+
+\section {Otros usos de 'este m'odulo}
+La interfaz gr'afica desarrollada en C++ ofrece al usuario un acceso sencillo a funcionalidades m'as sofisticadas. Las funcionalidades que ofrece de este m'odulo conbinado con el interfaz gr'afico son:
+	\begin{itemize}
+	\item Manipulaci'on de curvas mel'odicas: Se pueden manipular las curvas mel'odicas de diversas maneras:
+		\begin{enumerate}
+		\item[(a)] Salvado y carga de curvas mel'odicas. Esto permite aplicar la misma curva mel'odica en diversas pistas y bloques de la composici'on. Como la aplicaci'on de las curvas mel'odicas no es determinista, esto se puede entender como hacer variaciones sobre un tema com'un.
+		\item[(b)] Existe un editor manual de curvas mel'odicas, con el que el usuario puede dise~nar curvas mel'odicas, visualiz'andolas como una linea de puntos en dos dimensiones, lo que facilita la comprensi'on intuitiva de su significado. Para que el usuario comprenda lo que hace al disen~ar una curva, y lo que significan las curvas que hace Genaro.
+		\item[(c)] Existe una funci'on que muta aleatoriamente curvas mel'odicas, cambiando tantos puntos como se le indique, dentro de un intervalo de variaci'on determinado.
+	\end{enumerate}
+	\item Copia de melodias: Se puede copiar exactamente una melodia de una pista y subbloque determinado en otra pista y subbloque concretos. Esto es 'util si se quiere repetir una melod'ia para rearmonizarla.
+	\item M'odulo de bajo: se basa fuertemente en este m'odulo, tanto en funciones a las que llama como en las ideas de sus algoritmos.
+	\end{itemize}
 
 \section {Capacidad de ampliaci'on}
+La ausencia de objetos e interfaces y las abstracciones definidas favorecen la ampliabilidad de este m'odulo, proporcionando puntos de acceso para la generaci'on de melod'ias. Las vias m'as evidentes por las que se podr'ia ampliar este m'odulo son:
+	\begin{enumerate}
+	\item Dise~nar nuevas mutaciones para la melod'ia. O permitir que se apliquen en distinto orden, o permitir mutar las melod'ias despu'es de ser creadas.
+	\item Implementar un editor manual de melod' ias.
+	\item Si se ampl'ia el m'odulo generador de acordes para que trabaje con nuevos tipos de acordes se deber'ia ampliar tambi'en este m'odulo para que trate bien esos nuevos acordes. Por la estructura de 'este esta ampliaci'on ser'ia muy sencilla.
+	\item Extrapolaci'on de las curvas mel'odicas a partir de una melod'ia renderizada a midi.
+	\item Algo totalmente diferente: Cualquier programa en cualquier lenguaje que lea archivos de texto en el formato especificado por el predicado es\_progresion/1, y ficheros de patr'on r'itmico puede sustituir a este m'odulo.
+	\end{enumerate}
 
+
+Quiz'as la aplicacion de la curva melodica es demasiado poco determinista como para hablar de variaciones al aplicarla varias veces o mutarla. Un concepto menos abstracto intermedio podr'ia ser m'as apropiado. Ese concepto podr'ia ser simplemente las listas de notas representadas por Haskore que son la entrada de los procedimientos de mutaci'on. Si se implementara el acceso por interfaz a la mutaci'on de melodias podr'iamos hablar con m'as justificaci'on de variaciones sobre una melod'ia.
 \end{document}
 
 

@@ -2,14 +2,14 @@
 \documentclass[a4paper,11pt]{article}
 \usepackage{latexsym}
 \usepackage{graphicx}
-\usepackage[spanish]{babel}
+\usepackage[spanish,activeacute]{babel}
 %\author{Juan Rodr\'\i guez Hortal\'a, Javier G\'omez Santos, Roberto Torres de Alba}
 \title{Revisi\'on final}
 \frenchspacing
 \begin{document}
 \maketitle
 \tableofcontents
-\section{Evaluacion de objetivos}
+\section{Evaluaci\'on de objetivos}
 La finalidad de esta secci\'on es revisa los objetivos que en su d\'\i a fueron propuestos para GENARO, y revisar cuales de ellos han sido cumplidos, cuales no, y cuales han sido alcanzados s\'olo en parte.
 
 \subsection{Objetivos principales}
@@ -60,7 +60,7 @@ de tiempo y debido a que su implementaci\'on ser\'\i a bastante complicada no se
 
 \section{Ampliaciones posibles}
 
-Considerando el estado actual del proyecto, GENARO podr\'\i a continuar avanzando en varios puntos. Aqu\'\i ~intentaremos enumerarlas.
+Considerando el estado actual del proyecto, GENARO podr\'\i a continuar avanzando en varios puntos. Aqu\'\i ~intentaremos enumerarlas, pero es muy recomendable acudir a los cap'itulos correspondientes a cada m'odulo para obtener una descripci'on m'as precisa y concreta de sus posibles ampliaciones.
 
 \subsection{Bater\'\i a}
 
@@ -85,5 +85,37 @@ Pulir el interfaz para que goce de mayor intuitividad, y a\~nadirle las opciones
 \subsection {Compositores para otras texturas}
 
 A parte de la ya implementada melod\'ia acompa\~nada, compositores para otros estilos como fugas, canon, y en general estructuras con reglas muy r\'\i gidas.
+
+\section{Evoluci\'on del proyecto}
+Al inicio del proyecto no se ten'ian muchas ideas claras como es l'ogico. Pero si que hab'ia un par de intenciones bastante decididas:
+        \begin{enumerate}
+        \item Conseguir un compositor autom'atico: la idea era que Genaro fuera un programa que apretando un bot'on compusiera una obra completa y coherente. No se hab'ian fijado los instrumentos pero las ideas del trio de Jazz y el reparto de funciones r'itmicas, mel'odicas y arm'onicas ya se hab'ian tomado como punto de partida. 
+        \item Emplear Sicstus Prolog para los algortimos de generaci'on de m'usica: el primer problema de generaci'on de m'usica que se abord'o fue el de la generaci'on de progresiones de acordes, porque la m'usica en Genaro siempre se abord'o desde la perspectiva de la melod'ia acompa~nada, y de la melod'ia compuesta como una improvisaci'on sobre una base de acompa~namiento, otra vez bas'andose en conceptos del Jazz. 
+\newline
+La generaci'on de progresiones es el primer paso para la generaci'on de acompan~amientos porque est'a a un grado de abstracci'on m'as elevado que la m'usica concreta, y permite definir el entorno musical o contexto arm'onico que caracteriza un fragmento musical, con lo que se pueden utilizar las progresiones para componer a partir de ellas otros fragmentos musicales que se reproduzcan a la vez que el acompa~namiento, como el bajo y la melod'ia. Adem'as tiene la ventaja de estar bastante bien formalizada por las reglas de la armon'ia lo que hace bastante f'acil dise~nar algoritmos que generen progresiones de acordes.
+        \item La interfaz se implementar'ia mediante un lenguaje imperativo.
+        \end{enumerate}
+
+Seg'un fue evolucionando el proyecto y fuimos desarrollando nuestras ideas modificamos el enfoque de Genaro y la verdad de las dem'as cuestiones anteriores:
+        \begin{itemize}
+        \item Pasamos de pensar en un compositor autom'atico a pensar en un asistente a la composici'on: Genaro tendr'ia que ser un programa interactivo para ser m'as 'util, liberando al compositor de tareas repetitivas (como el enlace de las voces, o la edici'on manual de archivos midi), pudiendo trabajar a niveles de abstracci'on m'as altos como el de las progresiones de acordes o los patrones r'itmicos. Tambi'en pensando en el compositor amateur, que no sabe demasiado de armon'ia y que podr'ia aprender a trav'es de Genaro, o simplemente en un m'usico que tiene un enacrgada una pieza de m'usica electr'onica y quiere plasmar r'apidamente sus ideas, o recibir inspiraci'on o ideas nuevas de Genaro, ideas que luego puede desarrollar de forma coherente utilizando su experiencia humana.
+        \item Abandonar Sicstus por SWI-Prolog y Haskell: en un primer momento se pens'o en utilizar Sicstus Prolog porque se preted'ia abordar la generaci'on de acordes como la formalizaci'on de una serie de restricciones sobre las progresiones, basadas en las reglas de la armon'ia, y que luego Prolog se ocupara de todo con sus b'usquedas. Cuando empezamos a comprender como funcionaban las restricciones nos dimos cuenta de que era m'as f'acil y m'as natural, tambi'en por las propias reglas de la armon'ia, dise~nar el generador de acordes como un programa que mutara progresiones.
+\newline
+Se continu'o usando Prolog por inercia y tambi'en por su alto grado de abstracci'on, que facilitaba centrarse en los algoritmos y pasar m'as f'acilmente el tr'amite de la implementaci'on. Y lleg'o el momento de generar los archivos midi, el producto final de Genaro, para las progresiones de acordes primigenias, enlazando las voces siempre igual y aplicando siempre el mismo tipo de ritmo (el concepto de patr'on r'itmico a'un no estaba desarrollado). Para ello se estudi'o el estandar midi y se definieron predicados que formalizaran una representaci'on intermedia de la m'usica, entre las progresiones y el midi. Se llegaron a definir dos representaciones de este tipo. La idea era que Prolog escribiera un archivo de texto con el formato de una de esas representaciones intermedias y que C++ leyera ese archivo y generara el midi correspondiente. Tras muchos problemas con este enfoque se descubri'o la librer'ia Haskore de Haskell que ten'ia una tipo que representaba musicas y sobre todo funciones que converti'an elementos de ese tipo en archivos midi.
+\newline
+Durante un tiempo Haskell se emple'o solamente para el paso a midi, para lo que se definieron predicados para una representaci'on en Prolog similar a la del Haskore. El formato de las progresiones ya estaba establecido y es el que ha perdurado hasta ahora, a partir de terminos con ese formato se produci'an t'erminos en formato Prolog-Haskore con la primera versi'on del traductor de cifrados hecho en Prolog. Luego Haskell parseaba un fichero en ese formato y produc'ia el midi. El m'odulo de los patrones r'itmicos fue el primero que desarroll'o en Haskell desde un principio. La facilidad de uso, potencia y flexibilidad de Haskore hicieron que el m'odulo traductor de cifrados se migrara a Haskell, y que todos los m'odulo desarrollados despu'es (el de melod'ia, el de bajo y el de bater'ia) se desarrollaran en Haskell desde un principio.
+\newline
+Mientras tanto en el m'odulo de Prolog hubo cambios significativos. El hecho de que Genaro se enfocara ahora como una herramiento interactiva en vez de como un compositor independiente implicaba que la duraci'on de las progresiones se especificara de forma exacta, no aproximada como en las primeras versiones. Debido a este se modific'o la primera versi'on de la generaci'on de acordes, basada en la vuelta atr'as, en la que las mutaciones alargaban la progresi'on hasta lograr una longitud cercana a la especificada. A partir de esta versi'on antigua se lleg'o a la actual, en la que se fija exactamente la duraci'on de la progresi'on y luego se la muta respetando esta duraci'on. Este nuevo modelo de generaci'on de progresiones tambi'en facilit'o que se respetara el ritmo arm'onico.
+\newline
+Lo dif'icil en cuanto a algoritm'ia de generaci'on de m'usica en este proyecto fue empezar, porque una vez definida la abstracci'on del ritmo y el esp'iritu mutador de Genaro, y establecida la herramienta de trabajo que es Haskore todo fu'e m'as sencillo:
+                \begin{itemize}
+                \item la melod'ia recicla el concepto de patr'on r'itmico pas'andolo de dos dimensiones a una, y el concepto de mutaciones del generador de acordes (divide notas, junta notas), solo a~nade el concepto de curva mel'odica que es un cl'asico en los libros de armon'ia y teor'ia musical, no es nada nuevo. 
+                \item el bajo comparte muchas caracter'isticas con la melod'ia, y sus algoritmos aprovechan muchas ideas de los de 'esta.
+                \item La bater'ia es simplemente un acorde que siempre es el mismo (todas las piezas de la bater'ia sonando a la vez), al que se le aplica un patr'on r'itmico.
+                \end{itemize}
+        \item Interfaz: Se comenz'o haciendo en Java pero pronto se migr'o a Borland C++ por la facilidad de uso y potencia de sus librer'ias. En el caso del interfaz y del bucle principal lo dif'icil vino al final del proyecto. La decisi'on de hacer Genaro m'as interactivo supuso ampliar much'isimo el interfaz, que se llen'o de opciones, botones y rejillas, editores de patrones r'itmicos y de curvas mel'odicas...A lo que hay que sumar el trabajo de coordinar las llamadas entre lenguajes y a los programas externos, as'i como disen~ar la estructura de los proyectos de Genaro, que acabaron complic'andose bastante. As'i que pasamos de un interfaz casi simb'olico a un interfaz que ofrece much'isimas posibilidades de manipulaci'on haciendo Genaro mucho m'as 'util y divertido.
+        \end{itemize}
+
+Resumiendo, se pas'o de pensar en un compositor aut'onomo teniendo solamente claro unos esbozos de c'omo generar progresiones, a una herramienta interactiva que sirve como asistente a la composici'on, y que genera acompan~amientos, melod'ias y bajos, para cualquier n'umero de pistas y para una gran variedad de fuentes de sonido.
 
 \end{document}

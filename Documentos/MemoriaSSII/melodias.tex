@@ -35,14 +35,16 @@ La generaci'on de melod'ias de Genaro se basa en dos abstracciones, una \emph{cu
                 \end{itemize}
         \end{enumerate}
 
+Otra abstracci'on menos original pero tambi'en importante es el concepto de \emph{registro}. Un registro es una restricci'on sobre las alturas de las notas, que deben pertenecer a un intervalo determinado por 'este. Asignamos un registro aguda a la melod'ia para que resalte sobre el resto de pistas. El bajo a su vez tendr'a asociado un registro grave, como es l'ogico.
+
 \section{Algoritmo de generaci'on de melod'ias}
 Utiliza las abstracciones anteriores. Para saber obtener una melod'ia para una progresi'on primero debemos aprender a obtener una melod'ia para un solo acorde, y luego a enlazar las melod'ias de cada acorde.
 \newline
 El algoritmo que hace una melod'ia para un solo acorde recibe de entrada una curva mel'odica, una lista de acentos, el acorde sobre el que tiene que construir la melod'ia, la altura desde la que empezar la melod'ia y una serie de par'ametros enteros cuya utilidad explicaremos despu'es. Partiendo esa informacion aplicamos los siguientes pasos:
         \begin{enumerate}
         \item Ajustar curva mel'odica con lista de acentos: se modifica la lista de acentos para que tenga la misma longitud que la curva aleatoria. Para ello se dividen en dos o se unen parejas de acentos, seg'un la lista de acentos sea m'as corta o m'as larga que la curva mel'odica. Los acento que se dividen o fusionan se eligen aleatoriamente.
-        \item Elegir los acentos: se elige de forma aleatoria una sublista de tama~no aleatorio de la lista de acentos, dando mayor probabilidad de ser elegidos a los acentos m'as fuertes. También se guardan en otra lista los acentos rechazados.
-        \item Elegir los puntos de la curva mel'odica: se hace la correspondencia entre la curva mel'odica y una lista de alturas de nota empleando la escala correspondiente al acorde y la altura de partida. Estas alturas concretas ya pueden ser valoradas como m'as o menos estables en el contexto arm'onico que establece el acorde. Se elige una sublista aleatoria de esta lista de alturas, de la misma longitud que la sublista de acentos anterior, dando mayor probabilidad de ser elegidas a las alturas m'as estables.
+        \item Elegir los acentos: se elige de forma aleatoria una sublista de tama~no aleatorio de la lista de acentos, dando mayor probabilidad de ser elegidos a los acentos m'as fuertes. Tambi'en se guardan en otra lista los acentos rechazados.
+        \item Elegir los puntos de la curva mel'odica: se hace la correspondencia entre la curva mel'odica y una lista de alturas de nota empleando la escala correspondiente al acorde, la altura de partida, y el registro correspondiente a la melod'ia. Estas alturas concretas ya pueden ser valoradas como m'as o menos estables en el contexto arm'onico que establece el acorde. Se elige una sublista aleatoria de esta lista de alturas, de la misma longitud que la sublista de acentos anterior, dando mayor probabilidad de ser elegidas a las alturas m'as estables.
         \item Construir la primera versi'on de la melod'ia: a partir de las tres sublistas anteriores se construyen dos listas, una a partir de los acentos y alturas elegidos, la lista de notas que suenan; y otra a partir de la lista de acentos rechazados, la lista de silencios o notas que no suenan. Estas dos listas se mezclan siguiendo el orden de los acentos en la lista de acentos original, y se obtiene una primera versi'on de la melod'ia.
         \item Mutar la melod'ia: el resto del proceso consiste en aplicar mutaciones sucesivas a la primera versi'on de la melod'ia. Estas mutaciones se aplican siempre en el mismo orden y seg'un indican los 4 enteros de entrada al algortimo.
                 \begin{enumerate}
@@ -136,8 +138,10 @@ La ausencia de objetos e interfaces y las abstracciones definidas favorecen la a
 	\item Algo totalmente diferente: Cualquier programa en cualquier lenguaje que lea archivos de texto en el formato especificado por el predicado es\_progresion/1, y ficheros de patr'on r'itmico puede sustituir a este m'odulo.
 	\end{enumerate}
 
-
 Quiz'as la aplicacion de la curva melodica es demasiado poco determinista como para hablar de variaciones al aplicarla varias veces o mutarla. Un concepto menos abstracto intermedio podr'ia ser m'as apropiado. Ese concepto podr'ia ser simplemente las listas de notas representadas por Haskore que son la entrada de los procedimientos de mutaci'on. Si se implementara el acceso por interfaz a la mutaci'on de melodias podr'iamos hablar con m'as justificaci'on de variaciones sobre una melod'ia.
+
+\newline
+Y otra ampliaci'on que ser'ia muy interesante es introducir simetr'ias y estructuras como la frase cuadrada (motivo-contramotivo-motivo-resoluci'on) en la generaci'ion de melod'ias. Genaro producir'ia melod'ias muy peque~nas que las que luego dar'ia m'as coherencia y l'ogica ajustandolas a estas estructuras. Para ello se podr'ian utilizar las mismas ideas de variaciones sobre una melod'ia comentadas en el p'arrafo anterior.
 \end{document}
 
 

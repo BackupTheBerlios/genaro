@@ -2,28 +2,41 @@
 \section{Introducci'on}
 Este m'odulo se encarga de para componer \emph{lineas de bajo} a partir de progresiones de acordes. Una linea de bajo es una composici'on hecha para un bajo, no hay diferencia entre una linea de bajo y una melod'ia hecha para una parte de bajo, es solamente cuesti'on de terminolog'ia. Pero se emplea el t'ermino linea de bajo porque tiene ciertas connotaciones: de una linea de bajo se espera que sea r'itmica y repetitiva, circular,que vaya m'as pegada al acorde, siguiendo al acorde de forma m'as subordinada que una melod'ia; y que se coordine bien con la bater'ia, que se \emph{empaste} bien con 'esta. Es decir, se espera que desempe~ne funciones r'itmicas y arm'onicas. De una melod'ia en cambio se espera m'as linealidad, mayor libertad r'itmica y mayor independencia de las notas estables del acorde.\newline
 Al igual que con las melod'ias, se emplean las reglas de la armon'ia para que el la linea de bajo resultado este relacionada con la progresi'on y `quede bien` al sonar a la vez que la traducci'on a m'usica de 'esta. Y tambi'en como las melod'ias, las lineas de bajo producidas por Genaro son monof'onicas.\newline
-Hay 3 bajistas correspondientes a 3 algoritmos de generación de bajo: 
+Hay 3 bajistas correspondientes a 3 algoritmos de generaci'on de bajo: 
         \begin{enumerate}
         \item El bajista \emph{Fundamentalista} es casi determinista, y acompaña a cada acorde tocando su nota fundamental (la más estable del acorde). Solamente hay aleatoriadad en la elecci'on de la octava empleada para cada acorde.
         \item El bajista \emph{Aphex} compone aplicando mutaciones aleatorias similares a las de la melodía, sobre un bajo compuesto por el fundamentalista.
         \item El bajista \emph{Walking} interpola las notas del bajista fundamentalista haciendo que las notas intermedias tengan una duración especificada, y luego muta el resultado de forma similar a Aphex.
         \end{enumerate}
-
+Cada bajista se dise~n'o extiendo al anterior, aumentando el nivel de complejidad del algor'itmo.
+	
 \section{Abstracciones empleadas}
 Este m'odulo fu'e de los 'ultimos en hacerse y por ello se beneficia de las lecciones aprendidas durante el desarrollo de los dem'as m'odulos. En cambio, por ser uno de los 'ultimos m'odulos es que se hizo con m'as prisa y quiz'as por ello no se desarrollaron abstracciones adicionales para 'este m'odulo. O quiz'as es que tampoco son muy necesarias, visto que las mutaciones aplicadas a listas de m'usicas funcionan bien para simular variaciones de una melod'ia. Es un tema sobre el que habr'ia que pensar con calma en las ampliaciones futuras de genaro, en todo caso la versi'on actual del generador de lineas de bajo de Genaro utiliza:
         \begin{enumerate}
         \item Curvas mel'odicas: solamente el bajista Walking las emplea, gener'andolas de una manera muy concreta que se explicar'a en la secci'on de implementaci'on.
         \item Progresiones de acordes: todos los bajistas hacen lo mismo en realidad, tocar las fundamentales de los acordes y meter m'as o menos notas entre medias.
         \item No utiliza listas de acentos: El ritmo se produce de distintas maneras seg'un el bajista:
-                \begin{enumerate}
+                \begin{enumerate} 
                 \item Fundamentalista: lo marca la progresi'on y nada m'as
                 \item Aphex: lo marca la progresi'on y las mutaciones, que dividen el tiempo en potencias de dos, algo apropiado en el contexto binario en que trabaja Genaro. La aplicaci'on de un n'umero suficiente de mutaciones produce variaciones r'imticas muy ricas.
-                \item Walking: determinado fundamentalmente por la duraci'on que se le pasa de par'ametro, las mutaciones puden tambi'en an~adir variaciones r'itmicas interesantes.
+                \item Walking: determinado fundamentalmente por la duraci'on que se le pasa de par'ametro, las mutaciones pueden tambi'en an~adir variaciones r'itmicas interesantes.
                 \end{enumerate}
         \end{enumerate}
 
 \section{Algoritmo de generaci'on de l\'ineas de bajo}
+Como en el caso de la generaci'on de melod'ias, lo dif'icil es generar la m'usica para un s'olo acorde, despu'es generar la m'usica para toda la progresi'on consiste simplemente en enlazar la m'usica para cada acorde. La idea fundamental en la que se basan los algor'itmos es que, recordemos, \emph{todos los bajistas hacen lo mismo en realidad, tocar las fundamentales de los acordes y meter m'as o menos notas entre medias}. Teniendo eso en cuenta, veamos por separado los algoritmos para cada tipo de bajista:
+	\begin{enumerate}
+	\item Aphex: Este algoritmo recibe como entrada dos alturas correspondientes a la fundamental del acorde para el que hace la linea, y al acorde siguiente. Por tanto son las alturas entre las que le bajista debe insertar notas. Tambi'en recibe  el tipo de escala correspondiente al acorde, y la duraci'on de 'este, a la que se deber'a ajustar la l'inea. Por 'ultimo recibe una serie de par'ametros enteros. El algortimo funciona como sigue:
+		\begin{enumerate}
+		\item[(i)] 
+		\item[(ii)] 
+		\item[(iii)] 
+		\end{enumerate}
 
+
+	\item Fundamentalista:
+	\item Walking: 
+	\end{enumerate}
 
 
 \section{Implementaci'on}

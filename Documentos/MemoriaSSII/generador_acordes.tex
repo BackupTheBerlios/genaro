@@ -45,7 +45,7 @@ El algoritmo consiste en partir de una progresi'on inicial, que llamamos \emph{p
                 \item[(b)] El acorde a mutar se elige aleatoriamente
                 \end{enumerate}
 
-        Podemos expresar las mutaciones mediante reglas de reescritura. Las mutaciones disponibles son \emph{cambia\_acordes}, \emph{aniade\_acordes}, \emph{quita\_acordes}, \emph{dominante\_secundario} y \emph{iim7}:
+        Podemos expresar las mutaciones mediante reglas de reescritura, que suponemos indetermin'istas ya que 'este m'odulo aplica las mutaciones aleatoriamente. Las mutaciones disponibles son \emph{cambia\_acordes}, \emph{aniade\_acordes}, \emph{quita\_acordes}, \emph{dominante\_secundario} y \emph{iim7}:
 
         \begin{verbatim}
 cambia_acordes([]) = []
@@ -98,21 +98,30 @@ monta_iim7(Ac) = [pon_duracion(acorde_iim7_de(Ac), D/2)
 
 
 \section {Implementaci'on}
-El lenguaje de implementaci'on empleado en esta parte de Genaro fu'e SWI-Prolog. Al principio us'abamos Sicstus Prolog pero terminamos pas'andonos a SWI-Prolog principalmente porque es libre, y porque el algoritmo de generaci'on de progresiones no necesita una gran potencia de proceso para ser implementado, y para implementar este algoritmo es para lo 'unico que usamos Prolog.
+El lenguaje de implementaci'on empleado en esta parte de Genaro fu'e SWI-Prolog. Al principio us'abamos Sicstus Prolog pero terminamos pas'andonos a SWI-Prolog principalmente porque es libre, y porque el algoritmo de generaci'on de progresiones no necesita una gran potencia de proceso para ser implementado, y para implementar este algoritmo es para lo 'unico que usamos Prolog. Adem'as la vuelta atr'as de Prolog se aprovecha para hacer indeterminista el algoritmo.
 \newline
 Como Prolog no tiene tipos se dise~naron una serie de predicados que definen las estructuras con las que trabajamos en este m'odulo, como por ejemplo las progresiones. Estos predicados tienen 'exito cuando sus argumentos de entrada son t'erminos con la estructura deseada, y no son llamados nunca, se desarrollaron solamente como especificaci'on.
 \newline
 La representaci'on de progresiones en Prolog es la siguiente:
         \begin{verbatim}
-es_progresion(progresion(P)) :- es_listaDeCifrados(P).es_listaDeCifrados([]).es_listaDeCifrados([(C, F)|Cs]) :- es_cifrado(C), es_figura(F)       ,es_listaDeCifrados(Cs).
+es_progresion(progresion(P)) :- es_listaDeCifrados(P).
+es_listaDeCifrados([]).
+es_listaDeCifrados([(C, F)|Cs]) :- es_cifrado(C),es_figura(F)
+                                  ,es_listaDeCifrados(Cs).
 
 es_cifrado(cifrado(G,M)) :- es_grado(G), es_matricula(M).
 
 es_matricula(matricula(M)) :- 
         member(M, [mayor,m,au,dis,6,m6,m7b5, maj7,7,m7,mMaj7,au7,dis7]).
 
-es_grado(grado(G)) :- es_interSimple(interSimple(G)).es_grado(grado(v7 / G)) :- es_grado(grado(G)).es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
-es_interSimple(interSimple(G)) :-	member(G, [i, bii, ii, biii, iii, iv, bv, v, auv, vi, bvii, vii]).es_interSimple(interSimple(G)) :-	member(G, [bbii, bbiii, auii, biv, auiii, auiv, bbvi, bvi, auvi, bviii, auviii]).
+es_grado(grado(G)) :- es_interSimple(interSimple(G)).
+es_grado(grado(v7 / G)) :- es_grado(grado(G)).
+es_grado(grado(iim7 / G)) :- es_grado(grado(G)).
+
+es_interSimple(interSimple(G)) :-	
+	member(G, [i, bii, ii, biii, iii, iv, bv, v, auv, vi, bvii, vii]).
+es_interSimple(interSimple(G)) :-	
+ 	member(G, [bbii, bbiii, auii, biv, auiii, auiv, bbvi, bvi, auvi, bviii, auviii]).
         \end{verbatim}
 En 'este m'odulo trabaja manejando t'erminos con esta estructura. El resultado 'ultimo de la generaci'on de progresiones un archivo de texto de nombre especificado en la entrada de Prolog, que contiene un t'ermino que cumple el predicado es\_progresion/1. Un ejemplo de fichero escrito por Prolog ser'ia (los saltos de linea se han introducido para facilitar la lectura y en realidad no pertenecer'ian al fichero):
         \begin{verbatim}

@@ -10,7 +10,7 @@
 \maketitle
 \tableofcontents
 \section{Introducci'on}
-El m'odulo generador de melod'ias se encarga de para componer melod'ias a partir de progresiones de acordes y un patr'on r'itmico. Se utilizan las reglas de la armon'ia para que la melod'ia resultado este relacionada con la progresi'on y `quede bien` al sonar a la vez que la traducci'on a m'usica de 'esta.
+El m'odulo generador de melod'ias se encarga de para componer una melod'ia a partir de una progresion de acordes y un patr'on r'itmico. Se utilizan las reglas de la armon'ia para que la melod'ia resultado este relacionada con la progresi'on y `quede bien` al sonar a la vez que la traducci'on a m'usica de 'esta.
 \newline
 Todas las melod'ias compuestas por Genaro son monof'onicas, esto es, son sucesiones de notas en el tiempo tales que no suena m'as de una nota a la vez. Las notas no se superponen en el tiempo como en el caso de los acompa~namientos. Esta simplificaci'on facilita mucho el proceso de composici'on.
 
@@ -138,10 +138,9 @@ La ausencia de objetos e interfaces y las abstracciones definidas favorecen la a
 	\item Algo totalmente diferente: Cualquier programa en cualquier lenguaje que lea archivos de texto en el formato especificado por el predicado es\_progresion/1, y ficheros de patr'on r'itmico puede sustituir a este m'odulo.
 	\end{enumerate}
 
-Quiz'as la aplicacion de la curva melodica es demasiado poco determinista como para hablar de variaciones al aplicarla varias veces o mutarla. Un concepto menos abstracto intermedio podr'ia ser m'as apropiado. Ese concepto podr'ia ser simplemente las listas de notas representadas por Haskore que son la entrada de los procedimientos de mutaci'on. Si se implementara el acceso por interfaz a la mutaci'on de melodias podr'iamos hablar con m'as justificaci'on de variaciones sobre una melod'ia.
-
-\newline
+Quiz'as la aplicacion de la curva melodica es demasiado poco determinista como para hablar de variaciones al aplicarla varias veces o mutarla. Un concepto menos abstracto intermedio podr'ia ser m'as apropiado. Ese concepto podr'ia ser simplemente las listas de notas representadas por Haskore que son la entrada de los procedimientos de mutaci'on. Si se implementara el acceso por interfaz a la mutaci'on de melodias podr'iamos hablar con m'as justificaci'on de variaciones sobre una melod'ia.\newline
 Y otra ampliaci'on que ser'ia muy interesante es introducir simetr'ias y estructuras como la frase cuadrada (motivo-contramotivo-motivo-resoluci'on) en la generaci'ion de melod'ias. Genaro producir'ia melod'ias muy peque~nas que las que luego dar'ia m'as coherencia y l'ogica ajustandolas a estas estructuras. Para ello se podr'ian utilizar las mismas ideas de variaciones sobre una melod'ia comentadas en el p'arrafo anterior.
+
 \end{document}
 
 

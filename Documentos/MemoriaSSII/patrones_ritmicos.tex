@@ -2,13 +2,12 @@
 
 \section{Introducci\'on}
 La etapa del patr\'on r\'\i tmico es la que se ejecuta posteriormente a la de traducci\'on de los cifrados. Es por ello que
-lo que recibe esta etapa es una lista de lo que hemos llamado ''acordes ordenados'' ( el tipo emph{[AcordeOrdenado]} ). La idea principal 
+lo que recibe esta etapa es una lista de lo que hemos llamado ''acordes ordenados'' ( el tipo \emph{[AcordeOrdenado]} ). La idea principal 
 de esta parte es repartir las voces de los acordes ordenados en el tiempo. Es por ello que vamos a buscar una estructura
 que sea capaz de organizar las voces en el tiempo, que sirva para cualquier acorde independientemente del n\'umero de voces
-o duraci\'on que posea y qu se pueda guardar para posteriores usos.\\
+o duraci\'on que posea y qu\'e se pueda guardar para posteriores usos.\\
 \indent Para ilustar estas ideas veamos un ejemplo simple. Supongamos que de la etapa anterior de traducci\'on de cifrados nos
-llega lo siguiente [ ([(C,4),(E,4),(G,4),(C,4)],1%1) ]. Con estas notas podemos hacer, entre otras cosas, tocarlas todas
-a la vez o arpegiarlas:\\
+llega lo siguiente [ ([(C,4),(E,4),(G,4),(C,4)],1%1) ].\\ Con estas notas podemos hacer, entre otras cosas, tocarlas todas a la vez o arpegiarlas:\\
 
 \begin{music}
 \instrumentnumber{1}
@@ -24,7 +23,7 @@ a la vez o arpegiarlas:\\
 Aunque las notas son las mismas ellas estan dispersas en el tiempo de diferente forma.\\
 
 \section{Tipo y Funcionamiento}
-El tipo del patron ritmico es el siguiente:
+El tipo del patr\'on r\'\i tmico es el siguiente:
 
 \small
 \begin{verbatim}
@@ -55,7 +54,7 @@ La idea m\'as simple de ver un patr\'on r\'\i tmico es como una matriz (aunque n
 por cada columna var\'\i a) que representa una plantilla con agujeros. Su altura (n\'umero de filas) es el n\'umero de 
 voces y la anchura (n\'umero de columnas) una duraci\'on en forma de fracci\'on de Haskore. Dicha plantilla se encaja encima 
 del acorde ordenado; aquellas voces que caigan dentro de un agujero se ejecutar\'an en ese instante de tiempo. Por ejemplo, supongamos la
-siguiente plantilla con agujeros que representa el arpegio anterio de cuatro voces:
+siguiente plantilla con agujeros que representa el arpegio anterior de cuatro voces:
 
 \begin{verbatim}
 - - - X
@@ -73,7 +72,7 @@ donde las X representan los agujeros. Ahora supongamos que la plantilla es esta:
 X - - X
 \end{verbatim}
 
-entonces para el siguiente acorde tendriamos lo siguiente cuando aplic\'aramos el patron:
+entonces para el siguiente acorde tendriamos lo siguiente cuando aplic\'aramos el patr\'on:
 
 \begin{music}
 \instrumentnumber{1}
@@ -90,7 +89,7 @@ es decir, primero la voz 1 (recordemos que para facilitarme el trabajo ahora las
 la voz 4, posteriormente la 2 y la 3 a la vez y, por \'ultimo, la 1 otra vez.\\
 \indent Esta forma de ver las cosas es \'util porque el editor de patrones r\'\i tmicos est\'a implementado para que se parezca
 a esto aunque el tipo \emph{PatronRitmico} de Haskell necesita m\'as informaci\'on para completarse. Por ejemplo, el \'ultimo patr\'on r\'\i tmico en 
-Haskell se escribir\'\i a asi:
+Haskell se escribir\'\i a as\'i :
 
 \small
 \begin{verbatim}
@@ -102,8 +101,8 @@ patronEj1 = ( 4, [( [(1,100,False)] , 1%4),
 \end{verbatim}
 \normalsize
 
-\section{Encaje del Patron Ritmico}
-Ahora vamos a ver como fusionar un patr\'on r\'\i tmico con un acorde ordenado para que se forma la salida definitiva
+\section{Encaje del Patr\'on R\'\i tmico}
+Ahora vamos a ver como fusionar un patr\'on r\'\i tmico con un acorde ordenado para que se forme la salida definitiva
 de esta etapa, que es un tipo Music de Haskore y ya representa m\'usica (e incluso se puede pasar a midi).
 
 \subsection{Encaje perfecto}
@@ -144,7 +143,7 @@ type NotasLigadas = [(NotasLigadasVertical,Dur)]
 -- Donde Dur es la duracion del acorde
 \end{verbatim}
 
-La razon que fundamenta el uso de esta estructura es, simplemente, que Haskore no nos
+La raz\'on que fundamenta el uso de esta estructura es, simplemente, que Haskore no nos
 da la opci\'on, dentro de sus constructoras del tipo Music, de hacer que una \emph{Note} se ligue
 con la siguiente \emph{Note}. Es por eso que necesitamos un paso previo antes del tipo Music que
 se espera que se devuelva en esta etapa. Dicho paso puede ser perfectamente transparente a la
@@ -217,7 +216,7 @@ de voces y la duraci\'on de tanto el patr\'on como del acorde ordenado eran los 
 Pero en la mayor\'\i a de los casos no va a ser as\'\i . Generalmente el 
 acorde ordenado tendr\'a diferente duraci\'on a la del patr\'on y muy posiblemente el n\'umero de 
 voces de ambos ser\'a diferente. Ser\'\i a un error crear un nuevo patr\'on para cada acorde
-con sus peculariedades as\'\i ~que hemos introducido opciones para solucionar eso.
+con sus pecularidades as\'\i ~que hemos introducido opciones para solucionar eso.
 
 \subsubsection{Problemas de encaje horizontal}
 Se produce cuando la duraci\'on del patr\'on es diferente a la duraci\'on del acorde ordenado
@@ -225,9 +224,9 @@ al que se quiere encajar.\\
 \indent Si la duraci\'on del patr\'on es menor entonces el problema no es muy importante ya que vamos a repetir
 dicho patr\'on tantas veces como haga falta hasta rellenar el acorde completamente o hasta que nos sobre algo, 
 en cuyo caso pasaremos a la siguiente opci\'on.\\
-\indent Si la duraci\'on del patr\'on es mayor que el del acorde o, dicho de otra forma, sobra
+\indent Si la duraci\'on del patr\'on es mayor que la del acorde o, dicho de otra forma, sobra
 algo del patr\'on cuando lo encajamos en el acorde ordenado entonces la pregunta es
-?' qu\'e hacemos con el trozo que sobra ? A nosotros se nos ha ocurrido dos cosas:\\
+?`qu\'e hacemos con el trozo que sobra? A nosotros se nos han ocurrido dos cosas:\\
 La primera es que ese trozo se pierda comenzando el siguiente acorde con, otra vez, el 
 principio del patr\'on r\'\i tmico.\\
 La segunda es que dicho trozo sea el comienzo del siguiente
@@ -333,15 +332,15 @@ A-esima del acorde.
 Los detalles de implementaci\'on no merecen la pena ponerlos aqu\'\i ~ya que son muy simples. 
 Cabe se~nalar que simplemente hay que cambiar lo que nosotros hemos llamado unidad
 de ritmo vertical (\emph{URV=[(Voz,Acento,Ligado)]}) a~nadiendo o quitando voces
-para que se ajusta a las voces del acorde.
+para que se ajuste a las voces del acorde.
 
 \section{Mejoras}
-\subsection{Patrones ritmicos dinamicos}
+\subsection{Patrones r\'\i tmicos din\'amicos}
 Lo que hemos dicho hasta aqu\'\i ~podr\'\i a definirse como el uso de patrones r\'\i tmicos est\'aticos, es decir,
 que no se generan en tiempo de llamada. Una posible mejora ser\'\i a introducir patrones r\'\i tmicos
-din\'amicos, que dado algunos par\'ametros te generara un patr\'on r\\i tmico. Obviamente esto s\'olo se podr\'\i a
+din\'amicos, que dado algunos par\'ametros te generara un patr\'on r\'\i tmico. Obviamente esto s\'olo se podr\'\i a
 hacer para patrones simples y que cumpliesen alguna propiedad escalable. El ejemplo m\'as claro es el del 
-arpegio o el de que toca todas las notas a la vez. Para el arpegio din\'amico podr\'\i amos hacer una
+arpegio o el que toca todas las notas a la vez. Para el arpegio din\'amico podr\'\i amos hacer una
 funci\'on que, dado una duraci\'on para las notas y un n\'umero de notas, devolviera un patr\'on
 r\'\i tmico correspondiente con un arpegio de esas caracter\'\i sticas:
 

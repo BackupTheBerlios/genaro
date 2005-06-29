@@ -15,7 +15,7 @@ buscamos aquellas notas que vamos a querer que sean armonizadas. A esas
 notas las vamos a llamar \emph{notas principales} y son aquellas que se pueden identificar
 m\'as en un contexto vertical. En la segunda 
 vamos a dar un acorde a una o varias notas principales. La concatenaci\'on
-de todos los acordes nos van saliendo nos proporciona la progresi\'on de salida de este m\'odulo.\\
+de todos los acordes que nos van saliendo nos proporciona la progresi\'on de salida de este m\'odulo.\\
 \indent Antes de cualquier etapa hay que comprobar que el tipo \emph{Music} que nos
 pasan es realmente una melod\'\i a, es decir, un \emph{Music} exclusivamente 
 secuencial (que s\'olo posea los operadores \emph{:+:}, \emph{Note} y \emph{Rest}) y que adem\'as
@@ -38,7 +38,7 @@ deHaskoreSecuencialAMelodia _            = error "No es un Music solo secuencial
 
 \section{B\'usqueda de notas principales}
 Una vez que tenemos transformado la melod\'\i a (un \emph{Music} secuencial)
-a una lista de notas y silenciones (tipo \emph{Melodia}) tenemos que
+a una lista de notas y silencios (tipo \emph{Melodia}) tenemos que
 seleccionar exclusivamente las notas que vamos a armonizar
 (notas principales) asegur\'andonos de que la suma de las
 duraciones de las notas principales sea la misma que la de la
@@ -233,8 +233,8 @@ con el resto de notas.
 realiza la interseccion con la lista del punto 1. De esa
 forma nos vamos quedando con los acordes que armonizan las
 notas anteriores.
-\item Continuamos asi hasta que dicha lista sea vacia o la duracion
-del acorde exceda la duracion maxima. En ese caso elegimos un 
+\item Continuamos asi hasta que dicha lista sea vacia o la duraci\'on
+del acorde exceda la duraci\'on maxima. En ese caso elegimos un 
 acorde al azar (de la lista anterior porque la actual esta vacia, claro)
 y volvemos al punto 1.
 \end{enumerate}
@@ -296,7 +296,7 @@ solamente conoce t\'erminos (funciones y variables).\\
 \indent El interfaz gr\'afico
 est\'a implementado en C++ y en un principio se pens\'o en que parseara
 progresiones en formato Prolog. Ahora que tenemos progresiones en formato
-Haskell podemos hacer dos cosas: que Haskell escriba la progresion haciendo
+Haskell podemos hacer dos cosas: que Haskell escriba la progresi\'on haciendo
 un \emph{show} y que se construya otro parser en el interfaz o usar el mismo
 parser pero escribir la progresi\'on en formato Prolog. Se opt\'o por hacerlo
 de esta \'ultima manera porque era la m\'as f\'acil.\\

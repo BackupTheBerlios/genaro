@@ -1,7 +1,7 @@
 \chapter{Bater\'\i a}
 
 \section{Introducci\'on}
-La parcusi\'on es la parte instrumental que va a marcar el ritmo. Bebe de las ideas
+La percusi\'on es la parte instrumental que va a marcar el ritmo. Bebe de las ideas
 de los \emph{patrones r\'\i tmicos} y de los \emph{acordes ordenados}, por tanto, si esas partes
 se han entendido no va a costar ning\'un trabajo entender \'esta.
 
@@ -25,7 +25,7 @@ bateriaGenaro = [ toEnum i | i <- [0..9] ]
 \section{Implementaci\'on}
 
 \subsection{Percusi\'on en Haskore}
-El Haskore de Hudak posee su propia definici\'on de tipos para la percusion que
+El Haskore de Hudak posee su propia definici\'on de tipos para la percusi\'on que
 se encuentra en el tipo \emph{PercussionSound}. Dicha asociaci\'on es una biyecci\'on
 con los intrumentos de percusi\'on que posee MIDI. En el estandar MIDI cada
 instrumento de percusi\'on esta asociado a una altura (\emph{Pitch}, es decir, tipo de nota y octava)
@@ -72,7 +72,7 @@ de_PercusionHaskore_a_PercusionHaskore ph
 
 \subsection{Usando conocimientos anteriores}
 Vamos a usar aquello que tenemos hecho de patrones r\'\i tmicos y de acordes ordenas
-para formar la bateria.\\
+para formar la bater\'\i a.\\
 \indent Como ya hemos dicho antes cada instrumento de percusi\'on de MIDI es representado
 por una altura (pitch). La uni\'on de todos ellos en una lista
 junto con una duraci\'on obtendriamos un acorde ordenado:
@@ -100,10 +100,10 @@ encajaBateria d pr = deAcordesOrdenadosAMusica Ciclico (Truncar1, Truncar2)
 \normalsize
 
 \indent El patr\'on r\'\i tmico pasado, aunque puede ser cualquiera, debe ser uno que tenga 
-10 voces de altura, es decir, tantas como instrumentos de percusion. Es por
+10 voces de altura, es decir, tantas como instrumentos de percusi\'on. Es por
 ello que los patrones de encaje verticales nos son indiferentes ya que encaja
 perfectamente.\\
-\indent Se podria haber hecho que aceptara cualquier patr\'on pero las diferentes formas
+\indent Se podr\'\i a haber hecho que aceptara cualquier patr\'on pero las diferentes formas
 de encaje no tienen aqui tanto sentido como cuando el acorde ordenado representa
 notas de un instrumento. Por tanto se descarto esa posibilidad, no aqui, en Haskell,
 sino en el interfaz gr\'afico.\\
@@ -121,26 +121,26 @@ bateriaMusic = Instr "Drums" (encajaBateria (2%1) patronRitmicoCualquiera)
 \normalsize
 
 \section{Resultado final}
-Al final Genaro no tiene bateria por falta de tiempo. Quiz\'as un tiempo
-de dedicaci\'on de una hora o dos hubiera bastado para tenera termina.
+Al final Genaro no tiene bater\'\i a por falta de tiempo. Quiz\'as un tiempo
+de dedicaci\'on de una hora o dos hubiera bastado para tenerla termina.
 
 \section{Posibles mejoras}
 Como habr\'a observado el avispado lector la bater\'\i a de Genaro no tiene
 nada de aleatoriedad. Hubiera sido interesante meter algo de ello. Las ideas
-que se me ocurrieron a m\'i~con ayuda de companeros de clase son las siguientes:
+que se me ocurrieron a m\'i~con ayuda de compa\~neros de clase son las siguientes:
 
 \begin{enumerate}
-\item Que las partes fuertes de un comp\'s sean tocadas por un instrumento o varios
+\item Que las partes fuertes de un comp\'as sean tocadas por un instrumento o varios
 (por ejemplo el bombo) y las d\'ebiles por otro. Una vez hecho esto se podr\'\i a
 mutar ligeramente para que se note continuidad a la vez que cambio.\\ 
-Una mutacion que se me ocurre es cambiar un instrumento por otro. Por ejemplo, 
-si el bombo toca la parte fuerte hacer que pase a tocarla el crash.
+Una mutaci\'on que se me ocurre es cambiar un instrumento por otro. Por ejemplo, 
+si el bombo toca la parte fuerte hace que pase a tocarla el crash.
 \item Hacer que la bater\'\i a se adapte a la duraci\'on de un acorde. Ya que los
 acordes no tienen la misma duraci\'on podr\'\i amos hacer, por ejemplo, que el primer
 tiempo fuerte sea tocado por el bombo y el resto por una caja.
 \item Hacer que la bater\'\i a se adapte a una progresi\'on de acordes. Una t\'ecnica 
 de grupos modernos es intercambiar los intrumentos que tocan en la parte
-fuerte y debil en los \'ultimos compases de la progresi\'on. Por ejemplo, 
+fuerte y d\'ebil en los \'ultimos compases de la progresi\'on. Por ejemplo, 
 si una caja se golpea en tiempo fuerte que 
 pase golpearse en tiempo d\'ebil. Ello da sensaci\'on de que algo va a cambiar.
 \end{enumerate}

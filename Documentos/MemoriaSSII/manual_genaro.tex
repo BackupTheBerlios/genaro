@@ -4,26 +4,26 @@
 
 GENARO es una herramienta de ayuda a la composici\'on, una opci\'on a la que recurrir si se quiere buscar ideas nuevas. Para tal fin, GENARO compone, mediante ciertos par\'ametros especificados por el usuario, una pieza sencilla. Como esto es un proceso bastante r\'apido, el usuario puede en un peque\~no espacio de tiempo disponer de varias ideas para poder buscar en ellas alguna inspiraci\'on.
 
-\subsection{Historia de Genaro}
+\subsection{Historia de GENARO}
 
-GENARO es un programa creado por Javier G\'omez Santos, Juan Rodr\'\i guez Hortal\'a y Roberto Torres de Alba, estudiantes de Ingeniar\'\i a Inform\'atica de la Universidad Complutense de Madrid. Surgi\'o como un proyecto para la universidad, en el que no se ten\'\i a muy claro hasta donde podr\'\i a llegarse. Algunos de las propuestas iniciales no pudieron ser alcanzadas, pero muchas de ellas si. Ahora GENARO es un software gratuito para ser usado por cualquiera que quiera buscar ayuda a la composici\'on, o que le apetezca sencillamente jugar un poco con el programa.
+GENARO es un programa creado por Javier G\'omez Santos, Juan Rodr\'\i guez Hortal\'a y Roberto Torres de Alba, estudiantes de Ingenier\'\i a Inform\'atica de la Universidad Complutense de Madrid. Surgi\'o como un proyecto para la universidad, en el que no se ten\'\i a muy claro hasta donde podr\'\i a llegarse. Algunos de las propuestas iniciales no pudieron ser alcanzadas, pero muchas de ellas si. Ahora GENARO es un software gratuito para ser usado por cualquiera que quiera buscar ayuda a la composici\'on, o que le apetezca sencillamente jugar un poco con el programa.
 
-\subsection{?`Qu'e es lo que hace Genaro?}
-Genaro compone fragmentos musicales para los distintos tipos de pista bas'andose en los fragmentos anteriormente compuestos para otras pistas. De esta manera los fragmentos musicales que suenan a la vez est'an relacionados y `suenan bien` al reproducirse simult'aneamente. En la versi'on actual de Genaro hay dos maneras de generar m'usica:
+\subsection{?`Qu'e es lo que hace GENARO?}
+GENARO compone fragmentos musicales para los distintos tipos de pista bas'andose en los fragmentos anteriormente compuestos para otras pistas. De esta manera los fragmentos musicales que suenan a la vez est'an relacionados y `suenan bien` al reproducirse simult'aneamente. En la versi'on actual de GENARO hay dos maneras de generar m'usica:
 \begin{enumerate}
 \item El acompa~namiento manda: se genera primero el acompa~namiento y a partir de 'el se genera la melod'ia y el bajo.
 \item Armonizador: a partir de una melod'ia se genera un acompa~namiento a partir del cu'al se puede generar el bajo.
 \end{enumerate}
 
-Genaro permite introducir en sus proyectos cualquier n'umero de pistas de un tipo a elegir entre los tres desarrollados (acompa~namiento, bajo y melod'ia), pudi'endo haber cualquier n'umero de pistas del mismo tipo. Las pistas se corresponden con instrumentos que pertenecen a uno de los tres tipos desarrollados.
+GENARO permite introducir en sus proyectos cualquier n'umero de pistas de un tipo a elegir entre los tres desarrollados (acompa~namiento, bajo y melod'ia), pudiendo tener cualquier n'umero de pistas del mismo tipo. Las pistas se corresponden con instrumentos que pertenecen a uno de los tres tipos desarrollados.
 
-El producto 'ultimo que nos proporciona Genaro son archivos midi o wav:
+El producto 'ultimo que nos proporciona GENARO son archivos midi o wav:
 \begin{itemize}
-\item Midi: es un est'andar en la codificaci'on de partituras por ordenador, permitiendo por tanto al usuario editar y manipular la m'usica compuesta por Genaro con cualquiera de los secuenciadores y programas de edici'on del mercado. Representa la m'usica compuesta como partitura, sin fijar del todo los instrumentos sint'eticos que interpretaran cada pista. Dichos instrumentos se fijar'an definitivamente en el programa que haga de sintetizador del fichero.
-\item Wav: es un est'andar en codificaci'on de audio. Genaro tiene incorporado un sintetizador software, Timidity++ (PONER AQUI LA REFERENCIA, el [1] o lo q sea), que puede realizar el paso a wav del midi generado, asociando a cada pista una fuente de sonido seleccionado de una extensa lista.
+\item Midi: es un est'andar en la codificaci'on de partituras por ordenador, permitiendo por tanto al usuario editar y manipular la m'usica compuesta por GENARO con cualquiera de los secuenciadores y programas de edici'on del mercado. Representa la m'usica compuesta como partitura, sin fijar del todo los instrumentos sint'eticos que interpretaran cada pista. Dichos instrumentos se fijar'an definitivamente en el programa que haga de sintetizador del fichero.
+\item Wav: es un est'andar en codificaci'on de audio. GENARO tiene incorporado un sintetizador software, Timidity++ (vease secci\'on \ref{timidity} de la p\'agina \pageref{timidity}), que puede realizar el paso a wav del midi generado, asociando a cada pista una fuente de sonido seleccionado de una extensa lista.
 \end{itemize}
 
-Debido a las m'ultiples pistas y a posibilidad de asignar fuentes de sonidos de muchos tipos a cada pista, Genaro es capaz de generar m'usicas muy diversas. En su forma de uso m'as b'asica se puede generar un acompa~namiento de piano y una melodia de piano con un bajo ac'ustico de fondo. Pero pensando un poco surgen m'as opciones, por ejemplo se puede a~nadir otra pista de acompa~namiento que doble a la anterior pero con una fuente de sonido que sean una secci'on de cuerda; o an~adir m'as pistas de melod'ia que se contrapongan a la primera, usando fuentes de sonido distintas; o silenciar todo menos el bajo y an~adir m'as pistas de bajo, con lo que se obtiene una poifon'ia al estilo barroco; o introducir otra pista de acompa~namiento de piano pero con otro ritmo, para obtener ritmos compuestos...
+Debido a las m'ultiples pistas y a la posibilidad de asignar fuentes de sonidos de muchos tipos a cada pista, GENARO es capaz de generar m'usicas muy diversas. En su forma de uso m'as b'asica se puede generar un acompa~namiento de piano y una melodia de piano con un bajo ac'ustico de fondo. Pero pensando un poco surgen m'as opciones, por ejemplo se puede a~nadir otra pista de acompa~namiento que doble a la anterior pero con una fuente de sonido que sean una secci'on de cuerda; o a\~nadir m'as pistas de melod'ia que se contrapongan a la primera, usando fuentes de sonido distintas; o silenciar todo menos el bajo y a\~nadir m'as pistas de bajo, con lo que se obtiene una polifon\'\i a al estilo barroco; o introducir otra pista de acompa\~namiento de piano pero con otro ritmo, para obtener ritmos compuestos...
 
 
 \subsection{?`C\'omo funciona?}
@@ -67,8 +67,8 @@ Una vez hemos arrancado el programa, hemos de crear un nuevo proyecto. Para ello
 
 \subsection {Creando pistas}
 
-Un proyecto GENARO consta de un n\'umero variable de pistas. Una pista es un conjunto de sonidos asignados a un instrumento. Para GENARO existen 3 tipos distintos de pistas, la pista de \emph{acompa\~namiento}, la pista de \emph{melod\'\i} a y la pista de \emph{bajo}. Cada una de estas pistas funciona de manera distinta, y puede haber cualquier n\'umero de ellas, a excepci\'on de la pista de acompa\~namiento, ya que ha de haber siempre un m\'\i nimo de 1.\\
-Para crear una nueva pista, debemos mover el selector que se encuentra situado encima del bot\'on \emph{Nueva Pista}, arriba a la izquierda. Al desplazarlo vemos como cambia el tipo de pista seleccionado, mostrando cualquiera de los anteriormente mencionados. Cuando hayamos encontrado el que buscamos, pulsamos el bot\'on \emph{Nueva Pista}. Una nueva divisi\'on vertical debe haber aparecido, con un cuadro coloreadoa la izquierda. Esto es una pista. En la figura \ref{InterfazPistasCreadas} de la p\'agina \pageref{InterfazPistasCreadas} vemos un ejemplo con 5 pistas creadas. Los colores nos ayudan a distinguir el tipo de pista, as\'\i  las pistas \emph{blancas} corresponden a \emph{acompa\~namiento}, las \emph{verdes} son las pistas de \emph{Melod\'\i a}, y las \emph{azules} las de \emph{bajo}.
+Un proyecto GENARO consta de un n\'umero variable de pistas. Una pista es un conjunto de sonidos asignados a un instrumento. Para GENARO existen 3 tipos distintos de pistas, la pista de \emph{acompa\~namiento}, la pista de \emph{melod\'\i}a y la pista de \emph{bajo}. Cada una de estas pistas funciona de manera distinta, y puede haber cualquier n\'umero de ellas, a excepci\'on de la pista de acompa\~namiento, ya que ha de haber siempre un m\'\i nimo de 1.\\
+Para crear una nueva pista, debemos mover el selector que se encuentra situado encima del bot\'on \emph{Nueva Pista}, arriba a la izquierda. Al desplazarlo vemos como cambia el tipo de pista seleccionado, mostrando cualquiera de los anteriormente mencionados. Cuando hayamos encontrado el que buscamos, pulsamos el bot\'on \emph{Nueva Pista}. Una nueva divisi\'on vertical debe haber aparecido, con un cuadro coloreado a la izquierda. Esto es una pista. En la figura \ref{InterfazPistasCreadas} de la p\'agina \pageref{InterfazPistasCreadas} vemos un ejemplo con 5 pistas creadas. Los colores nos ayudan a distinguir el tipo de pista, as\'\i ~las pistas \emph{blancas} corresponden a \emph{acompa\~namiento}, las \emph{verdes} son las pistas de \emph{Melod\'\i a}, y las \emph{azules} las de \emph{bajo}.
 
 \begin{figure}
 \centering
@@ -79,7 +79,7 @@ Para crear una nueva pista, debemos mover el selector que se encuentra situado e
 
 \subsection {Creando bloques}
 
-Para GENARO, una división horizontal o en el tiempo es un \emph{bloque}. Un conjunto de sonidos que tienen sentido m\'usical por si mismos. El usuario puede decidir crear 1 o varios bloques para una pieza GENARO, que en su conjunto formar\'an la pieza que compondr\'a GENARO. Para crear un nuevo bloque en el proyecto, has de elegir primero el n\'umero de compases que quieres para ese bloque, mediante el selector que hay sobre el bot\'on \emph{Crear Bloque}, y despu\'es has de pinchar sobre el bot\'on \emph{Crear Bloque}. Un ejemplo con un bloque ya creado lo podemos ver en la figura \ref{InterfazBloqueCreado} de la página \pageref{InterfazBloqueCreado}. El color del bloque es rojo si este no ha sido inicializado, o el usuario ha decidido silenciarlo.
+Para GENARO, una divisi\'on horizontal o en el tiempo es un \emph{bloque}. Un conjunto de sonidos que tienen sentido musical por si mismos. El usuario puede decidir crear 1 o varios bloques para una pieza GENARO, que en su conjunto formar\'an la pieza que compondr\'a GENARO. Para crear un nuevo bloque en el proyecto, has de elegir primero el n\'umero de compases que quieres para ese bloque, mediante el selector que hay sobre el bot\'on \emph{Crear Bloque}, y despu\'es has de pinchar sobre el bot\'on \emph{Crear Bloque}. Un ejemplo con un bloque ya creado lo podemos ver en la figura \ref{InterfazBloqueCreado} de la página \pageref{InterfazBloqueCreado}. El color del bloque es rojo si este no ha sido inicializado, o el usuario ha decidido silenciarlo.
 
 \begin{figure}
 \centering
@@ -90,12 +90,12 @@ Para GENARO, una división horizontal o en el tiempo es un \emph{bloque}. Un conj
 
 \subsection {Editando la cabecera de una pista}
 
-Como ya dijomos antes, una pista es un conjunto de sonidos asignados a un instrumento. Una pista esta formada por varios sub-bloques, que son la intersecci\'on entre una pista y un bloque. Podemos cambiar algunas opciones generales de una pista si pinchamos con el rat\'on sobre su cabecera, que corresponde al primer recuadro de la pista. Tras pinchar en este recuadro aparecer\'a ante nosotros un nuevo cuadro de opciones, situado arriba a la derecha, como se muestra en la figura \ref{InterfazEditandoPista} de la p\'agina \pageref{InterfazEditandoPista}.\\
+Como ya dijimos antes, una pista es un conjunto de sonidos asignados a un instrumento. Una pista esta formada por varios sub-bloques, que son la intersecci\'on entre una pista y un bloque. Podemos cambiar algunas opciones generales de una pista si pinchamos con el rat\'on sobre su cabecera, que corresponde al primer recuadro de la pista. Tras pinchar en este recuadro aparecer\'a ante nosotros un nuevo cuadro de opciones, situado arriba a la derecha, como se muestra en la figura \ref{InterfazEditandoPista} de la p\'agina \pageref{InterfazEditandoPista}.\\
 En este nuevo cuadro podemos distinguir varios elementos:
 \begin {enumerate}
 \item Una etiqueta que nos recuerda que pista estamos modificando (en este caso la \emph{pista 0}).
 \item Una etiqueta que nos recuerda que tipo de pista estamos modificando (en este caso una pista de \emph{Acompa\~namiento}).
-\item Una opción para silenciar toda la pista, de tal manera que la pieza creada prescindir\'\i a de reproducir esta pista.
+\item Una opci\'on para silenciar toda la pista, de tal manera que la pieza creada prescindir\'\i a de reproducir esta pista.
 \item Una lista de instrumentos midi, para poder elegir con cual interpretar la pista.
 \item Un bot\'on \emph{Guardar} para guardar los cambios realizados en la pista.
 \end {enumerate}.
@@ -132,7 +132,7 @@ A continuaci\'on veremos las opciones de cada tipo de pista.
 
 \subsubsection{Editando un sub-bloque de acompa\~namiento}
 
-Un sub-bloque de acompa\~namiento tiene que tener asignado una progresi\'on para poder generar su parte correspondiendte. Tambi\'en es aconsejable haber modificado los par\'ametros que vienen por defecto. Los par\'ametros que se deben modificar est\'an agrupados en 2 tipos, los par\'ametros correspondientes al \emph{Patr\'on R\'\i tmico} y a su aplicaci\'on, y a los correspondientes a la \emph{progresi\'on}.
+Un sub-bloque de acompa\~namiento ha de tener asignado una progresi\'on para poder generar su parte correspondiendte. Tambi\'en es aconsejable haber modificado los par\'ametros que vienen por defecto. Los par\'ametros que se deben modificar est\'an agrupados en 2 tipos, los par\'ametros correspondientes al \emph{Patr\'on R\'\i tmico} y a su aplicaci\'on, y a los correspondientes a la \emph{progresi\'on}.
 
 \begin {enumerate}
 \item Si vamos a modificar los par\'ametros correspondientes al \emph{Patr\'on R\'\i tmico}, tendremos ante nosotros una imagen como la mostrada en la figura \ref{InterfazBloquePatron} de la p\'agina \pageref{InterfazBloquePatron}. Los par\'ametros que se pueden modificar en este cuadro son:
@@ -145,13 +145,13 @@ Un sub-bloque de acompa\~namiento tiene que tener asignado una progresi\'on para
 \end{figure}
 
 \begin {itemize}
-\item [Patr\'on R\'\i tmico:] es una lista desplegable que te permite elegir entre los patrones disponibles, algunos se distribuyen con GENARO, mientras que otros los puedes crear t\'u mismo usando el \emph{Editor de Pianola} que viene con GENARO. Para m\'as informaci\'on sobre el editor de pianola, o de como modificar un patr\'on r\'\i tmico existente, consulta la secci\'on dedicada al editor de pianola.
-\item [8ª Inicial:] consiste en una lista desplegable que nos permite elegir entre un número comprendido entre 1 y 7. La octava aconsejable es la 4, con una octava m\'as baja obtendr\'as un sonido mas grave, mientras que si escojes una octava mayor, el sonido ser\'a m\'as agudo.
-\item [N\'umero total de notas:] es el n\'umero de notas que pueden sonar simultaneamente en la pieza, es aconsejable usar un valor pr\'oximo a 6.
-\item [sistema:] Existen 2 sistemas para generar el fragmento, cada uno de ellos tiene sus opciones independientes. Estos sistemas son el \emph{sistema paralelo}, que te pide que elijas \emph{Inversi\'on} y \emph{Disposici\'on}, mientras que el \emph{sistema continuo} te permite especificar una semilla en lugar de generarla aleatoriamente.
+\item [Patr\'on R\'\i tmico:] es una lista desplegable que te permite elegir entre los patrones disponibles, algunos se distribuyen con GENARO, mientras que otros los puedes crear t\'u mismo usando el \emph{Editor de Pianola} que viene con GENARO. Para m\'as informaci\'on sobre el editor de pianola, o de como modificar un patr\'on r\'\i tmico existente, consulta la secci\'on dedicada al editor de pianola, secci\'on \ref{edipianola} de la p\'agina{edipianola}.
+\item [$8^{a}$ Inicial:] consiste en una lista desplegable que nos permite elegir entre un número comprendido entre 1 y 7. La octava aconsejable es la 4, con una octava m\'as baja obtendr\'as un sonido m\'as grave, mientras que si escoges una octava mayor, el sonido ser\'a m\'as agudo.
+\item [N\'umero total de notas:] es el n\'umero de notas que pueden sonar simult\'aneamente en la pieza, es aconsejable usar un valor pr\'oximo a 6.
+\item [Sistema:] Existen 2 sistemas para generar el fragmento, cada uno de ellos tiene sus opciones independientes. Estos sistemas son el \emph{sistema paralelo}, que te pide que elijas \emph{Inversi\'on} y \emph{Disposici\'on}, mientras que el \emph{sistema continuo} te permite especificar una semilla en lugar de generarla aleatoriamente.
 \end {itemize}
 
-\item Para modificar los par\'ametros correspondientes a la aplicaci\'on del patr\'on, nos encontraremos ante un cuadro de opcioens como el mostrado en la figura \ref{InterfazBloqueAplicPatron} de la p\'agina \pageref{InterfazBloqueAplicPatron}. Aqu\'\i  podemos modificar los siguientes par\'ametros:
+\item Para modificar los par\'ametros correspondientes a la aplicaci\'on del patr\'on, nos encontraremos ante un cuadro de opcioens como el mostrado en la figura \ref{InterfazBloqueAplicPatron} de la p\'agina \pageref{InterfazBloqueAplicPatron}. Aqu\'\i ~podemos modificar los siguientes par\'ametros:
 
 \begin{figure}
 \centering
@@ -162,11 +162,11 @@ Un sub-bloque de acompa\~namiento tiene que tener asignado una progresi\'on para
 
 \begin {itemize}
 \item [Aplicaci\'on Horizontal:] podemos elegir entre realizar la aplicaci\'on horizontal del patr\'on de manera \emph {C\'\i clica} o \emph {No c\'\i clica}.
-\item [Aplicaci\'on Vertical:] aqu\'\i  debemos especificar que acciones tomara para 2 casos, cuando hay mas acordes que patrones, en cuyo caso tendremos que especificar si queremos \emph{truncar} o \emph{saturar}, y el caso opuesto, donde tendremos que especificar si queremos \emph{truncar}, \emph{saturar}, \emph{c\'\i clico} o \emph{m\'odulo}.
+\item [Aplicaci\'on Vertical:] aqu\'\i ~debemos especificar que acciones tomar\'a para 2 casos, cuando hay mas acordes que patrones, en cuyo caso tendremos que especificar si queremos \emph{truncar} o \emph{saturar}, y el caso opuesto, donde tendremos que especificar si queremos \emph{truncar}, \emph{saturar}, \emph{c\'\i clico} o \emph{m\'odulo}.
 \item [Triadas:] tendremos que especificar si preferimos \emph{triadas} o \emph{cuatriadas}.
 \end {itemize}
 
-\item Antes de crear una progresi\'on tenemos que especificar el n\'umero de mutaciones que queremos, para ello vamos al cuadro \emph{Mutar Progresi\'on}. Existen 5 tipos distintos de mutaciones, \emph{Juntar Acordes}, \emph{Separar Acordes}, \emph{Cambiar Acordes}, \emph{Dominantes Secundario} y \emph{Segunda Menor S\'eptima}. Estas mutaciones est\'an a su vez agrupadas en 2 grandes tipos, as\'\i  pues las 3 primeras pertenecen al \emph{Tipo A}, y las 2 \'ultimas al \emph{Tipo B}. El usuario puede elegir entre realizar un n\'umero de mutaciones independientemente del tipo, (opci\'on \emph{Mutaciones Totales}), o bien especificar cuantas mutaciones de cada tipo prefiere, mediante las barras de desplazamiento que se muestran en la figura \ref{InterfazBloqueMutaProg} de la p\'agina \pageref{InterfazBloqueMutaProg}.
+\item Antes de crear una progresi\'on tenemos que especificar el n\'umero de mutaciones que queremos, para ello vamos al cuadro \emph{Mutar Progresi\'on}. Existen 5 tipos distintos de mutaciones, \emph{Juntar Acordes}, \emph{Separar Acordes}, \emph{Cambiar Acordes}, \emph{Dominantes Secundario} y \emph{Segunda Menor S\'eptima}. Estas mutaciones est\'an a su vez agrupadas en 2 grandes tipos, as\'\i ~pues las 3 primeras pertenecen al \emph{Tipo A}, y las 2 \'ultimas al \emph{Tipo B}. El usuario puede elegir entre realizar un n\'umero de mutaciones independientemente del tipo, (opci\'on \emph{Mutaciones Totales}), o bien especificar cuantas mutaciones de cada tipo prefiere, mediante las barras de desplazamiento que se muestran en la figura \ref{InterfazBloqueMutaProg} de la p\'agina \pageref{InterfazBloqueMutaProg}.
 
 \begin{figure}
 \centering
@@ -185,12 +185,12 @@ Un sub-bloque de acompa\~namiento tiene que tener asignado una progresi\'on para
 \end{figure}
 
 \begin {itemize}
-\item [Opciones de Creaci\'on:] nos permite elegir entre las distintas formas de crear una progresi\'on. las analizaremos mas adelante en profundidad.
-\item [Cargar Progresi\'on:] si preferimos usar una progresi\'on creada anteriormente, tendremos que pulsar este bot\'on, y especificar cual es la progresi\'on que queremos usar.
-\item [Crear Progresi\'on:] tras escoger la opci\'on de creaci\'on, si pulsamos este bot\'on crearemos una nueva progresi\'on con el nombre que especifiquemos.
-\item [Progresion:] En un grid aparecerá la progresi\'on con la que estemos trabajando actualmente, con su nombre debajo. Hay que tener en cuenta que el acorde que tenemos seleccionado ser\'a el acorde en el que realizaremos la mutaci\'on en caso de escoger la opci\'on \emph{Mutar acorde de una progresi\'on}.
-\item [Editar Progresi\'on:] si pulsamos este bot\'on abriremos una nueva ventana para editar la progresi\'on con la que estamos trabajando. La ventana que aparece se muestra en la figura \ref{InterfazEditaProg} de la p\'agina \pageref{InterfazEditaProg}. Nos permite crear nuevos acordes y sustituir los existentes, o a\~nadirlos delante o detras de los mismos. 
-\item [Opciones de Armonizaci\'on:] Al igual que en el caso anterior, este bot\'on crear\'a una nueva ventana que nos permitir\'a elegir entre distintas opciones de armonizaci\'on, tal y como se muestra en la figura \ref{InterfazEditaArmon} de la p\'agina \pageref{InterfazEditaArmon}.
+\item \emph{Opciones de Creaci\'on:} nos permite elegir entre las distintas formas de crear una progresi\'on. las analizaremos mas adelante en profundidad.
+\item \emph{Cargar Progresi\'on:} si preferimos usar una progresi\'on creada anteriormente, tendremos que pulsar este bot\'on, y especificar cual es la progresi\'on que queremos usar.
+\item \emph{Crear Progresi\'on:} tras escoger la opci\'on de creaci\'on, si pulsamos este bot\'on crearemos una nueva progresi\'on con el nombre que especifiquemos.
+\item \emph{Progresi\'on:} En un grid aparecer\'a la progresi\'on con la que estemos trabajando actualmente, con su nombre debajo. Hay que tener en cuenta que el acorde que tenemos seleccionado ser\'a el acorde en el que realizaremos la mutaci\'on en caso de escoger la opci\'on \emph{Mutar acorde de una progresi\'on}.
+\item \emph{Editar Progresi\'on:} si pulsamos este bot\'on abriremos una nueva ventana para editar la progresi\'on con la que estamos trabajando. La ventana que aparece se muestra en la figura \ref{InterfazEditaProg} de la p\'agina \pageref{InterfazEditaProg}. Nos permite crear nuevos acordes y sustituir los existentes, o a\~nadirlos delante o detras de los mismos. 
+\item \emph{Opciones de Armonizaci\'on:} Al igual que en el caso anterior, este bot\'on crear\'a una nueva ventana que nos permitir\'a elegir entre distintas opciones de armonizaci\'on, tal y como se muestra en la figura \ref{InterfazEditaArmon} de la p\'agina \pageref{InterfazEditaArmon}.
 \end {itemize} 
 
 \begin{figure}
@@ -209,11 +209,11 @@ Un sub-bloque de acompa\~namiento tiene que tener asignado una progresi\'on para
 
 Con respecto a las opciones de creaci\'on de progresi\'on, podemos distinguir las siguientes:
 \begin {itemize}
-\item [Crear Progresi\'on:] crea una nueva progresi\'on con los par\'ametros de mutaci\'on anteriormente especificados
-\item [Mutar Progresi\'on Existente:] genera una nueva progresi\'on a partir de una progresi'on ya dada, aplicando las mutaciones especificadas anteriormente.
-\item [Mutar Acorde de una Progresi\'on:] muta el acorde seleccionado en la progresi\'on aplicando las mutaciones especificadas.
-\item [Mutar Progresi\'on M\'ultiple:] permite crear una progresi\'on tomando la semilla de una progresi\'on ya existente
-\item [Armonizar Melod\'\i a:] Permite coger una pista de melod\'\i a para crear una progresi\'on con ella.
+\item \emph{rear Progresi\'on:} crea una nueva progresi\'on con los par\'ametros de mutaci\'on anteriormente especificados
+\item \emph{Mutar Progresi\'on Existente:} genera una nueva progresi\'on a partir de una progresi'on ya dada, aplicando las mutaciones especificadas anteriormente.
+\item \emph{Mutar Acorde de una Progresi\'on:} muta el acorde seleccionado en la progresi\'on aplicando las mutaciones especificadas.
+\item \emph{Mutar Progresi\'on M\'ultiple:} permite crear una progresi\'on tomando la semilla de una progresi\'on ya existente
+\item \emph{Armonizar Melod\'\i a:} Permite coger una pista de melod\'\i a para crear una progresi\'on con ella.
 \end {itemize}
 
 No debemos olvidar que una vez hayamos terminado de especificar todas las opciones necesarias, tenemos que ir a las opciones generales y generar las notas correspondientes al sub-bloque actual (para ello pulsa el bot\'on \emph{Generar Notas}). Un sub-bloque que no est\'a silenciado se dibuja de color \emph{azul}, en vez del color \emph{rojo} con el que aparece inicialmente.
@@ -225,7 +225,7 @@ No debemos olvidar que una vez hayamos terminado de especificar todas las opcion
 Una melod\'\i a precisa de una pista de acompa\~namiento para poder componer su fragmento. Es necesario que al menos hayas creado la progresi\'on de la pista de acompa\~namiento que va a tomar como referencia la melod\'\i a para poder componer su fragmento. Los distintos cuadros que nos permiten alterar los par\'ametros de creaci\'on de una melod\'\i a son los siguientes:
 
 \begin {enumerate}
-\item los par\'ametros que se hallan en el cuadro \emph{Melod\'\i a} (mostrado en la figura \ref{EditaBloqueMelodica} de la p\'agina \pageref{EditaBloqueMelodica}) van a determinar la melod\'\i a que se va a generar. Los par\'ametros que aqu\'\i  se encuentran son:
+\item los par\'ametros que se hallan en el cuadro \emph{Melod\'\i a} (mostrado en la figura \ref{EditaBloqueMelodica} de la p\'agina \pageref{EditaBloqueMelodica}) van a determinar la melod\'\i a que se va a generar. Los par\'ametros que aqu\'\i ~se encuentran son:
 
 \begin{figure}
 \centering
@@ -235,12 +235,12 @@ Una melod\'\i a precisa de una pista de acompa\~namiento para poder componer su 
 \end{figure}
 
 \begin {itemize}
-\item [Elige como crear la melod\'\i a:] que tiene tres opciones, \emph{Copiar Melod\'\i a} de otra sub-bloque de melod\'\i a, creando una curva mel\'odica o delegando en haskell para que cree una curva mel\'odica.
-\item [Pista de Acompa\~namiento:] en esta lista tenemos todas las pistas de acompa\~namiento existentes, tenemos que seleccionar una.
-\item [Patr\'on R\'\i tmico:] una lista con los patrones existentes, para tomar como base para crear la melod\'\i a.
-\item [Bot\'on Crea Curva:] que dependiendo de la opci\'on marcada en \emph{Elige como crear la melod\'\i a} usar\'a los par\'ametros establecidos a su derecha para llamar a haskell y crear una nueva curva, o bien arrancar\'a una nueva ventana como la mostrada en la figura \ref{EditaCurvaMelodica} de la p\'agina \pageref{EditaCurvaMelodica} para que el usuario pueda crear o editar la suya propia.
-\item [Bot\'on Cargar Curva:] si tenemos intenci\'on de usar alguna curva ya creada anteriormente. Hay que tener en mente que las curvas se crean con nombres autom\'aticos, con 2 n\'umeros que corresponden a la pista y al bloque.
-\item [Bot\'on Mutar Curva:] para mutar la curva existente, usando los par\'ametros que hay a la izquierda de este bot\'on.
+\item \emph{Elige como crear la melod\'\i a:} que tiene tres opciones, \emph{Copiar Melod\'\i a} de otro sub-bloque de melod\'\i a, creando una curva mel\'odica o delegando en haskell para que cree una curva mel\'odica.
+\item \emph{Pista de Acompa\~namiento:} en esta lista tenemos todas las pistas de acompa\~namiento existentes, tenemos que seleccionar una.
+\item \emph{atr\'on R\'\i tmico:} una lista con los patrones existentes, para tomar como base para crear la melod\'\i a.
+\item \emph{Bot\'on Crea Curva:} que dependiendo de la opci\'on marcada en \emph{Elige como crear la melod\'\i a} usar\'a los par\'ametros establecidos a su derecha para llamar a haskell y crear una nueva curva, o bien arrancar\'a una nueva ventana como la mostrada en la figura \ref{EditaCurvaMelodica} de la p\'agina \pageref{EditaCurvaMelodica} para que el usuario pueda crear o editar la suya propia.
+\item \emph{Bot\'on Cargar Curva:} si tenemos intenci\'on de usar alguna curva ya creada anteriormente. Hay que tener en mente que las curvas se crean con nombres autom\'aticos, con 2 n\'umeros que corresponden a la pista y al bloque.
+\item \emph{Bot\'on Mutar Curva:} para mutar la curva existente, usando los par\'ametros que hay a la izquierda de este bot\'on.
 \end {itemize}
 
 \begin{figure}
@@ -273,20 +273,20 @@ El bloque de \emph{Bajo} tiene s\'olo un cuadro para cambiar par\'ametros, es el
 \end{figure}
 
 \begin {itemize}
-\item [Pista de Acompa\~namiento:] en esta lista tenemos todas las pistas de acompa\~namiento existentes, tenemos que seleccionar una.
-\item [Tipo de bajista:] una lista de 3 bajistas, cada uno compone de una manera muy distinta al otro.
-\item [Duraci\'on de la nota:] que es una fracci\'on de n\'umeros naturales
-\item [Otros Par\'ametros:] sin ser tan importante como estos, existen otros 5 par\'ametros que nos permiten configurara a nuestro gusto el bajo, son \emph{Salto M\'aximo}, \emph{velocidad de trino}, \emph{Dividir notas}, \emph{Alargar notas} y \emph{Trinos}.
+\item \emph{Pista de Acompa\~namiento:} en esta lista tenemos todas las pistas de acompa\~namiento existentes, tenemos que seleccionar una.
+\item \emph{Tipo de bajista:} una lista de 3 bajistas, cada uno compone de una manera muy distinta al otro.
+\item \emph{Duraci\'on de la nota:} que es una fracci\'on de n\'umeros naturales
+\item \emph{Otros Par\'ametros:} sin ser tan importante como estos, existen otros 5 par\'ametros que nos permiten configurara a nuestro gusto el bajo, son \emph{Salto M\'aximo}, \emph{velocidad de trino}, \emph{Dividir notas}, \emph{Alargar notas} y \emph{Trinos}.
 
 \end {itemize}
 
 \subsection{Creando la pieza final}
 
-Si ya has terminado de inicializar todos los sub-bloques correspondientes a tu proyecto, tan s\'olo queda crear el midi final. Antes de esto tienes que especificar la \emph{tonalidad} con la que quieres crear tu pieza, (viene en notaci\'on americana), est\'a en la lista que hay a la izquierda del todo, y justo debajo hay un selector para ponerle el \emph{Tempo} que quieras a tu obra. Si est\'as de acuerdo con la tonalidad y tempo que has elegido, presiona el bot\'on \emph{Exportar Midi}, y tras unos segundos tu midi estar\'a creado. Se halla en el directorio ra\'\i z del programa, con el nombre de \emph{musica-genara.mid}, pero te aconsejamos que lo reproduzcas dir\'ectamente desde el interfaz, ya que est\'a enlazado con \emph{Timidity}, un excelente programa de reproducci\'on de midis, con el que escuchar\'as tu pieza con gran calidad. Existen tambi\'en opciones de reproducci\'on en genaro, pero las vamos a especificar en otra secci\'on.
+Si ya has terminado de inicializar todos los sub-bloques correspondientes a tu proyecto, tan s\'olo queda crear el midi final. Antes de esto tienes que especificar la \emph{tonalidad} con la que quieres crear tu pieza, (viene en notaci\'on americana), est\'a en la lista que hay a la izquierda del todo, y justo debajo hay un selector para ponerle el \emph{Tempo} que quieras a tu obra. Si est\'as de acuerdo con la tonalidad y tempo que has elegido, presiona el bot\'on \emph{Exportar Midi}, y tras unos segundos tu midi estar\'a creado. Se halla en el directorio ra\'\i z del programa, con el nombre de \emph{musica-genara.mid}, pero te aconsejamos que lo reproduzcas dir\'ectamente desde el interfaz, ya que est\'a enlazado con \emph{Timidity}, un excelente programa de reproducci\'on de midis, con el que escuchar\'as tu pieza con gran calidad. Existen tambi\'en opciones de reproducci\'on en genaro, pero las vamos a especificamos en la secci\'on \ref{oprepro} de la p\'agina \pageref{oprepro}.
 
 \subsection{Opciones de reproducci\'on}
-
-El usuario puede editar las opciones de reproducci\'on de midi del programa \emph{Timidity} pulsando sobre el men\'u \emph{Opciones} y posteriormente pulsando en \emph{Reproducci\'on}. Tras esto aparecerá una nueva ventana como la mostrada en la figura \ref{OpcionesRepro} de la p\'agina \pageref{OpcionesRepro}. Esta nueva ventana te permite modificar los siguientes par\'ametros de reproducci\'on:
+\label{oprepro}
+El usuario puede editar las opciones de reproducci\'on de midi del programa \emph{Timidity} pulsando sobre el men\'u \emph{Opciones} y posteriormente pulsando en \emph{Reproducci\'on}. Tras esto aparecer\'a una nueva ventana como la mostrada en la figura \ref{OpcionesRepro} de la p\'agina \pageref{OpcionesRepro}. Esta nueva ventana te permite modificar los siguientes par\'ametros de reproducci\'on:
 
 \begin{figure}
 \centering
@@ -296,19 +296,19 @@ El usuario puede editar las opciones de reproducci\'on de midi del programa \emp
 \end{figure}
 
 \begin {itemize}
-\item [Amplificaci\'on de volumen:] permite modificar el volumen con el que \emph{Timidity} va a reproducir/exportar la pieza.
-\item [Chorus Effects:] permite activar/desactivar los coros, eligiendo el modo. Tambi\'en se puede especificar el level mediante la barra de desplazamiento que hay bajo esta opci\'on.
-\item [Reproducir con otro instrumento:] es una lista que permite elegir un \emph{patch} para reproducir todas las pistas con este instrumento.
-\item [Frecuencia de muestreo:] te permite cambiar el n\'umero de muestras por segundos
-\item [Reverb Effects:] puedes activar y desactivar el efecto reverb, y ajustar el nivel del mismo.
-\item [Usar Delay Effects:] para activar el efecto delay, con opciones de usarlo a la izquierda, derecha o rotarlo.
-\item [Bot\'on Valores por defecto:] al pulsar este bot\'on pone todos los par\'ametros al valor por defecto.
-\item [Bot\'on Aplicar Cambios:] guarda los cambias realizados en las opciones de reproducci\'on. Si no pulsas este bot\'on se descartar\'an los cambios hechos.
+\item \emph{Amplificaci\'on de volumen:} permite modificar el volumen con el que \emph{Timidity} va a reproducir/exportar la pieza.
+\item \emph{Chorus Effects:} permite activar/desactivar los coros, eligiendo el modo. Tambi\'en se puede especificar el level mediante la barra de desplazamiento que hay bajo esta opci\'on.
+\item \emph{Reproducir con otro instrumento:} es una lista que permite elegir un \emph{patch} para reproducir todas las pistas con este instrumento.
+\item \emph{Frecuencia de muestreo:} te permite cambiar el n\'umero de muestras por segundos
+\item \emph{Reverb Effects:} puedes activar y desactivar el efecto reverb, y ajustar el nivel del mismo.
+\item \emph{Usar Delay Effects:} para activar el efecto delay, con opciones de usarlo a la izquierda, derecha o rotarlo.
+\item \emph{Bot\'on Valores por defecto:} al pulsar este bot\'on pone todos los par\'ametros al valor por defecto.
+\item \emph{Bot\'on Aplicar Cambios:} guarda los cambias realizados en las opciones de reproducci\'on. Si no pulsas este bot\'on se descartar\'an los cambios hechos.
 \end {itemize}
 
 \subsection{Exportando a wav}
 
-Exportando a wav es una opci\'on que permite una vez generado el archivo midi, crear un archivo wav. Para ello llama a \emph{timidity} con los par\'ametros de reproducci\'on especificados por el usuario en \emph{Opciones de Reproducci\'on}, y crea un fichero wav con el nombre de \emph{musica-genara.wav}, que se encuentra en el directorio ra\'\i z del programa. Para exportar el fichero midi a wav, tan s\'olo pulsa sobre el bot\'on \emph{Exportar a Wav} que se encuentra debajo del bot\'on \emph{Exportar a Midi}.
+Exportar a wav es una opci\'on que permite una vez generado el archivo midi, crear un archivo wav. Para ello llama a \emph{timidity} con los par\'ametros de reproducci\'on especificados por el usuario en \emph{Opciones de Reproducci\'on}, y crea un fichero wav con el nombre de \emph{musica-genara.wav}, que se encuentra en el directorio ra\'\i z del programa. Para exportar el fichero midi a wav, tan s\'olo pulsa sobre el bot\'on \emph{Exportar a Wav} que se encuentra debajo del bot\'on \emph{Exportar a Midi}.
 
 \subsection{Guardando y cargando proyectos}
 
@@ -316,7 +316,7 @@ GENARO permite guardar un proyecto para poder trabajar con el posteriormente. Pa
 Para cargar un archivo, dir\'\i gete al men\'u \emph{Archivo}, y escoge la opci\'on \emph{Cargar}. Escoge el archivo de proyecto que desees, y contin\'ua trabajando donde lo dejastes.
 
 \section{El editor de pianola}
-
+\label{edipianola}
 El editor de pianola es una utilidad que acompa\~na a GENARO para la edici\'on y creaci\'on de patrones r\'\i tmicos. Un patr\'on r\'\i tmico es una estructura capaz de organizar las voces de un acorde en el tiempo. Es un componente no aleatorio.\\
 Para ejecutar el editor de pianola, has de pulsar sobre el men\'u \emph{Edici\'on} del programa principal, escoger la opci\'on \emph{Editor de pianola}, y te aparecer\'a una nueva ventana como la mostrada en la figura \ref{EditorPianola} de la p\'agina \pageref{EditorPianola}.
 
@@ -345,7 +345,7 @@ Cuando estemos en \emph{modo edici\'on}, cada vez que pulsemos sobre la rejilla 
 
 \subsection {El grid, divisiones para facilitar la edici\'on}
 
-El editor de pianola permite crear separaciones de la duraci\'on especificada por el usuario, para hacer mas c\'omoda la edici\'on. Para ello debemos desplazar la barra \emph{Ajustar al Grid} .Posee tambi\'en una opci\'on para ajustar la nota al grid, marcando la casilla que hay en \emph{Ajustar al Grid}. Con esta opci\'on marcada, cualquier nota que se a\~nada al patr\'on, se pondr\'a en la zona a la que pertenezca la divisi\'on especificada en \emph{Ajustar al Grid}.
+El editor de pianola permite crear separaciones de la duraci\'on especificada por el usuario, para hacer mas c\'omoda la edici\'on. Para ello debemos desplazar la barra \emph{Ajustar al Grid}. Posee tambi\'en una opci\'on para ajustar la nota al grid, marcando la casilla que hay en \emph{Ajustar al Grid}. Con esta opci\'on marcada, cualquier nota que se a\~nada al patr\'on, se pondr\'a en la zona a la que pertenezca la divisi\'on especificada en \emph{Ajustar al Grid}.
 
 \subsection {El men\'u edici\'on}
 
@@ -365,6 +365,6 @@ Podemos ajustar un velocity por defecto moviendo el selector que hay debajo de l
 
 \subsection {Guardando y cargando}
 
-Si queremos guardar el patr\'on, debemos pulsar sobre el men\'u \emph{Archivo}, y en la opci\'on \emph{Guardar}. El programa nos pedir\'a con que nombre queremos guardar este patr\'on. Es importanto que los patrones se guarden en el subdirectorio del programa \emph{PatronesRitmicos}, ya que ah\'\i  es donde los busca GENARO.\\
+Si queremos guardar el patr\'on, debemos pulsar sobre el men\'u \emph{Archivo}, y en la opci\'on \emph{Guardar}. El programa nos pedir\'a con que nombre queremos guardar este patr\'on. Es importanto que los patrones se guarden en el subdirectorio del programa \emph{PatronesRitmicos}, ya que ah\'\i ~es donde los busca GENARO.\\
 Para cargar un patr\'on debemos dirigirnos al men\'u \emph{Archivo}, y escoger la opci\'on \emph{Cargar}.
 

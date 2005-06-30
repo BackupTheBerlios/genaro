@@ -175,7 +175,6 @@ encajaA_Menor_P_Ciclico :: [Pitch] -> URV -> [(Pitch, Ligado, Acento)]
 encajaA_Menor_P_Ciclico lp urv = encaja (repetirCiclico lp) urv
 
 
--- NOTA: YA PARECE QUE VA BIEN. HAY QUE PROBARLA UN POCO MAS
 -- Repite infinitamente el acorde, puesto como [Pitch], aumentado la octava cada vez, de tal forma que la lista sigue
 -- ordenada en altura 
 repetirCiclico :: [Pitch] -> [Pitch]

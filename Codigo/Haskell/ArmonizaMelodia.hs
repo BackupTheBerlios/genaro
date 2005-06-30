@@ -202,7 +202,6 @@ deMelodiaANotasPrincipales1 :: DurMin -> Melodia -> [NotaPrincipal]
 deMelodiaANotasPrincipales1 durMin melodia = reverse (drop 1 (deMelodiaANotasPrincipales1Rec durMin (C,0%1) (0%1) (reverse melodia) ))
 
 
--- PROBLEMA CUANDO LA MELODIA EMPIEZA EN SILENCIO -> ya ta solucionado
 -- Dur ->  tercer parametro. duracion acumulada de todas las notas secundarias vistas desde la ultima principal. Es decir
 --  todas las notas secundarias que hay entre dos notas principales (mas bien entre la ultima principal y la actual)
 -- NotaPrincipal -> segundo parametro. ultima nota principal tratada. Eso arregla el problema de una melodia que empieza
@@ -223,7 +222,7 @@ deMelodiaANotasPrincipales3 durMin melodia = reverse (drop 1 (deMelodiaANotasPri
 
 type DurAnt = Dur -- duracion de todas las notas anteriores, es decir, duracion de la cancion anterior
 
--- NOTA: MIRAR EN ENCAJE DE PATRONES DE LOS CASOS
+
 {-
 Dada una melodia en forma de notas y silencios pone una etiqueta a cada nota indicando si hay que considerarla 
 como principal o no

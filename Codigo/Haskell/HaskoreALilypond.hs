@@ -237,18 +237,6 @@ musica = Trans 0 (
 ver en el manual de lilypond \context StaffGroup
 -}
 
-{-
-ejemplo :: IO ()
-<<<<<<< HaskoreALilypond.hs
-ejemplo = haskoreALilypond ("Cancioncilla" , "Genaro", [(musica :+: musica :+: musica :+: musica, (C, Menor), (2,4), "Piano", Sol),(musica :+: musica :+: musica :+: musica, (C, Mayor), (2,4), "Bajo", Fa)]) "./borrame.ly"
-
-ejemplo2 :: IO ()
-ejemplo2 = haskoreALilypond ("Cancioncilla" , "Genaro", [(mainVoice, (C, Mayor), (2,4), "Pianillo", Sol)]) "./borrame.ly"=======
-ejemplo = haskoreALilypond ("Cancioncilla" , "Genaro", [(musica :+: musica :+: musica :+: musica, (C, Menor), (2,4), "Piano", Sol),(musica :+: musica :+: musica :+: musica, (C, Mayor), (2,4), "Bajo", Fa)]) "./borrame.ly"
->>>>>>> 1.3
--}
-
-
 
 arreglaAlteraciones :: Armadura -> Music -> Music
 arreglaAlteraciones armadura

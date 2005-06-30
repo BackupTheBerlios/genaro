@@ -155,23 +155,7 @@ distancia :: [PitchClass] -> [PitchClass] -> Int
 distancia lp1 lp2 = foldr1 (+) [abs ( ((map pitchClass lp1) !! i) - ((map pitchClass lp2) !! i) ) | i <- [0..(longMen - 1 )] ]
 	where longMen = min (length lp1) (length lp2)
 
-
--- NOTA: SI NUNCA HAY COINCIDENCIAS USAR LA INVERSION CON MENOS DISTANCIA
--- CREO QUE LA NOTA YA ESTA SUBSANADA
-{-
-masCoincidente :: [PitchClass] -> [PitchClass] -> [PitchClass]
-masCoincidente referencia aInvertir 
-	| coincidenciasMayor > 0	= elegido
-	| coincidenciasMayor == 0	= elegido2
-	where	listaInv = [inversion i aInvertir | i <- [0..(length aInvertir - 1 )]] ;
-		coincidenciasMayor = maximum (map (coincidencias referencia) listaInv) ;
-		listaFiltrada = filter ((coincidenciasMayor==).(coincidencias referencia)) listaInv ;
-		elegido = listaFiltrada !! 0 ;    --TODO: HACER UN RANDOM CON EL NUMERO DE ELEMENTOS
-		distanciaMayor = maximum (map (distancia referencia) listaInv) ;
-		listaFiltrada2 = filter ((distanciaMayor==).(distancia referencia)) listaInv ;
-		elegido2 = listaFiltrada2 !! 0 ;    --TODO: HACER UN RANDOM CON EL NUMERO DE ELEMENTOS
--}
-				
+			
 masCoincidente :: RandomGen a => a -> [PitchClass] -> [PitchClass] -> ( [PitchClass], a )
 masCoincidente gen referencia aInvertir = (elegido, sigGen)
 	where	listaPerm = perms aInvertir ;
@@ -201,8 +185,7 @@ traduceProgresionSistemaContinuo gen octaveIni numNotasTotal progresion
 arreglaTodos :: OctaveIni -> [[PitchClass]] -> [[Pitch]]
 arreglaTodos octaveIni (pc : resto) = cabezaTratada : arreglaTodosRec cabeza resto
 	where 	cabeza = arreglaOctavasAsc octaveIni pc;
-			cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
-												-- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
+			cabezaTratada = eliminaOctavasErroneas cabeza
 
 {-
 Elimina las octavas erroneas que hayan podido aparecer en la traduccion continua
@@ -225,8 +208,7 @@ arreglaTodosRec :: [Pitch] -> [[PitchClass]] -> [[Pitch]]
 arreglaTodosRec _ [] = []
 arreglaTodosRec ant (pc : resto) = cabezaTratada : arreglaTodosRec cabeza resto
 	where 	cabeza = arreglaUno ant pc;
-		      cabezaTratada = eliminaOctavasErroneas cabeza		-- CUIDADO : ESTO ES PARA ARREGLAR EL PROBLEMA DE LAS OCTAVAS NEGATIVAS
-									            -- DE MOMENTO ESTA HECHO MUY SIMPLE Y CHAPUCERO
+		      cabezaTratada = eliminaOctavasErroneas cabeza	
 
 
 -- Pone la octava en [PitchClass] de tal forma que las notas coincidentes tengan la misma octava
@@ -261,7 +243,7 @@ map2 f la lb = map (uncurry f) (zip la lb)
 -- sea la maxima (solo en la misma posicion). El primero le elige al azar y el resto en funcion de ellos
 organizar :: RandomGen a => a -> [[PitchClass]] -> [[PitchClass]]
 organizar gen (x:xs) = elegido : organizarRec sigGen elegido xs
-	where 	lista = [inversion i x | i <- [0..(length x - 1 )]];      --TODO: PONER AQUI UN RANDOM
+	where 	lista = [inversion i x | i <- [0..(length x - 1 )]]; 
 		(elegido, sigGen) = elementoAleatorio gen lista
 		
 

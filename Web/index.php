@@ -1,6 +1,7 @@
 <html>
 <head>
 	<title>P&aacute;gina de Genaro</title>
+
 </head>
 <body text="red" bgcolor="#00FFEE" link=green vlink=black>
 	<H1 align="center">P&aacute;gina Genara</H1>

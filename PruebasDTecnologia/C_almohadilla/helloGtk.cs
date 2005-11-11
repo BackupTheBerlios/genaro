@@ -30,13 +30,44 @@
 	        // window" widget in the window frame.
                 static void delete_event (object obj, DeleteEventArgs args)
                 {
-                            Application.Quit ();
+			Console.WriteLine("\n\nCerrando la aplicacion ........................................\n");
+			Application.Quit ();
+			args.RetVal = true;
                 }
  
                 // runs when the button is clicked.
                 static void hello (object obj, EventArgs args)
                 {
+			//obj hace referencia al objeto que disparo el evento, en este caso el 
+			//boton, pq este manejadro de eventos esta pegado a el. No confundirse
+			//y pensar que la ventana dispara el evento, esto ((Window) obj).Title = "Ventana pulsada";
+			//daria un error de casting en tiempo de ejecucion
+			String msjIni = "Hello World";
+			String msjPulsado1 = "Me has pulsado malvado!!!";
+			String msjPulsado2 = "Me has vuelto a pulsar!!!";
+			String etqBoton = ((Button) obj).Label;
+
                         Console.WriteLine("Hello World");
-                        Application.Quit ();
+			
+			if (String.Compare(etqBoton, msjIni) == 0)
+			{
+				//nunca pulsado antes
+				((Button) obj).Label = msjPulsado1;
+			 }
+			else
+			{	
+				// al menos una vez pulsado
+				if (String.Compare(etqBoton, msjPulsado1) == 0)
+				{
+					//pulsado un numero impar de veces
+					((Button) obj).Label = msjPulsado2;
+			 	}
+				else
+				{
+					//pulsado un numero par de veces
+					((Button) obj).Label = msjPulsado1;
+				}
+			}
+			//((Button) obj).Label = "lola";
                 }
         }

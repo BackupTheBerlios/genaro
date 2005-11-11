@@ -1,0 +1,4 @@
+-Solo con gtk: 
+	mcs -pkg:gtk-sharp-2.0 helloword.cs
+-Con gtk y glade:
+	mcs -pkg:glade-sharp -resource:gui.glade glade.cs

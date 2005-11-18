@@ -1,0 +1,6 @@
+TODO POR CONSOLA Y PROBADO EN LINUX:
+-Para subir archivos:
+scp fichero_local bc24us@shell.berlios.de:/home/groups/genaro/htdocs
+-Para navegar por los archivos:
+> ssh -l bc24us shell.berlios.de 
+asi te metes dentro de su maquina. Te mueves a /home/groups/genaro/htdocs con cd como toda la vida y se ve lo que hay. Ese es el directorio donde van todas las cosas de la web. Se puede subir un zip o tar y luego descomprimirlo

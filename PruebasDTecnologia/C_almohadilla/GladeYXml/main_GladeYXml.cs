@@ -12,6 +12,7 @@ namespace pruebas_Genaro
 				// Direccion del fichero GUI
 			private const String dirGUI = "gladeyxml.glade";
 			private const String widgetPpal = "ventanaPpal";
+			private const String dirFicheroRc = "estilo.rc";
 			
 			// widgets de Glade con comportamiento
 		   /* [Glade.Widget]
@@ -23,6 +24,12 @@ namespace pruebas_Genaro
 	*/
 	       [Glade.Widget]
 	       Window ventanaPpal;
+	       //ventanaPpal.Name = "ventanaPpal";    //nombre de la ventana para el fichero rc
+	       //Gtk.Window window = new Gtk.Window("Ventana Principal");
+ 		   //window.Name = "main window";
+ 		   
+ 		   [Glade.Widget]
+ 		   TextView textview1;
 	       
 	                    
 	    public void OnPressButtonEvent( object o, EventArgs e)
@@ -43,12 +50,19 @@ namespace pruebas_Genaro
 		public GladeApp (string[] args) 
 	    {
 	    	Application.Init();
-	 
+	  	
 	    	// carga el fichero de GUI y activa Glade
 	        //Glade.XML gxml = new Glade.XML (null, "gui.glade", "window1", null);
 	        Glade.XML gxml = new Glade.XML (null, dirGUI, widgetPpal, null);
 	        gxml.Autoconnect (this);
+
+	        //carga el fichero de estilo
+	    	Gtk.Rc.Parse(dirFicheroRc);
 	        
+	    	//nombra los Widgets para el estilo
+	        ventanaPpal.Name = "ventanaPpal"; 
+	        textview1.Name = "etiquetaArriba";
+	    	      
 	        // enlaza los widgets con sus eventos
 	       // button1.Clicked += OnPressButtonEvent;
 			ventanaPpal.DeleteEvent += OnDeleteEvent;

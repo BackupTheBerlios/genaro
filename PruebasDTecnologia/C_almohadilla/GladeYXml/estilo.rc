@@ -1,0 +1,13 @@
+style "ventana"
+{
+   bg_pixmap[NORMAL] = "mano_peque.JPG"
+ }
+ 
+style "etiquetaTransparente"
+{
+  bg[NORMAL] = { 1.0, 1.0, 1.0 }
+  fg[NORMAL] = { 1.0, 1.0, 1.0 }
+ } 
+ 
+widget "ventanaPpal" style "ventana"
+widget "etiquetaArriba" style "etiquetaTransparente"

@@ -9,5 +9,15 @@ style "etiquetaTransparente"
   fg[NORMAL] = { 1.0, 1.0, 1.0 }
  } 
  
+style "etiquetaRoja"
+{
+  bg[NORMAL] = { 1.0, 0, 0 }
+  fg[NORMAL] = { 1.0, 0, 0 }
+  bg[ACTIVE] = { 1.0, 0, 0 }
+  fg[ACTIVE] = { 1.0, 0, 0 }
+  font = "-adobe-helvetica-medium-r-normal--*-80-*-*-*-*-*-*"
+} 
+ 
 widget "ventanaPpal" style "ventana"
 widget "etiquetaArriba" style "etiquetaTransparente"
+widget_class "*GtkLabel" style "etiquetaRoja"

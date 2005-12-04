@@ -1,0 +1,8 @@
+<!ELEMENT conversacion (para,de,mensajes)>
+	<!ELEMENT para (#PCDATA)>
+	<!ELEMENT de (#PCDATA)>
+	<!ELEMENT mensajes (mensaje*)>
+		<!ELEMENT mensaje (titulo,contenido)>
+			<!ATTLIST mensaje numero ID #REQUIRED>
+			<!ELEMENT titulo (#PCDATA)>
+			<!ELEMENT contenido (#PCDATA)>

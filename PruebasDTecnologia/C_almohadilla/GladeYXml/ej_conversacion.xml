@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!DOCTYPE conversacion SYSTEM "conversacion.dtd">
+<conversacion>
+	<para>Paco</para>
+	<de>Loli</de>
+	<mensajes>
+		<mensaje numero="msj1">
+			<titulo>Compra el pan</titulo>
+			<contenido>Pues eso Paquito, que te compres el pan</contenido>
+		</mensaje>
+                <mensaje numero="msj2">
+			<titulo>Vengo tarde a cenar</titulo>
+			<contenido>Pues eso Paquito, que me esperes porfi :p</contenido>
+		</mensaje>
+	</mensajes>
+</conversacion>

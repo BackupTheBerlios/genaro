@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <!DOCTYPE conversacion SYSTEM "conversacion.dtd">
-<conversacion>
+<conversacion xmlns="http://genaro.berlios.de/">
 	<para>Paco</para>
 	<de>Loli</de>
 	<mensajes>

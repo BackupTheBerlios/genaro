@@ -1,16 +1,16 @@
 <?xml version="1.0"?>
 <!DOCTYPE conversacion SYSTEM "conversacion.dtd">
-<conversacion xmlns="http://genaro.berlios.de/">
-	<para>Paco</para>
-	<de>Loli</de>
-	<mensajes>
-		<mensaje numero="msj1">
-			<titulo>Compra el pan</titulo>
-			<contenido>Pues eso Paquito, que te compres el pan</contenido>
-		</mensaje>
-                <mensaje numero="msj2">
-			<titulo>Vengo tarde a cenar</titulo>
-			<contenido>Pues eso Paquito, que me esperes porfi :p</contenido>
-		</mensaje>
-	</mensajes>
-</conversacion>
+<c:conversacion xmlns:c="http://genaro.berlios.de/">
+	<c:para>Paco</c:para>
+	<c:de>Loli</c:de>
+	<c:mensajes>
+		<c:mensaje numero="msj1">
+			<c:titulo>Compra el pan</c:titulo>
+			<c:contenido>Pues eso Paquito, que te compres el pan</c:contenido>
+		</c:mensaje>
+                <c:mensaje numero="msj2">
+			<c:titulo>Vengo tarde a cenar</c:titulo>
+			<c:contenido>Pues eso Paquito, que me esperes porfi :p</c:contenido>
+		</c:mensaje>
+	</c:mensajes>
+</c:conversacion>

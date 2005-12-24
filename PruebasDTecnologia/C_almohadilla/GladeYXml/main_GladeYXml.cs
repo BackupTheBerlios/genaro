@@ -28,8 +28,11 @@ namespace pruebas_Genaro
 	       //Gtk.Window window = new Gtk.Window("Ventana Principal");
  		   //window.Name = "main window";
  		   
- 		   [Glade.Widget]
- 		   TextView textview1;
+		[Glade.Widget]
+ 		TextView textview1;
+
+		[Glade.Widget]
+		Frame frame1;
 	       
 	                    
 	    public void OnPressButtonEvent( object o, EventArgs e)
@@ -62,6 +65,7 @@ namespace pruebas_Genaro
 	    	//nombra los Widgets para el estilo
 	        ventanaPpal.Name = "ventanaPpal"; 
 	        textview1.Name = "etiquetaArriba";
+		frame1.Name = "framePpal";
 	    	      
 	        // enlaza los widgets con sus eventos
 	       // button1.Clicked += OnPressButtonEvent;

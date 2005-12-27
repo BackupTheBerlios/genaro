@@ -1,10 +1,10 @@
 -- PARSERS BASADOS EN EL ARTICULO: Jeroen Fokker
--- 				 Functional Parsers
---				 in: Johan Jeuring and Erik Meijer (eds.)
---				     Advanced Functional Programming
---				     Fst. Int. School on Advanced Functional Programming Techniques
---				     Tutorial Text
---				     Springer LNCS 925, pp. 1-23, 1995
+--                  Functional Parsers
+--                 in: Johan Jeuring and Erik Meijer (eds.)
+--                     Advanced Functional Programming
+--                     Fst. Int. School on Advanced Functional Programming Techniques
+--                     Tutorial Text
+--                     Springer LNCS 925, pp. 1-23, 1995
 
 module Parsers where
 import Parser_library
@@ -52,7 +52,7 @@ pruParser parser ruta = do texto <- readFile ruta
 {-
 Dada una funcion/parser de tipo Parser Char a devuelve la función que aplica este parser, es decir,
 una funcion de tipo String -> a que devuelve el primer resultado del parseo o error si falla el
-análisis
+analisis
 -}
 aplicaParser :: (Parser Char a) -> (String -> a)
 aplicaParser parser cadena = if null resultados
@@ -60,12 +60,12 @@ aplicaParser parser cadena = if null resultados
                                 else if null (fst resul1)
                                         then snd resul1
                                         else error "el parser no reconoció la entrada completamente"
-		              where resultados = parser cadena
-                                    resul1     = head resultados
+                               where resultados = parser cadena
+                                     resul1     = head resultados
 
 {-
 Dado una funcion/parser de tipo Parser Char a devuelve y un string devuelve cierto si el parseo fue exitoso,
-es decir, si la cadena se ajusta a la estructura sintáctica especificada por el parser; y falso en otro caso
+es decir, si la cadena se ajusta a la estructura sintactica especificada por el parser; y falso en otro caso
 -}
 parseoExitoso :: (Parser Char a) -> (String -> Bool)
 parseoExitoso parser cadena = if null resultados
@@ -73,19 +73,19 @@ parseoExitoso parser cadena = if null resultados
                                  else if null (fst resul1)
                                          then True
                                          else False
-		              where resultados = parser cadena
+                              where resultados = parser cadena
                                     resul1     = head resultados
 {-
 Dado una funcion/parser de tipo Parser Char a devuelve la función que aplica este parser sobre un archivo de
 texto concreto especificado como una ruta en formato String, es decir, que devuelve el primer resultado del
-parseo o error si falla el análisis
+parseo o error si falla el analisis
 -}
 leeYParsea :: Parser Char a -> String -> IO a
 leeYParsea parser rutaOrigen = do texto <- readFile rutaOrigen
                                   return ((aplicaParser parser) texto)
 {-
 Dada un lista de pares (token, dato) esta funcion devuelve un parser tal que para cada pareja token es el lexema
-cuyo análisis devuelve dato
+cuyo analisis devuelve dato
 -}
 listaParesTokenDatoAParser :: [(String, a)] -> Parser Char a
 listaParesTokenDatoAParser lista = choice [token string <@ const dato | (string, dato) <- lista]

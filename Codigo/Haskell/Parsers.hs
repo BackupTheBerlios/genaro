@@ -57,11 +57,20 @@ analisis
 aplicaParser :: (Parser Char a) -> (String -> a)
 aplicaParser parser cadena = if null resultados
                                 then error "el parser no reconoció ningún símbolo de la entrada"
+                                else if null (resultadosOK)
+                                        then error "el parser no reconoció la entrada completamente"
+                                        else resulOK
+                               where resultados    = parser cadena
+                                     resultadosOK  = filter (null . fst) resultados
+                                     resulOK       = (snd . head) resultadosOK
+{-aplicaParser parser cadena = if null resultados
+                                then error "el parser no reconoció ningún símbolo de la entrada"
                                 else if null (fst resul1)
                                         then snd resul1
                                         else error "el parser no reconoció la entrada completamente"
                                where resultados = parser cadena
                                      resul1     = head resultados
+-}
 
 {-
 Dado una funcion/parser de tipo Parser Char a devuelve y un string devuelve cierto si el parseo fue exitoso,
@@ -69,12 +78,20 @@ es decir, si la cadena se ajusta a la estructura sintactica especificada por el 
 -}
 parseoExitoso :: (Parser Char a) -> (String -> Bool)
 parseoExitoso parser cadena = if null resultados
+                                then False
+                                else if null (resultadosOK)
+                                        then False
+                                        else True
+                               where resultados    = parser cadena
+                                     resultadosOK  = filter (null . fst) resultados
+{-parseoExitoso parser cadena = if null resultados
                                  then False
                                  else if null (fst resul1)
                                          then True
                                          else False
                               where resultados = parser cadena
                                     resul1     = head resultados
+-}
 {-
 Dado una funcion/parser de tipo Parser Char a devuelve la función que aplica este parser sobre un archivo de
 texto concreto especificado como una ruta en formato String, es decir, que devuelve el primer resultado del

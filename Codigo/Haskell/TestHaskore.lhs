@@ -81,7 +81,8 @@
 >                 return ()
 > testLinux m = do
 >                 test m
->                 system "playmidi -rf test.mid"
+>                 -- system "playmidi -rf test.mid"
+>                 system "timidity -A 50 test.mid"
 >                 return ()
 
 Alternatively, just run "test m" manually, and then invoke the midi

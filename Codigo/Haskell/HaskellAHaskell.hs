@@ -20,7 +20,7 @@ import TraduceCifrados      -- Solo para prueba
 import HaskoreAMidi      -- Solo para prueba
 
 {-
-Esta es la función que deben llamar otros modulos, dada una ruta lee el fichero en ella y realiza todo el
+Esta es la funciï¿½n que deben llamar otros modulos, dada una ruta lee el fichero en ella y realiza todo el
 analisis
 -}
 leeMusic :: String -> IO Music
@@ -226,7 +226,7 @@ laHoraDeLaVerdad =
           putStrLn (show musicaPru)
           putStrLn "Segundo Music"
           putStrLn (show musicaPru2)
-          putStrLn "¿Son iguales?"
+          putStrLn "Son iguales?"
           putStrLn (show (musicaPru==musicaPru2))
 
 
@@ -239,7 +239,7 @@ laHoraDeLaVerdad2 =
           putStrLn ( show (Rest (1%4)) )
           putStrLn "Segundo Music"
           putStrLn (show musicaPru2)
-          putStrLn "¿Son iguales?"
+          putStrLn "Son iguales?"
           putStrLn (show ((Rest (1%4))==musicaPru2))
 
 

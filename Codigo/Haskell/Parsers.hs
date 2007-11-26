@@ -27,7 +27,7 @@ parserBool = (token "True" <|> token "False") <@ f
                     f "False" = False
 {-
 Parsea un string con el formato "(a,b)" con a y b strings correspondientes a NATURALES y para obtener valores
-de tipo Ratio Int. Ver Parser_library.hs para ver el tipo Parser (aqui iría
+de tipo Ratio Int. Ver Parser_library.hs para ver el tipo Parser (aqui irï¿½a
 un link si supiera como ponerlo)
 -}
 parserParejaARatio :: Parser Char (Ratio Int)
@@ -36,7 +36,7 @@ parserParejaARatio = parenthesized( (natural <* coma) <*> natural ) <@ f
 
 {-
 Parsea un string con el formato "a%b" con a y b strings correspondientes a ENTEROS y para obtener valores
-de tipo Ratio Int. Ver Parser_library.hs para ver el tipo Parser (aqui iría
+de tipo Ratio Int. Ver Parser_library.hs para ver el tipo Parser (aqui irï¿½a
 un link si supiera como ponerlo)
 -}
 parserRatioARatio :: Parser Char (Ratio Int)
@@ -50,24 +50,24 @@ pruParser :: Show a => (Parser Char a) -> String -> IO ()
 pruParser parser ruta = do texto <- readFile ruta
                            print (parser texto)
 {-
-Dada una funcion/parser de tipo Parser Char a devuelve la función que aplica este parser, es decir,
+Dada una funcion/parser de tipo Parser Char a devuelve la funciï¿½n que aplica este parser, es decir,
 una funcion de tipo String -> a que devuelve el primer resultado del parseo o error si falla el
 analisis
 -}
 aplicaParser :: (Parser Char a) -> (String -> a)
 aplicaParser parser cadena = if null resultados
-                                then error "el parser no reconoció ningún símbolo de la entrada"
+                                then error "el parser no reconocio ningun simbolo de la entrada"
                                 else if null (resultadosOK)
-                                        then error "el parser no reconoció la entrada completamente"
+                                        then error "el parser no reconocio la entrada completamente"
                                         else resulOK
                                where resultados    = parser cadena
                                      resultadosOK  = filter (null . fst) resultados
                                      resulOK       = (snd . head) resultadosOK
 {-aplicaParser parser cadena = if null resultados
-                                then error "el parser no reconoció ningún símbolo de la entrada"
+                                then error "el parser no reconociï¿½ ningï¿½n sï¿½mbolo de la entrada"
                                 else if null (fst resul1)
                                         then snd resul1
-                                        else error "el parser no reconoció la entrada completamente"
+                                        else error "el parser no reconociï¿½ la entrada completamente"
                                where resultados = parser cadena
                                      resul1     = head resultados
 -}
@@ -93,7 +93,7 @@ parseoExitoso parser cadena = if null resultados
                                     resul1     = head resultados
 -}
 {-
-Dado una funcion/parser de tipo Parser Char a devuelve la función que aplica este parser sobre un archivo de
+Dado una funcion/parser de tipo Parser Char a devuelve la funciï¿½n que aplica este parser sobre un archivo de
 texto concreto especificado como una ruta en formato String, es decir, que devuelve el primer resultado del
 parseo o error si falla el analisis
 -}

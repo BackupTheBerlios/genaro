@@ -5,7 +5,7 @@
 
 \begin{verbatim}
 
-Hay q revisar pq importa módulos de más
+Hay q revisar pq importa mï¿½dulos de mï¿½s
 
 > module Main where
 > import System

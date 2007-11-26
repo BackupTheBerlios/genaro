@@ -16,4 +16,4 @@ writeBinaryFile f txt = bracket (openBinaryFile f WriteMode) hClose
 readBinaryFile :: FilePath -> IO String
 readBinaryFile name   = openBinaryFile name ReadMode >>= hGetContents
 
- - En el libro de Hudak indica que "testLinux m", con m :: Music, se pasa m a midi y se reproduce. En linux para ello debemos definir playmidi. Eso es tan facil como instalar timidity, hacer un archivo de texto que solo contenga "timidity -A 20 $1", cambiar los permisos a ejecutable y ponerlo en el PATH o en el directorio donde estes, en este caso Codigo/Haskell, q es lo q he hecho yo
+ - En el libro de Hudak indica que "testLinux m", con m :: Music, se pasa m a midi y se reproduce. Esta funcion esta definida en TestHaskore.lhs y llama a un programa llamado playmidi que es una gena. Por ello he modificado TestHaskore.lhs sustituyendo 'system "playmidi -rf test.mid"' por 'system "timidity -A 50 test.mid"' donde corresponde y fiesta.

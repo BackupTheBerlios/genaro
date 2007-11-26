@@ -31,3 +31,4 @@ The first phrase of the flute part of "Stars and Stripes Forever."
 >
 > ssf = Instr "flute" (Tempo 2 (ssfMelody))
 >
+> -- testLinux ssfMelody

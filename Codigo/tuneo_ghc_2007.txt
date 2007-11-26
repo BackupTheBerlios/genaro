@@ -1,0 +1,19 @@
+La libreria Haskore se va haciendo vieja y he tenido q tunear un poco las cosas para q siga llendo:
+
+ - EL viejo cambio de fromInt with fromIntegral ya lo hicimos en su momento
+ - Aniadir el fichero IOExtensions.hs con (copiado de internet):
+
+module IOExtensions where
+
+import System.IO
+-- import Control.Concurrent (bracket)
+import Control.Exception(bracket)
+
+writeBinaryFile :: FilePath -> String -> IO ()
+writeBinaryFile f txt = bracket (openBinaryFile f WriteMode) hClose
+                                (\hdl -> hPutStr hdl txt)
+
+readBinaryFile :: FilePath -> IO String
+readBinaryFile name   = openBinaryFile name ReadMode >>= hGetContents
+
+ - En el libro de Hudak indica que "testLinux m", con m :: Music, se pasa m a midi y se reproduce. En linux para ello debemos definir playmidi. Eso es tan facil como instalar timidity, hacer un archivo de texto que solo contenga "timidity -A 20 $1", cambiar los permisos a ejecutable y ponerlo en el PATH o en el directorio donde estes, en este caso Codigo/Haskell, q es lo q he hecho yo

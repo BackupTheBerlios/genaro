@@ -12,6 +12,7 @@
 > import ChildSong6
 > import SelfSim
 > import Ssf
+> import Ratio
 
 Simple examples of Haskore in action.  Note that this module also
 imports modules ChildSong6, SelfSim, and Ssf.

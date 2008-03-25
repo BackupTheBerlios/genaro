@@ -1,6 +1,9 @@
 using System;
 using Gtk;
 using Glade;
+
+// mcs -pkg:glade-sharp-2.0 -resource:gui.glade ejGlade.cs
+
 public class GladeApp
 {
         public static void Main (string[] args)

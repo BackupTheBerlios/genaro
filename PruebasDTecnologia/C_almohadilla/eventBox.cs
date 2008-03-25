@@ -2,6 +2,7 @@ using Gtk;
 using Gdk;
 using System;
 
+// mcs -pkg:gtk-sharp-2.0 eventBox.cs
 
 public class eventbox
 {

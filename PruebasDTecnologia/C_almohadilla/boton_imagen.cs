@@ -3,6 +3,8 @@
 // Author: Johannes Roith <johannes@jroith.de>
 //
 // (c) 2002 Johannes Roith
+
+//  mcs -pkg:gtk-sharp-2.0 boton_imagen.cs
  
 namespace GtkSharpTutorial {
  
